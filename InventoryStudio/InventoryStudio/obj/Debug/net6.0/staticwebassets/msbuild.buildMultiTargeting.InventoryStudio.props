@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\InventoryStudio.props" />
+</Project>
