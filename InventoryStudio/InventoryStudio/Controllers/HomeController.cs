@@ -15,6 +15,8 @@ namespace InventoryStudio.Controllers
 
         public IActionResult Index()
         {
+            ISLibrary.RoutingProfile objRoutingProfile = new ISLibrary.RoutingProfile("1");
+
             return View();
         }
 
