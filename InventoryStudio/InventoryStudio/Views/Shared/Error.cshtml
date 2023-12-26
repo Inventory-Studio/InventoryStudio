@@ -4,9 +4,16 @@
 }
 
 <h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <h2 class="text-danger">@ViewBag.ErrorMessage</h2>
+}
+else
+{
+    <h2 class="text-danger">An error occurred while processing your request.</h2>
+}
 
-@if (Model.ShowRequestId)
+@if (Model?.ShowRequestId == true)
 {
     <p>
         <strong>Request ID:</strong> <code>@Model.RequestId</code>
