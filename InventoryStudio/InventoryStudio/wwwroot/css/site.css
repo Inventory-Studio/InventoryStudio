@@ -1,5 +1,5 @@
 html {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 @media (min-width: 768px) {
@@ -8,11 +8,17 @@ html {
   }
 }
 
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
 html {
   position: relative;
   min-height: 100%;
 }
 
 body {
+  position: relative;
+  min-height: 100%;
   margin-bottom: 60px;
 }
