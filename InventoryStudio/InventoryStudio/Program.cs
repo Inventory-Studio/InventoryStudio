@@ -1,5 +1,8 @@
+using InventoryStudio.Authorization;
 using InventoryStudio.Data;
 using InventoryStudio.Models;
+using InventoryStudio.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,9 +23,26 @@ builder.Services.AddAuthentication().AddGoogle(googleOptions =>
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
+// Add PermissionService
+//delete this , when deploy to prod, this server will update permissions to match system
+builder.Services.AddSingleton<PermissionService>();
+
+//Dynamic Register Policy to make sure the poliy have define
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorizationPolicyProvider>();
+
+// PermissionHandler
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+//delete this , when deploy to prod, this server will update permissions to match system
+var permissionService = app.Services.GetRequiredService<PermissionService>();
+permissionService.InitializePermissions();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

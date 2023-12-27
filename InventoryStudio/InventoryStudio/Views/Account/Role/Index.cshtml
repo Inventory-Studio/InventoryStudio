@@ -17,9 +17,10 @@
                     <td>@role.Name</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@role.Id">Edit</a> |
-                        <a asp-action="Delete" asp-route-id="@role.Id">Delete</a> |
                         <a asp-action="AssignPermissions" asp-route-id="@role.Id">Assign Permissions</a> |
-                        <a asp-action="AssignRoleToUser" asp-route-roleId="@role.Id">Assign Users</a>
+                        <form asp-action="Delete" asp-route-id="@role.Id" method="post" class="inline-form" onsubmit="return confirmDelete('@role.Name');">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form> 
                     </td>
                 </tr>
             }
@@ -29,3 +30,11 @@
     <a asp-action="Create">Create New Role</a>
 
 </div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(roleName) {
+            return confirm(`Are you sure you want to delete the role '${roleName}'?`);
+        }
+    </script>
+}

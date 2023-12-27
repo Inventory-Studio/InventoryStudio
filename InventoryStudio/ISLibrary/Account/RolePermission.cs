@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -14,8 +15,6 @@ namespace ISLibrary
     public class RolePermission : BaseClass
     {
         public string PermissionId { get; set; } = string.Empty;
-
-
         public string RoleId { get; set; } = string.Empty;
 
 
@@ -23,9 +22,10 @@ namespace ISLibrary
         {
         }
 
-        public RolePermission(string Id)
+        public RolePermission(string PermissionId, string RoleId)
         {
-            this.PermissionId = Id;
+            this.PermissionId = PermissionId;
+            this.RoleId = RoleId;
             Load();
         }
 
@@ -45,7 +45,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT * " +
                          "FROM AspNetRolePermission (NOLOCK) " +
-                         "WHERE PermissionId=" + Database.HandleQuote(PermissionId.ToString());
+                         "WHERE PermissionId=" + Database.HandleQuote(PermissionId.ToString())+
+                         " AND RoleId = " + Database.HandleQuote(RoleId.ToString());
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -85,6 +86,115 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+        }
+
+
+        public override bool Create()
+        {
+            SqlConnection objConn = null;
+            SqlTransaction objTran = null;
+
+            try
+            {
+                objConn = new SqlConnection(Database.DefaultConnectionString);
+                objConn.Open();
+                objTran = objConn.BeginTransaction();
+                Create(objConn, objTran);
+                objTran.Commit();
+            }
+            catch (Exception ex)
+            {
+                if (objTran != null && objTran.Connection != null) objTran.Rollback();
+                throw ex;
+            }
+            finally
+            {
+                if (objTran != null) objTran.Dispose();
+                objTran = null;
+                if (objConn != null) objConn.Dispose();
+                objConn = null;
+            }
+            return true;
+        }
+
+        public override bool Create(SqlConnection objConn, SqlTransaction objTran)
+        {
+            base.Create();
+
+            Hashtable dicParam = new Hashtable();
+
+            try
+            {               
+                // Add parameters for all the columns in the Company table, except for identity and computed columns.
+                dicParam["PermissionId"] = PermissionId;
+                dicParam["RoleId"] = RoleId; 
+
+                // Execute the SQL insert and get the new identity value for CompanyID
+                 Database.ExecuteSQL(Database.GetInsertSQL(dicParam, "AspNetRolePermission"), objConn, objTran).ToString();
+
+                // Load the newly created company data
+                Load(objConn, objTran);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dicParam = null;
+            }
+            return true;
+        }
+
+        public override bool Delete()
+        {
+            SqlConnection objConn = null;
+            SqlTransaction objTran = null;
+
+            try
+            {
+                objConn = new SqlConnection(Database.DefaultConnectionString);
+                objConn.Open();
+                objTran = objConn.BeginTransaction();
+                Delete(objConn, objTran);
+                objTran.Commit();
+            }
+            catch (Exception ex)
+            {
+                if (objTran != null && objTran.Connection != null) objTran.Rollback();
+                throw ex;
+            }
+            finally
+            {
+                if (objTran != null) objTran.Dispose();
+                objTran = null;
+                if (objConn != null) objConn.Dispose();
+                objConn = null;
+            }
+            return true;
+        }
+
+        public override bool Delete(SqlConnection objConn, SqlTransaction objTran)
+        {
+            base.Delete();
+
+            Hashtable dicDParam = new Hashtable();
+
+            try
+            {
+                dicDParam["PermissionId"] = PermissionId;
+                dicDParam["RoleId"] = RoleId;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "AspNetRolePermission"), objConn, objTran);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dicDParam = null;
+            }
+            return true;
         }
 
 

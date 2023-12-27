@@ -14,12 +14,12 @@ namespace InventoryStudio.Models
         [MaxLength(10)]
         public string Status { get; set; } = "Active";
 
-        //public int OrganizationId { get; set; }
-
         [MaxLength(50)]
         public string UserType { get; set; } = "Normal";
 
-        //public ICollection<UserOrganization> UserOrganizations { get; set; } = new List<UserOrganization>();
+        
+        
+
 
     }
 }

@@ -18,8 +18,6 @@ namespace ISLibrary
         public bool IsNew { get { return string.IsNullOrEmpty(PermissionId); } }
 
         public string Name { get; set; } = string.Empty;
-        public DateTime? UpdatedOn { get; set; } = null;
-        public DateTime? CreatedOn { get; set; } = null;
 
 
         public Permission()
@@ -133,8 +131,6 @@ namespace ISLibrary
 
                 // Add parameters for all the columns in the Company table, except for identity and computed columns.
                 dicParam["Name"] = Name;
-                dicParam["UpdatedOn"] = DateTime.UtcNow;
-                dicParam["CreatedOn"] = DateTime.UtcNow;
 
                 // Execute the SQL insert and get the new identity value for CompanyID
                 PermissionId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetPermission"), objConn, objTran).ToString();
@@ -197,7 +193,6 @@ namespace ISLibrary
                 if (IsNew) throw new Exception("Update cannot be performed, Id is missing");
 
                 dicParam["Name"] = Name;
-                dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicWParam["PermissionId"] = PermissionId;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetPermission"), objConn, objTran);
 

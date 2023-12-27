@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using ISLibrary;
 using System.Data;
 using static CLRFramework.Database.Filter.StringSearch;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace InventoryStudio.Controllers
 {
@@ -19,10 +21,10 @@ namespace InventoryStudio.Controllers
             _userManager = userManager;
         }
 
+
+        [Authorize(Policy = "Account-Role-List")]
         public IActionResult Index()
         {
-            
-            //var userId = _userManager.GetUserId(User);
 
             // 通过用户的 Claims 获取组织信息
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
@@ -39,16 +41,16 @@ namespace InventoryStudio.Controllers
             return View("Error");
         }
 
+        [Authorize(Policy = "Account-Role-Create")]
         public IActionResult Create()
         {
             return View("~/Views/Account/Role/Create.cshtml");
         }
 
+        [Authorize(Policy = "Account-Role-Create")]
         [HttpPost]
         public async Task<IActionResult> Create(string roleName)
-        {          
-            //var userId = _userManager.GetUserId(User);
-
+        {      
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
@@ -71,12 +73,12 @@ namespace InventoryStudio.Controllers
             }
             catch (Exception ex)
             {
-                // 处理异常
                 ModelState.AddModelError("created_error", ex.Message);
                 return View("~/Views/Account/Role/Create.cshtml");
             }
         }
 
+        [Authorize(Policy = "Account-Role-Edit")]
         public async Task<IActionResult> Edit(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
@@ -91,13 +93,14 @@ namespace InventoryStudio.Controllers
             {
                 TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
                 return RedirectToAction("Index");
-            }           
+            }   
 
             
 
             return View("~/Views/Account/Role/Edit.cshtml",role);
         }
 
+        [Authorize(Policy = "Account-Role-Edit")]
         [HttpPost]
         public async Task<IActionResult> Edit(Role FormRole)
         {
@@ -131,91 +134,108 @@ namespace InventoryStudio.Controllers
             }
         }
 
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var role = await _roleManager.FindByIdAsync(id.ToString());
+        [Authorize(Policy = "Account-Role-Delete")]
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
 
-        //    if (role == null)
-        //    {
-        //        return NotFound();
-        //    }
+            var role = new Role(id);
 
-        //    return View(role);
-        //}
+            if (role == null)
+            {
+                return NotFound();
+            }
 
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var role = await _roleManager.FindByIdAsync(id.ToString());
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
 
-        //    if (role != null)
-        //    {
-        //        var result = await _roleManager.DeleteAsync(role);
+            if (role.CompanyId != organizationClaim.Value)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
+                return RedirectToAction("Index");
+            }
 
-        //        if (result.Succeeded)
-        //        {
-        //            return RedirectToAction("Index");
-        //        }
+            role.Delete();
 
-        //        foreach (var error in result.Errors)
-        //        {
-        //            ModelState.AddModelError("", error.Description);
-        //        }
-        //    }
+            return RedirectToAction("Index");
+        }
 
-        //    return View();
-        //}
+        public async Task<IActionResult> AssignPermissions(string id)
+        {
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var role = new Role(id);
 
-        //public async Task<IActionResult> AssignPermissions(string id)
-        //{
-        //    var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-        //    var role = new Role(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
 
-        //    if (role == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (role.CompanyId != organizationClaim.Value)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
+                return RedirectToAction("Index");
+            }
 
-        //    if (role.CompanyId != organizationClaim.Value)
-        //    {
-        //        TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
-        //        return RedirectToAction("Index");
-        //    }
+            var permissions = Permission.GetPermissions();
 
-        //    var permissions = Permission.GetPermissions();
+            var model = new AssignPermissionsViewModel
+            {
+                RoleId = id,
+                RoleName = role.Name,
+                Permissions = permissions,
+                AssignPermissions = role.AssignPermissionIds
+            };
 
-        //    var model = new AssignPermissionsViewModel
-        //    {
-        //        RoleId = id,
-        //        RoleName = role.Name,
-        //        Permissions = permissions,
-        //        AssignedPermissions = role.AssignedPermissionIds
-        //    };
+            return View("~/Views/Account/Role/AssignPermissions.cshtml", model);
+        }
 
-        //    return View(model);
-        //}
+        [HttpPost]
+        public async Task<IActionResult> AssignPermissions(AssignPermissionsViewModel model)
+        {
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var role = new Role(model.RoleId);
 
-        //[HttpPost]
-        //public async Task<IActionResult> AssignPermissions(AssignPermissionsViewModel model)
-        //{
-        //    var role = await _roleManager.Roles
-        //           .Include(r => r.RolePermissions)
-        //               .ThenInclude(rp => rp.Permission)
-        //           .FirstOrDefaultAsync(r => r.Id == model.RoleId);
+            if (role == null)
+            {
+                return NotFound();
+            }
 
-        //    if (role == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (role.CompanyId != organizationClaim.Value)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
+                return RedirectToAction("Index");
+            }
 
-        //    // Update role permissions
-        //    role.RolePermissions = model.SelectedPermissionIds.Select(permissionId =>
-        //        new RolePermission { RoleId = model.RoleId, PermissionId = permissionId }).ToList();
+            // Update role permissions
+            
+            var currentPermissions = role.AssignPermissionIds ?? new List<string>();
 
-        //    await _roleManager.UpdateAsync(role);
+            var selectedPermissions = model.SelectedPermissionIds ?? new List<string>();
 
-        //    return RedirectToAction("Index");
-        //}
+            var permissionsToAdd = selectedPermissions.Except(currentPermissions).ToList();
+
+            var permissionsToRemove = currentPermissions.Except(selectedPermissions).ToList();
+
+            foreach (var permissionId in permissionsToAdd)
+            {
+                RolePermission rolePermission = new RolePermission();
+                rolePermission.PermissionId = permissionId;
+                rolePermission.RoleId = model.RoleId;
+                rolePermission.Create();
+            }
+
+           
+            foreach (var permissionId in permissionsToRemove)
+            {
+                RolePermission rolePermission = new RolePermission(permissionId, model.RoleId);
+                rolePermission.Delete();
+            }
+
+            return RedirectToAction("Index");
+        }
 
 
     }

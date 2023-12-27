@@ -25,8 +25,8 @@ namespace ISLibrary
         public DateTime? UpdatedOn { get; set; } = null;
         public DateTime? CreatedOn { get; set; } = null;
 
-        private List<int>? mPermissionIds = null;
-        public List<int>? AssignedPermissionIds
+        private List<string>? mPermissionIds = null;
+        public List<string>? AssignPermissionIds
         {
             get
             {
@@ -36,7 +36,7 @@ namespace ISLibrary
 
                     try
                     {
-                        mPermissionIds = GetAssignedPermissionIds();
+                        mPermissionIds = GetAssignPermissionIds();
                     }
                     catch (Exception ex)
                     {
@@ -381,36 +381,42 @@ namespace ISLibrary
         }
 
 
-        public static List<int> GetAssignedPermissionIds()
+        public List<string> GetAssignPermissionIds()
         {
-            List<int> objReturn = null;
+            List<string> objReturn = new List<string>(); ;
             DataSet objData = null;
             string strSQL = string.Empty;
 
-            //try
-            //{
-            //    strSQL = "SELECT s.PermissionId " +
-            //            "FROM AspNetRolePermission (NOLOCK) s " +
-            //            " where RoleId = " + Id;
+            try
+            {
+                strSQL = "SELECT s.PermissionId " +
+                        "FROM AspNetRolePermission (NOLOCK) s " +
+                        " where RoleId = " + Id;
 
-            //    objData = Database.GetDataSet(strSQL);
+                objData = Database.GetDataSet(strSQL);
 
-            //    if (objData != null && objData.Tables[0].Rows.Count > 0)
-            //    {
-            //        for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
-            //        {
-            //            objReturn.Add(objData.Tables[0].Rows[i]);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-            //finally
-            //{
-            //    objData = null;
-            //}
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        DataRow objRow = objData.Tables[0].Rows[i];
+                        DataColumnCollection objColumns = objRow.Table.Columns;
+                        if (objColumns.Contains("PermissionId"))
+                        {
+                            objReturn.Add(Convert.ToString(objRow["PermissionId"]));
+                        }
+                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
             return objReturn;
         }
 
