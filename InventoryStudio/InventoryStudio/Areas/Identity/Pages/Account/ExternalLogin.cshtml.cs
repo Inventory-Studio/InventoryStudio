@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
+using ISLibrary;
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
 {
@@ -86,7 +87,7 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
             [EmailAddress]
             public string Email { get; set; }
         }
-        
+
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -117,6 +118,25 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                {
+                    Input = new InputModel
+                    {
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                    };
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        var userId = user.Id;
+                        var filter = new CompanyFilter();
+                        filter.CreatedBy = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                        filter.CreatedBy.SearchString = user.Id.ToString();
+                        var companies = Company.GetCompanies(filter);
+                        if (companies.Count == 0)
+                            return RedirectToAction("Create", "Company");
+
+                    }
+                }
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)
@@ -134,6 +154,17 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     {
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        var userId = user.Id;
+                        var filter = new CompanyFilter();
+                        filter.CreatedBy = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                        filter.CreatedBy.SearchString = user.Id.ToString();
+                        var companies = Company.GetCompanies(filter);
+                        if (companies.Count == 0)
+                            return RedirectToAction("Create", "Company");
+                    }
                 }
                 return Page();
             }
