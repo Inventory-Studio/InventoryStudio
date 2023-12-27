@@ -1,0 +1,30 @@
+﻿@model AssignUsersViewModel
+
+<h1>Assign Users to Role</h1>
+
+<h3>Role: @Model.RoleName</h3>
+
+<form asp-action="AssignUsers" method="post">
+    <input type="hidden" asp-for="RoleId" />
+
+    <div class="form-group">
+        <label>Select Users</label>
+        @foreach (var user in Model.Users)
+        {
+            var isChecked = Model.AssignedUserIds.Contains(user.Id);
+            <div class="form-check">
+                <input type="checkbox" id="user-@user.Id" name="SelectedUserIds" value="@user.Id" @(isChecked ? "checked" : "") />
+             
+                <label>@user.UserName</label>
+            </div>
+        }
+
+     
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Assign Users" class="btn btn-primary" />
+    </div>
+</form>
+
+<a asp-action="Index">Back to List</a>

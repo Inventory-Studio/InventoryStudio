@@ -51,7 +51,27 @@ namespace ISLibrary
             }
         }
 
+        private List<string>? mUserIds = null;
+        public List<string>? AssignUserIds
+        {
+            get
+            {
+                if (mUserIds == null && !string.IsNullOrEmpty(Id))
+                {
 
+                    try
+                    {
+                        mUserIds = GetAssignUserIds();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                  
+                }
+                return mUserIds;
+            }
+        }
 
         public Role()
         {
@@ -404,6 +424,44 @@ namespace ISLibrary
                         if (objColumns.Contains("PermissionId"))
                         {
                             objReturn.Add(Convert.ToString(objRow["PermissionId"]));
+                        }
+                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+         public List<string> GetAssignUserIds()
+        {
+            List<string> objReturn = new List<string>(); ;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT s.UserId " +
+                        "FROM AspNetUserRoles (NOLOCK) s " +
+                        " where RoleId = " + Id;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        DataRow objRow = objData.Tables[0].Rows[i];
+                        DataColumnCollection objColumns = objRow.Table.Columns;
+                        if (objColumns.Contains("UserId"))
+                        {
+                            objReturn.Add(Convert.ToString(objRow["UserId"]));
                         }
                         
                     }

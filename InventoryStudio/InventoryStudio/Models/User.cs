@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using InventoryStudio.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,10 +18,6 @@ namespace InventoryStudio.Models
 
         [MaxLength(50)]
         public string UserType { get; set; } = "Normal";
-
-        
-        
-
 
     }
 }

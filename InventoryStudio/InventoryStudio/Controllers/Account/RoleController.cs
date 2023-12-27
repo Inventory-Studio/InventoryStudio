@@ -163,6 +163,7 @@ namespace InventoryStudio.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Policy = "Account-Role-AssignPermissions")]
         public async Task<IActionResult> AssignPermissions(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
@@ -192,6 +193,7 @@ namespace InventoryStudio.Controllers
             return View("~/Views/Account/Role/AssignPermissions.cshtml", model);
         }
 
+        [Authorize(Policy = "Account-Role-AssignPermissions")]
         [HttpPost]
         public async Task<IActionResult> AssignPermissions(AssignPermissionsViewModel model)
         {
@@ -236,6 +238,78 @@ namespace InventoryStudio.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [Authorize(Policy = "Account-Role-AssignUsers")]
+        public async Task<IActionResult> AssignUsers(string id)
+        {
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var role = new Role(id);
+
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            if (role.CompanyId != organizationClaim.Value)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
+                return RedirectToAction("Index");
+            }
+
+            var allUsers = IsUser.GetSameCompanyUsers(role.CompanyId);
+
+            var model = new AssignUsersViewModel
+            {
+                RoleId = id,
+                RoleName = role.Name,
+                Users = allUsers,
+                AssignedUserIds = role.AssignUserIds
+            };
+
+            return View("~/Views/Account/Role/AssignUsers.cshtml", model);
+        }
+
+        [Authorize(Policy = "Account-Role-AssignUsers")]
+        [HttpPost]
+        public async Task<IActionResult> AssignUsers(AssignUsersViewModel model)
+        {
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var role = new Role(model.RoleId);
+
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+            if (role.CompanyId != organizationClaim.Value)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
+                return RedirectToAction("Index");
+            }
+
+            var currentUsers = role.AssignUserIds ?? new List<string>();
+            var selectedUsers = model.SelectedUserIds ?? new List<string>();
+
+            var usersToAdd = selectedUsers.Except(currentUsers).ToList();
+            var usersToRemove = currentUsers.Except(selectedUsers).ToList();
+
+            foreach (var userId in usersToAdd)
+            {
+                UserRole userRole = new UserRole();
+                userRole.UserId = userId;
+                userRole.RoleId = model.RoleId;
+                userRole.Create();
+            }
+
+            foreach (var userId in usersToRemove)
+            {
+                UserRole userRole = new UserRole(userId, model.RoleId);
+                userRole.Delete();
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
 
     }
