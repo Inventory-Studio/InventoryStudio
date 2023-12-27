@@ -2,15 +2,17 @@
     ViewData["Title"] = "Create Role";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="roleName">Role Name</label>
-        <input type="text" class="form-control" id="roleName" name="roleName" />
-    </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label for="roleName">Role Name</label>
+            <input type="text" class="form-control" id="roleName" name="roleName"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
 
 @section Scripts {
     @{
