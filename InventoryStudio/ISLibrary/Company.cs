@@ -1,6 +1,7 @@
 
 using CLRFramework;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace ISLibrary
 
         public string ParentCompanyID { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
-        public bool AutomateFulfillment { get; set; } 
+        public bool AutomateFulfillment { get; set; }
         public string ShippoAPIKey { get; set; } = string.Empty;
-        public bool IncludePackingSlipOnLabel { get; set; } 
+        public bool IncludePackingSlipOnLabel { get; set; }
         public string CompanyGUID { get; set; } = string.Empty;
         public string DefaultFulfillmentMethod { get; set; } = string.Empty;
         public string DefaultFulfillmentStrategy { get; set; } = string.Empty;
@@ -86,10 +87,10 @@ namespace ISLibrary
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                 if (objColumns.Contains("ParentCompanyID") && objRow["ParentCompanyID"] != DBNull.Value) ParentCompanyID = Convert.ToString(objRow["ParentCompanyID"]);
                 if (objColumns.Contains("CompanyName")) CompanyName = Convert.ToString(objRow["CompanyName"]);
-                if (objColumns.Contains("AutomateFulfillment")) AutomateFulfillment = Convert.ToBoolean(objRow["AutomateFulfillment"]);
-                if (objColumns.Contains("ShippoAPIKey")) ShippoAPIKey = Convert.ToString(objRow["ShippoAPIKey"]);
-                if (objColumns.Contains("IncludePackingSlipOnLabel")) IncludePackingSlipOnLabel = Convert.ToBoolean(objRow["IncludePackingSlipOnLabel"]);
-                if (objColumns.Contains("CompanyGUID")) CompanyGUID = objRow["CompanyGUID"].ToString();
+                if (objColumns.Contains("_AutomateFulfillment")) AutomateFulfillment = Convert.ToBoolean(objRow["_AutomateFulfillment"]);
+                if (objColumns.Contains("_ShippoAPIKey")) ShippoAPIKey = Convert.ToString(objRow["_ShippoAPIKey"]);
+                if (objColumns.Contains("_IncludePackingSlipOnLabel")) IncludePackingSlipOnLabel = Convert.ToBoolean(objRow["_IncludePackingSlipOnLabel"]);
+                if (objColumns.Contains("CompanyGUID")) CompanyGUID = Convert.ToString(objRow["CompanyGUID"]);
                 if (objColumns.Contains("DefaultFulfillmentMethod")) DefaultFulfillmentMethod = Convert.ToString(objRow["DefaultFulfillmentMethod"]);
                 if (objColumns.Contains("DefaultFulfillmentStrategy")) DefaultFulfillmentStrategy = Convert.ToString(objRow["DefaultFulfillmentStrategy"]);
                 if (objColumns.Contains("DefaultAllocationStrategy")) DefaultAllocationStrategy = Convert.ToString(objRow["DefaultAllocationStrategy"]);
@@ -153,9 +154,9 @@ namespace ISLibrary
                 // Add parameters for all the columns in the Company table, except for identity and computed columns.
                 dicParam["ParentCompanyID"] = ParentCompanyID;
                 dicParam["CompanyName"] = CompanyName;
-                dicParam["AutomateFulfillment"] = AutomateFulfillment;
-                dicParam["ShippoAPIKey"] = ShippoAPIKey;
-                dicParam["IncludePackingSlipOnLabel"] = IncludePackingSlipOnLabel;
+                dicParam["_AutomateFulfillment"] = AutomateFulfillment;
+                dicParam["_ShippoAPIKey"] = ShippoAPIKey;
+                dicParam["_IncludePackingSlipOnLabel"] = IncludePackingSlipOnLabel;
                 dicParam["CompanyGUID"] = CompanyGUID;
                 dicParam["DefaultFulfillmentMethod"] = DefaultFulfillmentMethod;
                 dicParam["DefaultFulfillmentStrategy"] = DefaultFulfillmentStrategy;
@@ -167,7 +168,7 @@ namespace ISLibrary
 
                 // Execute the SQL insert and get the new identity value for CompanyID
                 CompanyID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Company"), objConn, objTran).ToString();
-         
+
 
 
                 // Load the newly created company data
@@ -195,9 +196,7 @@ namespace ISLibrary
                 objConn = new SqlConnection(Database.DefaultConnectionString);
                 objConn.Open();
                 objTran = objConn.BeginTransaction();
-
                 Update(objConn, objTran);
-
                 objTran.Commit();
             }
             catch (Exception ex)
@@ -217,7 +216,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
+            //base.Update();
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
@@ -231,16 +230,15 @@ namespace ISLibrary
                 // Add parameters for all the columns in the Company table that should be updated.
                 dicParam["ParentCompanyID"] = ParentCompanyID;
                 dicParam["CompanyName"] = CompanyName;
-                dicParam["AutomateFulfillment"] = AutomateFulfillment;
-                dicParam["ShippoAPIKey"] = ShippoAPIKey;
-                dicParam["IncludePackingSlipOnLabel"] = IncludePackingSlipOnLabel;
+                dicParam["_AutomateFulfillment"] = AutomateFulfillment;
+                dicParam["_ShippoAPIKey"] = ShippoAPIKey;
+                dicParam["_IncludePackingSlipOnLabel"] = IncludePackingSlipOnLabel;
                 dicParam["CompanyGUID"] = CompanyGUID;
                 dicParam["DefaultFulfillmentMethod"] = DefaultFulfillmentMethod;
                 dicParam["DefaultFulfillmentStrategy"] = DefaultFulfillmentStrategy;
                 dicParam["DefaultAllocationStrategy"] = DefaultAllocationStrategy;
                 dicParam["UpdatedBy"] = UpdatedBy.HasValue ? (object)UpdatedBy.Value : DBNull.Value;
                 dicParam["UpdatedOn"] = DateTime.Now;
-
                 // Where clause parameters
                 dicWParam["CompanyID"] = CompanyID;
 
@@ -320,5 +318,72 @@ namespace ISLibrary
         }
 
 
+        public static List<Company> GetCompanies()
+        {
+            int intTotalCount = 0;
+            return GetCompanies(null, null, null, out intTotalCount);
+        }
+
+        public static List<Company> GetCompanies(CompanyFilter Filter)
+        {
+            int intTotalCount = 0;
+            return GetCompanies(Filter, null, null, out intTotalCount);
+        }
+
+        public static List<Company> GetCompanies(CompanyFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            return GetCompanies(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+        }
+
+        public static List<Company> GetCompanies(CompanyFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            List<Company> objReturn = null;
+            Company objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                TotalRecord = 0;
+
+                objReturn = new List<Company>();
+
+                strSQL = "SELECT c.* " +
+                         "FROM Company (NOLOCK) c ";
+
+                strSQL += "WHERE 1=1 ";
+
+                if (Filter != null)
+                {
+                    if (Filter.CompanyID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CompanyID, "CompanyID");
+                    if (Filter.ParentCompanyID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ParentCompanyID, "ParentCompanyID");
+                    if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "CreatedBy");
+                }
+
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "CompanyID" : Utility.CustomSorting.GetSortExpression(typeof(RoutingProfile), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Company(objData.Tables[0].Rows[i]);
+                        objNew.IsLoaded = true;
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
+       
     }
 }

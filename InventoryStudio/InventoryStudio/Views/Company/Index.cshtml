@@ -1,0 +1,40 @@
+﻿@model List<Company>
+
+<div class="container-fluid">
+    <h1>Roles</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>AutomateFulfillment</th>
+                <th>ShippoAPIKey</th>
+                <th>IncludePackingSlipOnLabel</th>
+                <th>DefaultFulfillmentMethod</th>
+                <th>DefaultFulfillmentStrategy</th>
+                <th>DefaultAllocationStrategy</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var company in Model)
+            {
+                <tr>
+                    <td>@company.CompanyName</td>
+                    <td>@company.AutomateFulfillment</td>
+                    <td>@company.ShippoAPIKey</td>
+                    <td>@company.IncludePackingSlipOnLabel</td>
+                    <td>@company.DefaultFulfillmentMethod</td>
+                    <td>@company.DefaultFulfillmentStrategy</td>
+                    <td>@company.DefaultAllocationStrategy</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@company.CompanyID">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Create">Create New Company</a>
+
+</div>

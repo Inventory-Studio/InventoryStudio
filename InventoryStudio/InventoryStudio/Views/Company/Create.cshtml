@@ -1,0 +1,65 @@
+﻿@model Company
+
+@{
+    ViewData["Title"] = "Company-Create";
+}
+
+<h1>Create</h1>
+
+<h4>Company</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CompanyName" class="control-label"></label>
+                <input asp-for="CompanyName" class="form-control" />
+                <span asp-validation-for="CompanyName" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="AutomateFulfillment" /> @Html.DisplayNameFor(model => model.AutomateFulfillment)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShippoAPIKey" class="control-label"></label>
+                <input asp-for="ShippoAPIKey" class="form-control" />
+                <span asp-validation-for="ShippoAPIKey" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IncludePackingSlipOnLabel" /> @Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="DefaultFulfillmentMethod" class="control-label"></label>
+                <input asp-for="DefaultFulfillmentMethod" class="form-control" />
+                <span asp-validation-for="DefaultFulfillmentMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DefaultFulfillmentStrategy" class="control-label"></label>
+                <input asp-for="DefaultFulfillmentStrategy" class="form-control" />
+                <span asp-validation-for="DefaultFulfillmentStrategy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DefaultAllocationStrategy" class="control-label"></label>
+                <input asp-for="DefaultAllocationStrategy" class="form-control" />
+                <span asp-validation-for="DefaultAllocationStrategy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

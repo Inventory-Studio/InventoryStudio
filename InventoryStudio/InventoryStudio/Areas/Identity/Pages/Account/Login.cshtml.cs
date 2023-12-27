@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
+using ISLibrary;
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
 {
@@ -118,15 +119,18 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    _logger.LogInformation("User logged in.");
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
-                        var userId = user.Id; 
-                                              
+                        var userId = user.Id;
+                        var filter = new CompanyFilter();
+                        filter.CreatedBy = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                        filter.CreatedBy.SearchString = user.Id.ToString();
+                        var companies = Company.GetCompanies(filter);
+                        if (companies.Count == 0)
+                            return RedirectToAction("Create", "Company");
                     }
-
-
-                    _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
