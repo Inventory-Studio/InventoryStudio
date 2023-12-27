@@ -9,7 +9,7 @@ namespace InventoryStudio.Models
 
     public class User : IdentityUser<int>
     {
-     
+
 
         [MaxLength(10)]
         public string Status { get; set; } = "Active";
@@ -17,9 +17,9 @@ namespace InventoryStudio.Models
         //public int OrganizationId { get; set; }
 
         [MaxLength(50)]
-        public string UserType { get; set; }
+        public string UserType { get; set; } = "Normal";
 
         //public ICollection<UserOrganization> UserOrganizations { get; set; } = new List<UserOrganization>();
-        
+
     }
 }
