@@ -73,6 +73,26 @@ namespace ISLibrary
             }
         }
 
+        private List<Permission>? mPermissions = null;
+        public List<Permission>? AssignPermissions
+        {
+            get
+            {
+                if (mPermissions == null && !string.IsNullOrEmpty(Id))
+                {
+                    try
+                    {
+                        mPermissions = GetAssignPermissions();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                }
+                return mPermissions;
+            }
+        }
+
         public Role()
         {
         }
@@ -478,7 +498,41 @@ namespace ISLibrary
             return objReturn;
         }
 
+        public List<Permission> GetAssignPermissions()
+        {
+            List<Permission> objReturn = new List<Permission>(); ;
+            Permission objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
 
+            try
+            {
+                strSQL = "SELECT s.* " +
+                        "FROM AspNetPermission (NOLOCK) s " +
+                        "INNER JOIN  AspNetRolePermission ap on ap.PermissionId = s.PermissionId" +
+                        " where ap.RoleId = " + Id;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Permission(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
 
     }
 }
