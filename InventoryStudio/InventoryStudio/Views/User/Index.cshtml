@@ -1,0 +1,74 @@
+﻿@model IEnumerable<ISLibrary.Account.UserInfo>
+
+@{
+    ViewData["Title"] = "User";
+}
+
+
+<div class="container-fluid">
+    <h1>Company</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>UserName</th>
+                <th>UserType</th>
+                <th>Status</th>
+                <th>Email</th>
+                <th>EmailConfirmed</th>
+                <th>PhoneNumber</th>
+                <th>PhoneNumberConfirmed</th>
+                <th>TwoFactorEnabled</th>
+                <th>LockoutEnd</th>
+                <th>LockoutEnabled</th>
+                <th>AccessFailedCount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmailConfirmed)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LockoutEnd)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LockoutEnabled)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccessFailedCount)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-action="Create">Create New User</a>
+</div>
