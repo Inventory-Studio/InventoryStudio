@@ -22,6 +22,58 @@ namespace ISLibrary
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
+
+
+        private List<Company>? mCompanies = null;
+        public List<Company>? Companies
+        {
+            get
+            {
+                if (mCompanies == null && !string.IsNullOrEmpty(Id))
+                {           
+
+                    try
+                    {
+                        mCompanies = GetCompanies(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+                        
+                    }
+                }
+                return mCompanies;
+            }
+        } 
+        
+        private List<Role>? mRoles = null;
+        public List<Role>? Roles
+        {
+            get
+            {
+                if (mRoles == null && !string.IsNullOrEmpty(Id))
+                {           
+
+                    try
+                    {
+                        mRoles = GetRoles(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+                        
+                    }
+                }
+                return mRoles;
+            }
+        }
+
         public IsUser(DataRow objRow)
         {
             Load(objRow);
@@ -50,6 +102,48 @@ namespace ISLibrary
             }
         }
 
+        public IsUser()
+        {
+        }
+
+        public IsUser(string Id)
+        {
+            this.Id = Id;
+            Load();
+        }
+
+
+        protected void Load()
+        {
+            base.Load();
+
+            DataSet? objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT * " +
+                         "FROM AspNetUsers (NOLOCK) " +
+                         "WHERE Id=" + Database.HandleQuote(Id.ToString());
+                objData = Database.GetDataSet(strSQL);
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    Load(objData.Tables[0].Rows[0]);
+                }
+                else
+                {
+                    throw new Exception("Id=" + Id + " is not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                objData = null;
+            }
+        }
 
         public static List<IsUser> GetSameCompanyUsers(string compayId)
         {
@@ -89,6 +183,76 @@ namespace ISLibrary
         }
 
 
+        public static List<Company> GetCompanies(string userId)
+        {
+            List<Company> objReturn = new List<Company>();
+            Company objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
 
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM Company u " +
+                    "INNER JOIN AspNetUserCompany uc ON u.CompanyID = uc.CompanyId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Company(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
+        public static List<Role> GetRoles(string userId)
+        {
+            List<Role> objReturn = new List<Role>();
+            Role objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM AspNetRoles u " +
+                    "INNER JOIN AspNetUserRoles uc ON u.Id = uc.RoleId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Role(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
     }
 }

@@ -1,0 +1,29 @@
+﻿@model List<Role>
+
+
+<h2>Select a Role</h2>
+
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var role in Model)
+        {
+            <li>
+                @role.Name
+                <form asp-action="SwitchRole" asp-controller="Account" method="post" style="display: inline-block;">
+                    <input type="hidden" name="roleId" value="@role.Id" />
+                    <button type="submit">Switch</button>
+                </form>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No organizations found for the user.</p>
+}
+
+
+
+
