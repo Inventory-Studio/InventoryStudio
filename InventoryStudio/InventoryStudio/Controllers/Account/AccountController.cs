@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 using System.Data;
+using System.Text.Json;
 
 namespace InventoryStudio.Controllers
 {
@@ -33,6 +34,11 @@ namespace InventoryStudio.Controllers
 
             List<Company> companies = user.IsUser.Companies;
 
+            if(companies.Count == 1)
+            {
+                return await SwitchCompany( int.Parse(companies[0].CompanyID));
+            }
+
             return View("~/Views/Account/Account/SelectCompany.cshtml", companies);
         }
 
@@ -49,7 +55,7 @@ namespace InventoryStudio.Controllers
             {
                 await SwitchToCompany(int.Parse(userId), companyId);
 
-                return RedirectToAction("Index", "Home");
+                return  RedirectToAction("SelectRole","Account");
             }
             else
             {
@@ -60,7 +66,8 @@ namespace InventoryStudio.Controllers
 
         private async Task SwitchToCompany(int userId, int comapnyId)
         {
-                       
+                      
+            //add current companyId
             var existingOrganizationClaim = _context.UserClaims
                 .FirstOrDefault(c => c.UserId == userId && c.ClaimType == "CompanyId");
 
@@ -78,10 +85,45 @@ namespace InventoryStudio.Controllers
                     ClaimValue = comapnyId.ToString()
                 };
                 _context.UserClaims.Add(newOrganizationClaim);
-            }                
-              
-            _context.SaveChanges();
-            
+            }
+
+            //add RootUser Claim 
+            var existingRootUserClaim = _context.UserClaims
+               .FirstOrDefault(c => c.UserId == userId && c.ClaimType == "RootUser");
+
+            var user = await _userManager.GetUserAsync(User);
+            List<Company> companies = user.IsUser.Companies;
+
+            List<string> companyIds = companies.Where(c => c.CreatedBy == userId)
+                          .Select(c => c.CompanyID)
+                          .ToList();
+
+            if (existingRootUserClaim != null)
+            {                
+                List<string> SavedCompanyIds = JsonSerializer.Deserialize<List<string>>(existingRootUserClaim.ClaimValue);
+                var differentElements = companyIds.Except(SavedCompanyIds).ToList();
+
+                if (differentElements.Any() || companyIds.Count != SavedCompanyIds.Count)
+                {
+                    existingRootUserClaim.ClaimValue = JsonSerializer.Serialize(companyIds);
+                    _context.UserClaims.Update(existingRootUserClaim);
+                }                            
+            }
+            else
+            {
+                if (companyIds.Count > 0)
+                {
+                    var newRootUserClaim = new IdentityUserClaim<int>
+                    {
+                        UserId = userId,
+                        ClaimType = "RootUser",
+                        ClaimValue = JsonSerializer.Serialize(companyIds)
+                };
+                    _context.UserClaims.Add(newRootUserClaim);
+                }                
+            }
+
+            _context.SaveChanges();            
 
             await _signInManager.RefreshSignInAsync(await _userManager.FindByIdAsync(userId.ToString()));
 
@@ -93,6 +135,16 @@ namespace InventoryStudio.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             List<Role> roles = user.IsUser.Roles;
+
+            if (roles.Count == 0)
+            {
+                return RedirectToAction("Index","Home");
+            }
+
+            if (roles.Count == 1)
+            {
+                return await SwitchRole(roles[0].Id);
+            }
 
             return View("~/Views/Account/Account/SelectRoles.cshtml", roles);
         }
@@ -121,7 +173,27 @@ namespace InventoryStudio.Controllers
         }
 
         private async Task SwitchToRole(int userId, Role role)
-        {  
+        {
+            //add currentRole
+            var existingRoleClaim = _context.UserClaims
+                .FirstOrDefault(c => c.UserId == userId && c.ClaimType == "Role");
+
+            if (existingRoleClaim != null)
+            {
+                existingRoleClaim.ClaimValue = role.Name;
+                _context.UserClaims.Update(existingRoleClaim);
+            }
+            else
+            {
+                var roleClaim = new IdentityUserClaim<int>
+                {
+                    UserId = userId,
+                    ClaimType = "Role",
+                    ClaimValue = role.Name
+                };
+                _context.UserClaims.Add(roleClaim);
+            }
+
             // 获取用户当前权限信息
             var existingPermissionClaims = _context.UserClaims
                 .Where(c => c.UserId == userId && c.ClaimType.StartsWith("Permission:"))
@@ -133,13 +205,7 @@ namespace InventoryStudio.Controllers
             List<Permission> rolePermissions = role.AssignPermissions;
 
             // 将选择的角色及其权限信息存储在用户的 Claims 中
-            var roleClaim = new IdentityUserClaim<int>
-            {
-                UserId = userId,
-                ClaimType = "Role",
-                ClaimValue = role.Name
-            };
-            _context.UserClaims.Add(roleClaim);
+           
 
             foreach (Permission permission in rolePermissions)
             {
@@ -154,6 +220,8 @@ namespace InventoryStudio.Controllers
 
             // 保存更改
             _context.SaveChanges();
+
+            await _signInManager.RefreshSignInAsync(await _userManager.FindByIdAsync(userId.ToString()));
         }
 
         

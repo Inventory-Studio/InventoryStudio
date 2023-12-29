@@ -78,7 +78,7 @@ namespace InventoryStudio.Controllers
                 userCompany.UserId = userId;
                 userCompany.CompanyId = company.CompanyID;
                 userCompany.Create();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("SelectCompany", "Account");
             }
             return View(company);
         }
