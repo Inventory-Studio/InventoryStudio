@@ -1,6 +1,6 @@
-﻿namespace InventoryStudio.Models
+﻿namespace InventoryStudio.Models.Account
 {
-    public class CreateUser
+    public class CreateUserViewModel
     {
         public string Status { get; set; }
 

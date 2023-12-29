@@ -14,8 +14,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Encodings.Web;
 using System.Text;
 using ISLibrary;
+using InventoryStudio.Models.Account;
 
-namespace InventoryStudio.Controllers
+namespace InventoryStudio.Controllers.Account
 {
     public class UserController : Controller
     {
@@ -42,29 +43,29 @@ namespace InventoryStudio.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var users = ISLibrary.Account.UserInfo.GetUsers();
-            return View(users);
+            var users = IsUser.GetUsers();
+            return View("~/Views/Account/User/Index.cshtml", users);
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(string id)
         {
-            if (id == 0)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new UserInfo(id);
+            var user = new IsUser(id);
             if (user == null)
                 return NotFound();
-            return View(user);
+            return View("~/Views/Account/User/Detail.cshtml", user);
         }
 
         public IActionResult Create()
         {
-            return View();
+            return View("~/Views/Account/User/Create.cshtml");
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateUser input)
+        public async Task<IActionResult> Create(CreateUserViewModel input)
         {
             var user = CreateUser();
             user.Status = input.Status;
@@ -84,7 +85,7 @@ namespace InventoryStudio.Controllers
                 var callbackUrl = Url.Page(
                     "/Account/ConfirmEmail",
                     pageHandler: null,
-                    values: new { area = "Identity", userId = userId, code = code, returnUrl = Url.Content("~/") },
+                    values: new { area = "Identity", userId, code, returnUrl = Url.Content("~/") },
                     protocol: Request.Scheme);
 
                 await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
@@ -120,23 +121,23 @@ namespace InventoryStudio.Controllers
             return (IUserEmailStore<User>)_userStore;
         }
 
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(string id)
         {
-            if (id == 0)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new UserInfo(id);
+            var user = new IsUser(id);
             if (user == null)
                 return NotFound();
-            return View(user);
+            return View("~/Views/Account/User/Edit.cshtml", user);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, User user)
+        public async Task<IActionResult> Edit(string id, User user)
         {
-            if (id != user.Id || id == 0)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var current = new UserInfo(id);
+            var current = new IsUser(id);
             if (current == null)
                 return NotFound();
             current.UserName = user.UserName;
@@ -154,21 +155,23 @@ namespace InventoryStudio.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
-            if (id == 0)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new UserInfo(id);
+            var user = new IsUser(id);
             if (user == null)
                 return NotFound();
-            return View(user);
+            return View("~/Views/Account/User/Delete.cshtml", user);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var user = new UserInfo(id);
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+            var user = new IsUser(id);
             if (user == null)
                 return NotFound();
             user.Delete();
