@@ -10,6 +10,7 @@ using System.ComponentModel.Design;
 using System.Data;
 using System.Text.Json;
 
+
 namespace InventoryStudio.Controllers
 {
     public class AccountController : Controller
@@ -194,29 +195,28 @@ namespace InventoryStudio.Controllers
                 _context.UserClaims.Add(roleClaim);
             }
 
-            // 获取用户当前权限信息
+            // get current permissions
             var existingPermissionClaims = _context.UserClaims
-                .Where(c => c.UserId == userId && c.ClaimType.StartsWith("Permission:"))
+                .Where(c => c.UserId == userId && c.ClaimType == "Permission")
                 .ToList();
 
-            // 移除用户当前的权限信息
+            // Remove all of the Permission
             _context.UserClaims.RemoveRange(existingPermissionClaims);
 
             List<Permission> rolePermissions = role.AssignPermissions;
 
-            // 将选择的角色及其权限信息存储在用户的 Claims 中
-           
+            // Save Permission into Claims 
 
-            foreach (Permission permission in rolePermissions)
+            string permissionsJson = JsonSerializer.Serialize(rolePermissions.Select(p => p.Name).ToList());
+           
+            var permissionClaim = new IdentityUserClaim<int>
             {
-                var permissionClaim = new IdentityUserClaim<int>
-                {
-                    UserId = userId,
-                    ClaimType = $"Permission:{permission.Name}",
-                    ClaimValue = "true" // 或者可以存储其他相关信息
-                };
-                _context.UserClaims.Add(permissionClaim);
-            }            
+                UserId = userId,
+                ClaimType = "Permission",
+                ClaimValue = permissionsJson
+            };
+            _context.UserClaims.Add(permissionClaim);
+                       
 
             // 保存更改
             _context.SaveChanges();
