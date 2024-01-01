@@ -6,7 +6,7 @@
 
 
 <div class="container-fluid">
-    <h1>Company</h1>
+    <h1>UserManagement</h1>
     <table class="table">
         <thead>
             <tr>
@@ -14,13 +14,7 @@
                 <th>UserType</th>
                 <th>Status</th>
                 <th>Email</th>
-                <th>EmailConfirmed</th>
                 <th>PhoneNumber</th>
-                <th>PhoneNumberConfirmed</th>
-                <th>TwoFactorEnabled</th>
-                <th>LockoutEnd</th>
-                <th>LockoutEnabled</th>
-                <th>AccessFailedCount</th>
                 <th></th>
             </tr>
         </thead>
@@ -40,27 +34,11 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Email)
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.EmailConfirmed)
-                    </td>
+
                     <td>
                         @Html.DisplayFor(modelItem => item.PhoneNumber)
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.LockoutEnd)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.LockoutEnabled)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.AccessFailedCount)
-                    </td>
+
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

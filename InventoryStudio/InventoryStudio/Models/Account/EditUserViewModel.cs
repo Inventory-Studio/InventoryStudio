@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.Account
 {
-    public class CreateUserViewModel
+    public class EditUserViewModel
     {
+        public string Id { get; set; }
+
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         public string UserName { get; set; }
@@ -20,13 +22,10 @@ namespace InventoryStudio.Models.Account
         [Phone]
         public string PhoneNumber { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        public string Password { get; set; }
 
         public List<SelectListItem> StatusOptions { get; set; }
 
-        public CreateUserViewModel()
+        public EditUserViewModel()
         {
             StatusOptions = new List<SelectListItem>
             {

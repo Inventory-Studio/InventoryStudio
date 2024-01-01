@@ -26,6 +26,8 @@ namespace InventoryStudio.Controllers.Account
         private readonly IUserEmailStore<User> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<UserController> _logger;
+
+
         public UserController(
             SignInManager<User> signInManager,
            UserManager<User> userManager,
@@ -59,7 +61,8 @@ namespace InventoryStudio.Controllers.Account
 
         public IActionResult Create()
         {
-            return View("~/Views/Account/User/Create.cshtml");
+            CreateUserViewModel viewModel = new CreateUserViewModel();
+            return View("~/Views/Account/User/Create.cshtml", viewModel);
         }
 
 
@@ -69,7 +72,7 @@ namespace InventoryStudio.Controllers.Account
         {
             var user = CreateUser();
             user.Status = input.Status;
-            user.UserType = input.UserType;
+            user.UserType = "Normal";
             user.UserName = input.UserName;
             user.Email = input.Email;
             user.PhoneNumber = input.PhoneNumber;
@@ -128,29 +131,28 @@ namespace InventoryStudio.Controllers.Account
             var user = new IsUser(id);
             if (user == null)
                 return NotFound();
-            return View("~/Views/Account/User/Edit.cshtml", user);
+            var editViewModel = new EditUserViewModel();
+            editViewModel.Id = user.Id;
+            editViewModel.UserName = user.UserName;
+            editViewModel.Status = user.Status;
+            editViewModel.Email = user.Email;
+            editViewModel.PhoneNumber = user.PhoneNumber;
+            return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, User user)
+        public async Task<IActionResult> Edit(string id, EditUserViewModel input)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
             var current = new IsUser(id);
             if (current == null)
                 return NotFound();
-            current.UserName = user.UserName;
-            current.Status = user.Status;
-            current.UserType = user.UserType;
-            current.Email = user.Email;
-            current.EmailConfirmed = user.EmailConfirmed;
-            current.PhoneNumber = user.PhoneNumber;
-            current.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-            current.TwoFactorEnabled = user.TwoFactorEnabled;
-            current.LockoutEnabled = user.LockoutEnabled;
-            current.LockoutEnd = user.LockoutEnd;
-            current.AccessFailedCount = user.AccessFailedCount;
+            current.UserName = input.UserName;
+            current.Status = input.Status;
+            current.Email = input.Email;
+            current.PhoneNumber = input.PhoneNumber;
             current.Update();
             return RedirectToAction(nameof(Index));
         }
