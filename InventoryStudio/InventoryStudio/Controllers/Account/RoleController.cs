@@ -108,17 +108,38 @@ namespace InventoryStudio.Controllers
             {
                 TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
                 return RedirectToAction("Index");
-            }   
+            }
 
-            
+            var allUsers = IsUser.GetSameCompanyUsers(role.CompanyId);
+            var permissions = Permission.GetPermissions();
 
-            return View("~/Views/Account/Role/Edit.cshtml",role);
+            var model = new RoleManagementViewModel
+            {
+                Role = role,
+                AssignUsersViewModel = new AssignUsersViewModel
+                {
+                    RoleId = id,
+                    RoleName = role.Name,
+                    Users = allUsers,
+                    AssignedUserIds = role.AssignUserIds
+                },
+                AssignPermissionsViewModel = new AssignPermissionsViewModel
+                {
+                    RoleId = id,
+                    RoleName = role.Name,
+                    Permissions = permissions,
+                    AssignPermissions = role.AssignPermissionIds
+                }
+            };
+
+            return View("~/Views/Account/Role/Edit.cshtml", model);
         }
 
         [Authorize(Policy = "Account-Role-Edit")]
         [HttpPost]
-        public async Task<IActionResult> Edit(Role FormRole)
+        public async Task<IActionResult> Edit(RoleManagementViewModel roleManagementViewModel)
         {
+            var FormRole = roleManagementViewModel.Role;
             var role = new Role(FormRole.Id);
 
             if (role == null)

@@ -1,64 +1,72 @@
 ﻿@model List<Role>
 
-<div class="card-header justify-content-between">
-    <div class="card-title">
-        Roles
-    </div>
-    @if (ViewBag.Permissions["CanCreate"])
-    {
-        <div class="prism-toggle">
-            <a asp-action="Create" class="btn btn-sm btn-primary-light">Create New Role</a>
-        </div>
-    }    
-</div>
-<div class="card-body">
-<div class="table-responsive">
+@{
+    ViewData["Title"] = "All Roles";
+}
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
 
-        <table class="table text-nowrap table-striped">
-        <thead class="table-primary">
-            <tr>
-                <th scope="col">Role Name</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var role in Model)
-            {
-                <tr>
-                    <th scope="row">@role.Name</th>
-                    <td>
-                        <div class="hstack gap-2 fs-15">
-                        @if (ViewBag.Permissions["CanEdit"]){
-                            <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-icon btn-sm btn-info-transparent rounded-pill">
-                                <i class="ri-edit-line"></i>
-                            </a>
-                        }
-                        @if (ViewBag.Permissions["CanAssignPermission"])
-                        {
-                            <a asp-action="AssignPermissions" asp-route-id="@role.Id">Assign Permissions</a>                            
-                        }
-                        @if (ViewBag.Permissions["CanAssignUser"])
-                        {
-                            <a asp-action="AssignUsers" asp-route-id="@role.Id">Assign Users</a>                            
-                        }
-                        @if (ViewBag.Permissions["CanDelete"])
-                        {
-                            <form asp-action="Delete" asp-route-id="@role.Id" method="post" class="inline-form" onsubmit="return confirmDelete('@role.Name');">
-                                    <button type="submit" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </button>
-                            </form>
-                        }
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="row">
+    <div class="col-md-12">
+        @if (ViewBag.Permissions["CanCreate"])
+        {
+            <div class="d-flex justify-content-end mb-3">
+                <a asp-action="Create" class="btn btn-sm btn-primary-light">Create New Role</a>
+            </div>
+        }
+        <div class="card-body">
+            <div class="table-responsive">
+
+                <table class="table text-nowrap table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col">Role Name</th>
+                            <th scope="col" class="col-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+                            <th scope="row">@role.Name</th>
+                            <td class="col-2">
+                                <div class="hstack gap-2 fs-15">
+                                @if (ViewBag.Permissions["CanEdit"]){
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-icon btn-sm btn-info-transparent rounded-pill">
+                                        <i class="ri-edit-line"></i>
+                                    </a>
+                                }
+                              @*  @if (ViewBag.Permissions["CanAssignPermission"])
+                                {
+                                    <a asp-action="AssignPermissions" asp-route-id="@role.Id">Assign Permissions</a>                            
+                                }
+                                @if (ViewBag.Permissions["CanAssignUser"])
+                                {
+                                    <a asp-action="AssignUsers" asp-route-id="@role.Id">Assign Users</a>                            
+                                }*@
+                                @if (ViewBag.Permissions["CanDelete"])
+                                {
+                                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" class="inline-form" onsubmit="return confirmDelete('@role.Name');">
+                                            <button type="submit" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                    </form>
+                                }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
    
 
-</div>
-</div>
+        </div>
+        </div>
+
+    </div>
+ </div>
+
+ </div>
 @section Scripts {
     <script>
         function confirmDelete(roleName) {
