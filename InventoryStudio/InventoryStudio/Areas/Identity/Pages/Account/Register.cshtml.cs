@@ -114,6 +114,7 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+               
                 user.UserType = "Normal";
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

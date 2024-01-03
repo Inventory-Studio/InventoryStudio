@@ -15,18 +15,18 @@ namespace InventoryStudio.Controllers
     public class RoleController : Controller
     {
         private readonly UserManager<User> _userManager;
+        private readonly IAuthorizationService _authorizationService;
 
-        public RoleController(UserManager<User> userManager)
+        public RoleController(UserManager<User> userManager, IAuthorizationService authorizationService)
         {
             _userManager = userManager;
+            _authorizationService = authorizationService;
         }
 
 
         [Authorize(Policy = "Account-Role-List")]
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
-
-            // 通过用户的 Claims 获取组织信息
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim != null)
             {
@@ -34,10 +34,25 @@ namespace InventoryStudio.Controllers
                 filter.CompanyId = new SearchFilter();
                 filter.CompanyId.SearchString = organizationClaim.Value;
                 var roles = Role.GetRoles(filter);
+
+                //use ViewBag to control Button show/hide
+                var permissions = new Dictionary<string, bool>
+                {
+                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Create")).Succeeded,
+                    ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Edit")).Succeeded,
+                    ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Delete")).Succeeded,
+                    ["CanAssignPermission"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignPermissions")).Succeeded,
+                    ["CanAssignUser"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignUsers")).Succeeded
+                };
+                ViewBag.Permissions = permissions;
+
+
                 return View("~/Views/Account/Role/Index.cshtml",roles);
             }
 
-            ViewBag.ErrorMessage = "Please create or Choose Comapny";
+            ViewBag.ErrorMessage = "Please create or Choose Comapny";      
+
+
             return View("Error");
         }
 
@@ -93,17 +108,38 @@ namespace InventoryStudio.Controllers
             {
                 TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
                 return RedirectToAction("Index");
-            }   
+            }
 
-            
+            var allUsers = IsUser.GetSameCompanyUsers(role.CompanyId);
+            var permissions = Permission.GetPermissions();
 
-            return View("~/Views/Account/Role/Edit.cshtml",role);
+            var model = new RoleManagementViewModel
+            {
+                Role = role,
+                AssignUsersViewModel = new AssignUsersViewModel
+                {
+                    RoleId = id,
+                    RoleName = role.Name,
+                    Users = allUsers,
+                    AssignedUserIds = role.AssignUserIds
+                },
+                AssignPermissionsViewModel = new AssignPermissionsViewModel
+                {
+                    RoleId = id,
+                    RoleName = role.Name,
+                    Permissions = permissions,
+                    AssignPermissions = role.AssignPermissionIds
+                }
+            };
+
+            return View("~/Views/Account/Role/Edit.cshtml", model);
         }
 
         [Authorize(Policy = "Account-Role-Edit")]
         [HttpPost]
-        public async Task<IActionResult> Edit(Role FormRole)
+        public async Task<IActionResult> Edit(RoleManagementViewModel roleManagementViewModel)
         {
+            var FormRole = roleManagementViewModel.Role;
             var role = new Role(FormRole.Id);
 
             if (role == null)

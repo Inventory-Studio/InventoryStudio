@@ -1,5 +1,6 @@
 
 using CLRFramework;
+using ISLibrary.Account;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
@@ -75,8 +76,8 @@ namespace ISLibrary
             try
             {
                 if (objColumns.Contains("UserCompanyId")) UserCompanyId = Convert.ToString(objRow["UserCompanyId"]);
-                if (objColumns.Contains("UserId")) UserId = Convert.ToString(objRow["UserId"]);               
-                if (objColumns.Contains("CompanyId")) CompanyId = Convert.ToString(objRow["CompanyId"]);               
+                if (objColumns.Contains("UserId")) UserId = Convert.ToString(objRow["UserId"]);
+                if (objColumns.Contains("CompanyId")) CompanyId = Convert.ToString(objRow["CompanyId"]);
 
                 if (string.IsNullOrEmpty(UserCompanyId)) throw new Exception("Missing UserCompanyId in the datarow");
             }
@@ -128,7 +129,7 @@ namespace ISLibrary
             try
             {
                 // Assume that CompanyID is an identity column and should not be included in the insert.
-             
+
                 if (!IsNew) throw new Exception("Create cannot be performed, Id already exists");
 
                 // Add parameters for all the columns in the Company table, except for identity and computed columns.
@@ -139,7 +140,7 @@ namespace ISLibrary
 
                 // Execute the SQL insert and get the new identity value for CompanyID
                 UserCompanyId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUserCompany"), objConn, objTran).ToString();
-         
+
 
 
                 // Load the newly created company data
@@ -210,7 +211,68 @@ namespace ISLibrary
             return true;
         }
 
+        public static List<UserCompany> GetCompanyList()
+        {
+            int intTotalCount = 0;
+            return GetUserCompanies(null, null, null, out intTotalCount);
+        }
 
+        public static List<UserCompany> GetUserCompanies(UserCompanyFilter Filter)
+        {
+            int intTotalCount = 0;
+            return GetUserCompanies(Filter, null, null, out intTotalCount);
+        }
+        public static List<UserCompany> GetUserCompanies(UserCompanyFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            return GetUserCompanies(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+        }
+
+        public static List<UserCompany> GetUserCompanies(UserCompanyFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            List<UserCompany> objReturn = null;
+            UserCompany objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                TotalRecord = 0;
+
+                objReturn = new List<UserCompany>();
+
+                strSQL = "SELECT u.* " +
+                         "FROM AspNetUserCompany (NOLOCK) u ";
+
+                strSQL += "WHERE 1=1 ";
+
+                if (Filter != null)
+                {
+                    if (Filter.UserId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.UserId, "UserId");
+                }
+
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "UserCompanyId" : Utility.CustomSorting.GetSortExpression(typeof(RoutingProfile), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new UserCompany(objData.Tables[0].Rows[i]);
+                        objNew.IsLoaded = true;
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
 
     }
 }

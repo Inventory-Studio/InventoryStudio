@@ -30,8 +30,22 @@ namespace InventoryStudio.Authorization
 
         private bool HasPermission(ClaimsPrincipal user, string permissionName)
         {
-            // Check if the user has the specified permission claim
-            return user.HasClaim(c => c.Type == $"Permission:{permissionName}" && c.Value == "true");
+            var permissionClaim = user.Claims.FirstOrDefault(c => c.Type == "Permissions");
+            if (permissionClaim == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var permissions = System.Text.Json.JsonSerializer.Deserialize<List<string>>(permissionClaim.Value);
+
+                return permissions != null && permissions.Contains(permissionName);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
 

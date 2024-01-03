@@ -74,12 +74,16 @@ namespace InventoryStudio.Controllers
                 company.CreatedOn = DateTime.Now;
                 company.CreatedBy = Convert.ToInt32(userId);
                 company.Create();
-                return RedirectToAction(nameof(Index));
+                UserCompany userCompany = new UserCompany();
+                userCompany.UserId = userId;
+                userCompany.CompanyId = company.CompanyID;
+                userCompany.Create();
+                return RedirectToAction("SelectCompany", "Account");
             }
             return View(company);
         }
 
-        public async Task<IActionResult> Edit(string id)
+        public async  Task<IActionResult> Edit(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -97,13 +101,22 @@ namespace InventoryStudio.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Redirect("/Identity/Account/Login");
 
+
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            company.UpdatedBy = Convert.ToInt32(userId);
-            company.Update();
+           
             var current = new Company(id);
             if (current == null)
                 return NotFound();
+
+            current.CompanyName = company.CompanyName;
+            current.AutomateFulfillment = company.AutomateFulfillment;
+            current.ShippoAPIKey = company.ShippoAPIKey;
+            current.DefaultFulfillmentMethod = company.DefaultFulfillmentMethod;
+            current.DefaultFulfillmentStrategy = company.DefaultFulfillmentStrategy;
+            current.DefaultAllocationStrategy = company.DefaultAllocationStrategy;
+            current.UpdatedBy = Convert.ToInt32(userId);
+            current.Update();
             return RedirectToAction(nameof(Index));
         }
 

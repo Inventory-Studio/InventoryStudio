@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
 using ISLibrary;
+using ISLibrary.Account;
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
 {
@@ -123,13 +124,15 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
-                        var userId = user.Id;
-                        var filter = new CompanyFilter();
-                        filter.CreatedBy = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                        filter.CreatedBy.SearchString = user.Id.ToString();
-                        var companies = Company.GetCompanies(filter);
-                        if (companies.Count == 0)
+                        var comapnies = user.IsUser.Companies;
+                        if (comapnies.Count == 0)
+                        {
                             return RedirectToAction("Create", "Company");
+                        }                           
+                        else
+                        {
+                            return RedirectToAction("SelectCompany", "Account");
+                        }
                     }
                     return LocalRedirect(returnUrl);
                 }
