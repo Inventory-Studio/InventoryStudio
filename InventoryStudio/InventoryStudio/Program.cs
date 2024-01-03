@@ -4,6 +4,7 @@ using InventoryStudio.Models;
 using InventoryStudio.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,9 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorization
 
 // PermissionHandler
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
+//config email server
+builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
 
 builder.Services.AddControllersWithViews();
 
