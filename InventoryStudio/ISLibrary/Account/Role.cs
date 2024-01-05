@@ -93,8 +93,12 @@ namespace ISLibrary
             }
         }
 
+        protected override List<string> TraceAttributes{
+            get { return new List<string> { "Name" }; }
+        }
+
         public Role()
-        {
+        {            
         }
 
         public Role(string Id)
@@ -109,8 +113,7 @@ namespace ISLibrary
         }
 
         protected void Load()
-        {
-            base.Load();
+        {        
 
             DataSet? objData = null;
             string strSQL = string.Empty;
@@ -138,6 +141,8 @@ namespace ISLibrary
             {
                 objData = null;
             }
+
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -267,7 +272,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
+            
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
@@ -300,6 +305,9 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+
+            base.Update();
+
             return true;
         }
 

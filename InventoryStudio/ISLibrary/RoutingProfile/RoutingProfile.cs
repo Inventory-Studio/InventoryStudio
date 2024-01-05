@@ -26,34 +26,34 @@ namespace ISLibrary
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; }
 
-        private List<RoutingProfileLocation>? mRoutingProfileLocations = null;
-        public List<RoutingProfileLocation>? RoutingProfileLocations
-        {
-            get
-            {
-                if (mRoutingProfileLocations == null && !string.IsNullOrEmpty(RoutingProfileID))
-                {
-                    RoutingProfileLocationFilter? objFilter = null;
+        //private List<RoutingProfileLocation>? mRoutingProfileLocations = null;
+        //public List<RoutingProfileLocation>? RoutingProfileLocations
+        //{
+        //    get
+        //    {
+        //        if (mRoutingProfileLocations == null && !string.IsNullOrEmpty(RoutingProfileID))
+        //        {
+        //            RoutingProfileLocationFilter? objFilter = null;
 
-                    try
-                    {
-                        objFilter = new RoutingProfileLocationFilter();
-                        objFilter.RoutingProfileID = new Database.Filter.StringSearch.SearchFilter();
-                        objFilter.RoutingProfileID.SearchString = RoutingProfileID;
-                        mRoutingProfileLocations = RoutingProfileLocation.GetRoutingProfileLocations(objFilter).OrderBy(s => s.Ordering).ToList();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(ex.Message);
-                    }
-                    finally
-                    {
-                        objFilter = null;
-                    }
-                }
-                return mRoutingProfileLocations;
-            }
-        }
+        //            try
+        //            {
+        //                objFilter = new RoutingProfileLocationFilter();
+        //                objFilter.RoutingProfileID = new Database.Filter.StringSearch.SearchFilter();
+        //                objFilter.RoutingProfileID.SearchString = RoutingProfileID;
+        //                mRoutingProfileLocations = RoutingProfileLocation.GetRoutingProfileLocations(objFilter).OrderBy(s => s.Ordering).ToList();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                throw new Exception(ex.Message);
+        //            }
+        //            finally
+        //            {
+        //                objFilter = null;
+        //            }
+        //        }
+        //        return mRoutingProfileLocations;
+        //    }
+        //}
 
         public RoutingProfile()
         {
