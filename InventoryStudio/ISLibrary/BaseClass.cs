@@ -8,6 +8,7 @@ namespace ISLibrary
     public abstract class BaseClass
     {
         public bool IsLoaded { get; protected set; }
+        public string PrimaryKey { get; protected set; }
         protected Dictionary<string, object> OriginalValues { get; set; }
         protected Dictionary<string, object> CurrentValues { get; set; }
 
@@ -92,13 +93,14 @@ namespace ISLibrary
             {                
                 // Serialize auditData to JSON and store it
                 string auditDataJson = JsonSerializer.Serialize(changes);
-               
-                var auditData = new Dictionary<string, object>
-                {
-                    ["Action"] = action,
-                    ["Changes"] = auditDataJson,
-                    ["Timestamp"] = DateTime.UtcNow
-                };
+
+                var auditData = new AuditData();
+                auditData.ObjectID = PrimaryKey;
+                auditData.ObjectName = this.GetType().Name;
+                auditData.ChangedValue = auditDataJson;
+                auditData.Create();
+
+
             }
             
         }
@@ -107,6 +109,7 @@ namespace ISLibrary
 
         {
             var changes = new Dictionary<string, (object OriginalValue, object CurrentValue)>();
+
 
             foreach (var kvp in CurrentValues)
             {
@@ -129,8 +132,17 @@ namespace ISLibrary
         {
             var properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
+            bool primaryKeyRecorded = false;
+
             foreach (var property in properties)
             {
+                // get PrimaryKey
+                if (!primaryKeyRecorded && property.Name.ToLowerInvariant().Contains("id"))
+                {
+                    PrimaryKey = Convert.ToString(property.GetValue(this));
+                    primaryKeyRecorded = true;
+                }
+
                 if (property.CanRead && ((TraceAttributes.Count > 0 && TraceAttributes.Contains(property.Name)) || TraceAttributes.Count == 0))
                 {
                     values[property.Name] = property.GetValue(this);
