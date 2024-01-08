@@ -32,7 +32,9 @@
                     <td>@company.DefaultFulfillmentStrategy</td>
                     <td>@company.DefaultAllocationStrategy</td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@company.CompanyID">Edit</a>
+                        <a asp-action="Edit" asp-route-id="@company.CompanyID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@company.CompanyID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@company.CompanyID">Delete</a>
                     </td>
                 </tr>
             }

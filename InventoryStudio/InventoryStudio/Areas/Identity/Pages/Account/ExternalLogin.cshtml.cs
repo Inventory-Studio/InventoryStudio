@@ -128,12 +128,15 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
-                        var filter = new UserCompanyFilter();
-                        filter.UserId = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                        filter.UserId.SearchString = user.Id.ToString();
-                        var userCompanies = UserCompany.GetUserCompanies(filter);
-                        if (userCompanies.Count == 0)
+                        var comapnies = user.AspNetUser.Companies;
+                        if (comapnies.Count == 0)
+                        {
                             return RedirectToAction("Create", "Company");
+                        }
+                        else
+                        {
+                            return RedirectToAction("SelectCompany", "Account");
+                        }
                     }
                 }
                 return LocalRedirect(returnUrl);

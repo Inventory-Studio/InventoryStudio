@@ -1,0 +1,84 @@
+﻿@model Company
+
+@{
+    ViewData["Title"] = "Company-Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Company</h4>
+    <hr />
+    <dl class="row">
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CompanyName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CompanyName)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AutomateFulfillment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AutomateFulfillment)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippoAPIKey)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippoAPIKey)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IncludePackingSlipOnLabel)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CompanyGUID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CompanyGUID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultFulfillmentMethod)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultFulfillmentMethod)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultFulfillmentStrategy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultFulfillmentStrategy)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultAllocationStrategy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultAllocationStrategy)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedOn)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedOn)
+        </dd>
+
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="CompanyID" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
