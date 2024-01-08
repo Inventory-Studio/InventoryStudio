@@ -9,6 +9,8 @@ namespace ISLibrary
     {
         public bool IsLoaded { get; protected set; }
         public string PrimaryKey { get; protected set; }
+        public string ParentKey { get;  set; }
+        public string ParentObject { get;  set; }
         protected Dictionary<string, object> OriginalValues { get; set; }
         protected Dictionary<string, object> CurrentValues { get; set; }
 
@@ -97,7 +99,11 @@ namespace ISLibrary
                 var auditData = new AuditData();
                 auditData.ObjectID = PrimaryKey;
                 auditData.ObjectName = this.GetType().Name;
+                auditData.ParentKey = ParentKey;
+                auditData.ParentObject = ParentObject;
                 auditData.ChangedValue = auditDataJson;
+
+                
                 auditData.Create();
 
 
@@ -105,10 +111,10 @@ namespace ISLibrary
             
         }
 
-        private Dictionary<string, (object OriginalValue, object CurrentValue)> GetChangedProperties()
+        private Dictionary<string, Dictionary<string, object>> GetChangedProperties()
 
         {
-            var changes = new Dictionary<string, (object OriginalValue, object CurrentValue)>();
+            var changes = new Dictionary<string, Dictionary<string, object>>();
 
 
             foreach (var kvp in CurrentValues)
@@ -117,12 +123,20 @@ namespace ISLibrary
                 {
                     if (!Equals(originalValue, kvp.Value))
                     {
-                        changes[kvp.Key] = (originalValue, kvp.Value);
+                        changes[kvp.Key] = new Dictionary<string, object>
+                            {
+                                { "OriginalValue", originalValue },
+                                { "CurrentValue", kvp.Value }
+                            };
                     }
                 }
                 else
                 {
-                    changes[kvp.Key] = (null, kvp.Value);
+                    changes[kvp.Key] = new Dictionary<string, object>
+                    {
+                        { "OriginalValue", null },
+                        { "CurrentValue", kvp.Value }
+                    };
                 }
             }
             return changes;
@@ -145,9 +159,45 @@ namespace ISLibrary
 
                 if (property.CanRead && ((TraceAttributes.Count > 0 && TraceAttributes.Contains(property.Name)) || TraceAttributes.Count == 0))
                 {
+                    if (IsListOfBaseClass(property.PropertyType))
+                    {
+                        var list = (IList)property.GetValue(this);
+                        if (list != null)
+                        {
+                            foreach (var item in list)
+                            {
+                                var baseClassItem = item as BaseClass;
+                                if (baseClassItem != null)
+                                {
+                                    baseClassItem.ParentKey = this.PrimaryKey;
+                                    baseClassItem.ParentObject = this.GetType().Name;
+                                }
+                            }
+                        }
+                    }
+
+
                     values[property.Name] = property.GetValue(this);
                 }
             }
+        }
+
+
+
+        private bool IsListOfBaseClass(Type type)
+        {
+            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(List<>))
+            {
+                return false;
+            }
+
+            var genericArguments = type.GetGenericArguments();
+            if (genericArguments.Length == 1 && typeof(BaseClass).IsAssignableFrom(genericArguments[0]))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

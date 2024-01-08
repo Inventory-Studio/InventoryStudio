@@ -137,6 +137,8 @@ namespace ISLibrary
             {
                 dicParam["ObjectID"] = ObjectID;
                 dicParam["ObjectName"] = ObjectName;
+                dicParam["ParentKey"] = ParentKey;
+                dicParam["ParentObject"] = ParentObject;
                 dicParam["ChangedValue"] = ChangedValue;
                 dicParam["CreatedBy"] = CreatedBy;
 
