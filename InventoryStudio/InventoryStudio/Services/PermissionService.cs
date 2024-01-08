@@ -10,15 +10,15 @@ namespace InventoryStudio.Services
 {
     public class PermissionService
     {
-    
+
         private readonly IAuthorizationPolicyProvider _policyProvider;
 
-        public PermissionService( IAuthorizationPolicyProvider policyProvider)
+        public PermissionService(IAuthorizationPolicyProvider policyProvider)
         {
             _policyProvider = policyProvider;
         }
 
-      
+
         public List<string> GetPermissions()
         {
             var permissions = new List<string>();
@@ -48,7 +48,7 @@ namespace InventoryStudio.Services
         {
             // 获取权限点
             var systemPermissions = GetPermissions();
-            List<Permission> savedPermissions = Permission.GetPermissions();
+            List<AspNetPermission> savedPermissions = AspNetPermission.GetAspNetPermissions(new AspNetPermissionFilter());
 
             // 找出需要添加的权限
             var permissionsToAdd = systemPermissions.Except(savedPermissions.Select(p => p.Name)).ToList();
@@ -59,7 +59,7 @@ namespace InventoryStudio.Services
             // 添加新权限
             foreach (var permissionName in permissionsToAdd)
             {
-                var newPermission = new Permission
+                var newPermission = new AspNetPermission()
                 {
                     Name = permissionName
                 };

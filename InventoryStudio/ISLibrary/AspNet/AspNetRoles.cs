@@ -52,7 +52,7 @@ namespace ISLibrary
             {
                 if (mPermissionIds == null && !string.IsNullOrEmpty(Id))
                 {
-                    RolePermissionFilter? objFilter = null;
+                    AspNetRolePermissionFilter? objFilter = null;
 
                     try
                     {

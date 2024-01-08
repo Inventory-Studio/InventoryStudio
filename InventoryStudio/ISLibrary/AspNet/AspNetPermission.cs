@@ -327,6 +327,7 @@ namespace ISLibrary
                 if (Filter != null)
                 {
                     if (Filter.Name != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Name, "Name");
+                    if (Filter.PermissionId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.PermissionId, "PermissionId");
                 }
 
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "PermissionId" : Utility.CustomSorting.GetSortExpression(typeof(AspNetPermission), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
