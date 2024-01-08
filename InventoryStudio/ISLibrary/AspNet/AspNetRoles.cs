@@ -15,11 +15,11 @@ namespace ISLibrary
     {
         public string Id { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(Id); } }
-        public string Name { get; set; }
-        public string NormalizedName { get; set; }
-        public string ConcurrencyStamp { get; set; }
-        public string Discriminator { get; set; }
-        public string CompanyId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string NormalizedName { get; set; } = string.Empty;
+        public string ConcurrencyStamp { get; set; } = string.Empty;
+        public string Discriminator { get; set; } = "Role";
+        public string CompanyId { get; set; } = string.Empty;
         public DateTime? UpdatedOn { get; private set; }
         public DateTime CreatedOn { get; private set; }
 
@@ -94,7 +94,7 @@ namespace ISLibrary
         public AspNetRoles()
         {
         }
-     
+
         public AspNetRoles(/*string CompanyID,*/ string Id)
         {
             //this.CompanyID = CompanyID;
@@ -214,6 +214,8 @@ namespace ISLibrary
                 dicParam["ConcurrencyStamp"] = ConcurrencyStamp;
                 dicParam["Discriminator"] = Discriminator;
                 dicParam["CompanyId"] = CompanyId;
+                dicParam["UpdatedOn"] = DateTime.UtcNow;
+                dicParam["CreatedOn"] = DateTime.UtcNow;
 
                 Id = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetRoles"), objConn, objTran).ToString();
 
@@ -356,7 +358,8 @@ namespace ISLibrary
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM AspNetRoles (NOLOCK) p " +
                      "WHERE 1=1 " +
-                     "AND p.CompanyId=" + Database.HandleQuote(CompanyId);
+                     "AND p.CompanyId=" + Database.HandleQuote(CompanyId) +
+                     "AND p.Name=" + Database.HandleQuote(Name);
 
             if (!string.IsNullOrEmpty(Id)) strSQL += "AND p.Id<>" + Database.HandleQuote(Id);
             return Database.HasRows(strSQL);

@@ -29,7 +29,7 @@ namespace InventoryStudio.Controllers
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim != null)
-            {   
+            {
                 var roles = AspNetRoles.GetAspNetRoless(organizationClaim.Value);
 
                 //use ViewBag to control Button show/hide
@@ -44,10 +44,10 @@ namespace InventoryStudio.Controllers
                 ViewBag.Permissions = permissions;
 
 
-                return View("~/Views/Account/Role/Index.cshtml",roles);
+                return View("~/Views/Account/Role/Index.cshtml", roles);
             }
 
-            ViewBag.ErrorMessage = "Please create or Choose Comapny";      
+            ViewBag.ErrorMessage = "Please create or Choose Comapny";
 
 
             return View("Error");
@@ -62,7 +62,7 @@ namespace InventoryStudio.Controllers
         [Authorize(Policy = "Account-Role-Create")]
         [HttpPost]
         public async Task<IActionResult> Create(string roleName)
-        {      
+        {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
@@ -72,16 +72,17 @@ namespace InventoryStudio.Controllers
             var role = new AspNetRoles
             {
                 Name = roleName,
+                NormalizedName = roleName.ToUpper(),
                 CompanyId = organizationClaim.Value
             };
 
             try
             {
-                var result = role.Create(); 
+                var result = role.Create();
 
-                
+
                 return RedirectToAction("Index");
-                
+
             }
             catch (Exception ex)
             {
@@ -213,7 +214,7 @@ namespace InventoryStudio.Controllers
                 return RedirectToAction("Index");
             }
 
-            var permissions =   AspNetPermission.GetAspNetPermissions();
+            var permissions = AspNetPermission.GetAspNetPermissions();
 
             var model = new AssignPermissionsViewModel
             {
@@ -245,7 +246,7 @@ namespace InventoryStudio.Controllers
             }
 
             // Update role permissions
-            
+
             var currentPermissions = role.AssignPermissionIds ?? new List<string>();
 
             var selectedPermissions = model.SelectedPermissionIds ?? new List<string>();
@@ -262,7 +263,7 @@ namespace InventoryStudio.Controllers
                 rolePermission.Create();
             }
 
-           
+
             foreach (var permissionId in permissionsToRemove)
             {
                 AspNetRolePermission rolePermission = new AspNetRolePermission(model.RoleId, permissionId);
