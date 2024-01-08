@@ -28,8 +28,8 @@ namespace ISLibrary
         public string PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public bool TwoFactorEnabled { get; set; }
-        public DateTime LockedEnd { get; set; }
-        public bool LockedoutEnabled { get; set; }
+        public DateTimeOffset? LockoutEnd { get; set; }
+        public bool LockoutEnabled { get; set; }
         public string AccessFailedCount { get; set; }
 
         private List<Company>? mCompanies = null;
@@ -113,7 +113,7 @@ namespace ISLibrary
             try
             {
                 strSQL = "SELECT * " +
-                         "FROM AspNetUsers (NOLOCK) " +
+                         "FROM AspNetUsers (NOLOCK) WHERE 1=1" +
                          "AND Id=" + Database.HandleQuote(Id);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -156,8 +156,8 @@ namespace ISLibrary
                 if (objColumns.Contains("PhoneNumber")) PhoneNumber = Convert.ToString(objRow["PhoneNumber"]);
                 if (objColumns.Contains("PhoneNumberConfirmed") && objRow["PhoneNumberConfirmed"] != DBNull.Value) EmailConfirmed = Convert.ToBoolean(objRow["PhoneNumberConfirmed"]);
                 if (objColumns.Contains("TwoFactorEnabled") && objRow["TwoFactorEnabled"] != DBNull.Value) TwoFactorEnabled = Convert.ToBoolean(objRow["TwoFactorEnabled"]);
-                if (objColumns.Contains("LockedEnd") && objRow["LockedEnd"] != DBNull.Value) LockedEnd = Convert.ToDateTime(objRow["LockedEnd"]);
-                if (objColumns.Contains("LockedoutEnabled") && objRow["LockedoutEnabled"] != DBNull.Value) LockedoutEnabled = Convert.ToBoolean(objRow["LockedoutEnabled"]);
+                if (objColumns.Contains("LockoutEnd") && objRow["LockoutEnd"] != DBNull.Value) LockoutEnd = Convert.ToDateTime(objRow["LockoutEnd"]);
+                if (objColumns.Contains("LockoutEnabled") && objRow["LockoutEnabled"] != DBNull.Value) LockoutEnabled = Convert.ToBoolean(objRow["LockoutEnabled"]);
                 if (objColumns.Contains("AccessFailedCount")) AccessFailedCount = Convert.ToString(objRow["AccessFailedCount"]);
 
                 if (string.IsNullOrEmpty(Id)) throw new Exception("Missing AspNetUsersID in the datarow");
@@ -226,8 +226,8 @@ namespace ISLibrary
                 dicParam["PhoneNumber"] = PhoneNumber;
                 dicParam["PhoneNumberConfirmed"] = PhoneNumberConfirmed;
                 dicParam["TwoFactorEnabled"] = TwoFactorEnabled;
-                dicParam["LockedEnd"] = LockedEnd;
-                dicParam["LockedoutEnabled"] = LockedoutEnabled;
+                dicParam["LockoutEnd"] = LockoutEnd;
+                dicParam["LockoutEnabled"] = LockoutEnabled;
                 dicParam["AccessFailedCount"] = AccessFailedCount;
 
                 Id = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUsers"), objConn, objTran).ToString();
@@ -288,7 +288,7 @@ namespace ISLibrary
                 //if (TranDate == null) throw new Exception("TranDate is required");
                 //if (AspNetUsersLines == null || AspNetUsersLines.Count == 0) throw new Exception("At least one sales order line is required");
                 if (IsNew) throw new Exception("Update cannot be performed, AspNetUsersID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 //if (BillToAddress.State == "CA" && ShippingAmount == 0) throw new Exception("");
 
@@ -304,11 +304,11 @@ namespace ISLibrary
                 dicParam["PhoneNumber"] = PhoneNumber;
                 dicParam["PhoneNumberConfirmed"] = PhoneNumberConfirmed;
                 dicParam["TwoFactorEnabled"] = TwoFactorEnabled;
-                dicParam["LockedEnd"] = LockedEnd;
-                dicParam["LockedoutEnabled"] = LockedoutEnabled;
+                dicParam["LockoutEnd"] = LockoutEnd;
+                dicParam["LockoutEnabled"] = LockoutEnabled;
                 dicParam["AccessFailedCount"] = AccessFailedCount;
 
-                dicWParam["AspNetUsersID"] = Id;
+                dicWParam["Id"] = Id;
 
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetUsers"), objConn, objTran);
 
@@ -392,7 +392,7 @@ namespace ISLibrary
                      "FROM AspNetUsers (NOLOCK) p " +
                      "WHERE 1=1 ";
 
-            if (!string.IsNullOrEmpty(Id)) strSQL += "AND p.AspNetUsersID<>" + Database.HandleQuote(Id);
+            if (!string.IsNullOrEmpty(Id)) strSQL += "AND p.Id<>" + Database.HandleQuote(Id);
             return Database.HasRows(strSQL);
         }
 

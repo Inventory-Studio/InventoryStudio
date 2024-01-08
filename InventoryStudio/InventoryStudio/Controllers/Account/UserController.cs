@@ -45,7 +45,10 @@ namespace InventoryStudio.Controllers.Account
 
         public async Task<IActionResult> Index()
         {
-            var users = IsUser.GetUsers();
+            var users = new List<AspNetUsers>();
+            var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company != null)
+                users = AspNetUsers.GetAspNetUserss(company.Value);
             return View("~/Views/Account/User/Index.cshtml", users);
         }
 
@@ -53,10 +56,10 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
-            return View("~/Views/Account/User/Detail.cshtml", user);
+            return View("~/Views/Account/User/Details.cshtml", user);
         }
 
         public IActionResult Create()
@@ -128,7 +131,7 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             var editViewModel = new EditUserViewModel();
@@ -146,14 +149,14 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var current = new IsUser(id);
-            if (current == null)
+            var user = new AspNetUsers(id);
+            if (user == null)
                 return NotFound();
-            current.UserName = input.UserName;
-            current.Status = input.Status;
-            current.Email = input.Email;
-            current.PhoneNumber = input.PhoneNumber;
-            current.Update();
+            user.UserName = input.UserName;
+            user.Status = input.Status;
+            user.Email = input.Email;
+            user.PhoneNumber = input.PhoneNumber;
+            user.Update();
             return RedirectToAction(nameof(Index));
         }
 
@@ -161,7 +164,7 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             return View("~/Views/Account/User/Delete.cshtml", user);
@@ -173,7 +176,7 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             user.Delete();
