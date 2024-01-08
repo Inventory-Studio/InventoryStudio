@@ -19,12 +19,12 @@
             <div class="tab-content" id="v-pills-tabContent">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="tab-pane fade show active" id="v-pills-editRole" role="tabpanel" aria-labelledby="v-pills-editRole-tab">
-                    <form asp-action="Edit" asp-route-id="Role.Id">
-                        <input type="hidden" asp-for="Role.Id" />                       
+                    <form asp-action="Edit" asp-route-id="@Model.AspNetRoles.Id">
+                        <input type="hidden" asp-for="AspNetRoles.Id" />
                         <div class="form-group">
-                            <label asp-for="Role.Name"></label>
-                            <input asp-for="Role.Name" class="form-control" />
-                            <span asp-validation-for="Role.Name" class="text-danger"></span>
+                            <label asp-for="AspNetRoles.Name"></label>
+                            <input asp-for="AspNetRoles.Name" class="form-control" />
+                            <span asp-validation-for="AspNetRoles.Name" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <input type="submit" value="Save" class="btn btn-primary" />

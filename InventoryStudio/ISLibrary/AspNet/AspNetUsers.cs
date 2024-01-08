@@ -16,6 +16,7 @@ namespace ISLibrary
         public string Id { get; private set; }
         public bool IsNew { get { return string.IsNullOrEmpty(Id); } }
         public string Status { get; set; }
+        public string UserName { get; set; } = string.Empty;
         public string UserType { get; set; }
         public string NormalizedUserName { get; set; }
         public string Email { get; set; }
@@ -30,6 +31,57 @@ namespace ISLibrary
         public DateTime LockedEnd { get; set; }
         public bool LockedoutEnabled { get; set; }
         public string AccessFailedCount { get; set; }
+
+        private List<Company>? mCompanies = null;
+        public List<Company>? Companies
+        {
+            get
+            {
+                if (mCompanies == null && !string.IsNullOrEmpty(Id))
+                {
+
+                    try
+                    {
+                        mCompanies = GetCompanies(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                return mCompanies;
+            }
+        }
+
+        private List<AspNetRoles>? mRoles = null;
+        public List<AspNetRoles>? Roles
+        {
+            get
+            {
+                if (mRoles == null && !string.IsNullOrEmpty(Id))
+                {
+
+                    try
+                    {
+                        mRoles = GetRoles(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                return mRoles;
+            }
+        }
+
 
         public AspNetUsers()
         {
@@ -397,12 +449,11 @@ namespace ISLibrary
 
                 strSQL = "SELECT s.* " +
                          "FROM AspNetUsers (NOLOCK) s " +
-                         "INNER JOIN Customer (NOLOCK) c ON s.CustomerID=c.CustomerID " +
+                         "INNER JOIN AspNetUserCompany (NOLOCK) c ON s.Id=c.UserId " +
                          "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
 
                 if (Filter != null)
                 {
-                    if (Filter.CustomerID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CustomerID, "s.CustomerID");
                     if (Filter.PONumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.PONumber, "s.PONumber");
                     if (Filter.TranDate != null) strSQL += Database.Filter.DateTimeSearch.GetSQLQuery(Filter.TranDate, "s.TranDate");
                     if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "s.LocationID");
@@ -432,5 +483,78 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+        public static List<Company> GetCompanies(string userId)
+        {
+            List<Company> objReturn = new List<Company>();
+            Company objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM Company u " +
+                    "INNER JOIN AspNetUserCompany uc ON u.CompanyID = uc.CompanyId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Company(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
+        public static List<AspNetRoles> GetRoles(string userId)
+        {
+            List<AspNetRoles> objReturn = new List<AspNetRoles>();
+            AspNetRoles objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM AspNetRoles u " +
+                    "INNER JOIN AspNetUserRoles uc ON u.Id = uc.RoleId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new AspNetRoles(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
     }
 }

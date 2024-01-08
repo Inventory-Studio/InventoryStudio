@@ -29,11 +29,8 @@ namespace InventoryStudio.Controllers
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim != null)
-            {
-                RoleFilter filter = new RoleFilter();
-                filter.CompanyId = new SearchFilter();
-                filter.CompanyId.SearchString = organizationClaim.Value;
-                var roles = Role.GetRoles(filter);
+            {   
+                var roles = AspNetRoles.GetAspNetRoless(organizationClaim.Value);
 
                 //use ViewBag to control Button show/hide
                 var permissions = new Dictionary<string, bool>
@@ -72,7 +69,7 @@ namespace InventoryStudio.Controllers
                 ModelState.AddModelError("", "Invalid organization information.");
                 return View("~/Views/Account/Role/Create.cshtml");
             }
-            var role = new Role
+            var role = new AspNetRoles
             {
                 Name = roleName,
                 CompanyId = organizationClaim.Value
@@ -97,7 +94,7 @@ namespace InventoryStudio.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var role = new Role(id);
+            var role = new AspNetRoles(id);
 
             if (role == null)
             {
@@ -110,12 +107,12 @@ namespace InventoryStudio.Controllers
                 return RedirectToAction("Index");
             }
 
-            var allUsers = IsUser.GetSameCompanyUsers(role.CompanyId);
-            var permissions = Permission.GetPermissions();
+            var allUsers = AspNetUsers.GetAspNetUserss(role.CompanyId);
+            var permissions = AspNetPermission.GetAspNetPermissions();
 
             var model = new RoleManagementViewModel
             {
-                Role = role,
+                AspNetRoles = role,
                 AssignUsersViewModel = new AssignUsersViewModel
                 {
                     RoleId = id,
@@ -139,8 +136,8 @@ namespace InventoryStudio.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(RoleManagementViewModel roleManagementViewModel)
         {
-            var FormRole = roleManagementViewModel.Role;
-            var role = new Role(FormRole.Id);
+            var FormRole = roleManagementViewModel.AspNetRoles;
+            var role = new AspNetRoles(FormRole.Id);
 
             if (role == null)
             {
@@ -179,7 +176,7 @@ namespace InventoryStudio.Controllers
                 return NotFound();
             }
 
-            var role = new Role(id);
+            var role = new AspNetRoles(id);
 
             if (role == null)
             {
@@ -203,7 +200,7 @@ namespace InventoryStudio.Controllers
         public async Task<IActionResult> AssignPermissions(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var role = new Role(id);
+            var role = new AspNetRoles(id);
 
             if (role == null)
             {
@@ -216,7 +213,7 @@ namespace InventoryStudio.Controllers
                 return RedirectToAction("Index");
             }
 
-            var permissions = Permission.GetPermissions();
+            var permissions =   AspNetPermission.GetAspNetPermissions();
 
             var model = new AssignPermissionsViewModel
             {
@@ -234,7 +231,7 @@ namespace InventoryStudio.Controllers
         public async Task<IActionResult> AssignPermissions(AssignPermissionsViewModel model)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var role = new Role(model.RoleId);
+            var role = new AspNetRoles(model.RoleId);
 
             if (role == null)
             {
@@ -259,7 +256,7 @@ namespace InventoryStudio.Controllers
 
             foreach (var permissionId in permissionsToAdd)
             {
-                RolePermission rolePermission = new RolePermission();
+                AspNetRolePermission rolePermission = new AspNetRolePermission();
                 rolePermission.PermissionId = permissionId;
                 rolePermission.RoleId = model.RoleId;
                 rolePermission.Create();
@@ -268,7 +265,7 @@ namespace InventoryStudio.Controllers
            
             foreach (var permissionId in permissionsToRemove)
             {
-                RolePermission rolePermission = new RolePermission(permissionId, model.RoleId);
+                AspNetRolePermission rolePermission = new AspNetRolePermission(model.RoleId, permissionId);
                 rolePermission.Delete();
             }
 
@@ -279,7 +276,7 @@ namespace InventoryStudio.Controllers
         public async Task<IActionResult> AssignUsers(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var role = new Role(id);
+            var role = new AspNetRoles(id);
 
             if (role == null)
             {
@@ -292,7 +289,7 @@ namespace InventoryStudio.Controllers
                 return RedirectToAction("Index");
             }
 
-            var allUsers = IsUser.GetSameCompanyUsers(role.CompanyId);
+            var allUsers = AspNetUsers.GetAspNetUserss(role.CompanyId);
 
             var model = new AssignUsersViewModel
             {
@@ -310,7 +307,7 @@ namespace InventoryStudio.Controllers
         public async Task<IActionResult> AssignUsers(AssignUsersViewModel model)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var role = new Role(model.RoleId);
+            var role = new AspNetRoles(model.RoleId);
 
             if (role == null)
             {
@@ -331,7 +328,7 @@ namespace InventoryStudio.Controllers
 
             foreach (var userId in usersToAdd)
             {
-                UserRole userRole = new UserRole();
+                AspNetUserRoles userRole = new AspNetUserRoles();
                 userRole.UserId = userId;
                 userRole.RoleId = model.RoleId;
                 userRole.Create();
@@ -339,7 +336,7 @@ namespace InventoryStudio.Controllers
 
             foreach (var userId in usersToRemove)
             {
-                UserRole userRole = new UserRole(userId, model.RoleId);
+                AspNetUserRoles userRole = new AspNetUserRoles(userId, model.RoleId);
                 userRole.Delete();
             }
 

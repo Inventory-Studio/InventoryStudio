@@ -124,7 +124,7 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
-                        var comapnies = user.IsUser.Companies;
+                        var comapnies = user.AspNetUser.Companies;
                         if (comapnies.Count == 0)
                         {
                             return RedirectToAction("Create", "Company");

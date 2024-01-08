@@ -277,7 +277,7 @@ namespace ISLibrary
 
             try
             {
-                objAspNetPermissions = GetAspNetPermissions(CompanyID, Filter);
+                objAspNetPermissions = GetAspNetPermissions(Filter);
                 if (objAspNetPermissions != null && objAspNetPermissions.Count >= 1) objReturn = objAspNetPermissions[0];
             }
             catch (Exception ex)
@@ -291,24 +291,24 @@ namespace ISLibrary
             return objReturn;
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions(string CompanyID)
+        public static List<AspNetPermission> GetAspNetPermissions()
         {
             int intTotalCount = 0;
-            return GetAspNetPermissions(CompanyID, null, null, null, out intTotalCount);
+            return GetAspNetPermissions( null, null, null, out intTotalCount);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions(string CompanyID, AspNetPermissionFilter Filter)
+        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter)
         {
             int intTotalCount = 0;
-            return GetAspNetPermissions(CompanyID, Filter, null, null, out intTotalCount);
+            return GetAspNetPermissions( Filter, null, null, out intTotalCount);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions(string CompanyID, AspNetPermissionFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetAspNetPermissions(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetAspNetPermissions( Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions(string CompanyID, AspNetPermissionFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             List<AspNetPermission> objReturn = null;
             AspNetPermission objNew = null;
@@ -323,7 +323,7 @@ namespace ISLibrary
 
                 strSQL = "SELECT * " +
                          "FROM AspNetPermission (NOLOCK) " +
-                         "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
+                         "WHERE 1=1 " ;
                 if (Filter != null)
                 {
                     if (Filter.Name != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Name, "Name");
