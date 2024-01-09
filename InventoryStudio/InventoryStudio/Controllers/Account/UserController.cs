@@ -220,5 +220,45 @@ namespace InventoryStudio.Controllers.Account
             user.Delete();
             return RedirectToAction(nameof(Index));
         }
+
+
+        public IActionResult Invite()
+        {
+            return View("~/Views/Account/User/Invite.cshtml");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InviteUser(InviteUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string inviteCode = Guid.NewGuid().ToString();
+                string inviteUrl = Url.Action("AcceptInvite", "User", new { email = model.Email, code = inviteCode }, Request.Scheme);
+                await _emailSender.SendEmailAsync(model.Email, "Invitation to join", $"Please click the following link to accept the invitation: {inviteUrl}");
+
+                TempData["StatusMessage"] = "Invitation sent successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View("~/Views/Account/User/Invite.cshtml", model);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> AcceptInvite(string email, string code)
+        {
+            //TODO validation
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptInvite(AcceptInviteViewModel model)
+        {
+
+            //TODO CreationUser
+            return View(model);
+        }
+
     }
 }

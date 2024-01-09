@@ -8,10 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Account\User\Invite.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\preview.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Account\User\Invite.cshtml" />
     <None Include="Views\Company\Create.cshtml" />
     <None Include="Views\Company\Edit.cshtml" />
     <None Include="Views\Company\Index.cshtml" />
@@ -84,6 +89,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ISLibrary\ISLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\User\Invite.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Account\User\Invite.cshtml" />
   </ItemGroup>
 
 </Project>
