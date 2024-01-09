@@ -154,7 +154,7 @@ namespace ISLibrary
                 if (objColumns.Contains("SecurityStamp")) SecurityStamp = Convert.ToString(objRow["SecurityStamp"]);
                 if (objColumns.Contains("ConcurrencyStamp")) ConcurrencyStamp = Convert.ToString(objRow["ConcurrencyStamp"]);
                 if (objColumns.Contains("PhoneNumber")) PhoneNumber = Convert.ToString(objRow["PhoneNumber"]);
-                if (objColumns.Contains("PhoneNumberConfirmed") && objRow["PhoneNumberConfirmed"] != DBNull.Value) EmailConfirmed = Convert.ToBoolean(objRow["PhoneNumberConfirmed"]);
+                if (objColumns.Contains("PhoneNumberConfirmed") && objRow["PhoneNumberConfirmed"] != DBNull.Value) PhoneNumberConfirmed = Convert.ToBoolean(objRow["PhoneNumberConfirmed"]);
                 if (objColumns.Contains("TwoFactorEnabled") && objRow["TwoFactorEnabled"] != DBNull.Value) TwoFactorEnabled = Convert.ToBoolean(objRow["TwoFactorEnabled"]);
                 if (objColumns.Contains("LockoutEnd") && objRow["LockoutEnd"] != DBNull.Value) LockoutEnd = Convert.ToDateTime(objRow["LockoutEnd"]);
                 if (objColumns.Contains("LockoutEnabled") && objRow["LockoutEnabled"] != DBNull.Value) LockoutEnabled = Convert.ToBoolean(objRow["LockoutEnabled"]);

@@ -27,12 +27,14 @@ namespace InventoryStudio.Controllers.Account
         private readonly ILogger<UserController> _logger;
 
 
+
         public UserController(
             SignInManager<User> signInManager,
            UserManager<User> userManager,
            IUserStore<User> userStore,
            IEmailSender emailSender,
-           ILogger<UserController> logger)
+           ILogger<UserController> logger
+          )
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -139,6 +141,18 @@ namespace InventoryStudio.Controllers.Account
             editViewModel.Status = user.Status;
             editViewModel.Email = user.Email;
             editViewModel.PhoneNumber = user.PhoneNumber;
+
+            var currentUserRoles = user.Roles.ToList();
+            if (currentUserRoles.Any())
+                editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
+            var companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var allRoles = AspNetRoles.GetAspNetRoless(companyId.Value).Select(t => new SelectListItem
+            {
+                Value = t.Id,
+                Text = t.Name,
+                Selected = editViewModel.SelectedRoles.Contains(t.Name)
+            }).ToList();
+            editViewModel.AllRoles = allRoles;
             return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
@@ -156,6 +170,31 @@ namespace InventoryStudio.Controllers.Account
             user.Email = input.Email;
             user.PhoneNumber = input.PhoneNumber;
             user.Update();
+
+            var currentUserRoles = user.Roles.Select(t => t.Id).ToList();
+
+            var removeRoleIds = currentUserRoles.Except(input.SelectedRoles).ToList();
+            foreach (var selectedRoleId in input.SelectedRoles)
+            {
+                var userRole = new AspNetUserRoles(user.Id, selectedRoleId);
+                if (userRole != null)
+                    userRole.Update();
+                else
+                {
+                    userRole = new AspNetUserRoles();
+                    userRole.UserId = user.Id;
+                    userRole.RoleId = selectedRoleId;
+                    userRole.Create();
+                }
+            }
+
+            foreach (var removeRoleId in removeRoleIds)
+            {
+                var userRole = new AspNetUserRoles(user.Id, removeRoleId);
+                if (userRole != null)
+                    userRole.Delete();
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

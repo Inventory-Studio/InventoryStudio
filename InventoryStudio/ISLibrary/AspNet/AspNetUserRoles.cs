@@ -20,7 +20,7 @@ namespace ISLibrary
         public AspNetUserRoles()
         {
         }
-        public AspNetUserRoles(string UserId,string RoleId)
+        public AspNetUserRoles(string UserId, string RoleId)
         {
             this.UserId = UserId;
             this.RoleId = RoleId;
@@ -190,17 +190,13 @@ namespace ISLibrary
             {
                 if (string.IsNullOrEmpty(UserId)) throw new Exception("UserId is required");
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("RoleId is required");
-
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
-
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["UserId"] = UserId;
                 dicParam["RoleId"] = RoleId;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
-
                 dicWParam["UserId"] = UserId;
-
+                dicWParam["RoleId"] = RoleId;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetUserRoles"), objConn, objTran);
-
                 Load(objConn, objTran);
             }
             catch (Exception ex)

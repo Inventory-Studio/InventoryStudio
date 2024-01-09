@@ -5,6 +5,14 @@ namespace InventoryStudio.Models.Account
 {
     public class EditUserViewModel
     {
+        public EditUserViewModel()
+        {
+            StatusOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "Active", Text = "Active" },
+                new SelectListItem { Value = "InActive", Text = "InActive" }
+            };
+        }
         public string Id { get; set; }
 
         [Required]
@@ -25,13 +33,8 @@ namespace InventoryStudio.Models.Account
 
         public List<SelectListItem> StatusOptions { get; set; }
 
-        public EditUserViewModel()
-        {
-            StatusOptions = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "Active", Text = "Active" },
-                new SelectListItem { Value = "InActive", Text = "InActive" }
-            };
-        }
+        public List<string> SelectedRoles { get; set; }
+
+        public List<SelectListItem> AllRoles { get; set; }
     }
 }
