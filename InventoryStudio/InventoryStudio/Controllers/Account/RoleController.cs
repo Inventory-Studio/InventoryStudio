@@ -154,7 +154,7 @@ namespace InventoryStudio.Controllers
             }
 
             role.Name = FormRole.Name;
-
+            role.UpdatedBy = _userManager.GetUserId(User);
             try
             {
                 var result = role.Update();
