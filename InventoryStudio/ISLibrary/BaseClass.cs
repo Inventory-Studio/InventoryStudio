@@ -13,6 +13,10 @@ namespace ISLibrary
         public string ParentObject { get;  set; }
         protected Dictionary<string, object> OriginalValues { get; set; }
         protected Dictionary<string, object> CurrentValues { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedOn { get; private set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreatedOn { get; private set; }
 
         // if the data is null, system will record all the attributes changed, if it have value, system will trace the attributes in it
         protected virtual List<string> TraceAttributes { get; set; }
@@ -102,7 +106,7 @@ namespace ISLibrary
                 auditData.ParentKey = ParentKey;
                 auditData.ParentObject = ParentObject;
                 auditData.ChangedValue = auditDataJson;
-
+                auditData.CreatedBy = UpdatedBy;
                 
                 auditData.Create();
 
