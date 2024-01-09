@@ -324,7 +324,8 @@ namespace ISLibrary
                 objReturn = new List<RoutingProfileLocation>();
 
                 strSQL = "SELECT s.* " +
-                         "FROM RoutingProfileLocation (NOLOCK) s ";
+                         "FROM RoutingProfileLocation (NOLOCK) s " +
+                         "WHERE 1=1 ";
 
                 if (Filter != null)
                 {
