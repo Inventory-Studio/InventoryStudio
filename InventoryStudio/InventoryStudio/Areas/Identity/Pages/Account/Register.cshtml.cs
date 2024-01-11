@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using InventoryStudio.Models;
+using ISLibrary.AspNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -59,6 +60,9 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
         /// </summary>
         public string ReturnUrl { get; set; }
 
+        [BindProperty]
+        public string InviteCode { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -101,22 +105,22 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
         }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string inviteCode = null, string returnUrl = null)
         {
             ReturnUrl = returnUrl;
+            if (!string.IsNullOrEmpty(inviteCode))
+                InviteCode = inviteCode;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string inviteCode = null, string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-               
                 user.UserType = "Normal";
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -124,7 +128,6 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -136,6 +139,20 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (!string.IsNullOrEmpty(inviteCode))
+                    {
+                        var filter = new AspNetUserInvitesFilter();
+                        filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                        filter.Code.SearchString = inviteCode;
+                        var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                        if (invites != null)
+                        {
+                            var invite = invites.FirstOrDefault();
+                            invite.IsAccepted = true;
+                            invite.Update();
+                        }
+                    }
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

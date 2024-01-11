@@ -2,7 +2,12 @@
 
 <h2>Invite User</h2>
 
-<form asp-controller="User" asp-action="InviteUser" method="post">
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-controller="User" asp-action="SendInvitation" method="post">
     <div class="form-group">
         <label asp-for="Email"></label>
         <input asp-for="Email" class="form-control" />

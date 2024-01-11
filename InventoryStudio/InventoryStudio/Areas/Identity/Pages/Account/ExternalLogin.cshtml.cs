@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
 using ISLibrary;
+using ISLibrary.AspNet;
 
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
@@ -87,19 +88,21 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+            public string InviteCode { get; set; }
         }
 
         public IActionResult OnGet() => RedirectToPage("./Login");
 
-        public IActionResult OnPost(string provider, string returnUrl = null)
+        public IActionResult OnPost(string provider, string returnUrl = null, string inviteCode = null)
         {
             // Request a redirect to the external login provider.
-            var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
+            var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl, inviteCode });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
         }
 
-        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null, string inviteCode = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             if (remoteError != null)
@@ -154,7 +157,8 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        InviteCode = inviteCode
                     };
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
@@ -209,6 +213,21 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+
+                        if (!string.IsNullOrEmpty(Input.InviteCode))
+                        {
+                            var filter = new AspNetUserInvitesFilter();
+                            filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                            filter.Code.SearchString = Input.InviteCode;
+                            var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                            if (invites != null)
+                            {
+                                var invite = invites.FirstOrDefault();
+                                invite.IsAccepted = true;
+                                invite.Update();
+                            }
+                        }
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

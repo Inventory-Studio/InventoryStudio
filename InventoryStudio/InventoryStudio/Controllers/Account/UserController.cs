@@ -12,6 +12,8 @@ using System.Text;
 using ISLibrary;
 using InventoryStudio.Models.Account;
 using InventoryStudio.Models.ViewModels;
+using ISLibrary.AspNet;
+using System.Security.Claims;
 
 namespace InventoryStudio.Controllers.Account
 {
@@ -228,37 +230,34 @@ namespace InventoryStudio.Controllers.Account
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> InviteUser(InviteUserViewModel model)
+        public async Task<IActionResult> SendInvitation(InviteUserViewModel model)
         {
             if (ModelState.IsValid)
             {
-                string inviteCode = Guid.NewGuid().ToString();
-                string inviteUrl = Url.Action("AcceptInvite", "User", new { email = model.Email, code = inviteCode }, Request.Scheme);
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    TempData["ErrorMessage"] = "This email is already registered and cannot send invitations";
+                    return RedirectToAction("Invite", "User");
+                }
+                string inviteCode = Guid.NewGuid().ToString("N").Substring(0, 16);
+                AspNetUserInvites invite = new AspNetUserInvites();
+                invite.Email = model.Email;
+                invite.Code = inviteCode;
+                invite.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                invite.Create();
+
+                string inviteUrl = Url.Action("Register", "Account", new { area = "Identity", inviteCode = inviteCode }, Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Invitation to join", $"Please click the following link to accept the invitation: {inviteUrl}");
 
                 TempData["StatusMessage"] = "Invitation sent successfully.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Invite", "User");
             }
 
             return View("~/Views/Account/User/Invite.cshtml", model);
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> AcceptInvite(string email, string code)
-        {
-            //TODO validation
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AcceptInvite(AcceptInviteViewModel model)
-        {
-
-            //TODO CreationUser
-            return View(model);
-        }
-        
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
         {
             IEnumerable<AspNetUsers> dataSource = _userIndexViewModel.Users.AsEnumerable();
@@ -269,8 +268,8 @@ namespace InventoryStudio.Controllers.Account
                 CompanyFilter companyFilter = new();
                 var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
-                    dataSource = AspNetUsers.GetAspNetUserss(company.Value,null, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
-                
+                    dataSource = AspNetUsers.GetAspNetUserss(company.Value, null, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
+
             }
 
             if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
