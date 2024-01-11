@@ -169,6 +169,7 @@ namespace ISLibrary
 
             try
             {
+                if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, RoutingProfileID already exists");
 
@@ -237,6 +238,7 @@ namespace ISLibrary
 
             try
             {
+                if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
                 if (IsNew) throw new Exception("Update cannot be performed, RoutingProfileID is missing");
 
