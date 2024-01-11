@@ -1,0 +1,12 @@
+﻿@model InventoryStudio.Models.Account.InviteUserViewModel
+
+<h2>Invite User</h2>
+
+<form asp-controller="User" asp-action="InviteUser" method="post">
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Invitation</button>
+</form>

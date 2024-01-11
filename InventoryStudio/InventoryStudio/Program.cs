@@ -35,7 +35,9 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorization
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 //config email server
-builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
+
+builder.Services.AddLogging();
 
 builder.Services.AddControllersWithViews();
 

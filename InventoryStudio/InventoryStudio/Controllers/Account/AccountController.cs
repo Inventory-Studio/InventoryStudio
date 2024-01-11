@@ -33,7 +33,7 @@ namespace InventoryStudio.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            List<Company> companies = user.IsUser.Companies;
+            List<Company> companies = user.AspNetUser.Companies;
 
             if(companies.Count == 1)
             {
@@ -50,7 +50,7 @@ namespace InventoryStudio.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            List<Company> companies = user.IsUser.Companies;
+            List<Company> companies = user.AspNetUser.Companies;
 
             if (companies.Any(c => c.CompanyID == companyId.ToString()))
             {
@@ -93,7 +93,7 @@ namespace InventoryStudio.Controllers
                .FirstOrDefault(c => c.UserId == userId && c.ClaimType == "RootUser");
 
             var user = await _userManager.GetUserAsync(User);
-            List<Company> companies = user.IsUser.Companies;
+            List<Company> companies = user.AspNetUser.Companies;
 
             List<string> companyIds = companies.Where(c => c.CreatedBy == userId)
                           .Select(c => c.CompanyID)
@@ -135,7 +135,7 @@ namespace InventoryStudio.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            List<Role> roles = user.IsUser.Roles;
+            List<AspNetRoles> roles = user.AspNetUser.Roles;
 
             if (roles.Count == 0)
             {
@@ -157,9 +157,9 @@ namespace InventoryStudio.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            List<Role> roles = user.IsUser.Roles;
+            List<AspNetRoles> roles = user.AspNetUser.Roles;
 
-            Role role = roles.FirstOrDefault(c => c.Id == roleId);
+            AspNetRoles role = roles.FirstOrDefault(c => c.Id == roleId);
 
             if (role != null)
             {
@@ -173,7 +173,7 @@ namespace InventoryStudio.Controllers
             }
         }
 
-        private async Task SwitchToRole(int userId, Role role)
+        private async Task SwitchToRole(int userId, AspNetRoles role)
         {
             //add currentRole
             var existingRoleClaim = _context.UserClaims
@@ -203,7 +203,7 @@ namespace InventoryStudio.Controllers
             // Remove all of the Permission
             _context.UserClaims.RemoveRange(existingPermissionClaims);
 
-            List<Permission> rolePermissions = role.AssignPermissions;
+            List<AspNetPermission> rolePermissions = role.AssignPermissions;
 
             // Save Permission into Claims 
 

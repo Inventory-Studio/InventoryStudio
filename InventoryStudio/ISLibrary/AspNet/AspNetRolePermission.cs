@@ -19,9 +19,10 @@ namespace ISLibrary
         {
         }
       
-        public AspNetRolePermission(string RoleId)
+        public AspNetRolePermission(string RoleId, string PermissionId)
         {
             this.RoleId = RoleId;
+            this.PermissionId = PermissionId;           
             this.Load();
         }
 
@@ -41,7 +42,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT * " +
                          "FROM AspNetRolePermission (NOLOCK) " +
-                         "WHERE RoleId=" + Database.HandleQuote(RoleId);
+                        "WHERE PermissionId=" + Database.HandleQuote(PermissionId.ToString()) +
+                         " AND RoleId = " + Database.HandleQuote(RoleId.ToString());
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -128,7 +130,7 @@ namespace ISLibrary
                 dicParam["RoleId"] = RoleId;
                 dicParam["PermissionId"] = PermissionId;
 
-                RoleId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetRolePermission"), objConn, objTran).ToString();
+                Database.ExecuteSQL(Database.GetInsertSQL(dicParam, "AspNetRolePermission"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
             }
@@ -264,8 +266,8 @@ namespace ISLibrary
                      "FROM AspNetRolePermission (NOLOCK) p " +
                      "WHERE 1=1 ";
 
-            if (!string.IsNullOrEmpty(RoleId)) strSQL += "AND p.RoleId<>" + Database.HandleQuote(RoleId);
-            if (!string.IsNullOrEmpty(PermissionId)) strSQL += "AND p.PermissionId<>" + Database.HandleQuote(PermissionId);
+            if (!string.IsNullOrEmpty(RoleId)) strSQL += "AND p.RoleId=" + Database.HandleQuote(RoleId);
+            if (!string.IsNullOrEmpty(PermissionId)) strSQL += "AND p.PermissionId=" + Database.HandleQuote(PermissionId);
 
             return Database.HasRows(strSQL);
         }

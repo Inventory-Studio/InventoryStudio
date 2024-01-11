@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using InventoryStudio.Data;
 using InventoryStudio.Models;
-using ISLibrary.Account;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
@@ -28,12 +27,14 @@ namespace InventoryStudio.Controllers.Account
         private readonly ILogger<UserController> _logger;
 
 
+
         public UserController(
             SignInManager<User> signInManager,
            UserManager<User> userManager,
            IUserStore<User> userStore,
            IEmailSender emailSender,
-           ILogger<UserController> logger)
+           ILogger<UserController> logger
+          )
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -45,7 +46,10 @@ namespace InventoryStudio.Controllers.Account
 
         public async Task<IActionResult> Index()
         {
-            var users = IsUser.GetUsers();
+            var users = new List<AspNetUsers>();
+            var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company != null)
+                users = AspNetUsers.GetAspNetUserss(company.Value);
             return View("~/Views/Account/User/Index.cshtml", users);
         }
 
@@ -53,10 +57,10 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
-            return View("~/Views/Account/User/Detail.cshtml", user);
+            return View("~/Views/Account/User/Details.cshtml", user);
         }
 
         public IActionResult Create()
@@ -128,7 +132,7 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             var editViewModel = new EditUserViewModel();
@@ -137,6 +141,18 @@ namespace InventoryStudio.Controllers.Account
             editViewModel.Status = user.Status;
             editViewModel.Email = user.Email;
             editViewModel.PhoneNumber = user.PhoneNumber;
+
+            var currentUserRoles = user.Roles.ToList();
+            if (currentUserRoles.Any())
+                editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
+            var companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var allRoles = AspNetRoles.GetAspNetRoless(companyId.Value).Select(t => new SelectListItem
+            {
+                Value = t.Id,
+                Text = t.Name,
+                Selected = editViewModel.SelectedRoles.Contains(t.Name)
+            }).ToList();
+            editViewModel.AllRoles = allRoles;
             return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
@@ -146,14 +162,39 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var current = new IsUser(id);
-            if (current == null)
+            var user = new AspNetUsers(id);
+            if (user == null)
                 return NotFound();
-            current.UserName = input.UserName;
-            current.Status = input.Status;
-            current.Email = input.Email;
-            current.PhoneNumber = input.PhoneNumber;
-            current.Update();
+            user.UserName = input.UserName;
+            user.Status = input.Status;
+            user.Email = input.Email;
+            user.PhoneNumber = input.PhoneNumber;
+            user.Update();
+
+            var currentUserRoles = user.Roles.Select(t => t.Id).ToList();
+
+            var removeRoleIds = currentUserRoles.Except(input.SelectedRoles).ToList();
+            foreach (var selectedRoleId in input.SelectedRoles)
+            {
+                var userRole = new AspNetUserRoles(user.Id, selectedRoleId);
+                if (userRole != null)
+                    userRole.Update();
+                else
+                {
+                    userRole = new AspNetUserRoles();
+                    userRole.UserId = user.Id;
+                    userRole.RoleId = selectedRoleId;
+                    userRole.Create();
+                }
+            }
+
+            foreach (var removeRoleId in removeRoleIds)
+            {
+                var userRole = new AspNetUserRoles(user.Id, removeRoleId);
+                if (userRole != null)
+                    userRole.Delete();
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -161,7 +202,7 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             return View("~/Views/Account/User/Delete.cshtml", user);
@@ -173,11 +214,51 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new IsUser(id);
+            var user = new AspNetUsers(id);
             if (user == null)
                 return NotFound();
             user.Delete();
             return RedirectToAction(nameof(Index));
         }
+
+
+        public IActionResult Invite()
+        {
+            return View("~/Views/Account/User/Invite.cshtml");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InviteUser(InviteUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string inviteCode = Guid.NewGuid().ToString();
+                string inviteUrl = Url.Action("AcceptInvite", "User", new { email = model.Email, code = inviteCode }, Request.Scheme);
+                await _emailSender.SendEmailAsync(model.Email, "Invitation to join", $"Please click the following link to accept the invitation: {inviteUrl}");
+
+                TempData["StatusMessage"] = "Invitation sent successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View("~/Views/Account/User/Invite.cshtml", model);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> AcceptInvite(string email, string code)
+        {
+            //TODO validation
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptInvite(AcceptInviteViewModel model)
+        {
+
+            //TODO CreationUser
+            return View(model);
+        }
+
     }
 }

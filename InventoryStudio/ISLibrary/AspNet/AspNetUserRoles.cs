@@ -20,9 +20,10 @@ namespace ISLibrary
         public AspNetUserRoles()
         {
         }
-        public AspNetUserRoles(string UserId)
+        public AspNetUserRoles(string UserId, string RoleId)
         {
             this.UserId = UserId;
+            this.RoleId = RoleId;
             this.Load();
         }
 
@@ -42,7 +43,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT * " +
                          "FROM AspNetUserRoles (NOLOCK) " +
-                         "WHERE 1=1 ";
+                          "WHERE UserId=" + Database.HandleQuote(UserId.ToString()) +
+                         " AND RoleId = " + Database.HandleQuote(RoleId.ToString());
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -131,9 +133,10 @@ namespace ISLibrary
 
                 dicParam["UserId"] = UserId;
                 dicParam["RoleId"] = RoleId;
+                dicParam["UpdatedOn"] = DateTime.UtcNow;
+                dicParam["CreatedOn"] = DateTime.UtcNow;
 
-
-                UserId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUserRoles"), objConn, objTran).ToString();
+                Database.ExecuteSQL(Database.GetInsertSQL(dicParam, "AspNetUserRoles"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
             }
@@ -187,17 +190,13 @@ namespace ISLibrary
             {
                 if (string.IsNullOrEmpty(UserId)) throw new Exception("UserId is required");
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("RoleId is required");
-
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
-
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["UserId"] = UserId;
                 dicParam["RoleId"] = RoleId;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
-
                 dicWParam["UserId"] = UserId;
-
+                dicWParam["RoleId"] = RoleId;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetUserRoles"), objConn, objTran);
-
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -273,7 +272,8 @@ namespace ISLibrary
                      "FROM AspNetUserRoles (NOLOCK) p " +
                      "WHERE 1=1 ";
 
-            if (!string.IsNullOrEmpty(UserId)) strSQL += "AND p.UserId)<>" + Database.HandleQuote(UserId);
+            if (!string.IsNullOrEmpty(UserId)) strSQL += "AND p.UserId=" + Database.HandleQuote(UserId);
+            if (!string.IsNullOrEmpty(RoleId)) strSQL += "AND p.RoleId=" + Database.HandleQuote(RoleId);
             return Database.HasRows(strSQL);
         }
 

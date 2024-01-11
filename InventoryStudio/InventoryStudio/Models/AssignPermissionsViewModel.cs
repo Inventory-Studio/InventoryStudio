@@ -11,7 +11,7 @@ namespace InventoryStudio.Models
         [Display(Name = "Role Name")]
         public string RoleName { get; set; }
 
-        public List<Permission> Permissions { get; set; }
+        public List<AspNetPermission> Permissions { get; set; }
 
         [Display(Name = "Assigned Permissions")]
         public List<string> AssignPermissions { get; set; }

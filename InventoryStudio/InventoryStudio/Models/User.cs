@@ -21,8 +21,8 @@ namespace InventoryStudio.Models
         [MaxLength(50)]
         public string UserType { get; set; } = "Normal";
 
-        private IsUser mUser = null;
-        public IsUser IsUser
+        private AspNetUsers mUser = null;
+        public AspNetUsers AspNetUser
         {
             get
             {
@@ -31,7 +31,7 @@ namespace InventoryStudio.Models
 
                     try
                     {
-                        mUser = new IsUser(Id.ToString());
+                        mUser = new AspNetUsers(Id.ToString());
                     }
                     catch (Exception ex)
                     {

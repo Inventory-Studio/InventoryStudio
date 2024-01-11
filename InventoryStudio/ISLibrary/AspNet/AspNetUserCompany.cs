@@ -134,6 +134,7 @@ namespace ISLibrary
 
                 dicParam["UserId"] = UserId;
                 dicParam["CompanyID"] = CompanyID;
+                dicParam["CreatedOn"] = DateTime.UtcNow;
 
                 UserCompanyId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUserCompany"), objConn, objTran).ToString();
 
@@ -188,7 +189,7 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(UserId)) throw new Exception("UserId is required");
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required"); 
+                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (IsNew) throw new Exception("Update cannot be performed, CompanyUserID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
@@ -272,6 +273,8 @@ namespace ISLibrary
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM AspNetUserCompany (NOLOCK) p " +
                      "WHERE 1=1 ";
+            strSQL += " AND p.UserId=" + Database.HandleQuote(UserId);
+            strSQL += " AND p.CompanyId=" + Database.HandleQuote(CompanyID);
 
             if (!string.IsNullOrEmpty(UserCompanyId)) strSQL += "AND p.UserCompanyId<>" + Database.HandleQuote(UserCompanyId);
             return Database.HasRows(strSQL);
