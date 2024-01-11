@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Syncfusion.EJ2.Base;
 using InventoryStudio.Models;
@@ -29,7 +27,7 @@ namespace InventoryStudio.Controllers.Account
         private UserIndexViewModel _userIndexViewModel = new() { Users = new List<AspNetUsers>() };
 
         public UserController(
-            SignInManager<User> signInManager,
+           SignInManager<User> signInManager,
            UserManager<User> userManager,
            IUserStore<User> userStore,
            IEmailSender emailSender,
@@ -44,7 +42,7 @@ namespace InventoryStudio.Controllers.Account
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var users = new List<AspNetUsers>();
             var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
@@ -54,7 +52,7 @@ namespace InventoryStudio.Controllers.Account
             return View("~/Views/Account/User/Index.cshtml", _userIndexViewModel);
         }
 
-        public async Task<IActionResult> Details(string id)
+        public IActionResult Details(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -129,7 +127,7 @@ namespace InventoryStudio.Controllers.Account
             return (IUserEmailStore<User>)_userStore;
         }
 
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult Edit(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -142,24 +140,29 @@ namespace InventoryStudio.Controllers.Account
             editViewModel.Status = user.Status;
             editViewModel.Email = user.Email;
             editViewModel.PhoneNumber = user.PhoneNumber;
-
-            var currentUserRoles = user.Roles.ToList();
-            if (currentUserRoles.Any())
-                editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
-            var companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-            var allRoles = AspNetRoles.GetAspNetRoless(companyId.Value).Select(t => new SelectListItem
+            if (user.Roles != null)
             {
-                Value = t.Id,
-                Text = t.Name,
-                Selected = editViewModel.SelectedRoles.Contains(t.Name)
-            }).ToList();
-            editViewModel.AllRoles = allRoles;
+                var currentUserRoles = user.Roles.ToList();
+                if (currentUserRoles.Any())
+                    editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
+                var companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+                if (companyId != null)
+                {
+                    var allRoles = AspNetRoles.GetAspNetRoless(companyId.Value).Select(t => new SelectListItem
+                    {
+                        Value = t.Id,
+                        Text = t.Name,
+                        Selected = editViewModel.SelectedRoles.Contains(t.Name)
+                    }).ToList();
+                    editViewModel.AllRoles = allRoles;
+                }
+            }
             return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, EditUserViewModel input)
+        public IActionResult Edit(string id, EditUserViewModel input)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -172,34 +175,40 @@ namespace InventoryStudio.Controllers.Account
             user.PhoneNumber = input.PhoneNumber;
             user.Update();
 
-            var currentUserRoles = user.Roles.Select(t => t.Id).ToList();
-
-            var removeRoleIds = currentUserRoles.Except(input.SelectedRoles).ToList();
-            foreach (var selectedRoleId in input.SelectedRoles)
+            if (user.Roles != null)
             {
-                var userRole = new AspNetUserRoles(user.Id, selectedRoleId);
-                if (userRole != null)
-                    userRole.Update();
-                else
+                var currentUserRoles = user.Roles.Select(t => t.Id).ToList();
+
+                var removeRoleIds = currentUserRoles.Except(input.SelectedRoles).ToList();
+                foreach (var selectedRoleId in input.SelectedRoles)
                 {
-                    userRole = new AspNetUserRoles();
-                    userRole.UserId = user.Id;
-                    userRole.RoleId = selectedRoleId;
-                    userRole.Create();
+                    var userRole = new AspNetUserRoles(user.Id, selectedRoleId);
+                    if (userRole != null)
+                    {
+                        userRole.Update();
+                    }
+                    else
+                    {
+                        userRole = new AspNetUserRoles
+                        {
+                            UserId = user.Id,
+                            RoleId = selectedRoleId
+                        };
+                        userRole.Create();
+                    }
                 }
-            }
 
-            foreach (var removeRoleId in removeRoleIds)
-            {
-                var userRole = new AspNetUserRoles(user.Id, removeRoleId);
-                if (userRole != null)
-                    userRole.Delete();
+                foreach (var removeRoleId in removeRoleIds)
+                {
+                    var userRole = new AspNetUserRoles(user.Id, removeRoleId);
+                    userRole?.Delete();
+                }
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(string id)
+        public IActionResult Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -211,7 +220,7 @@ namespace InventoryStudio.Controllers.Account
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public IActionResult DeleteConfirmed(string id)
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
@@ -241,13 +250,15 @@ namespace InventoryStudio.Controllers.Account
                     return RedirectToAction("Invite", "User");
                 }
                 string inviteCode = Guid.NewGuid().ToString("N").Substring(0, 16);
-                AspNetUserInvites invite = new AspNetUserInvites();
-                invite.Email = model.Email;
-                invite.Code = inviteCode;
-                invite.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                AspNetUserInvites invite = new()
+                {
+                    Email = model.Email,
+                    Code = inviteCode,
+                    UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                };
                 invite.Create();
 
-                string inviteUrl = Url.Action("Register", "Account", new { area = "Identity", inviteCode = inviteCode }, Request.Scheme);
+                string inviteUrl = Url.Action("Register", "Account", new { area = "Identity", inviteCode }, Request.Scheme) ?? "";
                 await _emailSender.SendEmailAsync(model.Email, "Invitation to join", $"Please click the following link to accept the invitation: {inviteUrl}");
 
                 TempData["StatusMessage"] = "Invitation sent successfully.";
@@ -265,11 +276,12 @@ namespace InventoryStudio.Controllers.Account
             int TotalRecord = 0;
             if (dm.Skip != 0 || dm.Take != 0)
             {
-                CompanyFilter companyFilter = new();
                 var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
-                    dataSource = AspNetUsers.GetAspNetUserss(company.Value, null, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
-
+                {
+                    AspNetUsersFilter aspNetUsersFilter = new();
+                    dataSource = AspNetUsers.GetAspNetUserss(company.Value, aspNetUsersFilter, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
+                }
             }
 
             if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
@@ -279,9 +291,7 @@ namespace InventoryStudio.Controllers.Account
 
             if (dm.Where != null && dm.Where.Count > 0) //Filtering
             {
-                //dm.Where[0].Field = Regex.Replace(dm.Where[0].predicates[0].Field, @"\b\p{Ll}", match => match.Value.ToUpper());
-                dataSource = operation.PerformFiltering
-                    (dataSource, dm.Where, dm.Where[0].Operator);
+                dataSource = operation.PerformFiltering(dataSource, dm.Where, dm.Where[0].Operator);
             }
 
             return dm.RequiresCounts ? Json(new { result = dataSource, count = TotalRecord }) : Json(dataSource);
