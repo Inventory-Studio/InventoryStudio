@@ -1,52 +1,83 @@
-﻿@model IEnumerable<AspNetUsers>
+﻿@model InventoryStudio.Models.ViewModels.UserIndexViewModel
 
 @{
-    ViewData["Title"] = "User";
+    ViewData["Title"] = "User Management";
 }
 
 
-<div class="container-fluid">
-    <h1>UserManagement</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>UserName</th>
-                <th>UserType</th>
-                <th>Status</th>
-                <th>Email</th>
-                <th>PhoneNumber</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserType)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Status)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Email)
-                    </td>
+<div class="container-fluid pb-4">
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <h2 class="fw-semibold mb-0">User Management</h2>
+    </div>
 
-                    <td>
-                        @Html.DisplayFor(modelItem => item.PhoneNumber)
-                    </td>
 
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <a asp-action="Create">Create New User</a>
+    <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
+              allowExcelExport="true" allowPdfExport="true">
+
+        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" showDeleteConfirmDialog="true"
+                             mode="Batch">
+        </e-grid-editSettings>
+        <e-grid-filterSettings type="Excel"></e-grid-filterSettings>
+        <e-data-manager url="/User/UrlDataSource" adaptor="UrlAdaptor">
+        </e-data-manager>
+        @* <e-grid-pagesettings pageSize="20"></e-grid-pagesettings> *@
+        <e-grid-columns>
+            <e-grid-column field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                           validationRules="@(new { number = true })" width="80">
+            </e-grid-column>
+            <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
+            <e-grid-column field="UserType" headerText="User Type" width="120"></e-grid-column>
+            <e-grid-column field="Status" headerText="Status" width="120"></e-grid-column>
+            <e-grid-column field="Email" headerText="E-mail" width="120"></e-grid-column>
+            <e-grid-column field="PhoneNumber" headerText="Phone Number" width="120"></e-grid-column>
+        </e-grid-columns>
+
+    </ejs-grid>
+    @* <table class="table"> *@
+    @*     <thead> *@
+    @*         <tr> *@
+    @*             <th>UserName</th> *@
+    @*             <th>UserType</th> *@
+    @*             <th>Status</th> *@
+    @*             <th>Email</th> *@
+    @*             <th>PhoneNumber</th> *@
+    @*             <th></th> *@
+    @*         </tr> *@
+    @*     </thead> *@
+    @*     <tbody> *@
+    @*         *@
+    @*             <tr> *@
+    @*                *@
+    @*                 <td> *@
+    @*                     $1$ <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | #1# *@
+    @*                     $1$ <a asp-action="Details" asp-route-id="@item.Id">Details</a> | #1# *@
+    @*                     $1$ <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> #1# *@
+    @*                 </td> *@
+    @*             </tr> *@
+    @*          *@
+    @*     </tbody> *@
+    @* </table> *@
+    @* <a asp-action="Create">Create New User</a> *@
 </div>
+
+
+<style>
+    .e-grid .e-summaryrow .e-summarycell {
+        height: 40px;
+        background-color: #fff;
+    }
+
+    .e-gridpager {
+        border-bottom-left-radius: 6px !important;
+        border-bottom-right-radius: 6px !important;
+    }
+
+    .e-grid {
+        border-radius: 6px !important;
+    }
+
+    .e-toolbar {
+        border-top-left-radius: 6px !important;
+        border-top-right-radius: 6px !important;
+    }
+</style>

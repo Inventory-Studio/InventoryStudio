@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using InventoryStudio.Data;
+using Syncfusion.EJ2.Base;
 using InventoryStudio.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -14,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Text;
 using ISLibrary;
 using InventoryStudio.Models.Account;
+using InventoryStudio.Models.ViewModels;
 
 namespace InventoryStudio.Controllers.Account
 {
@@ -26,7 +24,7 @@ namespace InventoryStudio.Controllers.Account
         private readonly IEmailSender _emailSender;
         private readonly ILogger<UserController> _logger;
 
-
+        private UserIndexViewModel _userIndexViewModel = new() { Users = new List<AspNetUsers>() };
 
         public UserController(
             SignInManager<User> signInManager,
@@ -50,7 +48,8 @@ namespace InventoryStudio.Controllers.Account
             var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
             if (company != null)
                 users = AspNetUsers.GetAspNetUserss(company.Value);
-            return View("~/Views/Account/User/Index.cshtml", users);
+            _userIndexViewModel.Users = users;
+            return View("~/Views/Account/User/Index.cshtml", _userIndexViewModel);
         }
 
         public async Task<IActionResult> Details(string id)
@@ -258,6 +257,35 @@ namespace InventoryStudio.Controllers.Account
 
             //TODO CreationUser
             return View(model);
+        }
+        
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<AspNetUsers> dataSource = _userIndexViewModel.Users.AsEnumerable();
+            DataOperations operation = new DataOperations();
+            int TotalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                CompanyFilter companyFilter = new();
+                var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    dataSource = AspNetUsers.GetAspNetUserss(company.Value,null, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
+                
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                //dm.Where[0].Field = Regex.Replace(dm.Where[0].predicates[0].Field, @"\b\p{Ll}", match => match.Value.ToUpper());
+                dataSource = operation.PerformFiltering
+                    (dataSource, dm.Where, dm.Where[0].Operator);
+            }
+
+            return dm.RequiresCounts ? Json(new { result = dataSource, count = TotalRecord }) : Json(dataSource);
         }
 
     }
