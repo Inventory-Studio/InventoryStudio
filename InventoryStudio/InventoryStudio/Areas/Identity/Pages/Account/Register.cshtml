@@ -15,7 +15,7 @@
              <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div class="card-body p-5">
                 <p class="h5 fw-semibold mb-2 text-center">Sign Up</p>
-                <p class="mb-4 text-muted op-7 fw-normal text-center">Welcome &amp; Join us by creating a free account !</p>
+                <p class="mb-4 text-muted op-7 fw-normal text-center">Welcome! Start by by creating a free account.</p>
                     <hr />
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row gy-3">
@@ -76,13 +76,13 @@
                             else
                             {
                                 <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                    <div>
+                                    <div style="margin-right: 0">
                                         <p>
                                             @foreach (var provider in Model.ExternalLogins)
                                             {
                                                 @if (provider.DisplayName == "Google")
                                                 {
-                                                    <button type="submit" class="btn btn-icon btn-light" name="provider" value="@provider.Name">
+                                                    <button type="submit" class="btn btn-icon btn-light" style="margin-right: 0" name="provider" value="@provider.Name">
                                                         <i class="ri-google-line fw-bold text-dark op-7"></i>
                                                     </button>
                                                 }
