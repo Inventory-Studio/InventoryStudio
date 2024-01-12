@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2VlhhQlJCfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn9RdkRiXX9fcHVXQmZa");
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
+    "Mgo+DSMBMAY9C3t2VlhhQlJCfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn9RdkRiXX9fcHVXQmZa");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,8 +52,6 @@ var app = builder.Build();
 //delete this , when deploy to prod, this server will update permissions to match system
 var permissionService = app.Services.GetRequiredService<PermissionService>();
 permissionService.InitializePermissions();
-
-
 
 
 // Configure the HTTP request pipeline.

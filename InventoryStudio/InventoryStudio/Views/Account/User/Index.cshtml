@@ -6,40 +6,46 @@
 
 
 <div class="container-fluid pb-4">
-    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-        <div>
-            <h2 class="fw-semibold mb-0">User Management</h2>
+    <div class="card custom-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-title">
+                User Management
+            </div>
+            <div class="btn-list mt-md-0 mt-2">
+                <a asp-controller="User" asp-action="Create" type="button" class="btn btn-sm btn-primary btn-wave d-flex align-items-center">
+                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Create User
+                </a>
+            </div>
         </div>
 
-        <div class="btn-list mt-md-0 mt-2">
-            <a asp-action="Create" type="button" class="btn btn-primary btn-wave d-flex align-items-center">
-                <i class="ri-user-add-fill me-2 align-middle d-inline-block fs-16"></i>Create User
-            </a>
+
+        <div class="card-body">
+            <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
+                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "PdfExport", "ExcelExport" })">
+
+                <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" showDeleteConfirmDialog="true"
+                                     mode="Batch">
+                </e-grid-editSettings>
+                <e-grid-filterSettings  type="FilterBar" mode="OnEnter"></e-grid-filterSettings>
+                <e-data-manager url="@Url.Action("UrlDatasource", "User")" adaptor="UrlAdaptor" insertUrl="/User/Insert"
+                                updateUrl="/User/Update" removeUrl="/User/Remove">
+                </e-data-manager>
+                <e-grid-pagesettings pageCount="5"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                                   validationRules="@(new { number = true })" width="80">
+                    </e-grid-column>
+                    <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
+                    <e-grid-column field="UserType" headerText="User Type" width="120"></e-grid-column>
+                    <e-grid-column field="Status" headerText="Status" width="120"></e-grid-column>
+                    <e-grid-column field="Email" headerText="E-mail" width="120"></e-grid-column>
+                    <e-grid-column field="PhoneNumber" headerText="Phone Number" width="120"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
         </div>
     </div>
 
 
-    <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
-              allowExcelExport="true" allowPdfExport="true">
-
-        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" showDeleteConfirmDialog="true"
-                             mode="Batch">
-        </e-grid-editSettings>
-        <e-grid-filterSettings type="Excel"></e-grid-filterSettings>
-        <e-data-manager url="/User/UrlDataSource" adaptor="UrlAdaptor">
-        </e-data-manager>
-        <e-grid-columns>
-            <e-grid-column field="Id" headerText="ID" type="int" isPrimaryKey="true"
-                           validationRules="@(new { number = true })" width="80">
-            </e-grid-column>
-            <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
-            <e-grid-column field="UserType" headerText="User Type" width="120"></e-grid-column>
-            <e-grid-column field="Status" headerText="Status" width="120"></e-grid-column>
-            <e-grid-column field="Email" headerText="E-mail" width="120"></e-grid-column>
-            <e-grid-column field="PhoneNumber" headerText="Phone Number" width="120"></e-grid-column>
-        </e-grid-columns>
-
-    </ejs-grid>
     @* <table class="table"> *@
     @*     <thead> *@
     @*         <tr> *@
@@ -68,23 +74,34 @@
 </div>
 
 
-<style>
-    .e-grid .e-summaryrow .e-summarycell {
-        height: 40px;
-        background-color: #fff;
-    }
-
-    .e-gridpager {
-        border-bottom-left-radius: 6px !important;
-        border-bottom-right-radius: 6px !important;
-    }
-
-    .e-grid {
-        border-radius: 6px !important;
-    }
-
-    .e-toolbar {
-        border-top-left-radius: 6px !important;
-        border-top-right-radius: 6px !important;
-    }
-</style>
+<script lang="js">
+        function toolbarClick(args) {
+            var gridObj=document.getElementById("Grid").ej2_instances[0];
+            if (args.item.id=== 'Grid_pdfexport') {
+            var pdfdata=gridObj.getSelectedRecords();
+            if (pdfdata?.length> 0) {
+                var exportProperties = {
+                    dataSource: pdfdata,
+                    includeHiddenColumn: true
+                };
+                gridObj.pdfExport(exportProperties);
+                } else {
+                    gridObj.pdfExport();
+                }
+            }
+            if (args.item.id === 'Grid_excelexport') {
+                var exceldata = gridObj.getSelectedRecords();
+                if (exceldata?.length > 0) {
+                    var exportProperties = {
+                        dataSource: exceldata,
+                        includeHiddenColumn: true
+                    };
+                    gridObj.excelExport(exportProperties);
+                } else {
+                    gridObj.excelExport();
+                }
+            
+            }
+        }
+            
+</script>

@@ -1,0 +1,18 @@
+﻿.e-grid .e-summaryrow .e-summarycell {
+    height: 40px;
+    background-color: #fff;
+}
+
+.e-gridpager {
+    border-bottom-left-radius: .425rem !important;
+    border-bottom-right-radius: .425rem !important;
+}
+
+.e-grid {
+    border-radius: .425rem !important;
+}
+
+.e-toolbar {
+    border-top-left-radius: .425rem !important;
+    border-top-right-radius: .425rem !important;
+}
