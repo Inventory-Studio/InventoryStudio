@@ -16,7 +16,7 @@ namespace ISLibrary
         public string Id { get; private set; }
         public bool IsNew { get { return string.IsNullOrEmpty(Id); } }
         public string Status { get; set; }
-        public string UserName { get; set; } = string.Empty;
+        public string UserName { get; set; }
         public string UserType { get; set; }
         public string NormalizedUserName { get; set; }
         public string Email { get; set; }

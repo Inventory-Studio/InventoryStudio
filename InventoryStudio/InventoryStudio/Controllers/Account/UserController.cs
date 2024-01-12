@@ -12,6 +12,8 @@ using InventoryStudio.Models.Account;
 using InventoryStudio.Models.ViewModels;
 using ISLibrary.AspNet;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using InventoryStudio.Data;
 
 namespace InventoryStudio.Controllers.Account
 {
@@ -23,6 +25,7 @@ namespace InventoryStudio.Controllers.Account
         private readonly IUserEmailStore<User> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<UserController> _logger;
+
 
         private UserIndexViewModel _userIndexViewModel = new() { Users = new List<AspNetUsers>() };
 
@@ -40,6 +43,7 @@ namespace InventoryStudio.Controllers.Account
             _emailStore = GetEmailStore();
             _emailSender = emailSender;
             _logger = logger;
+
         }
 
         public IActionResult Index()
@@ -77,7 +81,7 @@ namespace InventoryStudio.Controllers.Account
             user.UserName = input.UserName;
             user.Email = input.Email;
             user.PhoneNumber = input.PhoneNumber;
-            await _userStore.SetUserNameAsync(user, input.Email, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, input.UserName, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, input.Email, CancellationToken.None);
             var result = await _userManager.CreateAsync(user, input.Password);
             if (result.Succeeded)
@@ -97,8 +101,17 @@ namespace InventoryStudio.Controllers.Account
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
                 }
 
-                user.UserName = input.UserName;
-                await _userManager.UpdateAsync(user);
+                var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+
+                AspNetUserCompany aspNetUserCompany = new AspNetUserCompany();
+                aspNetUserCompany.UserId = userId;
+                aspNetUserCompany.CompanyID = company.Value;
+                aspNetUserCompany.Create();
+
+                await _userManager.AddClaimAsync(user, new Claim("CompanyId", company.Value));
+
+                //user.UserName = input.UserName;
+                //await _userManager.UpdateAsync(user);
                 return RedirectToAction(nameof(Index));
             }
 

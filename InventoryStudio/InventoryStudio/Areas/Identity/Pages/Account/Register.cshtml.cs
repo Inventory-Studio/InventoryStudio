@@ -6,11 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using CLRFramework;
 using InventoryStudio.Models;
+using ISLibrary;
 using ISLibrary.AspNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -117,6 +120,31 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            AspNetUserInvites invite = null;
+            if (!string.IsNullOrEmpty(inviteCode))
+            {
+                var filter = new AspNetUserInvitesFilter();
+                filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Code.SearchString = inviteCode;
+                var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                if (invites != null)
+                {
+                    invite = invites.FirstOrDefault();
+                    if (invite != null)
+                    {
+                        if (invite.IsAccepted)
+                        {
+                            ModelState.AddModelError(string.Empty, "The invitation code has been used.");
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                        if (!Utility.IsValidInviteCodeExpired(invite.CreatedOn))
+                        {
+                            ModelState.AddModelError(string.Empty, "The invitation code has expired");
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                    }
+                }
+            }
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -140,19 +168,21 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    if (!string.IsNullOrEmpty(inviteCode))
+
+                    if (invite != null)
                     {
-                        var filter = new AspNetUserInvitesFilter();
-                        filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                        filter.Code.SearchString = inviteCode;
-                        var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
-                        if (invites != null)
-                        {
-                            var invite = invites.FirstOrDefault();
-                            invite.IsAccepted = true;
-                            invite.Update();
-                        }
+                        var inviter = await _userManager.FindByIdAsync(invite.UserId);
+                        var inviterClaims = await _userManager.GetClaimsAsync(inviter);
+                        var company = inviterClaims.FirstOrDefault(t => t.Type == "CompanyId");
+                        AspNetUserCompany aspNetUserCompany = new AspNetUserCompany();
+                        aspNetUserCompany.UserId = userId;
+                        aspNetUserCompany.CompanyID = company.Value;
+                        aspNetUserCompany.Create();
+                        await _userManager.AddClaimAsync(user, new Claim("CompanyId", company.Value));
+                        invite.IsAccepted = true;
+                        invite.Update();
                     }
+
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

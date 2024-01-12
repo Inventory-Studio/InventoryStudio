@@ -20,6 +20,8 @@ using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
 using ISLibrary;
 using ISLibrary.AspNet;
+using Microsoft.EntityFrameworkCore.Metadata;
+using CLRFramework;
 
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
@@ -186,11 +188,36 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 ErrorMessage = "Error loading external login information during confirmation.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
+            AspNetUserInvites invite = null;
+            if (!string.IsNullOrEmpty(Input.InviteCode))
+            {
+                var filter = new AspNetUserInvitesFilter();
+                filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Code.SearchString = Input.InviteCode;
+                var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                if (invites != null)
+                {
+                    invite = invites.FirstOrDefault();
+                    if (invite != null)
+                    {
+                        if (invite.IsAccepted)
+                        {
+                            ErrorMessage = "The invitation code has been used.";
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                        if (!Utility.IsValidInviteCodeExpired(invite.CreatedOn))
+                        {
+                            ErrorMessage = "The invitation code has expired";
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                    }
+                }
+            }
 
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
+                user.UserType = "Normal";
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
@@ -214,19 +241,18 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-
-                        if (!string.IsNullOrEmpty(Input.InviteCode))
+                        if (invite != null)
                         {
-                            var filter = new AspNetUserInvitesFilter();
-                            filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                            filter.Code.SearchString = Input.InviteCode;
-                            var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
-                            if (invites != null)
-                            {
-                                var invite = invites.FirstOrDefault();
-                                invite.IsAccepted = true;
-                                invite.Update();
-                            }
+                            var inviter = await _userManager.FindByIdAsync(invite.UserId);
+                            var inviterClaims = await _userManager.GetClaimsAsync(inviter);
+                            var company = inviterClaims.FirstOrDefault(t => t.Type == "CompanyId");
+                            AspNetUserCompany aspNetUserCompany = new AspNetUserCompany();
+                            aspNetUserCompany.UserId = userId;
+                            aspNetUserCompany.CompanyID = company.Value;
+                            aspNetUserCompany.Create();
+                            await _userManager.AddClaimAsync(user, new Claim("CompanyId", company.Value));
+                            invite.IsAccepted = true;
+                            invite.Update();
                         }
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
