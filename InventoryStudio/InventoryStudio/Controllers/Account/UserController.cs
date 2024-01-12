@@ -27,12 +27,12 @@ namespace InventoryStudio.Controllers.Account
         private UserIndexViewModel _userIndexViewModel = new() { Users = new List<AspNetUsers>() };
 
         public UserController(
-           SignInManager<User> signInManager,
-           UserManager<User> userManager,
-           IUserStore<User> userStore,
-           IEmailSender emailSender,
-           ILogger<UserController> logger
-          )
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
+            IUserStore<User> userStore,
+            IEmailSender emailSender,
+            ILogger<UserController> logger
+        )
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -57,8 +57,6 @@ namespace InventoryStudio.Controllers.Account
             if (string.IsNullOrEmpty(id))
                 return NotFound();
             var user = new AspNetUsers(id);
-            if (user == null)
-                return NotFound();
             return View("~/Views/Account/User/Details.cshtml", user);
         }
 
@@ -93,15 +91,18 @@ namespace InventoryStudio.Controllers.Account
                     pageHandler: null,
                     values: new { area = "Identity", userId, code, returnUrl = Url.Content("~/") },
                     protocol: Request.Scheme);
-
-                await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                if (callbackUrl != null)
+                {
+                    await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                }
 
                 user.UserName = input.UserName;
                 await _userManager.UpdateAsync(user);
                 return RedirectToAction(nameof(Index));
             }
-            return View();
+
+            return Redirect("/Users");
         }
 
         private User CreateUser()
@@ -113,8 +114,8 @@ namespace InventoryStudio.Controllers.Account
             catch
             {
                 throw new InvalidOperationException($"Can't create an instance of '{nameof(User)}'. " +
-                    $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                                                    $"Ensure that '{nameof(User)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                                                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
@@ -124,6 +125,7 @@ namespace InventoryStudio.Controllers.Account
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
+
             return (IUserEmailStore<User>)_userStore;
         }
 
@@ -132,14 +134,14 @@ namespace InventoryStudio.Controllers.Account
             if (string.IsNullOrEmpty(id))
                 return NotFound();
             var user = new AspNetUsers(id);
-            if (user == null)
-                return NotFound();
-            var editViewModel = new EditUserViewModel();
-            editViewModel.Id = user.Id;
-            editViewModel.UserName = user.UserName;
-            editViewModel.Status = user.Status;
-            editViewModel.Email = user.Email;
-            editViewModel.PhoneNumber = user.PhoneNumber;
+            var editViewModel = new EditUserViewModel
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Status = user.Status,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
             if (user.Roles != null)
             {
                 var currentUserRoles = user.Roles.ToList();
@@ -157,6 +159,7 @@ namespace InventoryStudio.Controllers.Account
                     editViewModel.AllRoles = allRoles;
                 }
             }
+
             return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
@@ -166,13 +169,13 @@ namespace InventoryStudio.Controllers.Account
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            var user = new AspNetUsers(id);
-            if (user == null)
-                return NotFound();
-            user.UserName = input.UserName;
-            user.Status = input.Status;
-            user.Email = input.Email;
-            user.PhoneNumber = input.PhoneNumber;
+            var user = new AspNetUsers(id)
+            {
+                UserName = input.UserName,
+                Status = input.Status,
+                Email = input.Email,
+                PhoneNumber = input.PhoneNumber
+            };
             user.Update();
 
             if (user.Roles != null)
@@ -183,25 +186,13 @@ namespace InventoryStudio.Controllers.Account
                 foreach (var selectedRoleId in input.SelectedRoles)
                 {
                     var userRole = new AspNetUserRoles(user.Id, selectedRoleId);
-                    if (userRole != null)
-                    {
-                        userRole.Update();
-                    }
-                    else
-                    {
-                        userRole = new AspNetUserRoles
-                        {
-                            UserId = user.Id,
-                            RoleId = selectedRoleId
-                        };
-                        userRole.Create();
-                    }
+                    userRole.Update();
                 }
 
                 foreach (var removeRoleId in removeRoleIds)
                 {
                     var userRole = new AspNetUserRoles(user.Id, removeRoleId);
-                    userRole?.Delete();
+                    userRole.Delete();
                 }
             }
 
@@ -213,8 +204,6 @@ namespace InventoryStudio.Controllers.Account
             if (string.IsNullOrEmpty(id))
                 return NotFound();
             var user = new AspNetUsers(id);
-            if (user == null)
-                return NotFound();
             return View("~/Views/Account/User/Delete.cshtml", user);
         }
 
@@ -225,8 +214,6 @@ namespace InventoryStudio.Controllers.Account
             if (string.IsNullOrEmpty(id))
                 return NotFound();
             var user = new AspNetUsers(id);
-            if (user == null)
-                return NotFound();
             user.Delete();
             return RedirectToAction(nameof(Index));
         }
@@ -249,6 +236,7 @@ namespace InventoryStudio.Controllers.Account
                     TempData["ErrorMessage"] = "This email is already registered and cannot send invitations";
                     return RedirectToAction("Invite", "User");
                 }
+
                 string inviteCode = Guid.NewGuid().ToString("N").Substring(0, 16);
                 AspNetUserInvites invite = new()
                 {
@@ -258,8 +246,10 @@ namespace InventoryStudio.Controllers.Account
                 };
                 invite.Create();
 
-                string inviteUrl = Url.Action("Register", "Account", new { area = "Identity", inviteCode }, Request.Scheme) ?? "";
-                await _emailSender.SendEmailAsync(model.Email, "Invitation to join", $"Please click the following link to accept the invitation: {inviteUrl}");
+                string inviteUrl = Url.Action("Register", "Account", new { area = "Identity", inviteCode }, Request.Scheme) ??
+                                   "";
+                await _emailSender.SendEmailAsync(model.Email, "Invitation to join",
+                    $"Please click the following link to accept the invitation: {inviteUrl}");
 
                 TempData["StatusMessage"] = "Invitation sent successfully.";
                 return RedirectToAction("Invite", "User");
@@ -273,14 +263,15 @@ namespace InventoryStudio.Controllers.Account
         {
             IEnumerable<AspNetUsers> dataSource = _userIndexViewModel.Users.AsEnumerable();
             DataOperations operation = new DataOperations();
-            int TotalRecord = 0;
+            int totalRecord = 0;
             if (dm.Skip != 0 || dm.Take != 0)
             {
                 var company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
                 {
                     AspNetUsersFilter aspNetUsersFilter = new();
-                    dataSource = AspNetUsers.GetAspNetUserss(company.Value, aspNetUsersFilter, dm.Take, (dm.Skip / dm.Take) + 1, out TotalRecord).AsEnumerable();
+                    dataSource = AspNetUsers.GetAspNetUserss(company.Value, aspNetUsersFilter, dm.Take,
+                        (dm.Skip / dm.Take) + 1, out totalRecord).AsEnumerable();
                 }
             }
 
@@ -294,8 +285,7 @@ namespace InventoryStudio.Controllers.Account
                 dataSource = operation.PerformFiltering(dataSource, dm.Where, dm.Where[0].Operator);
             }
 
-            return dm.RequiresCounts ? Json(new { result = dataSource, count = TotalRecord }) : Json(dataSource);
+            return dm.RequiresCounts ? Json(new { result = dataSource, count = totalRecord }) : Json(dataSource);
         }
-
     }
 }
