@@ -329,6 +329,11 @@ namespace InventoryStudio.Controllers.Account
 
         public IActionResult Remove([FromBody] CRUDModel<AspNetUsers> value)
         {
+            if (value.Key != null)
+            {
+                DeleteConfirmed(value.Key.ToString() ?? "");
+            }
+
             return Json(value);
         }
 

@@ -20,11 +20,10 @@
 
 
         <div class="card-body">
-            <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="false" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
-                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "PdfExport", "ExcelExport" })">
+            <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
+                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Edit", "Delete", "PdfExport", "ExcelExport" })">
 
-                <e-grid-editSettings showDeleteConfirmDialog="true"
-                                     mode="Batch">
+                <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true" allowEditing="true">
                 </e-grid-editSettings>
                 <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
                 <e-data-manager url="@Url.Action("UrlDatasource", "User")" adaptor="UrlAdaptor" insertUrl="/User/Insert"
@@ -32,7 +31,7 @@
                 </e-data-manager>
                 @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
                 <e-grid-columns>
-                    <e-grid-column field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                    <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
