@@ -130,7 +130,7 @@ namespace InventoryStudio.Controllers.Account
                 return RedirectToAction(nameof(Index));
             }
 
-            return Redirect("/Users");
+            return Redirect("/User");
         }
 
         private User CreateUser()
