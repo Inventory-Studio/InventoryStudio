@@ -16,8 +16,9 @@
             </div>
         </div>
         <div class="card-body">
-            <form class="row" asp-controller="User" asp-action="Edit" asp-route-id="@Model.Id">
+            <form class="row" asp-controller="User" asp-action="Edit" >
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="Id" type="hidden" />
                 <div class="form-group col-md-6 mb-3">
                     <label asp-for="UserName" class="form-label">User Name</label>
                     <input asp-for="UserName" class="form-control" aria-label="User Name" required/>
