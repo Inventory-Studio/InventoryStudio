@@ -7,12 +7,12 @@
 
 <div class="container-fluid py-4">
     <div class="card custom-card">
-        <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-header hstack align-items-center justify-content-between">
             <div class="card-title">
                 User Management
             </div>
             <div class="btn-list mt-md-0 mt-2">
-                <a asp-controller="User" asp-action="Create" type="button" class="btn btn-sm btn-primary btn-wave d-flex align-items-center">
+                <a asp-controller="User" asp-action="Create" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
                     <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Create User
                 </a>
             </div>
@@ -21,9 +21,9 @@
 
         <div class="card-body">
             <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
-                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Edit", "Delete", "PdfExport", "ExcelExport" })">
+                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
 
-                <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true" allowEditing="true">
+                <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
                 </e-grid-editSettings>
                 <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
                 <e-data-manager url="@Url.Action("UrlDatasource", "User")" adaptor="UrlAdaptor" insertUrl="/User/Insert"
@@ -34,6 +34,7 @@
                     <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                     <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
                     <e-grid-column field="UserType" headerText="User Type" width="120"></e-grid-column>
                     <e-grid-column field="Status" headerText="Status" width="120"></e-grid-column>
@@ -43,35 +44,18 @@
             </ejs-grid>
         </div>
     </div>
-
-
-    @* <table class="table"> *@
-    @*     <thead> *@
-    @*         <tr> *@
-    @*             <th>UserName</th> *@
-    @*             <th>UserType</th> *@
-    @*             <th>Status</th> *@
-    @*             <th>Email</th> *@
-    @*             <th>PhoneNumber</th> *@
-    @*             <th></th> *@
-    @*         </tr> *@
-    @*     </thead> *@
-    @*     <tbody> *@
-    @*         *@
-    @*             <tr> *@
-    @*                *@
-    @*                 <td> *@
-    @*                     $1$ <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | #1# *@
-    @*                     $1$ <a asp-action="Details" asp-route-id="@item.Id">Details</a> | #1# *@
-    @*                     $1$ <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> #1# *@
-    @*                 </td> *@
-    @*             </tr> *@
-    @*          *@
-    @*     </tbody> *@
-    @* </table> *@
-    @* <a asp-action="Create">Create New User</a> *@
 </div>
 
+<script id="actions" type="text/x-template">
+    <div class="hstack gap-2">        
+        <a href="/User/Edit?id=${Id}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
+            <i class="bi-pencil-fill"></i>
+        </a>
+        <a href="/User/Details?id=${Id}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View user" aria-label="View user button">
+            <i class="bi-eye-fill"></i>
+        </a>
+    </div>
+</script>
 
 <script lang="js">
         function toolbarClick(args) {
