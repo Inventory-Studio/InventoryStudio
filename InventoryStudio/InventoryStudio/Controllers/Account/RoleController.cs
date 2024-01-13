@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ISLibrary;
 using System.Data;
+using System.Security.Claims;
+using System.Text.Json;
 using static CLRFramework.Database.Filter.StringSearch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers
 {
@@ -38,8 +41,10 @@ namespace InventoryStudio.Controllers
                     ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Create")).Succeeded,
                     ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Edit")).Succeeded,
                     ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-Delete")).Succeeded,
-                    ["CanAssignPermission"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignPermissions")).Succeeded,
-                    ["CanAssignUser"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignUsers")).Succeeded
+                    ["CanAssignPermission"] =
+                        (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignPermissions")).Succeeded,
+                    ["CanAssignUser"] = (await _authorizationService.AuthorizeAsync(User, "Account-Role-AssignUsers"))
+                        .Succeeded
                 };
                 ViewBag.Permissions = permissions;
 
@@ -69,6 +74,7 @@ namespace InventoryStudio.Controllers
                 ModelState.AddModelError("", "Invalid organization information.");
                 return View("~/Views/Account/Role/Create.cshtml");
             }
+
             var role = new AspNetRoles
             {
                 Name = roleName,
@@ -82,7 +88,6 @@ namespace InventoryStudio.Controllers
 
 
                 return RedirectToAction("Index");
-
             }
             catch (Exception ex)
             {
@@ -170,7 +175,7 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Account-Role-Delete")]
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public IActionResult Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -178,11 +183,6 @@ namespace InventoryStudio.Controllers
             }
 
             var role = new AspNetRoles(id);
-
-            if (role == null)
-            {
-                return NotFound();
-            }
 
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
 
@@ -198,15 +198,10 @@ namespace InventoryStudio.Controllers
         }
 
         [Authorize(Policy = "Account-Role-AssignPermissions")]
-        public async Task<IActionResult> AssignPermissions(string id)
+        public IActionResult AssignPermissions(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(id);
-
-            if (role == null)
-            {
-                return NotFound();
-            }
 
             if (role.CompanyId != organizationClaim.Value)
             {
@@ -229,7 +224,7 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Account-Role-AssignPermissions")]
         [HttpPost]
-        public async Task<IActionResult> AssignPermissions(AssignPermissionsViewModel model)
+        public IActionResult AssignPermissions(AssignPermissionsViewModel model)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(model.RoleId);
@@ -274,15 +269,10 @@ namespace InventoryStudio.Controllers
         }
 
         [Authorize(Policy = "Account-Role-AssignUsers")]
-        public async Task<IActionResult> AssignUsers(string id)
+        public IActionResult AssignUsers(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(id);
-
-            if (role == null)
-            {
-                return NotFound();
-            }
 
             if (role.CompanyId != organizationClaim.Value)
             {
@@ -309,11 +299,6 @@ namespace InventoryStudio.Controllers
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(model.RoleId);
-
-            if (role == null)
-            {
-                return NotFound();
-            }
 
             if (role.CompanyId != organizationClaim.Value)
             {
@@ -344,8 +329,101 @@ namespace InventoryStudio.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult Insert([FromBody] CRUDModel<AspNetRoles> value)
+        {
+            return Json(value.Value);
+        }
 
+        public IActionResult Update([FromBody] CRUDModel<AspNetRoles> value)
+        {
+            return Json(value.Value ?? new AspNetRoles());
+        }
 
+        public IActionResult Remove([FromBody] CRUDModel<AspNetRoles> value)
+        {
+            if (value.Key != null)
+            {
+                Delete(value.Key.ToString() ?? "");
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<AspNetRoles> dataSource = new List<AspNetRoles>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                {
+                    AspNetRolesFilter aspNetRolesFilter = new();
+
+                    dataSource = AspNetRoles.GetAspNetRoless(
+                        company.Value,
+                        aspNetRolesFilter,
+                        dm.Take,
+                        (dm.Skip / dm.Take) + 1,
+                        out totalRecord
+                    ).AsEnumerable();
+                }
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
+        }
     }
-
 }

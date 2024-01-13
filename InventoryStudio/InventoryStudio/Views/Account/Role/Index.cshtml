@@ -3,70 +3,83 @@
 @{
     ViewData["Title"] = "All Roles";
 }
-<div class="container-fluid">
-    <h2>@ViewData["Title"]</h2>
 
-    <div class="row">
-    <div class="col-md-12">
-        @if (ViewBag.Permissions["CanCreate"])
-        {
-            <div class="d-flex justify-content-end mb-3">
-                <a asp-action="Create" class="btn btn-sm btn-primary-light">Create New Role</a>
+<div class="container-fluid py-4 h-100">
+    <div class="card custom-card h-100">
+        <div class="card-header hstack align-items-center justify-content-between">
+            <div class="card-title">
+                Role Management
             </div>
-        }
+            <div class="btn-list mt-md-0 mt-2">
+                <a asp-controller="Role" asp-action="Create" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
+                    <i class="bi-plus me-2 align-middle d-inline-block fs-16"></i>Create Role
+                </a>
+            </div>
+        </div>
         <div class="card-body">
-            <div class="table-responsive">
+            <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
 
-                <table class="table text-nowrap table-striped">
-                <thead class="table-primary">
-                    <tr>
-                        <th scope="col">Role Name</th>
-                            <th scope="col" class="col-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var role in Model)
-                    {
-                        <tr>
-                            <th scope="row">@role.Name</th>
-                            <td class="col-2">
-                                <div class="hstack gap-2 fs-15">
-                                @if (ViewBag.Permissions["CanEdit"]){
-                                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-icon btn-sm btn-info-transparent rounded-pill">
-                                        <i class="ri-edit-line"></i>
-                                    </a>
-                                }
-                              @*  @if (ViewBag.Permissions["CanAssignPermission"])
-                                {
-                                    <a asp-action="AssignPermissions" asp-route-id="@role.Id">Assign Permissions</a>                            
-                                }
-                                @if (ViewBag.Permissions["CanAssignUser"])
-                                {
-                                    <a asp-action="AssignUsers" asp-route-id="@role.Id">Assign Users</a>                            
-                                }*@
-                                @if (ViewBag.Permissions["CanDelete"])
-                                {
-                                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" class="inline-form" onsubmit="return confirmDelete('@role.Name');">
-                                            <button type="submit" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                    </form>
-                                }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-   
-
+                <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
+                </e-grid-editSettings>
+                <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
+                <e-data-manager url="/Role/UrlDatasource" adaptor="UrlAdaptor" insertUrl="/Role/Insert"
+                                updateUrl="/Role/Update" removeUrl="/Role/Remove">
+                </e-data-manager>
+                @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
+                <e-grid-columns>
+                    <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                                   validationRules="@(new { number = true })" width="80">
+                    </e-grid-column>
+                    <e-grid-column field="Name" headerText="Name" width="120"></e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
         </div>
-        </div>
-
     </div>
- </div>
+</div>
 
- </div>
+<!-- Actions template -->
+<script id="actions" type="text/x-template">
+    <div class="hstack gap-2">
+        <a href="/Role/Edit?id=${Id}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
+            <i class="bi-pencil-fill"></i>
+        </a>
+    </div>
+</script>
+
+<!-- Javascript logic for datagrid -->
+<script lang="js">
+        function toolbarClick(args) {
+            var gridObj=document.getElementById("Grid").ej2_instances[0];
+            if (args.item.id=== 'Grid_pdfexport') {
+            var pdfdata=gridObj.getSelectedRecords();
+            if (pdfdata?.length> 0) {
+                var exportProperties = {
+                    dataSource: pdfdata,
+                    includeHiddenColumn: true
+                };
+                gridObj.pdfExport(exportProperties);
+                } else {
+                    gridObj.pdfExport();
+                }
+            }
+            if (args.item.id === 'Grid_excelexport') {
+                var exceldata = gridObj.getSelectedRecords();
+                if (exceldata?.length > 0) {
+                    var exportProperties = {
+                        dataSource: exceldata,
+                        includeHiddenColumn: true
+                    };
+                    gridObj.excelExport(exportProperties);
+                } else {
+                    gridObj.excelExport();
+                }
+
+            }
+        }
+</script>
+
 @section Scripts {
     <script>
         function confirmDelete(roleName) {

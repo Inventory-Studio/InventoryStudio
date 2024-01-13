@@ -24,7 +24,7 @@
                 <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
                 </e-grid-editSettings>
                 <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
-                <e-data-manager url="@Url.Action("UrlDatasource", "User")" adaptor="UrlAdaptor" insertUrl="/User/Insert"
+                <e-data-manager url="/User/UrlDatasource" adaptor"UrlAdaptor" insertUrl="/User/Insert"
                                 updateUrl="/User/Update" removeUrl="/User/Remove">
                 </e-data-manager>
                 @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
@@ -32,12 +32,12 @@
                     <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
-                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                     <e-grid-column field="UserName" headerText="User Name" width="120"></e-grid-column>
                     <e-grid-column field="UserType" headerText="User Type" width="120"></e-grid-column>
                     <e-grid-column field="Status" headerText="Status" width="120"></e-grid-column>
                     <e-grid-column field="Email" headerText="E-mail" width="120"></e-grid-column>
                     <e-grid-column field="PhoneNumber" headerText="Phone Number" width="120"></e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
         </div>
@@ -86,5 +86,4 @@
             
             }
         }
-            
 </script>
