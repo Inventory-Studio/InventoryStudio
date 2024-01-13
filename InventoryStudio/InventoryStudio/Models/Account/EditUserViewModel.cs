@@ -33,7 +33,7 @@ namespace InventoryStudio.Models.Account
 
         public List<SelectListItem> StatusOptions { get; set; }
 
-        public List<string> SelectedRoles { get; set; }
+        public List<string>? SelectedRoles { get; set; }
 
         public List<SelectListItem> AllRoles { get; set; }
     }

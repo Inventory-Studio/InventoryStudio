@@ -177,27 +177,17 @@ namespace InventoryStudio.Controllers.Account
                 };
             if (user.Roles != null)
             {
-                List<AspNetRoles> currentUserRoles = user.Roles.ToList();
-                if (currentUserRoles.Any())
-                {
-                    editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
-                }
-
-                Claim? companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+                var currentUserRoles = user.Roles.ToList();
+                editViewModel.SelectedRoles = currentUserRoles.Select(t => t.Id).ToList();
+                var companyId = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
                 if (companyId != null)
                 {
-                    List<SelectListItem> allRoles = AspNetRoles
-                        .GetAspNetRoless(companyId.Value)
-                        .Select(
-                            t =>
-                                new SelectListItem
-                                {
-                                    Value = t.Id,
-                                    Text = t.Name,
-                                    Selected = editViewModel.SelectedRoles.Contains(t.Name)
-                                }
-                        )
-                        .ToList();
+                    var allRoles = AspNetRoles.GetAspNetRoless(companyId.Value).Select(t => new SelectListItem
+                    {
+                        Value = t.Id,
+                        Text = t.Name,
+                        Selected = editViewModel.SelectedRoles.Contains(t.Name)
+                    }).ToList();
                     editViewModel.AllRoles = allRoles;
                 }
             }
@@ -224,22 +214,29 @@ namespace InventoryStudio.Controllers.Account
                 };
             _ = user.Update();
 
-            if (user.Roles != null)
-            {
-                List<string> currentUserRoles = user.Roles.Select(t => t.Id).ToList();
 
-                List<string> removeRoleIds = currentUserRoles.Except(input.SelectedRoles).ToList();
-                foreach (string selectedRoleId in input.SelectedRoles)
+            List<string> selectedRoles = input?.SelectedRoles ?? new List<string>();
+
+            List<string> currentUserRoles =
+                user.Roles != null ? user.Roles.Select(t => t.Id).ToList() : new List<string>();
+
+            List<string> removeRoleIds = currentUserRoles.Any()
+                ? currentUserRoles.Except(selectedRoles).ToList()
+                : new List<string>();
+
+            foreach (string selectedRoleId in selectedRoles)
+            {
+                if (!currentUserRoles.Contains(selectedRoleId))
                 {
                     AspNetUserRoles userRole = new(user.Id, selectedRoleId);
-                    _ = userRole.Update();
+                    _ = userRole.Create();
                 }
+            }
 
-                foreach (string? removeRoleId in removeRoleIds)
-                {
-                    AspNetUserRoles userRole = new(user.Id, removeRoleId);
-                    _ = userRole.Delete();
-                }
+            foreach (string? removeRoleId in removeRoleIds)
+            {
+                AspNetUserRoles userRole = new(user.Id, removeRoleId);
+                _ = userRole.Delete();
             }
 
             return RedirectToAction(nameof(Index));
