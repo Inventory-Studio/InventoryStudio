@@ -98,6 +98,7 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\Account\User\Invite.cshtml" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
   </ItemGroup>
 
 </Project>

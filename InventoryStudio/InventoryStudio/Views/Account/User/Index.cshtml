@@ -5,8 +5,8 @@
 }
 
 
-<div class="container-fluid py-4">
-    <div class="card custom-card">
+<div class="container-fluid py-4 h-100">
+    <div class="card custom-card h-100">
         <div class="card-header hstack align-items-center justify-content-between">
             <div class="card-title">
                 User Management
@@ -20,7 +20,7 @@
 
 
         <div class="card-body">
-            <ejs-grid id="Grid" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="auto"
+            <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
                       allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
 
                 <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
