@@ -17,8 +17,6 @@
                 </a>
             </div>
         </div>
-
-
         <div class="card-body">
             <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
                       allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
@@ -46,6 +44,7 @@
     </div>
 </div>
 
+<!-- Actions template -->
 <script id="actions" type="text/x-template">
     <div class="hstack gap-2">        
         <a href="/User/Edit?id=${Id}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
@@ -57,6 +56,7 @@
     </div>
 </script>
 
+<!-- Javascript logic for datagrid -->
 <script lang="js">
         function toolbarClick(args) {
             var gridObj=document.getElementById("Grid").ej2_instances[0];
