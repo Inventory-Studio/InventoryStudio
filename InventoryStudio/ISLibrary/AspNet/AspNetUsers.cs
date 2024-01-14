@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using Microsoft.Data.SqlClient;
@@ -15,21 +16,32 @@ namespace ISLibrary
     {
         public string Id { get; private set; }
         public bool IsNew { get { return string.IsNullOrEmpty(Id); } }
+        [DisplayName("Status")]
         public string Status { get; set; }
+        [DisplayName("User Name")]
         public string UserName { get; set; }
+        [DisplayName("User Type")]
         public string UserType { get; set; }
         public string NormalizedUserName { get; set; }
+        [DisplayName("E-mail")]
         public string Email { get; set; }
         public string NormalizedEmail { get; set; }
+        [DisplayName("Email Confirmed")]
         public bool EmailConfirmed { get; set; }
         public string PasswordHash { get; set; }
         public string SecurityStamp { get; set; }
         public string ConcurrencyStamp { get; set; }
+        [DisplayName("Phone Number")]
         public string PhoneNumber { get; set; }
+        [DisplayName("Phone Number Confirmed")]
         public bool PhoneNumberConfirmed { get; set; }
+        [DisplayName("Two Factor Enabled")]
         public bool TwoFactorEnabled { get; set; }
+        [DisplayName("Lockout End")]
         public DateTimeOffset? LockoutEnd { get; set; }
+        [DisplayName("Lockout Enabled")]
         public bool LockoutEnabled { get; set; }
+        [DisplayName("Access Failed Count")]
         public string AccessFailedCount { get; set; }
 
         private List<Company>? mCompanies = null;
