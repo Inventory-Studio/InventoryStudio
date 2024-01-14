@@ -89,8 +89,13 @@ namespace InventoryStudio.Controllers.Account
         }
 
         [Authorize(Policy = "Account-Role-Edit")]
-        public IActionResult Edit(string id)
+        public IActionResult Edit(string? id)
         {
+            if (id == null)
+            {
+                return RedirectToAction("Index", "Role");
+            }
+
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(id);
 
@@ -144,10 +149,10 @@ namespace InventoryStudio.Controllers.Account
 
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
 
-            if (role.CompanyId != organizationClaim.Value)
+            if (role.CompanyId == organizationClaim.Value)
             {
                 TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
-                return View("~/Views/Account/Role/Edit.cshtml", role);
+                return View("~/Views/Account/Role/Edit.cshtml", roleManagementViewModel);
             }
 
             role.Name = formRole.Name;
@@ -161,7 +166,7 @@ namespace InventoryStudio.Controllers.Account
             {
                 // 处理异常
                 ModelState.AddModelError("update_error", ex.Message);
-                return View("~/Views/Account/Role/Edit.cshtml", role);
+                return View("~/Views/Account/Role/Edit.cshtml", roleManagementViewModel);
             }
         }
 
