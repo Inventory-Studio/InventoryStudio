@@ -269,7 +269,8 @@ namespace InventoryStudio.Controllers.Account
 
         public IActionResult Invite()
         {
-            return View("~/Views/Account/User/Invite.cshtml");
+            InviteUserViewModel InviteUserViewModel = new();
+            return View("~/Views/Account/User/Invite.cshtml", InviteUserViewModel);
         }
 
         [HttpPost]
@@ -281,8 +282,23 @@ namespace InventoryStudio.Controllers.Account
                 User existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
-                    TempData["ErrorMessage"] =
+                    TempData["Message"] =
                         "This email is already registered and cannot send invitations";
+                    return RedirectToAction("Invite", "User");
+                }
+
+                AspNetUserInvitesFilter filter = new AspNetUserInvitesFilter();
+                filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Email.SearchString = model.Email;
+                filter.UserId = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.UserId.SearchString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                filter.IsAccepted = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.IsAccepted.SearchString = "0";
+                var existingInvite = AspNetUserInvites.GetAspNetUserInvites(filter);
+                if (existingInvite != null && existingInvite.Count > 0)
+                {
+                    TempData["Message"] =
+                       "This email sends an invitation";
                     return RedirectToAction("Invite", "User");
                 }
 
@@ -296,13 +312,19 @@ namespace InventoryStudio.Controllers.Account
                     };
                 invite.Create();
                 // ReSharper disable once Mvc.ActionNotResolved
-                string inviteUrl =
-                    Url.Action(
-                        "Register",
-                        "Account",
-                        new { area = "Identity", inviteCode },
-                        Request.Scheme
-                    ) ?? "";
+                //string inviteUrl =
+                //    Url.Action(
+                //        "Register",
+                //        "Account",
+                //        new { area = "Identity", inviteCode },
+                //        Request.Scheme
+                //    ) ?? "";
+
+                var inviteUrl = Url.Page(
+                       "/Account/Register",
+                       pageHandler: null,
+                       values: new { area = "Identity", inviteCode },
+                       protocol: Request.Scheme);
 
                 await _emailSender.SendEmailAsync(
                     model.Email,
@@ -310,7 +332,7 @@ namespace InventoryStudio.Controllers.Account
                     $"Please click the following link to accept the invitation: {inviteUrl}"
                 );
 
-                TempData["StatusMessage"] = "Invitation sent successfully.";
+                TempData["Message"] = "Invitation sent successfully.";
                 return RedirectToAction("Invite", "User");
             }
 

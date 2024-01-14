@@ -15,7 +15,11 @@
                 <a asp-controller="User" asp-action="Create" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
                     <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Create User
                 </a>
+                <a asp-controller="User" asp-action="Invite" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
+                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Invitation User
+                </a>
             </div>
+
         </div>
         <div class="card-body">
             <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
@@ -46,7 +50,7 @@
 
 <!-- Actions template -->
 <script id="actions" type="text/x-template">
-    <div class="hstack gap-2">        
+    <div class="hstack gap-2">
         <a href="/User/Edit?id=${Id}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
             <i class="bi-pencil-fill"></i>
         </a>
@@ -58,32 +62,32 @@
 
 <!-- Javascript logic for datagrid -->
 <script lang="js">
-        function toolbarClick(args) {
-            var gridObj=document.getElementById("Grid").ej2_instances[0];
-            if (args.item.id=== 'Grid_pdfexport') {
-            var pdfdata=gridObj.getSelectedRecords();
-            if (pdfdata?.length> 0) {
+    function toolbarClick(args) {
+        var gridObj = document.getElementById("Grid").ej2_instances[0];
+        if (args.item.id === 'Grid_pdfexport') {
+            var pdfdata = gridObj.getSelectedRecords();
+            if (pdfdata?.length > 0) {
                 var exportProperties = {
                     dataSource: pdfdata,
                     includeHiddenColumn: true
                 };
                 gridObj.pdfExport(exportProperties);
-                } else {
-                    gridObj.pdfExport();
-                }
-            }
-            if (args.item.id === 'Grid_excelexport') {
-                var exceldata = gridObj.getSelectedRecords();
-                if (exceldata?.length > 0) {
-                    var exportProperties = {
-                        dataSource: exceldata,
-                        includeHiddenColumn: true
-                    };
-                    gridObj.excelExport(exportProperties);
-                } else {
-                    gridObj.excelExport();
-                }
-            
+            } else {
+                gridObj.pdfExport();
             }
         }
+        if (args.item.id === 'Grid_excelexport') {
+            var exceldata = gridObj.getSelectedRecords();
+            if (exceldata?.length > 0) {
+                var exportProperties = {
+                    dataSource: exceldata,
+                    includeHiddenColumn: true
+                };
+                gridObj.excelExport(exportProperties);
+            } else {
+                gridObj.excelExport();
+            }
+
+        }
+    }
 </script>

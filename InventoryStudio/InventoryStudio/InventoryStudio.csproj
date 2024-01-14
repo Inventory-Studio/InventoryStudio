@@ -1,104 +1,95 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-InventoryStudio-07785f52-bc10-404a-a4ff-dda08d7a130f</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-InventoryStudio-07785f52-bc10-404a-a4ff-dda08d7a130f</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="Views\Account\User\Invite.cshtml" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\preview.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\preview.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Views\Account\User\Invite.cshtml" />
+		<None Include="Views\Company\Create.cshtml" />
+		<None Include="Views\Company\Edit.cshtml" />
+		<None Include="Views\Company\Index.cshtml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\dependabot.yml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\ISSUE_TEMPLATE\bug_report.md" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\ISSUE_TEMPLATE\icon-request.md" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\release-drafter.yml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\codeql.yml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\deploy.yml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\release-notes.yml" />
+		<None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\test.yml" />
+		<None Include="wwwroot\assets\icon-fonts\boxicons\.github\FUNDING.yml" />
+		<None Include="wwwroot\assets\libs\cleave.js\.DS_Store" />
+		<None Include="wwwroot\js\site.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
+		<None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+		<None Include="wwwroot\lib\bootstrap\LICENSE" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+		<None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\additional-methods.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\additional-methods.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.js" />
+		<None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js" />
+		<None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.js" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.min.js" />
+		<None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="Views\Account\User\Invite.cshtml" />
-    <None Include="Views\Company\Create.cshtml" />
-    <None Include="Views\Company\Edit.cshtml" />
-    <None Include="Views\Company\Index.cshtml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\dependabot.yml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\ISSUE_TEMPLATE\bug_report.md" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\ISSUE_TEMPLATE\icon-request.md" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\release-drafter.yml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\codeql.yml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\deploy.yml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\release-notes.yml" />
-    <None Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\workflows\test.yml" />
-    <None Include="wwwroot\assets\icon-fonts\boxicons\.github\FUNDING.yml" />
-    <None Include="wwwroot\assets\libs\cleave.js\.DS_Store" />
-    <None Include="wwwroot\js\site.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
-    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
-    <None Include="wwwroot\lib\bootstrap\LICENSE" />
-    <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
-    <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
-    <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.js" />
-    <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.min.js" />
-    <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.js" />
-    <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js" />
-    <None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
-    <None Include="wwwroot\lib\jquery\dist\jquery.js" />
-    <None Include="wwwroot\lib\jquery\dist\jquery.min.js" />
-    <None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.25" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.14" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.14" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.23" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.23" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.23">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+		<PackageReference Include="SendGrid" Version="9.28.1" />
+		<PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="23.2.7" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.25" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.14" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.14" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.23" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.23" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.23">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
-    <PackageReference Include="SendGrid" Version="9.28.1" />
-    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="23.2.7" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ISLibrary\ISLibrary.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ISLibrary\ISLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Views\Account\User\Invite.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Views\Account\User\Invite.cshtml" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
-  </ItemGroup>
+	<ItemGroup>
+		<_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
+	</ItemGroup>
 
 </Project>

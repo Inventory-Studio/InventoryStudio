@@ -2,9 +2,9 @@
 
 <h2>Invite User</h2>
 
-@if (TempData["ErrorMessage"] != null)
+@if (TempData["Message"] != null)
 {
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    <div class="alert alert-danger">@TempData["Message"]</div>
 }
 
 <form asp-controller="User" asp-action="SendInvitation" method="post">

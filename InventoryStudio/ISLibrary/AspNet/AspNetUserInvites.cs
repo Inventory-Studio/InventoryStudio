@@ -88,8 +88,8 @@ namespace ISLibrary.AspNet
                 if (objColumns.Contains("Email")) Email = Convert.ToString(objRow["Email"]);
                 if (objColumns.Contains("UserId")) UserId = Convert.ToString(objRow["UserId"]);
                 if (objColumns.Contains("IsAccepted")) IsAccepted = Convert.ToBoolean(objRow["IsAccepted"]);
-                if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
-                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("CreatedOn")) CreatedOn = (DateTimeOffset)objRow["CreatedOn"];
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = (DateTimeOffset)objRow["UpdatedOn"];
 
 
                 if (string.IsNullOrEmpty(UserInviteId)) throw new Exception("Missing UserInviteId in the datarow");
@@ -328,6 +328,8 @@ namespace ISLibrary.AspNet
                     if (Filter.UserId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.UserId, "UserId");
                     if (Filter.UserInviteId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.UserInviteId, "UserInviteId");
                     if (Filter.Code != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Code, "Code");
+                    if (Filter.Email != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Email, "Email");
+                    if (Filter.IsAccepted != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.IsAccepted, "IsAccepted");
                 }
 
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "Id" : Utility.CustomSorting.GetSortExpression(typeof(AspNetUserCompany), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);

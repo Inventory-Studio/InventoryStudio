@@ -14,5 +14,9 @@ namespace ISLibrary.AspNet
         public Database.Filter.StringSearch.SearchFilter UserInviteId { get; set; }
 
         public Database.Filter.StringSearch.SearchFilter Code { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter Email { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter IsAccepted { get; set; }
     }
 }
