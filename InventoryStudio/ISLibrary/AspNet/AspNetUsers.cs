@@ -144,6 +144,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("Id")) Id = Convert.ToString(objRow["Id"]);
                 if (objColumns.Contains("Status")) Status = Convert.ToString(objRow["Status"]);
+                if (objColumns.Contains("UserName")) UserName = Convert.ToString(objRow["UserName"]);
                 if (objColumns.Contains("UserType")) UserType = Convert.ToString(objRow["UserType"]);
                 if (objColumns.Contains("NormalizedUserName")) NormalizedUserName = Convert.ToString(objRow["NormalizedUserName"]);
                 if (objColumns.Contains("Email")) Email = Convert.ToString(objRow["Email"]);
@@ -215,6 +216,7 @@ namespace ISLibrary
 
                 dicParam["Status"] = Status;
                 dicParam["UserType"] = UserType;
+                dicParam["UserName"] = UserName;
                 dicParam["NormalizedUserName"] = NormalizedUserName;
                 dicParam["Email"] = Email;
                 dicParam["NormalizedEmail"] = NormalizedEmail;
@@ -291,6 +293,7 @@ namespace ISLibrary
 
                 dicParam["Status"] = Status;
                 dicParam["UserType"] = UserType;
+                dicParam["UserName"] = UserName;
                 dicParam["NormalizedUserName"] = NormalizedUserName;
                 dicParam["Email"] = Email;
                 dicParam["NormalizedEmail"] = NormalizedEmail;

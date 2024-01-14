@@ -228,8 +228,13 @@ namespace InventoryStudio.Controllers.Account
             {
                 if (!currentUserRoles.Contains(selectedRoleId))
                 {
-                    AspNetUserRoles userRole = new(user.Id, selectedRoleId);
-                    _ = userRole.Create();
+                    AspNetUserRoles userRole = new AspNetUserRoles();
+                    userRole.UserId = user.Id;
+                    userRole.RoleId = selectedRoleId;
+                    userRole.Create();
+                    //Create without loading data, so use an empty constructor 
+                    //new(user.Id, selectedRoleId);
+                    //_ = userRole.Create();
                 }
             }
 
