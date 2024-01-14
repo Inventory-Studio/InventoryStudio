@@ -2,84 +2,84 @@
 
 @{
     ViewData["Title"] = "Details";
+
+    string NormalizedBoolean(bool value)
+    {
+        return value ? "Yes" : "No";
+    }
 }
 
-<h1>Details</h1>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">User Details</div>
+            <div class="hstack btn-list mt-md-0 mt-2">
+                <a asp-controller="User" asp-action="Edit" asp-route-id="@Model.Id" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
+                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Edit User
+                </a>
+                <a asp-controller="User" asp-action="Index" type="button" class="btn btn-sm btn-secondary btn-wave hstack align-items-center" aria-label="Invite button">
+                    Back to List
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UserName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UserType)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UserType)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
+        <div class="card-body">
+            <div class="row">
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.UserName)</label>
+                    <p>@Model.UserName</p>
+                </div>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EmailConfirmed)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EmailConfirmed)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumberConfirmed)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.TwoFactorEnabled)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TwoFactorEnabled)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LockoutEnd)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LockoutEnd)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LockoutEnabled)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LockoutEnabled)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.AccessFailedCount)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.AccessFailedCount)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.Status)</label>
+                    <p>@Model.Status</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.UserType)</label>
+                    <p>@Model.UserType</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.Email)</label>
+                    <p>@Model.Email</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.EmailConfirmed)</label>
+                    <p>@NormalizedBoolean(Model.EmailConfirmed)</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.PhoneNumber)</label>
+                    <p>@Model.PhoneNumber</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.PhoneNumberConfirmed)</label>
+                    <p>@NormalizedBoolean(Model.PhoneNumberConfirmed)</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.TwoFactorEnabled)</label>
+                    <p>@NormalizedBoolean(Model.TwoFactorEnabled)</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.LockoutEnd)</label>
+                    <p>@Model.LockoutEnd</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.LockoutEnabled)</label>
+                    <p>@NormalizedBoolean(Model.LockoutEnabled)</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.AccessFailedCount)</label>
+                    <p>@Model.AccessFailedCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
