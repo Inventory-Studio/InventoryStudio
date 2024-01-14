@@ -71,8 +71,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -99,6 +97,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -223,11 +222,8 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
@@ -256,6 +252,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 

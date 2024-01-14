@@ -52,7 +52,6 @@ namespace ISLibrary
         {
             DataSet objData = null;
             string strSQL = string.Empty;
-
             try
             {
                 strSQL = "SELECT * " +
@@ -76,6 +75,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -216,11 +216,8 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            //base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
                 // Update the company data. Assume CompanyID is the unique identifier for the record.
@@ -257,6 +254,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -384,6 +382,6 @@ namespace ISLibrary
             return objReturn;
         }
 
-       
+
     }
 }

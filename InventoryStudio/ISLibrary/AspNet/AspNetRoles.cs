@@ -144,7 +144,6 @@ namespace ISLibrary
             {
                 objData = null;
             }
-
             base.Load();
         }
 
@@ -310,9 +309,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-
             base.Update();
-
             return true;
         }
 

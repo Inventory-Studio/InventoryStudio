@@ -18,11 +18,11 @@ namespace ISLibrary
         public AspNetRolePermission()
         {
         }
-      
+
         public AspNetRolePermission(string RoleId, string PermissionId)
         {
             this.RoleId = RoleId;
-            this.PermissionId = PermissionId;           
+            this.PermissionId = PermissionId;
             this.Load();
         }
 
@@ -33,8 +33,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -62,6 +60,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
         private void Load(DataRow objRow)
         {
@@ -73,7 +72,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
                 if (objColumns.Contains("PermissionId")) PermissionId = Convert.ToString(objRow["PermissionId"]);
-             
+
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("Missing RoleId in the datarow");
             }
             catch (Exception ex)
@@ -175,8 +174,6 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
 
@@ -203,6 +200,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 

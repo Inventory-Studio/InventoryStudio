@@ -16,7 +16,7 @@ namespace ISLibrary
         public string Name { get; set; }
 
         public bool IsNew { get { return string.IsNullOrEmpty(PermissionId); } }
-     
+
         public AspNetPermission()
         {
         }
@@ -35,8 +35,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -63,6 +61,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
         private void Load(DataRow objRow)
         {
@@ -74,7 +73,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("PermissionId")) PermissionId = Convert.ToString(objRow["PermissionId"]);
                 if (objColumns.Contains("Name")) Name = Convert.ToString(objRow["Name"]);
-             
+
                 if (string.IsNullOrEmpty(PermissionId)) throw new Exception("Missing PermissionId in the datarow");
             }
             catch (Exception ex)
@@ -175,8 +174,6 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
 
@@ -202,6 +199,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -294,21 +292,21 @@ namespace ISLibrary
         public static List<AspNetPermission> GetAspNetPermissions()
         {
             int intTotalCount = 0;
-            return GetAspNetPermissions( null, null, null, out intTotalCount);
+            return GetAspNetPermissions(null, null, null, out intTotalCount);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter)
+        public static List<AspNetPermission> GetAspNetPermissions(AspNetPermissionFilter Filter)
         {
             int intTotalCount = 0;
-            return GetAspNetPermissions( Filter, null, null, out intTotalCount);
+            return GetAspNetPermissions(Filter, null, null, out intTotalCount);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetPermission> GetAspNetPermissions(AspNetPermissionFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetAspNetPermissions( Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetAspNetPermissions(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<AspNetPermission> GetAspNetPermissions( AspNetPermissionFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetPermission> GetAspNetPermissions(AspNetPermissionFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             List<AspNetPermission> objReturn = null;
             AspNetPermission objNew = null;
@@ -323,7 +321,7 @@ namespace ISLibrary
 
                 strSQL = "SELECT * " +
                          "FROM AspNetPermission (NOLOCK) " +
-                         "WHERE 1=1 " ;
+                         "WHERE 1=1 ";
                 if (Filter != null)
                 {
                     if (Filter.Name != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Name, "Name");

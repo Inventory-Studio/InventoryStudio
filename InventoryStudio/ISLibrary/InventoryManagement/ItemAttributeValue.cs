@@ -71,9 +71,7 @@ namespace ISLibrary
         }
 
         protected override void Load()
-        {
-            base.Load();
-
+        {         
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -101,6 +99,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -221,11 +220,8 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
                 if (string.IsNullOrEmpty(ItemAttributeID)) throw new Exception("ItemAttributeID is required");
@@ -251,6 +247,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -299,7 +296,7 @@ namespace ISLibrary
                 objFilter.ItemAttributeValueID.SearchString = ItemAttributeValueID;
                 objItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
                 if (objItemAttributeValueLines != null && objItemAttributeValueLines.Count > 0) throw new Exception("More than one item is setup using this item attrivute value.");
-                
+
                 dicDParam["ItemAttributeValueID"] = ItemAttributeValueID;
                 Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ItemAttributeValue"), objConn, objTran);
             }

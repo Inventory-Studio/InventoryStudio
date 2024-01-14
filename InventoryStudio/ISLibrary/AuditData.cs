@@ -31,7 +31,7 @@ namespace ISLibrary
             this.AuditDataID = AuditDataID;
         }
 
-       
+
         public AuditData(DataRow objRow)
         {
             Load(objRow);
@@ -39,8 +39,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -67,6 +65,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -80,7 +79,7 @@ namespace ISLibrary
                 if (objColumns.Contains("ObjectID")) ObjectID = Convert.ToString(objRow["ObjectID"]);
                 if (objColumns.Contains("ObjectName")) ObjectName = Convert.ToString(objRow["ObjectName"]);
                 if (objColumns.Contains("ChangedValue")) ChangedValue = Convert.ToString(objRow["ChangedValue"]);
-               
+
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
@@ -144,7 +143,7 @@ namespace ISLibrary
 
                 AuditDataID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AuditData"), objConn, objTran).ToString();
 
-        
+
 
                 Load(objConn, objTran);
             }
@@ -158,7 +157,7 @@ namespace ISLibrary
                 objItemParent = null;
             }
             return true;
-        } 
+        }
 
     }
 }
