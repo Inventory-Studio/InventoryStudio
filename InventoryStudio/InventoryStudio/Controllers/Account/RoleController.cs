@@ -1,19 +1,13 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using InventoryStudio.Models;
+﻿using InventoryStudio.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ISLibrary;
-using System.Data;
 using System.Security.Claims;
 using System.Text.Json;
-using static CLRFramework.Database.Filter.StringSearch;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Syncfusion.EJ2.Base;
 
-namespace InventoryStudio.Controllers
+namespace InventoryStudio.Controllers.Account
 {
     public class RoleController : Controller
     {
@@ -66,7 +60,7 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Account-Role-Create")]
         [HttpPost]
-        public async Task<IActionResult> Create(string roleName)
+        public IActionResult Create(string roleName)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
@@ -84,9 +78,7 @@ namespace InventoryStudio.Controllers
 
             try
             {
-                var result = role.Create();
-
-
+                role.Create();
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -97,7 +89,7 @@ namespace InventoryStudio.Controllers
         }
 
         [Authorize(Policy = "Account-Role-Edit")]
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult Edit(string id)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(id);
@@ -140,10 +132,10 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Account-Role-Edit")]
         [HttpPost]
-        public async Task<IActionResult> Edit(RoleManagementViewModel roleManagementViewModel)
+        public IActionResult Edit(RoleManagementViewModel roleManagementViewModel)
         {
-            var FormRole = roleManagementViewModel.AspNetRoles;
-            var role = new AspNetRoles(FormRole.Id);
+            var formRole = roleManagementViewModel.AspNetRoles;
+            var role = new AspNetRoles(formRole.Id);
 
             if (role == null)
             {
@@ -158,11 +150,11 @@ namespace InventoryStudio.Controllers
                 return View("~/Views/Account/Role/Edit.cshtml", role);
             }
 
-            role.Name = FormRole.Name;
+            role.Name = formRole.Name;
             role.UpdatedBy = _userManager.GetUserId(User);
             try
             {
-                var result = role.Update();
+                role.Update();
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -242,9 +234,9 @@ namespace InventoryStudio.Controllers
 
             // Update role permissions
 
-            var currentPermissions = role.AssignPermissionIds ?? new List<string>();
+            var currentPermissions = role?.AssignPermissionIds ?? new List<string>();
 
-            var selectedPermissions = model.SelectedPermissionIds ?? new List<string>();
+            var selectedPermissions = model?.SelectedPermissionIds ?? new List<string>();
 
             var permissionsToAdd = selectedPermissions.Except(currentPermissions).ToList();
 
@@ -295,7 +287,7 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Account-Role-AssignUsers")]
         [HttpPost]
-        public async Task<IActionResult> AssignUsers(AssignUsersViewModel model)
+        public IActionResult AssignUsers(AssignUsersViewModel model)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             var role = new AspNetRoles(model.RoleId);
