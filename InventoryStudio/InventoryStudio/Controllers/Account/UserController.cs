@@ -274,8 +274,8 @@ namespace InventoryStudio.Controllers.Account
 
         public IActionResult Invite()
         {
-            InviteUserViewModel InviteUserViewModel = new();
-            return View("~/Views/Account/User/Invite.cshtml", InviteUserViewModel);
+            InviteUserViewModel inviteUserViewModel = new();
+            return View("~/Views/Account/User/Invite.cshtml", inviteUserViewModel);
         }
 
         [HttpPost]
