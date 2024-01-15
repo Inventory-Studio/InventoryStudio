@@ -165,6 +165,7 @@ namespace InventoryStudio.Controllers
             company.DefaultFulfillmentMethod = input.DefaultFulfillmentMethod;
             company.DefaultFulfillmentStrategy = input.DefaultFulfillmentStrategy;
             company.DefaultAllocationStrategy = input.DefaultAllocationStrategy;
+            company.IncludePackingSlipOnLabel = input.IncludePackingSlipOnLabel;
             company.UpdatedBy = Convert.ToInt32(userId);
             company.Update();
             return RedirectToAction(nameof(Index));
