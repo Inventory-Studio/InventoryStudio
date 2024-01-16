@@ -8,6 +8,7 @@ using InventoryStudio.Models.Account;
 using InventoryStudio.Models.ViewModels;
 using ISLibrary;
 using ISLibrary.AspNet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,7 @@ namespace InventoryStudio.Controllers.Account
             _logger = logger;
         }
 
+        [Authorize(Policy = "Account-User-List")]
         public IActionResult Index()
         {
             List<AspNetUsers> users = new();
@@ -68,14 +70,15 @@ namespace InventoryStudio.Controllers.Account
             return View("~/Views/Account/User/Details.cshtml", user);
         }
 
+        [Authorize(Policy = "Account-User-Create")]
         public IActionResult Create()
         {
             CreateUserViewModel viewModel = new();
             return View("~/Views/Account/User/Create.cshtml", viewModel);
         }
 
+        [Authorize(Policy = "Account-User-Create")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateUserViewModel input)
         {
             User user = CreateUser();
@@ -158,6 +161,7 @@ namespace InventoryStudio.Controllers.Account
                 : (IUserEmailStore<User>)_userStore;
         }
 
+        [Authorize(Policy = "Account-User-Edit")]
         public IActionResult Edit(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -195,8 +199,8 @@ namespace InventoryStudio.Controllers.Account
             return View("~/Views/Account/User/Edit.cshtml", editViewModel);
         }
 
+        [Authorize(Policy = "Account-User-Edit")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(string id, EditUserViewModel input)
         {
             if (string.IsNullOrEmpty(id))
@@ -247,6 +251,7 @@ namespace InventoryStudio.Controllers.Account
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Policy = "Account-User-Delete")]
         public IActionResult Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -259,7 +264,6 @@ namespace InventoryStudio.Controllers.Account
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -272,14 +276,15 @@ namespace InventoryStudio.Controllers.Account
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Policy = "Account-User-Invite")]
         public IActionResult Invite()
         {
             InviteUserViewModel inviteUserViewModel = new();
             return View("~/Views/Account/User/Invite.cshtml", inviteUserViewModel);
         }
 
+        [Authorize(Policy = "Account-User-Invite")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendInvitation(InviteUserViewModel model)
         {
             if (ModelState.IsValid)
