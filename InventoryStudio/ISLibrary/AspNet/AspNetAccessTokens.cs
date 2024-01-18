@@ -10,34 +10,44 @@ using System.Threading.Tasks;
 
 namespace ISLibrary.AspNet
 {
-    public class AspNetUserAccessTokens : BaseClass
+    public class AspNetAccessTokens : BaseClass
     {
-        public string UserAccessTokenId { get; set; }
+        public string AccessTokenID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(UserAccessTokenId); } }
+        public bool IsNew { get { return string.IsNullOrEmpty(AccessTokenID); } }
+
+        public string ApplicationName { get; set; }
+
+        public string TokenName { get; set; }
 
         public string Token { get; set; }
 
-        public string UserId { get; set; }
+        public string Secret { get; set; }
 
-        public DateTimeOffset ExpirationTime { get; set; }
+        public bool InActive { get; set; }
 
-        public DateTimeOffset CreatedOn { get; set; }
+        public string RoleId { get; set; }
 
-        public DateTimeOffset? UpdatedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
 
-        public AspNetUserAccessTokens()
+        public string CreatedBy { get; set; }
+
+        public DateTime? UpdatedOn { get; set; }
+
+        public string UpdatedBy { get; set; }
+
+        public AspNetAccessTokens()
         {
 
         }
 
-        public AspNetUserAccessTokens(string userAccessTokenId)
+        public AspNetAccessTokens(string userAccessTokenId)
         {
-            this.UserAccessTokenId = userAccessTokenId;
+            this.AccessTokenID = userAccessTokenId;
             this.Load();
         }
 
-        public AspNetUserAccessTokens(DataRow objRow)
+        public AspNetAccessTokens(DataRow objRow)
         {
             Load(objRow);
         }
@@ -50,8 +60,8 @@ namespace ISLibrary.AspNet
             try
             {
                 strSQL = "SELECT * " +
-                         "FROM AspNetUserAccessTokens (NOLOCK) " +
-                         "WHERE UserAccessTokenId=" + Database.HandleQuote(UserAccessTokenId);
+                         "FROM AspNetAccessTokens (NOLOCK) " +
+                         "WHERE AccessTokenID=" + Database.HandleQuote(AccessTokenID);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -59,7 +69,7 @@ namespace ISLibrary.AspNet
                 }
                 else
                 {
-                    throw new Exception("UserAccessTokenId=" + UserAccessTokenId + " is not found");
+                    throw new Exception("AccessTokenID=" + AccessTokenID + " is not found");
                 }
             }
             catch (Exception ex)
@@ -82,13 +92,12 @@ namespace ISLibrary.AspNet
             {
                 objColumns = objRow.Table.Columns;
 
-                if (objColumns.Contains("UserAccessTokenId")) UserAccessTokenId = Convert.ToString(objRow["UserAccessTokenId"]);
+                if (objColumns.Contains("AccessTokenID")) AccessTokenID = Convert.ToString(objRow["AccessTokenID"]);
                 if (objColumns.Contains("Token")) Token = Convert.ToString(objRow["Token"]);
-                if (objColumns.Contains("UserId")) UserId = Convert.ToString(objRow["UserId"]);
-                if (objColumns.Contains("ExpirationTime") && objRow["ExpirationTime"] != DBNull.Value) ExpirationTime = (DateTimeOffset)objRow["ExpirationTime"];
-                if (objColumns.Contains("CreatedOn")) CreatedOn = (DateTimeOffset)objRow["CreatedOn"];
-                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = (DateTimeOffset)objRow["UpdatedOn"];
-                if (string.IsNullOrEmpty(UserAccessTokenId)) throw new Exception("Missing UserAccessTokenId in the datarow");
+                if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
+                if (objColumns.Contains("CreatedOn")) CreatedOn = (DateTime)objRow["CreatedOn"];
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = (DateTime)objRow["UpdatedOn"];
+                if (string.IsNullOrEmpty(AccessTokenID)) throw new Exception("Missing AccessTokenID in the datarow");
             }
             catch (Exception ex)
             {
@@ -137,15 +146,23 @@ namespace ISLibrary.AspNet
 
             try
             {
+                if (string.IsNullOrEmpty(ApplicationName)) throw new Exception("ApplicationName is required");
+                if (string.IsNullOrEmpty(TokenName)) throw new Exception("TokenName is required");
                 if (string.IsNullOrEmpty(Token)) throw new Exception("Token is required");
-                if (string.IsNullOrEmpty(UserId)) throw new Exception("UserId is required");
+                if (string.IsNullOrEmpty(Secret)) throw new Exception("Secret is required");
+                if (string.IsNullOrEmpty(RoleId)) throw new Exception("RoleId is required");
+
                 if (!IsNew) throw new Exception("Create cannot be performed, Id already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                dicParam["ApplicationName"] = ApplicationName;
+                dicParam["TokenName"] = TokenName;
                 dicParam["Token"] = Token;
-                dicParam["UserId"] = UserId;
-                dicParam["ExpirationTime"] = ExpirationTime;
+                dicParam["Secret"] = Secret;
+                dicParam["InActive"] = InActive;
+                dicParam["RoleId"] = RoleId;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
-                UserAccessTokenId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUserAccessTokens"), objConn, objTran).ToString();
+                dicParam["CreatedBy"] = CreatedBy;
+                AccessTokenID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetAccessTokens"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -193,17 +210,21 @@ namespace ISLibrary.AspNet
             Hashtable dicWParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(UserAccessTokenId)) throw new Exception("UserAccessTokenId is required");
-                if (IsNew) throw new Exception("Update cannot be performed, CompanyUserID is missing");
+                if (string.IsNullOrEmpty(AccessTokenID)) throw new Exception("AccessTokenID is required");
+                if (IsNew) throw new Exception("Update cannot be performed, AccessTokenID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
+                dicParam["ApplicationName"] = ApplicationName;
+                dicParam["TokenName"] = TokenName;
                 dicParam["Token"] = Token;
-                dicParam["UserId"] = UserId;
-                dicParam["ExpirationTime"] = ExpirationTime;
+                dicParam["Secret"] = Secret;
+                dicParam["InActive"] = InActive;
+                dicParam["RoleId"] = RoleId;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
+                dicParam["UpdatedBy"] = UpdatedBy;
 
-                dicWParam["UserAccessTokenId"] = UserAccessTokenId;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetUserAccessTokens"), objConn, objTran);
+                dicWParam["AccessTokenID"] = AccessTokenID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetAccessTokens"), objConn, objTran);
 
                 Load(objConn, objTran);
             }
@@ -257,8 +278,8 @@ namespace ISLibrary.AspNet
             try
             {
                 if (IsNew) throw new Exception("Delete cannot be performed, Id is missing");
-                dicDParam["UserAccessTokenId"] = UserAccessTokenId;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "AspNetUserAccessTokens"), objConn, objTran);
+                dicDParam["AccessTokenID"] = AccessTokenID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "AspNetAccessTokens"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -277,32 +298,33 @@ namespace ISLibrary.AspNet
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM AspNetUserTokens (NOLOCK) p " +
                      "WHERE 1=1 ";
-            strSQL += " AND p.UserId=" + Database.HandleQuote(UserId);
-            strSQL += " AND p.Code=" + Database.HandleQuote(Token);
+            strSQL += " AND p.RoleId=" + Database.HandleQuote(RoleId);
+            strSQL += " AND p.Token=" + Database.HandleQuote(Token);
+            strSQL += " AND p.Secret=" + Database.HandleQuote(Secret);
             return Database.HasRows(strSQL);
         }
 
 
-        public static List<AspNetUserAccessTokens> GetAspNetUserAccessTokens()
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens()
         {
             int intTotalCount = 0;
             return GetAspNetUserAccessTokens(null, null, null, out intTotalCount);
         }
-        public static List<AspNetUserAccessTokens> GetAspNetUserAccessTokens(AspNetUserAccessTokensFilter Filter)
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter)
         {
             int intTotalCount = 0;
             return GetAspNetUserAccessTokens(Filter, null, null, out intTotalCount);
         }
 
-        public static List<AspNetUserAccessTokens> GetAspNetUserAccessTokens(AspNetUserAccessTokensFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             return GetAspNetUserAccessTokens(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<AspNetUserAccessTokens> GetAspNetUserAccessTokens(AspNetUserAccessTokensFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<AspNetUserAccessTokens> objReturn = null;
-            AspNetUserAccessTokens objNew = null;
+            List<AspNetAccessTokens> objReturn = null;
+            AspNetAccessTokens objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -310,15 +332,15 @@ namespace ISLibrary.AspNet
             {
                 TotalRecord = 0;
 
-                objReturn = new List<AspNetUserAccessTokens>();
+                objReturn = new List<AspNetAccessTokens>();
 
                 strSQL = "SELECT * " +
-                         "FROM AspNetUserAccessTokens (NOLOCK) " +
+                         "FROM AspNetAccessTokens (NOLOCK) " +
                          "WHERE 1=1 ";
                 if (Filter != null)
                 {
-                    if (Filter.UserId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.UserId, "UserId");
-                    if (Filter.UserAccessTokenId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.UserAccessTokenId, "UserAccessTokenId");
+                    if (Filter.RoleId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.RoleId, "RoleId");
+                    if (Filter.AccessTokenID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.AccessTokenID, "AccessTokenID");
                 }
 
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "Id" : Utility.CustomSorting.GetSortExpression(typeof(AspNetUserCompany), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
@@ -328,7 +350,7 @@ namespace ISLibrary.AspNet
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new AspNetUserAccessTokens(objData.Tables[0].Rows[i]);
+                        objNew = new AspNetAccessTokens(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
