@@ -93,10 +93,16 @@ namespace ISLibrary.AspNet
                 objColumns = objRow.Table.Columns;
 
                 if (objColumns.Contains("AccessTokenID")) AccessTokenID = Convert.ToString(objRow["AccessTokenID"]);
+                if (objColumns.Contains("ApplicationName")) ApplicationName = Convert.ToString(objRow["ApplicationName"]);
+                if (objColumns.Contains("TokenName")) TokenName = Convert.ToString(objRow["TokenName"]);
                 if (objColumns.Contains("Token")) Token = Convert.ToString(objRow["Token"]);
+                if (objColumns.Contains("Secret")) Secret = Convert.ToString(objRow["Secret"]);
+                if (objColumns.Contains("InActive")) InActive = Convert.ToBoolean(objRow["InActive"]);
                 if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = (DateTime)objRow["CreatedOn"];
+                if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = (DateTime)objRow["UpdatedOn"];
+                if (objColumns.Contains("UpdatedBy") && objRow["UpdatedBy"] != DBNull.Value) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (string.IsNullOrEmpty(AccessTokenID)) throw new Exception("Missing AccessTokenID in the datarow");
             }
             catch (Exception ex)
@@ -296,9 +302,8 @@ namespace ISLibrary.AspNet
         {
             string strSQL = string.Empty;
             strSQL = "SELECT TOP 1 p.* " +
-                     "FROM AspNetUserTokens (NOLOCK) p " +
+                     "FROM AspNetAccessTokens (NOLOCK) p " +
                      "WHERE 1=1 ";
-            strSQL += " AND p.RoleId=" + Database.HandleQuote(RoleId);
             strSQL += " AND p.Token=" + Database.HandleQuote(Token);
             strSQL += " AND p.Secret=" + Database.HandleQuote(Secret);
             return Database.HasRows(strSQL);

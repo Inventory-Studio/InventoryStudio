@@ -1,11 +1,15 @@
-﻿namespace InventoryStudio.Models.AccessToken
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace InventoryStudio.Models.AccessToken
 {
     public class AccessTokenViewModel
     {
-        public string AccessTokenID { get; set; }
+        public string Id { get; set; }
 
+        [Display(Name = "Application")]
         public string ApplicationName { get; set; }
 
+        [Display(Name = "Token Name")]
         public string TokenName { get; set; }
 
         public string Token { get; set; }
@@ -18,10 +22,12 @@
 
         public DateTime CreatedOn { get; set; }
 
+        [Display(Name = "Created By")]
         public string CreatedBy { get; set; }
 
         public DateTime? UpdatedOn { get; set; }
 
-        public string UpdatedBy { get; set; }
+        [Display(Name = "Updated eBy")]
+        public string? UpdatedBy { get; set; }
     }
 }
