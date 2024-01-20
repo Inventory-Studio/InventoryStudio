@@ -157,8 +157,6 @@ namespace ISLibrary.AspNet
                 if (string.IsNullOrEmpty(Token)) throw new Exception("Token is required");
                 if (string.IsNullOrEmpty(Secret)) throw new Exception("Secret is required");
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("RoleId is required");
-
-                if (!IsNew) throw new Exception("Create cannot be performed, Id already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["ApplicationName"] = ApplicationName;
                 dicParam["TokenName"] = TokenName;

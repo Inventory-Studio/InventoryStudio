@@ -3,6 +3,7 @@ using InventoryStudio.Data;
 using InventoryStudio.Models;
 using InventoryStudio.Services;
 using InventoryStudio.Services.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,13 +30,16 @@ builder.Services.AddDefaultIdentity<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
-var tokenSection = builder.Configuration.GetSection("Authentication:Jwt");
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                   .AddCookie(options =>
+                   {
+                       options.LoginPath = "/Account/Login";
+                       options.AccessDeniedPath = "/Account/AccessDenied";
+                       options.LogoutPath = "/Account/Logout";
+                   });
 
-builder.Services.AddAuthentication(options =>
-{
-    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+var tokenSection = builder.Configuration.GetSection("Authentication:Jwt");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {

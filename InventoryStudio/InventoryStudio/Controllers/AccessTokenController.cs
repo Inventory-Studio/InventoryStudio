@@ -2,6 +2,7 @@
 using Humanizer;
 using InventoryStudio.Models;
 using InventoryStudio.Models.AccessToken;
+using InventoryStudio.Services.Authorization;
 using ISLibrary;
 using ISLibrary.AspNet;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,9 @@ namespace InventoryStudio.Controllers
 {
     public class AccessTokenController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
+
+        public AccessTokenController(IAuthorizationService authorizationService) => _authorizationService = authorizationService;
         public IActionResult Index()
         {
             //ToDo Need to optimize query
@@ -82,16 +86,22 @@ namespace InventoryStudio.Controllers
         {
             if (ModelState.IsValid)
             {
-                var accessToken = new AspNetAccessTokens();
-                accessToken.ApplicationName = input.ApplicationName;
-                accessToken.TokenName = input.TokenName;
-                accessToken.Token = Guid.NewGuid().ToString();//ToDo
-                accessToken.Secret = Guid.NewGuid().ToString();//ToDo
-                accessToken.InActive = input.InActive;
-                accessToken.RoleId = input.RoleId;
-                accessToken.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                accessToken.Create();
-                return RedirectToAction(nameof(Index));
+                var tokenResult = await _authorizationService.GenerateTokenByRole(input.RoleId);
+                if (tokenResult.IsSuccess)
+                {
+                    var accessToken = new AspNetAccessTokens();
+                    accessToken.AccessTokenID = tokenResult.TokenId;
+                    accessToken.ApplicationName = input.ApplicationName;
+                    accessToken.TokenName = input.TokenName;
+                    accessToken.Token = tokenResult.Token;
+                    accessToken.Secret = Guid.NewGuid().ToString();//ToDo
+                    accessToken.InActive = input.InActive;
+                    accessToken.RoleId = input.RoleId;
+                    accessToken.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    accessToken.Create();
+                    return RedirectToAction(nameof(Index));
+                }
+
             }
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
             var roles = AspNetRoles.GetAspNetRoless(company.Value);

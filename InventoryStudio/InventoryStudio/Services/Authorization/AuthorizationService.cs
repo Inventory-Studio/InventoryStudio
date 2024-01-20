@@ -36,9 +36,10 @@ namespace InventoryStudio.Services.Authorization
             var role = new AspNetRoles(roleId);
             if (role == null)
                 return new AuthorizationResponse { IsSuccess = false, Message = "Role does not exsits" };
+            var tokenId = Guid.NewGuid().ToString();
             var claims = new List<Claim>
                 {
-                    new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti,tokenId),
                     new Claim(ClaimTypes.Role,role.Name)
             };
 
@@ -53,7 +54,7 @@ namespace InventoryStudio.Services.Authorization
                 signingCredentials: signCredential
                 );
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-            return new AuthorizationResponse { IsSuccess = true, Token = token, Message = "Ok" };
+            return new AuthorizationResponse { IsSuccess = true, Token = token, Message = "Ok", TokenId = tokenId };
         }
 
         public async Task<AuthorizationResponse> GenerateTokenByUser(AuthorizationRequest request)
@@ -66,11 +67,12 @@ namespace InventoryStudio.Services.Authorization
 
             if (!signInResult.Succeeded)
                 return new AuthorizationResponse { IsSuccess = false, Message = "Check Email or Password" };
+            var tokenId = Guid.NewGuid().ToString();
             var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name,user.UserName),
                     new Claim(ClaimTypes.Email,user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
+                    new Claim(JwtRegisteredClaimNames.Jti,tokenId)
 
                 };
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -101,7 +103,7 @@ namespace InventoryStudio.Services.Authorization
                 );
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             var expiration = TimeZoneInfo.ConvertTimeFromUtc(jwtToken.ValidTo, TimeZoneInfo.Local);
-            return new AuthorizationResponse { IsSuccess = true, Token = token, Expiration = expiration, Message = "Ok" };
+            return new AuthorizationResponse { IsSuccess = true, Token = token, Expiration = expiration, Message = "Ok", TokenId = tokenId };
         }
     }
 }
