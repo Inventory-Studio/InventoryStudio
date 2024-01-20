@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.AccessToken
 {
@@ -16,6 +17,7 @@ namespace InventoryStudio.Models.AccessToken
         [Display(Name = "Token Name")]
         public string TokenName { get; set; }
 
+        [DisplayName("Inactive")]
         public bool InActive { get; set; }
 
         [Required]
