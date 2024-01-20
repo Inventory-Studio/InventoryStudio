@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.AccessToken
 {
@@ -16,10 +17,12 @@ namespace InventoryStudio.Models.AccessToken
 
         public string Secret { get; set; }
 
+        [DisplayName("Inactive")]
         public bool InActive { get; set; }
 
         public string Role { get; set; }
 
+        [DisplayName("Created On")]
         public DateTime CreatedOn { get; set; }
 
         [Display(Name = "Created By")]
@@ -27,7 +30,7 @@ namespace InventoryStudio.Models.AccessToken
 
         public DateTime? UpdatedOn { get; set; }
 
-        [Display(Name = "Updated eBy")]
+        [Display(Name = "Updated By")]
         public string? UpdatedBy { get; set; }
     }
 }
