@@ -33,8 +33,8 @@ var tokenSection = builder.Configuration.GetSection("Authentication:Jwt");
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
