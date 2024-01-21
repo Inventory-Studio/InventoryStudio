@@ -1,6 +1,8 @@
 ﻿using InventoryStudio.Models;
 using InventoryStudio.Models.Authorization;
 using ISLibrary;
+using ISLibrary.AspNet;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +17,8 @@ namespace InventoryStudio.Services.Authorization
         Task<AuthorizationResponse> GenerateTokenByRole(string roleId);
 
         Task<AuthorizationResponse> GenerateTokenByUser(AuthorizationRequest request);
+
+        Task ValidateToken(TokenValidatedContext context);
     }
     public class AuthorizationService : IAuthorizationService
     {
@@ -22,12 +26,14 @@ namespace InventoryStudio.Services.Authorization
         private IConfiguration _config;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AuthorizationService(IConfiguration config, UserManager<User> userManager, SignInManager<User> signInManager)
+        public AuthorizationService(IConfiguration config, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
 
@@ -104,6 +110,32 @@ namespace InventoryStudio.Services.Authorization
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             var expiration = TimeZoneInfo.ConvertTimeFromUtc(jwtToken.ValidTo, TimeZoneInfo.Local);
             return new AuthorizationResponse { IsSuccess = true, Token = token, Expiration = expiration, Message = "Ok", TokenId = tokenId };
+        }
+
+        public async Task ValidateToken(TokenValidatedContext context)
+        {
+            var accessTokenId = context.Principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var accessToken = new AspNetAccessTokens(accessTokenId);
+            if (accessToken == null || !accessToken.InActive || context.SecurityToken == null)
+            {
+                context.Fail("Token validation failed");
+                return;
+            }
+            var role = await _roleManager.FindByIdAsync(accessToken.RoleId);
+            if (role == null)
+            {
+                context.Fail("Role does not exist");
+                return;
+            }
+            var roleClaims = await _roleManager.GetClaimsAsync(role);
+            if (roleClaims.Any())
+            {
+                foreach (var claim in roleClaims)
+                {
+                    context.Principal.AddIdentity(new ClaimsIdentity(new[] { new Claim(claim.Type, claim.Value) }));
+                }
+            }
+            context.Success();
         }
     }
 }
