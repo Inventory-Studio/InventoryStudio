@@ -4,6 +4,7 @@ using Microsoft.Identity.Client;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -21,17 +22,29 @@ namespace ISLibrary
         }
 
         public string ParentCompanyID { get; set; } = string.Empty;
+        [DisplayName("Company Name")]
         public string CompanyName { get; set; } = string.Empty;
+        [DisplayName("Automate Fulfillment")]
         public bool AutomateFulfillment { get; set; }
+        [DisplayName("Shippo API Key")]
         public string ShippoAPIKey { get; set; } = string.Empty;
+        [DisplayName("Include Packing Slip On Label")]
         public bool IncludePackingSlipOnLabel { get; set; }
+        [DisplayName("Company GUID")]
         public string CompanyGUID { get; set; } = string.Empty;
+        [DisplayName("Default Fulfillment Method")]
         public string DefaultFulfillmentMethod { get; set; } = string.Empty;
+        [DisplayName("Default Fulfillment Strategy")]
         public string DefaultFulfillmentStrategy { get; set; } = string.Empty;
+        [DisplayName("Default Allocation Strategy")]
         public string DefaultAllocationStrategy { get; set; } = string.Empty;
+        [DisplayName("Updated By")]
         public int? UpdatedBy { get; set; } = null;
+        [DisplayName("Updated On")]
         public DateTime? UpdatedOn { get; set; } = null;
+        [DisplayName("Created By")]
         public int? CreatedBy { get; set; } = null;
+        [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; } = null;
 
 
