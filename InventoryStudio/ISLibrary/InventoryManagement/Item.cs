@@ -14,19 +14,19 @@ namespace ISLibrary
 {
     public class Item : BaseClass
     {
-        //public enum enumItemType
-        //{
-        //    [Description("Inventory Item")]
-        //    Inventory,
-        //    [Description("Lot Numbered Inventory Item")]
-        //    LotNumbered,
-        //    [Description("Serialized Inventory Item")]
-        //    Serialized,
-        //    [Description("Non-Inventory Item")]
-        //    NonInventory,
-        //    [Description("Kit Item")]
-        //    Kit
-        //}
+        public enum enumItemType
+        {
+            [Description("Inventory Item")]
+            Inventory,
+            [Description("Lot Numbered Inventory Item")]
+            LotNumbered,
+            [Description("Serialized Inventory Item")]
+            Serialized,
+            [Description("Non-Inventory Item")]
+            NonInventory,
+            [Description("Kit Item")]
+            Kit
+        }
 
         public enum enumWeightUnit
         {
@@ -46,8 +46,8 @@ namespace ISLibrary
         public string ClientID { get; set; }
         public string VendorID { get; set; }
         public string ItemParentID { get; set; }
-        public string ItemType { get; set; }
-        //public enumItemType? ItemType { get; set; }
+        //public string ItemType { get; set; }
+        public enumItemType? ItemType { get; set; }
         public string ItemNumber { get; set; }
         public string ItemName { get; set; }
         public string SalesDescription { get; set; }
@@ -273,8 +273,8 @@ namespace ISLibrary
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                 if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
-                //if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value) Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType ItemType);
-                if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
+                if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value) Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType ItemType);
+                //if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
                 if (objColumns.Contains("ItemNumber")) ItemNumber = Convert.ToString(objRow["ItemNumber"]);
                 if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
                 if (objColumns.Contains("SalesDescription")) SalesDescription = Convert.ToString(objRow["SalesDescription"]);
