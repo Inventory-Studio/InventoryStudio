@@ -26,8 +26,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 //If the account needs to click on email confirmation to log in, this configuration needs to be added
 //options => options.SignIn.RequireConfirmedAccount = true
-builder.Services.AddDefaultIdentity<User>()
+builder.Services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+});
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
