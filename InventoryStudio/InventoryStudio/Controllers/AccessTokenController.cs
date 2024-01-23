@@ -140,7 +140,7 @@ namespace InventoryStudio.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id,
+        public IActionResult Edit(string id,
             [Bind("Id,ApplicationName,TokenName,InActive,RoleId")]
             EditAccessTokenViewModel input)
         {
@@ -165,7 +165,7 @@ namespace InventoryStudio.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Delete(string id)
+        public IActionResult Delete(string id)
         {
             if (id == null) return NotFound();
             var accessToken = new AspNetAccessTokens(id);
@@ -176,7 +176,7 @@ namespace InventoryStudio.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public IActionResult DeleteConfirmed(string id)
         {
             if (id == null) return NotFound();
             var accessToken = new AspNetAccessTokens(id);
