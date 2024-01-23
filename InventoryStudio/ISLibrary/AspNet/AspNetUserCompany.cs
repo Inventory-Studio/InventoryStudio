@@ -35,7 +35,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
 
             DataSet objData = null;
             string strSQL = string.Empty;
@@ -63,6 +62,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
         private void Load(DataRow objRow)
         {
@@ -134,6 +134,7 @@ namespace ISLibrary
 
                 dicParam["UserId"] = UserId;
                 dicParam["CompanyID"] = CompanyID;
+                dicParam["CreatedOn"] = DateTime.UtcNow;
 
                 UserCompanyId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUserCompany"), objConn, objTran).ToString();
 
@@ -180,15 +181,12 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
                 if (string.IsNullOrEmpty(UserId)) throw new Exception("UserId is required");
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required"); 
+                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (IsNew) throw new Exception("Update cannot be performed, CompanyUserID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
@@ -210,6 +208,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -272,6 +271,8 @@ namespace ISLibrary
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM AspNetUserCompany (NOLOCK) p " +
                      "WHERE 1=1 ";
+            strSQL += " AND p.UserId=" + Database.HandleQuote(UserId);
+            strSQL += " AND p.CompanyId=" + Database.HandleQuote(CompanyID);
 
             if (!string.IsNullOrEmpty(UserCompanyId)) strSQL += "AND p.UserCompanyId<>" + Database.HandleQuote(UserCompanyId);
             return Database.HasRows(strSQL);

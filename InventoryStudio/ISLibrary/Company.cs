@@ -1,10 +1,10 @@
-
 using CLRFramework;
 using Microsoft.Data.SqlClient;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -16,20 +16,35 @@ namespace ISLibrary
     {
         public string CompanyID { get; set; } = string.Empty;
 
-        public bool IsNew { get { return string.IsNullOrEmpty(CompanyID); } }
+        public bool IsNew
+        {
+            get { return string.IsNullOrEmpty(CompanyID); }
+        }
 
         public string ParentCompanyID { get; set; } = string.Empty;
+        [DisplayName("Company Name")]
         public string CompanyName { get; set; } = string.Empty;
+        [DisplayName("Automate Fulfillment")]
         public bool AutomateFulfillment { get; set; }
+        [DisplayName("Shippo API Key")]
         public string ShippoAPIKey { get; set; } = string.Empty;
+        [DisplayName("Include Packing Slip On Label")]
         public bool IncludePackingSlipOnLabel { get; set; }
+        [DisplayName("Company GUID")]
         public string CompanyGUID { get; set; } = string.Empty;
+        [DisplayName("Default Fulfillment Method")]
         public string DefaultFulfillmentMethod { get; set; } = string.Empty;
+        [DisplayName("Default Fulfillment Strategy")]
         public string DefaultFulfillmentStrategy { get; set; } = string.Empty;
+        [DisplayName("Default Allocation Strategy")]
         public string DefaultAllocationStrategy { get; set; } = string.Empty;
+        [DisplayName("Updated By")]
         public int? UpdatedBy { get; set; } = null;
+        [DisplayName("Updated On")]
         public DateTime? UpdatedOn { get; set; } = null;
+        [DisplayName("Created By")]
         public int? CreatedBy { get; set; } = null;
+        [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; } = null;
 
 
@@ -52,7 +67,6 @@ namespace ISLibrary
         {
             DataSet objData = null;
             string strSQL = string.Empty;
-
             try
             {
                 strSQL = "SELECT * " +
@@ -76,6 +90,8 @@ namespace ISLibrary
             {
                 objData = null;
             }
+
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -85,17 +101,25 @@ namespace ISLibrary
             try
             {
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ParentCompanyID") && objRow["ParentCompanyID"] != DBNull.Value) ParentCompanyID = Convert.ToString(objRow["ParentCompanyID"]);
+                if (objColumns.Contains("ParentCompanyID") && objRow["ParentCompanyID"] != DBNull.Value)
+                    ParentCompanyID = Convert.ToString(objRow["ParentCompanyID"]);
                 if (objColumns.Contains("CompanyName")) CompanyName = Convert.ToString(objRow["CompanyName"]);
-                if (objColumns.Contains("_AutomateFulfillment")) AutomateFulfillment = Convert.ToBoolean(objRow["_AutomateFulfillment"]);
+                if (objColumns.Contains("_AutomateFulfillment"))
+                    AutomateFulfillment = Convert.ToBoolean(objRow["_AutomateFulfillment"]);
                 if (objColumns.Contains("_ShippoAPIKey")) ShippoAPIKey = Convert.ToString(objRow["_ShippoAPIKey"]);
-                if (objColumns.Contains("_IncludePackingSlipOnLabel")) IncludePackingSlipOnLabel = Convert.ToBoolean(objRow["_IncludePackingSlipOnLabel"]);
+                if (objColumns.Contains("_IncludePackingSlipOnLabel"))
+                    IncludePackingSlipOnLabel = Convert.ToBoolean(objRow["_IncludePackingSlipOnLabel"]);
                 if (objColumns.Contains("CompanyGUID")) CompanyGUID = Convert.ToString(objRow["CompanyGUID"]);
-                if (objColumns.Contains("DefaultFulfillmentMethod")) DefaultFulfillmentMethod = Convert.ToString(objRow["DefaultFulfillmentMethod"]);
-                if (objColumns.Contains("DefaultFulfillmentStrategy")) DefaultFulfillmentStrategy = Convert.ToString(objRow["DefaultFulfillmentStrategy"]);
-                if (objColumns.Contains("DefaultAllocationStrategy")) DefaultAllocationStrategy = Convert.ToString(objRow["DefaultAllocationStrategy"]);
-                if (objColumns.Contains("UpdatedBy") && objRow["UpdatedBy"] != DBNull.Value) UpdatedBy = Convert.ToInt32(objRow["UpdatedBy"]);
-                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("DefaultFulfillmentMethod"))
+                    DefaultFulfillmentMethod = Convert.ToString(objRow["DefaultFulfillmentMethod"]);
+                if (objColumns.Contains("DefaultFulfillmentStrategy"))
+                    DefaultFulfillmentStrategy = Convert.ToString(objRow["DefaultFulfillmentStrategy"]);
+                if (objColumns.Contains("DefaultAllocationStrategy"))
+                    DefaultAllocationStrategy = Convert.ToString(objRow["DefaultAllocationStrategy"]);
+                if (objColumns.Contains("UpdatedBy") && objRow["UpdatedBy"] != DBNull.Value)
+                    UpdatedBy = Convert.ToInt32(objRow["UpdatedBy"]);
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
+                    UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToInt32(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
@@ -137,6 +161,7 @@ namespace ISLibrary
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
@@ -162,13 +187,15 @@ namespace ISLibrary
                 dicParam["DefaultFulfillmentStrategy"] = DefaultFulfillmentStrategy;
                 dicParam["DefaultAllocationStrategy"] = DefaultAllocationStrategy;
                 dicParam["UpdatedBy"] = UpdatedBy.HasValue ? (object)UpdatedBy.Value : DBNull.Value;
-                dicParam["UpdatedOn"] = (UpdatedOn.HasValue && UpdatedOn.Value != DateTime.MinValue) ? (object)UpdatedOn.Value : DBNull.Value;
+                dicParam["UpdatedOn"] = (UpdatedOn.HasValue && UpdatedOn.Value != DateTime.MinValue)
+                    ? (object)UpdatedOn.Value
+                    : DBNull.Value;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = CreatedOn;
 
                 // Execute the SQL insert and get the new identity value for CompanyID
-                CompanyID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Company"), objConn, objTran).ToString();
-
+                CompanyID = Database
+                    .ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Company"), objConn, objTran).ToString();
 
 
                 // Load the newly created company data
@@ -182,6 +209,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+
             return true;
         }
 
@@ -211,16 +239,14 @@ namespace ISLibrary
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            //base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
                 // Update the company data. Assume CompanyID is the unique identifier for the record.
@@ -257,6 +283,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+
+            base.Update();
             return true;
         }
 
@@ -287,6 +315,7 @@ namespace ISLibrary
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
@@ -314,6 +343,7 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
             return true;
         }
 
@@ -330,12 +360,14 @@ namespace ISLibrary
             return GetCompanies(Filter, null, null, out intTotalCount);
         }
 
-        public static List<Company> GetCompanies(CompanyFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Company> GetCompanies(CompanyFilter Filter, int? PageSize, int? PageNumber,
+            out int TotalRecord)
         {
             return GetCompanies(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<Company> GetCompanies(CompanyFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Company> GetCompanies(CompanyFilter Filter, string SortExpression, bool SortAscending,
+            int? PageSize, int? PageNumber, out int TotalRecord)
         {
             List<Company> objReturn = null;
             Company objNew = null;
@@ -355,12 +387,20 @@ namespace ISLibrary
 
                 if (Filter != null)
                 {
-                    if (Filter.CompanyID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CompanyID, "CompanyID");
-                    if (Filter.ParentCompanyID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ParentCompanyID, "ParentCompanyID");
-                    if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "CreatedBy");
+                    if (Filter.CompanyID != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CompanyID, "CompanyID");
+                    if (Filter.ParentCompanyID != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ParentCompanyID, "ParentCompanyID");
+                    if (Filter.CreatedBy != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "CreatedBy");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "CompanyID" : Utility.CustomSorting.GetSortExpression(typeof(RoutingProfile), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null)
+                    strSQL = Database.GetPagingSQL(strSQL,
+                        string.IsNullOrEmpty(SortExpression)
+                            ? "CompanyID"
+                            : Utility.CustomSorting.GetSortExpression(typeof(RoutingProfile), SortExpression),
+                        string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -372,6 +412,8 @@ namespace ISLibrary
                         objReturn.Add(objNew);
                     }
                 }
+
+                TotalRecord = objReturn.Count();
             }
             catch (Exception ex)
             {
@@ -381,9 +423,8 @@ namespace ISLibrary
             {
                 objData = null;
             }
+
             return objReturn;
         }
-
-       
     }
 }

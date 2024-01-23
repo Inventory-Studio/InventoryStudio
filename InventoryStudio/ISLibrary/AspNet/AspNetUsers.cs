@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using Microsoft.Data.SqlClient;
@@ -15,21 +16,84 @@ namespace ISLibrary
     {
         public string Id { get; private set; }
         public bool IsNew { get { return string.IsNullOrEmpty(Id); } }
+        [DisplayName("Status")]
         public string Status { get; set; }
+        [DisplayName("User Name")]
+        public string UserName { get; set; }
+        [DisplayName("User Type")]
         public string UserType { get; set; }
         public string NormalizedUserName { get; set; }
+        [DisplayName("E-mail")]
         public string Email { get; set; }
         public string NormalizedEmail { get; set; }
+        [DisplayName("Email Confirmed")]
         public bool EmailConfirmed { get; set; }
         public string PasswordHash { get; set; }
         public string SecurityStamp { get; set; }
         public string ConcurrencyStamp { get; set; }
+        [DisplayName("Phone Number")]
         public string PhoneNumber { get; set; }
+        [DisplayName("Phone Number Confirmed")]
         public bool PhoneNumberConfirmed { get; set; }
+        [DisplayName("Two Factor Enabled")]
         public bool TwoFactorEnabled { get; set; }
-        public DateTime LockedEnd { get; set; }
-        public bool LockedoutEnabled { get; set; }
+        [DisplayName("Lockout End")]
+        public DateTimeOffset? LockoutEnd { get; set; }
+        [DisplayName("Lockout Enabled")]
+        public bool LockoutEnabled { get; set; }
+        [DisplayName("Access Failed Count")]
         public string AccessFailedCount { get; set; }
+
+        private List<Company>? mCompanies = null;
+        public List<Company>? Companies
+        {
+            get
+            {
+                if (mCompanies == null && !string.IsNullOrEmpty(Id))
+                {
+
+                    try
+                    {
+                        mCompanies = GetCompanies(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                return mCompanies;
+            }
+        }
+
+        private List<AspNetRoles>? mRoles = null;
+        public List<AspNetRoles>? Roles
+        {
+            get
+            {
+                if (mRoles == null && !string.IsNullOrEmpty(Id))
+                {
+
+                    try
+                    {
+                        mRoles = GetRoles(Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+                return mRoles;
+            }
+        }
+
 
         public AspNetUsers()
         {
@@ -53,15 +117,13 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
             try
             {
                 strSQL = "SELECT * " +
-                         "FROM AspNetUsers (NOLOCK) " +
+                         "FROM AspNetUsers (NOLOCK) WHERE 1=1" +
                          "AND Id=" + Database.HandleQuote(Id);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -81,6 +143,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -93,6 +156,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("Id")) Id = Convert.ToString(objRow["Id"]);
                 if (objColumns.Contains("Status")) Status = Convert.ToString(objRow["Status"]);
+                if (objColumns.Contains("UserName")) UserName = Convert.ToString(objRow["UserName"]);
                 if (objColumns.Contains("UserType")) UserType = Convert.ToString(objRow["UserType"]);
                 if (objColumns.Contains("NormalizedUserName")) NormalizedUserName = Convert.ToString(objRow["NormalizedUserName"]);
                 if (objColumns.Contains("Email")) Email = Convert.ToString(objRow["Email"]);
@@ -102,10 +166,10 @@ namespace ISLibrary
                 if (objColumns.Contains("SecurityStamp")) SecurityStamp = Convert.ToString(objRow["SecurityStamp"]);
                 if (objColumns.Contains("ConcurrencyStamp")) ConcurrencyStamp = Convert.ToString(objRow["ConcurrencyStamp"]);
                 if (objColumns.Contains("PhoneNumber")) PhoneNumber = Convert.ToString(objRow["PhoneNumber"]);
-                if (objColumns.Contains("PhoneNumberConfirmed") && objRow["PhoneNumberConfirmed"] != DBNull.Value) EmailConfirmed = Convert.ToBoolean(objRow["PhoneNumberConfirmed"]);
+                if (objColumns.Contains("PhoneNumberConfirmed") && objRow["PhoneNumberConfirmed"] != DBNull.Value) PhoneNumberConfirmed = Convert.ToBoolean(objRow["PhoneNumberConfirmed"]);
                 if (objColumns.Contains("TwoFactorEnabled") && objRow["TwoFactorEnabled"] != DBNull.Value) TwoFactorEnabled = Convert.ToBoolean(objRow["TwoFactorEnabled"]);
-                if (objColumns.Contains("LockedEnd") && objRow["LockedEnd"] != DBNull.Value) LockedEnd = Convert.ToDateTime(objRow["LockedEnd"]);
-                if (objColumns.Contains("LockedoutEnabled") && objRow["LockedoutEnabled"] != DBNull.Value) LockedoutEnabled = Convert.ToBoolean(objRow["LockedoutEnabled"]);
+                if (objColumns.Contains("LockoutEnd") && objRow["LockoutEnd"] != DBNull.Value) LockoutEnd = Convert.ToDateTime(objRow["LockoutEnd"]);
+                if (objColumns.Contains("LockoutEnabled") && objRow["LockoutEnabled"] != DBNull.Value) LockoutEnabled = Convert.ToBoolean(objRow["LockoutEnabled"]);
                 if (objColumns.Contains("AccessFailedCount")) AccessFailedCount = Convert.ToString(objRow["AccessFailedCount"]);
 
                 if (string.IsNullOrEmpty(Id)) throw new Exception("Missing AspNetUsersID in the datarow");
@@ -164,6 +228,7 @@ namespace ISLibrary
 
                 dicParam["Status"] = Status;
                 dicParam["UserType"] = UserType;
+                dicParam["UserName"] = UserName;
                 dicParam["NormalizedUserName"] = NormalizedUserName;
                 dicParam["Email"] = Email;
                 dicParam["NormalizedEmail"] = NormalizedEmail;
@@ -174,8 +239,8 @@ namespace ISLibrary
                 dicParam["PhoneNumber"] = PhoneNumber;
                 dicParam["PhoneNumberConfirmed"] = PhoneNumberConfirmed;
                 dicParam["TwoFactorEnabled"] = TwoFactorEnabled;
-                dicParam["LockedEnd"] = LockedEnd;
-                dicParam["LockedoutEnabled"] = LockedoutEnabled;
+                dicParam["LockoutEnd"] = LockoutEnd;
+                dicParam["LockoutEnabled"] = LockoutEnabled;
                 dicParam["AccessFailedCount"] = AccessFailedCount;
 
                 Id = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetUsers"), objConn, objTran).ToString();
@@ -223,8 +288,6 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
 
@@ -236,12 +299,13 @@ namespace ISLibrary
                 //if (TranDate == null) throw new Exception("TranDate is required");
                 //if (AspNetUsersLines == null || AspNetUsersLines.Count == 0) throw new Exception("At least one sales order line is required");
                 if (IsNew) throw new Exception("Update cannot be performed, AspNetUsersID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 //if (BillToAddress.State == "CA" && ShippingAmount == 0) throw new Exception("");
 
                 dicParam["Status"] = Status;
                 dicParam["UserType"] = UserType;
+                dicParam["UserName"] = UserName;
                 dicParam["NormalizedUserName"] = NormalizedUserName;
                 dicParam["Email"] = Email;
                 dicParam["NormalizedEmail"] = NormalizedEmail;
@@ -252,11 +316,11 @@ namespace ISLibrary
                 dicParam["PhoneNumber"] = PhoneNumber;
                 dicParam["PhoneNumberConfirmed"] = PhoneNumberConfirmed;
                 dicParam["TwoFactorEnabled"] = TwoFactorEnabled;
-                dicParam["LockedEnd"] = LockedEnd;
-                dicParam["LockedoutEnabled"] = LockedoutEnabled;
+                dicParam["LockoutEnd"] = LockoutEnd;
+                dicParam["LockoutEnabled"] = LockoutEnabled;
                 dicParam["AccessFailedCount"] = AccessFailedCount;
 
-                dicWParam["AspNetUsersID"] = Id;
+                dicWParam["Id"] = Id;
 
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "AspNetUsers"), objConn, objTran);
 
@@ -277,6 +341,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -340,7 +405,7 @@ namespace ISLibrary
                      "FROM AspNetUsers (NOLOCK) p " +
                      "WHERE 1=1 ";
 
-            if (!string.IsNullOrEmpty(Id)) strSQL += "AND p.AspNetUsersID<>" + Database.HandleQuote(Id);
+            if (!string.IsNullOrEmpty(Id)) strSQL += "AND p.Id<>" + Database.HandleQuote(Id);
             return Database.HasRows(strSQL);
         }
 
@@ -397,19 +462,18 @@ namespace ISLibrary
 
                 strSQL = "SELECT s.* " +
                          "FROM AspNetUsers (NOLOCK) s " +
-                         "INNER JOIN Customer (NOLOCK) c ON s.CustomerID=c.CustomerID " +
+                         "INNER JOIN AspNetUserCompany (NOLOCK) c ON s.Id=c.UserId " +
                          "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
 
                 if (Filter != null)
                 {
-                    if (Filter.CustomerID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CustomerID, "s.CustomerID");
                     if (Filter.PONumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.PONumber, "s.PONumber");
                     if (Filter.TranDate != null) strSQL += Database.Filter.DateTimeSearch.GetSQLQuery(Filter.TranDate, "s.TranDate");
                     if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "s.LocationID");
                     if (Filter.ShipToAddressID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ShipToAddressID, "s.ShipToAddressID");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "AspNetUsersID" : Utility.CustomSorting.GetSortExpression(typeof(AspNetUsers), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "Id" : Utility.CustomSorting.GetSortExpression(typeof(AspNetUsers), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -418,6 +482,43 @@ namespace ISLibrary
                     {
                         objNew = new AspNetUsers(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
+                        objReturn.Add(objNew);
+                    }
+                }
+                TotalRecord = objReturn.Count;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
+        public static List<Company> GetCompanies(string userId)
+        {
+            List<Company> objReturn = new List<Company>();
+            Company objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM Company u " +
+                    "INNER JOIN AspNetUserCompany uc ON u.CompanyID = uc.CompanyId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Company(objData.Tables[0].Rows[i]);
                         objReturn.Add(objNew);
                     }
                 }
@@ -432,5 +533,42 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+        public static List<AspNetRoles> GetRoles(string userId)
+        {
+            List<AspNetRoles> objReturn = new List<AspNetRoles>();
+            AspNetRoles objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT u.* " +
+                    "FROM AspNetRoles u " +
+                    "INNER JOIN AspNetUserRoles uc ON u.Id = uc.RoleId " +
+                    "WHERE uc.UserId = " + userId;
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new AspNetRoles(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            return objReturn;
+        }
+
     }
 }

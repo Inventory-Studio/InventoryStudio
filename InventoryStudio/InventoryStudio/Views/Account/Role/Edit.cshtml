@@ -3,43 +3,48 @@
     ViewData["Title"] = "Edit Role";
 }
 
-<div class="container-fluid">
-    <h2>@ViewData["Title"]</h2>
-
-    <div class="row">
-        <div class="col-md-3">
-            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                <a class="nav-link active" id="v-pills-editRole-tab" data-bs-toggle="pill" href="#v-pills-editRole" role="tab" aria-controls="v-pills-editRole" aria-selected="true">Role Profile</a>
-                <a class="nav-link" id="v-pills-permissions-tab" data-bs-toggle="pill" href="#v-pills-permissions" role="tab" aria-controls="v-pills-permissions" aria-selected="false"> Assign Permissions</a>
-                <a class="nav-link" id="v-pills-users-tab" data-bs-toggle="pill" href="#v-pills-users" role="tab" aria-controls="v-pills-users" aria-selected="false"> Assign Users</a>
-            </div>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Edit Role</div>
+            <a class="btn btn-sm btn-light" asp-controller="Role" asp-action="Index">Back to List</a>
         </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <a class="nav-link active" id="v-pills-editRole-tab" data-bs-toggle="pill" href="#v-pills-editRole" role="tab" aria-controls="v-pills-editRole" aria-selected="true">Role Profile</a>
+                        <a class="nav-link" id="v-pills-permissions-tab" data-bs-toggle="pill" href="#v-pills-permissions" role="tab" aria-controls="v-pills-permissions" aria-selected="false"> Assign Permissions</a>
+                        <a class="nav-link" id="v-pills-users-tab" data-bs-toggle="pill" href="#v-pills-users" role="tab" aria-controls="v-pills-users" aria-selected="false"> Assign Users</a>
+                    </div>
+                </div>
 
-        <div class="col-md-9">
-            <div class="tab-content" id="v-pills-tabContent">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="tab-pane fade show active" id="v-pills-editRole" role="tabpanel" aria-labelledby="v-pills-editRole-tab">
-                    <form asp-action="Edit" asp-route-id="Role.Id">
-                        <input type="hidden" asp-for="Role.Id" />                       
-                        <div class="form-group">
-                            <label asp-for="Role.Name"></label>
-                            <input asp-for="Role.Name" class="form-control" />
-                            <span asp-validation-for="Role.Name" class="text-danger"></span>
+                <div class="col-md-9 ">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="tab-pane fade show active" id="v-pills-editRole" role="tabpanel" aria-labelledby="v-pills-editRole-tab">
+                            <form class="row" asp-controller="Role" asp-action="Edit" asp-route-id="@Model.AspNetRoles.Id">
+                                <input type="hidden" asp-for="AspNetRoles.Id"/>
+                                <div class="form-group mb-3">
+                                    <label class="form-label" asp-for="AspNetRoles.Name"></label>
+                                    <input asp-for="AspNetRoles.Name" class="form-control"/>
+                                    <span asp-validation-for="AspNetRoles.Name" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="Save" class="btn btn-primary"/>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <input type="submit" value="Save" class="btn btn-primary" />
+                        <div class="tab-pane fade " id="v-pills-permissions" role="tabpanel" aria-labelledby="v-pills-permissions-tab">
+                            @await Html.PartialAsync("~/Views/Account/Role/AssignPermissions.cshtml", Model.AssignPermissionsViewModel)
                         </div>
-                    </form>
+                        <div class="tab-pane fade" id="v-pills-users" role="tabpanel" aria-labelledby="v-pills-users-tab">
+                            @await Html.PartialAsync("~/Views/Account/Role/AssignUsers.cshtml", Model.AssignUsersViewModel)
+                        </div>
+
+                    </div>
                 </div>
-                <div class="tab-pane fade " id="v-pills-permissions" role="tabpanel" aria-labelledby="v-pills-permissions-tab">
-                    @await Html.PartialAsync("~/Views/Account/Role/AssignPermissions.cshtml", Model.AssignPermissionsViewModel)
-                </div>
-                <div class="tab-pane fade" id="v-pills-users" role="tabpanel" aria-labelledby="v-pills-users-tab">
-                    @await Html.PartialAsync("~/Views/Account/Role/AssignUsers.cshtml", Model.AssignUsersViewModel)
-                </div>
-               
             </div>
         </div>
     </div>
 </div>
-

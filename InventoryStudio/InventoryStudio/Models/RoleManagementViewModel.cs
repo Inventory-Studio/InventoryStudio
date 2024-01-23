@@ -6,7 +6,7 @@ namespace InventoryStudio.Models
 {
     public class RoleManagementViewModel
     {
-        public Role Role { get; set; }
+        public AspNetRoles AspNetRoles { get; set; }
         public AssignUsersViewModel AssignUsersViewModel { get; set; }
         public AssignPermissionsViewModel AssignPermissionsViewModel { get; set; }
 

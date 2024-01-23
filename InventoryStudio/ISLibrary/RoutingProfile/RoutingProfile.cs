@@ -26,34 +26,34 @@ namespace ISLibrary
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; }
 
-        private List<RoutingProfileLocation>? mRoutingProfileLocations = null;
-        public List<RoutingProfileLocation>? RoutingProfileLocations
-        {
-            get
-            {
-                if (mRoutingProfileLocations == null && !string.IsNullOrEmpty(RoutingProfileID))
-                {
-                    RoutingProfileLocationFilter? objFilter = null;
+        //private List<RoutingProfileLocation>? mRoutingProfileLocations = null;
+        //public List<RoutingProfileLocation>? RoutingProfileLocations
+        //{
+        //    get
+        //    {
+        //        if (mRoutingProfileLocations == null && !string.IsNullOrEmpty(RoutingProfileID))
+        //        {
+        //            RoutingProfileLocationFilter? objFilter = null;
 
-                    try
-                    {
-                        objFilter = new RoutingProfileLocationFilter();
-                        objFilter.RoutingProfileID = new Database.Filter.StringSearch.SearchFilter();
-                        objFilter.RoutingProfileID.SearchString = RoutingProfileID;
-                        mRoutingProfileLocations = RoutingProfileLocation.GetRoutingProfileLocations(objFilter).OrderBy(s => s.Ordering).ToList();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(ex.Message);
-                    }
-                    finally
-                    {
-                        objFilter = null;
-                    }
-                }
-                return mRoutingProfileLocations;
-            }
-        }
+        //            try
+        //            {
+        //                objFilter = new RoutingProfileLocationFilter();
+        //                objFilter.RoutingProfileID = new Database.Filter.StringSearch.SearchFilter();
+        //                objFilter.RoutingProfileID.SearchString = RoutingProfileID;
+        //                mRoutingProfileLocations = RoutingProfileLocation.GetRoutingProfileLocations(objFilter).OrderBy(s => s.Ordering).ToList();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                throw new Exception(ex.Message);
+        //            }
+        //            finally
+        //            {
+        //                objFilter = null;
+        //            }
+        //        }
+        //        return mRoutingProfileLocations;
+        //    }
+        //}
 
         public RoutingProfile()
         {
@@ -72,8 +72,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet? objData = null;
             string strSQL = string.Empty;
 
@@ -100,6 +98,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
 
         private void Load(DataRow objRow)
@@ -169,6 +168,7 @@ namespace ISLibrary
 
             try
             {
+                if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, RoutingProfileID already exists");
 
@@ -230,13 +230,11 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-
             try
             {
+                if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
                 if (IsNew) throw new Exception("Update cannot be performed, RoutingProfileID is missing");
 
@@ -266,6 +264,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 

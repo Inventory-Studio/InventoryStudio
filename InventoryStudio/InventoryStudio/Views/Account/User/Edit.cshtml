@@ -4,51 +4,65 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-title">
+                Edit User
             </div>
-
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" asp-items="Model.StatusOptions"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+            <div>
+                <a asp-controller="User" asp-action="Index" class="btn btn-sm btn-light">Back to List</a>
             </div>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="User" asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="Id" type="hidden"/>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="UserName" class="form-label">User Name</label>
+                    <input asp-for="UserName" class="form-control" aria-label="User Name" required/>
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select class="form-select" asp-for="Status" asp-items="Model.StatusOptions" required></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label">E-mail</label>
+                    <input asp-for="Email" class="form-control" aria-label="Email" required/>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
 
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" aria-label="Phone number" required/>
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">Roles</label>
+                    <div>
+                        @foreach (var role in Model.AllRoles)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" id="@role.Value" type="checkbox" name="SelectedRoles" value="@role.Value" @(Model.SelectedRoles.Contains(role.Value) ? "checked" : "")/>
+                                <label for="@role.Value" class="form-check-label">@role.Text</label>
+                            </div>
+                        }
+                    </div>
+                </div>
 
-
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="col-12">
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary"/>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

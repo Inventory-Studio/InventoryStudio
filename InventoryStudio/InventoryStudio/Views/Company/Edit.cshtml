@@ -1,62 +1,62 @@
-﻿@model Company
+﻿@model InventoryStudio.Models.Company.EditCompanyViewModel
 
 @{
-    ViewData["Title"] = "Company-Edit";
+    ViewData["Title"] = "Company Edit";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Edit Company</div>
+            <a asp-controller="Company" asp-action="Index" class="btn btn-sm btn-light">Back to List</a>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="Company" asp-action="Edit" asp-route-id="@Model.CompanyID">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="CompanyID"/>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CompanyName" class="form-label"></label>
+                    <input asp-for="CompanyName" class="form-control"/>
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
 
-<h4>Company</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CompanyID" />
-            <div class="form-group">
-                <label asp-for="CompanyName" class="control-label"></label>
-                <input asp-for="CompanyName" class="form-control" />
-                <span asp-validation-for="CompanyName" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AutomateFulfillment" /> @Html.DisplayNameFor(model => model.AutomateFulfillment)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShippoAPIKey" class="control-label"></label>
-                <input asp-for="ShippoAPIKey" class="form-control" />
-                <span asp-validation-for="ShippoAPIKey" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IncludePackingSlipOnLabel" /> @Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultFulfillmentMethod" class="control-label"></label>
-                <input asp-for="DefaultFulfillmentMethod" class="form-control" />
-                <span asp-validation-for="DefaultFulfillmentMethod" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultFulfillmentStrategy" class="control-label"></label>
-                <input asp-for="DefaultFulfillmentStrategy" class="form-control" />
-                <span asp-validation-for="DefaultFulfillmentStrategy" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultAllocationStrategy" class="control-label"></label>
-                <input asp-for="DefaultAllocationStrategy" class="form-control" />
-                <span asp-validation-for="DefaultAllocationStrategy" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ShippoAPIKey" class="form-label"></label>
+                    <input asp-for="ShippoAPIKey" class="form-control"/>
+                    <span asp-validation-for="ShippoAPIKey" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultFulfillmentMethod" class="form-label"></label>
+                    <input asp-for="DefaultFulfillmentMethod" class="form-control"/>
+                    <span asp-validation-for="DefaultFulfillmentMethod" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultFulfillmentStrategy" class="form-label"></label>
+                    <input asp-for="DefaultFulfillmentStrategy" class="form-control"/>
+                    <span asp-validation-for="DefaultFulfillmentStrategy" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultAllocationStrategy" class="form-label"></label>
+                    <input asp-for="DefaultAllocationStrategy" class="form-control"/>
+                    <span asp-validation-for="DefaultAllocationStrategy" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check col-md-12 mb-3 ms-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="AutomateFulfillment"/> @Html.DisplayNameFor(model => model.AutomateFulfillment)
+                    </label>
+                </div>
+                <div class="form-group form-check col-md-12 mb-3 ms-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="IncludePackingSlipOnLabel"/> @Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)
+                    </label>
+                </div>
+                <div class="form-group col-md-12">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

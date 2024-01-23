@@ -1,0 +1,50 @@
+﻿@model InventoryStudio.Models.AccessToken.CreateAccessTokenViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Create Access Token</div>
+            <div>
+                <a class="btn btn-sm btn-light" asp-controller="AccessToken" asp-action="Index">Back to List</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="AccessToken" asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ApplicationName" class="form-label"></label>
+                    <input asp-for="ApplicationName" class="form-control"/>
+                    <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="TokenName" class="form-label"></label>
+                    <input asp-for="TokenName" class="form-control"/>
+                    <span asp-validation-for="TokenName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="RoleId" class="form-label"></label>
+                    <select asp-for="RoleId" class="form-control form-select" asp-items="ViewBag.RoleId"></select>
+                </div>
+                <div class="form-group form-check ms-3 mb-3 col-12">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="InActive"/> @Html.DisplayNameFor(model => model.InActive)
+                    </label>
+                </div>
+                <div class="form-group col-12">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,82 @@
+﻿@model InventoryStudio.Models.AccessToken.AccessTokenViewModel
+
+@{
+    ViewData["Title"] = "Details";
+
+    string NormalizedBoolean(bool value)
+    {
+        return value ? "Yes" : "No";
+    }
+}
+
+
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Access Tokens Details</div>
+            <div class="hstack btn-list mt-md-0 mt-2">
+                <a asp-controller="AccessToken" asp-action="Edit" asp-route-id="@Model.Id" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
+                    <i class="bi-pencil-fill me-2 align-middle d-inline-block fs-16"></i>Edit Access Token
+                </a>
+                <a asp-controller="AccessToken" asp-action="Index" type="button" class="btn btn-sm btn-light btn-wave hstack align-items-center" aria-label="Invite button">
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.ApplicationName)</label>
+                    <p>@Model.ApplicationName</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.TokenName)</label>
+                    <p>@Model.TokenName</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.Token)</label>
+                    <p>@Model.Token</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.Secret)</label>
+                    <p>@Model.Secret</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.InActive)</label>
+                    <p>@NormalizedBoolean(Model.InActive)</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.Role)</label>
+                    <p>@Model.Role</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CreatedOn)</label>
+                    <p>@Model.CreatedOn</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CreatedBy)</label>
+                    <p>@Model.CreatedBy</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedOn)</label>
+                    <p>@Model.UpdatedOn</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedBy)</label>
+                    <p>@Model.UpdatedBy</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

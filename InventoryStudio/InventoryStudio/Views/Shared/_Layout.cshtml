@@ -4,7 +4,7 @@
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-nav-layout="horizontal" data-theme-mode="light" data-header-styles="light"
-      data-page-style="modern" data-menu-styles="dark" data-toggled="close">
+      data-page-style="regular" data-menu-styles="dark" data-toggled="close">
 
 <head>
 
@@ -18,17 +18,17 @@
           content="admin panel template, admin dashboard bootstrap, bootstrap admin theme, asp.net mvc, bootstrap admin template, dotnet core, asp dotnet, admin dashboard template, template dashboard, asp net framework, admin template bootstrap, bootstrap admin, asp net core">
 
     <!-- TITLE -->
-    <title>@ViewData["Title"]Inventory Studio</title>
+    <title>@ViewData["Title"] Inventory Studio</title>
 
     <!-- FAVICON -->
     <link rel="icon" href="@Url.Content("~/assets/images/brand-logos/favicon.ico")" type="image/x-icon">
 
-    <!-- SYNCFUSION -->
-    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/23.1.36/bootstrap5.css" />
-    <script src="https://cdn.syncfusion.com/ej2/23.1.36/dist/ej2.min.js"></script>
-
     <!-- BOOTSTRAP CSS -->
     <link id="style" href="@Url.Content("~/assets/libs/bootstrap/css/bootstrap.min.css")" rel="stylesheet">
+
+    <!-- Syncfusion ASP.NET Core controls styles -->
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/23.2.7/bootstrap5.css"/>
+    <script src="https://cdn.syncfusion.com/ej2/23.2.7/dist/ej2.min.js"></script>
 
     <!-- STYLES CSS -->
     <link href="@Url.Content("~/assets/css/styles.css")" rel="stylesheet">
@@ -36,10 +36,14 @@
     <!-- ICONS CSS -->
     <link href="@Url.Content("~/assets/CSS/icons.css")" rel="stylesheet">
 
-    <partial name="~/Views/Shared/Layouts/_styles.cshtml" />
+    <partial name="~/Views/Shared/Layouts/_styles.cshtml"/>
 
     <!-- MAIN JS -->
     <script src="@Url.Content("~/assets/js/main.js")"></script>
+
+    <!-- SYNCFUSION CUSTOM CSS -->
+    <link href="@Url.Content("~/assets/css/syncfusion-styles.css")" rel="stylesheet">
+
 
     @await RenderSectionAsync("Styles", required: false)
 
@@ -47,69 +51,69 @@
 
 <body>
 
-    <!-- SWITCHER -->
+<!-- SWITCHER -->
 
-    <partial name="~/Views/Shared/Layouts/_switcher.cshtml" />
+<partial name="~/Views/Shared/Layouts/_switcher.cshtml"/>
 
-    <!-- END SWITCHER -->
-    <!-- LOADER -->
-    <div id="loader">
-        <img src="@Url.Content("~/assets/images/media/loader.svg")" alt="">
+<!-- END SWITCHER -->
+<!-- LOADER -->
+<div id="loader">
+    <img src="@Url.Content("~/assets/images/media/loader.svg")" alt="">
+</div>
+<!-- END LOADER -->
+<!-- PAGE -->
+<div class="page">
+
+    <!-- HEADER -->
+
+    <partial name="~/Views/Shared/Layouts/_header.cshtml" model="viewModel"/>
+
+    <!-- END HEADER -->
+    <!-- SIDEBAR -->
+
+    <partial name="~/Views/Shared/Layouts/_sidebar.cshtml"/>
+
+    <!-- END SIDEBAR -->
+    <!-- MAIN-CONTENT -->
+
+    <div class="main-content app-content">
+        @RenderBody()
     </div>
-    <!-- END LOADER -->
-    <!-- PAGE -->
-    <div class="page">
-
-        <!-- HEADER -->
-
-        <partial name="~/Views/Shared/Layouts/_header.cshtml" model="viewModel" />
-
-        <!-- END HEADER -->
-        <!-- SIDEBAR -->
-
-        <partial name="~/Views/Shared/Layouts/_sidebar.cshtml" />
-
-        <!-- END SIDEBAR -->
-        <!-- MAIN-CONTENT -->
-
-        <div class="main-content app-content">
-            @RenderBody()
-        </div>
 
 
-        <!-- END MAIN-CONTENT -->
-        <!-- SEARCH-MODAL -->
+    <!-- END MAIN-CONTENT -->
+    <!-- SEARCH-MODAL -->
 
-        <partial name="~/Views/Shared/Layouts/_search-modal.cshtml" />
+    <partial name="~/Views/Shared/Layouts/_search-modal.cshtml"/>
 
-        <!-- END SEARCH-MODAL -->
-        <!-- FOOTER -->
-        <partial name="~/Views/Shared/Layouts/_footer.cshtml" />
+    <!-- END SEARCH-MODAL -->
+    <!-- FOOTER -->
+    <partial name="~/Views/Shared/Layouts/_footer.cshtml"/>
 
 
-        <!-- END FOOTER -->
+    <!-- END FOOTER -->
 
-    </div>
-    <!-- END PAGE-->
-    <!-- SCRIPTS -->
+</div>
+<!-- END PAGE-->
+<!-- SCRIPTS -->
 
-    <partial name="~/Views/Shared/Layouts/_scripts.cshtml" />
+<partial name="~/Views/Shared/Layouts/_scripts.cshtml"/>
 
-    @await RenderSectionAsync("Scripts", required: false)
+@await RenderSectionAsync("Scripts", required: false)
 
-    <!-- STICKY JS -->
-    <script src="@Url.Content("~/assets/js/sticky.js")"></script>
+<!-- STICKY JS -->
+<script src="@Url.Content("~/assets/js/sticky.js")"></script>
 
-    <!-- CUSTOM JS -->
-    <script src="@Url.Content("~/assets/js/custom.js")"></script>
+<!-- CUSTOM JS -->
+<script src="@Url.Content("~/assets/js/custom.js")"></script>
 
-    <!-- CUSTOM-SWITCHER JS -->
-    <script src="@Url.Content("~/assets/js/custom-switcher.js")"></script>
+<!-- CUSTOM-SWITCHER JS -->
+<script src="@Url.Content("~/assets/js/custom-switcher.js")"></script>
 
-    <!-- SYNCFUSION -->
-    <ejs-scripts></ejs-scripts>
+<!-- SYNCFUSION -->
+<ejs-scripts></ejs-scripts>
 
-    <!-- END SCRIPTS -->
+<!-- END SCRIPTS -->
 
 </body>
 

@@ -10,6 +10,12 @@ namespace CLRFramework
 {
     public partial class Utility
     {
+        public static bool IsValidInviteCodeExpired(DateTimeOffset invitation)
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            TimeSpan validityPeriod = TimeSpan.FromDays(2);
+            return now - invitation < validityPeriod;
+        }
         public static bool IsValidPositiveDollarAmount(string strAmount)
         {
             Regex reg = new Regex(@"^\d+(\.\d{1,2})?$");

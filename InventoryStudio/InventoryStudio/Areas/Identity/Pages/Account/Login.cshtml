@@ -27,7 +27,7 @@
 
                     </div>
                     <div class="col-xl-12 mb-2">
-                            <label asp-for="Input.Password" class="form-label text-default d-block"><a id="forgot-password" asp-page="./ForgotPassword" class="float-end text-danger">Forget password ?</a></label>
+                            <label asp-for="Input.Password" class="form-label text-default d-block"><a id="forgot-password" asp-page="./ForgotPassword" class="float-end text-danger">Forgot password?</a></label>
                         <div class="input-group">
                                 <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" />
                                 @*<button class="btn btn-light" type="button" onclick="createpassword('signin-password',this)" id="button-addon2"><i class="ri-eye-off-line align-middle"></i></button>*@
@@ -76,13 +76,13 @@
                         else
                         {
                             <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                <div>
+                                <div style="margin-right: 0">
                                     <p>
                                         @foreach (var provider in Model.ExternalLogins)
                                         {
                                             @if (provider.DisplayName == "Google")
                                             {
-                                                <button type="submit" class="btn btn-icon btn-light" name="provider" value="@provider.Name">
+                                                <button type="submit" class="btn btn-icon btn-light" style="margin-right: 0" name="provider" value="@provider.Name">
                                                     <i class="ri-google-line fw-bold text-dark op-7"></i>
                                                 </button>
                                             }

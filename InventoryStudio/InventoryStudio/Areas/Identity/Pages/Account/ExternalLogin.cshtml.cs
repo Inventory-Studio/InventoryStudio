@@ -19,7 +19,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using InventoryStudio.Models;
 using ISLibrary;
-using ISLibrary.Account;
+using ISLibrary.AspNet;
+using Microsoft.EntityFrameworkCore.Metadata;
+using CLRFramework;
+
 
 namespace InventoryStudio.Areas.Identity.Pages.Account
 {
@@ -87,19 +90,21 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+            public string InviteCode { get; set; }
         }
 
         public IActionResult OnGet() => RedirectToPage("./Login");
 
-        public IActionResult OnPost(string provider, string returnUrl = null)
+        public IActionResult OnPost(string provider, string returnUrl = null, string inviteCode = null)
         {
             // Request a redirect to the external login provider.
-            var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
+            var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl, inviteCode });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
         }
 
-        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null, string inviteCode = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             if (remoteError != null)
@@ -128,12 +133,15 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
-                        var filter = new UserCompanyFilter();
-                        filter.UserId = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                        filter.UserId.SearchString = user.Id.ToString();
-                        var userCompanies = UserCompany.GetUserCompanies(filter);
-                        if (userCompanies.Count == 0)
+                        var comapnies = user.AspNetUser.Companies;
+                        if (comapnies.Count == 0)
+                        {
                             return RedirectToAction("Create", "Company");
+                        }
+                        else
+                        {
+                            return RedirectToAction("SelectCompany", "Account");
+                        }
                     }
                 }
                 return LocalRedirect(returnUrl);
@@ -151,7 +159,8 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        InviteCode = inviteCode
                     };
                     var user = await _userManager.FindByEmailAsync(Input.Email);
                     if (user != null)
@@ -179,11 +188,36 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 ErrorMessage = "Error loading external login information during confirmation.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
+            AspNetUserInvites invite = null;
+            if (!string.IsNullOrEmpty(Input.InviteCode))
+            {
+                var filter = new AspNetUserInvitesFilter();
+                filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Code.SearchString = Input.InviteCode;
+                var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                if (invites != null)
+                {
+                    invite = invites.FirstOrDefault();
+                    if (invite != null)
+                    {
+                        if (invite.IsAccepted)
+                        {
+                            ErrorMessage = "The invitation code has been used.";
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                        if (!Utility.IsValidInviteCodeExpired(invite.CreatedOn))
+                        {
+                            ErrorMessage = "The invitation code has expired";
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                    }
+                }
+            }
 
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
+                user.UserType = "Normal";
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
@@ -206,6 +240,20 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                        if (invite != null)
+                        {
+                            var inviter = await _userManager.FindByIdAsync(invite.UserId);
+                            var inviterClaims = await _userManager.GetClaimsAsync(inviter);
+                            var company = inviterClaims.FirstOrDefault(t => t.Type == "CompanyId");
+                            AspNetUserCompany aspNetUserCompany = new AspNetUserCompany();
+                            aspNetUserCompany.UserId = userId;
+                            aspNetUserCompany.CompanyID = company.Value;
+                            aspNetUserCompany.Create();
+                            await _userManager.AddClaimAsync(user, new Claim("CompanyId", company.Value));
+                            invite.IsAccepted = true;
+                            invite.Update();
+                        }
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

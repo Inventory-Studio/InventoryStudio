@@ -17,7 +17,7 @@ namespace ISLibrary
         public string RoleId { get; set; }
         public string ClaimType { get; set; }
         public string ClaimValue { get; set; }
-    
+
         public AspNetRoleClaims()
         {
         }
@@ -34,8 +34,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -62,6 +60,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
         private void Load(DataRow objRow)
         {
@@ -75,7 +74,7 @@ namespace ISLibrary
                 if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
                 if (objColumns.Contains("ClaimType")) ClaimType = Convert.ToString(objRow["ClaimType"]);
                 if (objColumns.Contains("ClaimValue")) ClaimValue = Convert.ToString(objRow["ClaimValue"]);
-           
+
                 if (string.IsNullOrEmpty(Id)) throw new Exception("Missing Id in the datarow");
             }
             catch (Exception ex)
@@ -132,7 +131,7 @@ namespace ISLibrary
                 dicParam["RoleId"] = RoleId;
                 dicParam["ClaimType"] = ClaimType;
                 dicParam["ClaimValue"] = ClaimValue;
-            
+
                 Id = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetRoleClaims"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
@@ -178,7 +177,6 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
@@ -207,6 +205,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 

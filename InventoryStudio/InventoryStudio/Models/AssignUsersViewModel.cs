@@ -8,8 +8,8 @@ namespace InventoryStudio.Models
     {
         public string RoleId { get; set; }
         public string RoleName { get; set; }
-        public List<IsUser> Users { get; set; }
+        public List<AspNetUsers> Users { get; set; }
         public List<string> AssignedUserIds { get; set; }
-        public List<string> SelectedUserIds { get; set; }
+        public List<string>? SelectedUserIds { get; set; }
     }
 }

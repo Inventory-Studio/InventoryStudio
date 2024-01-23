@@ -18,10 +18,11 @@ namespace ISLibrary
         public AspNetRolePermission()
         {
         }
-      
-        public AspNetRolePermission(string RoleId)
+
+        public AspNetRolePermission(string RoleId, string PermissionId)
         {
             this.RoleId = RoleId;
+            this.PermissionId = PermissionId;
             this.Load();
         }
 
@@ -32,8 +33,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
-
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -41,7 +40,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT * " +
                          "FROM AspNetRolePermission (NOLOCK) " +
-                         "WHERE RoleId=" + Database.HandleQuote(RoleId);
+                        "WHERE PermissionId=" + Database.HandleQuote(PermissionId.ToString()) +
+                         " AND RoleId = " + Database.HandleQuote(RoleId.ToString());
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -60,6 +60,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
+            base.Load();
         }
         private void Load(DataRow objRow)
         {
@@ -71,7 +72,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
                 if (objColumns.Contains("PermissionId")) PermissionId = Convert.ToString(objRow["PermissionId"]);
-             
+
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("Missing RoleId in the datarow");
             }
             catch (Exception ex)
@@ -128,7 +129,7 @@ namespace ISLibrary
                 dicParam["RoleId"] = RoleId;
                 dicParam["PermissionId"] = PermissionId;
 
-                RoleId = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetRolePermission"), objConn, objTran).ToString();
+                Database.ExecuteSQL(Database.GetInsertSQL(dicParam, "AspNetRolePermission"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
             }
@@ -173,8 +174,6 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            base.Update();
-
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
 
@@ -201,6 +200,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            base.Update();
             return true;
         }
 
@@ -264,8 +264,8 @@ namespace ISLibrary
                      "FROM AspNetRolePermission (NOLOCK) p " +
                      "WHERE 1=1 ";
 
-            if (!string.IsNullOrEmpty(RoleId)) strSQL += "AND p.RoleId<>" + Database.HandleQuote(RoleId);
-            if (!string.IsNullOrEmpty(PermissionId)) strSQL += "AND p.PermissionId<>" + Database.HandleQuote(PermissionId);
+            if (!string.IsNullOrEmpty(RoleId)) strSQL += "AND p.RoleId=" + Database.HandleQuote(RoleId);
+            if (!string.IsNullOrEmpty(PermissionId)) strSQL += "AND p.PermissionId=" + Database.HandleQuote(PermissionId);
 
             return Database.HasRows(strSQL);
         }

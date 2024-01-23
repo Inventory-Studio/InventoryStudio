@@ -6,11 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using CLRFramework;
 using InventoryStudio.Models;
+using ISLibrary;
+using ISLibrary.AspNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -59,6 +63,9 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
         /// </summary>
         public string ReturnUrl { get; set; }
 
+        [BindProperty]
+        public string InviteCode { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -101,22 +108,47 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
         }
 
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string inviteCode = null, string returnUrl = null)
         {
             ReturnUrl = returnUrl;
+            if (!string.IsNullOrEmpty(inviteCode))
+                InviteCode = inviteCode;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string inviteCode = null, string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            AspNetUserInvites invite = null;
+            if (!string.IsNullOrEmpty(inviteCode))
+            {
+                var filter = new AspNetUserInvitesFilter();
+                filter.Code = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Code.SearchString = inviteCode;
+                var invites = AspNetUserInvites.GetAspNetUserInvites(filter);
+                if (invites != null)
+                {
+                    invite = invites.FirstOrDefault();
+                    if (invite != null)
+                    {
+                        if (invite.IsAccepted)
+                        {
+                            ModelState.AddModelError(string.Empty, "The invitation code has been used.");
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                        if (!Utility.IsValidInviteCodeExpired(invite.CreatedOn))
+                        {
+                            ModelState.AddModelError(string.Empty, "The invitation code has expired");
+                            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                        }
+                    }
+                }
+            }
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-               
                 user.UserType = "Normal";
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -124,7 +156,6 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -136,6 +167,22 @@ namespace InventoryStudio.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+
+                    if (invite != null)
+                    {
+                        var inviter = await _userManager.FindByIdAsync(invite.UserId);
+                        var inviterClaims = await _userManager.GetClaimsAsync(inviter);
+                        var company = inviterClaims.FirstOrDefault(t => t.Type == "CompanyId");
+                        AspNetUserCompany aspNetUserCompany = new AspNetUserCompany();
+                        aspNetUserCompany.UserId = userId;
+                        aspNetUserCompany.CompanyID = company.Value;
+                        aspNetUserCompany.Create();
+                        await _userManager.AddClaimAsync(user, new Claim("CompanyId", company.Value));
+                        invite.IsAccepted = true;
+                        invite.Update();
+                    }
+
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
