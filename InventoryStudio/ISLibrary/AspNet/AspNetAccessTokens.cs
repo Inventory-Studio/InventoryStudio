@@ -14,7 +14,10 @@ namespace ISLibrary.AspNet
     {
         public string AccessTokenID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(AccessTokenID); } }
+        public bool IsNew
+        {
+            get { return string.IsNullOrEmpty(AccessTokenID); }
+        }
 
         public string ApplicationName { get; set; }
 
@@ -38,7 +41,6 @@ namespace ISLibrary.AspNet
 
         public AspNetAccessTokens()
         {
-
         }
 
         public AspNetAccessTokens(string userAccessTokenId)
@@ -93,7 +95,8 @@ namespace ISLibrary.AspNet
                 objColumns = objRow.Table.Columns;
 
                 if (objColumns.Contains("AccessTokenID")) AccessTokenID = Convert.ToString(objRow["AccessTokenID"]);
-                if (objColumns.Contains("ApplicationName")) ApplicationName = Convert.ToString(objRow["ApplicationName"]);
+                if (objColumns.Contains("ApplicationName"))
+                    ApplicationName = Convert.ToString(objRow["ApplicationName"]);
                 if (objColumns.Contains("TokenName")) TokenName = Convert.ToString(objRow["TokenName"]);
                 if (objColumns.Contains("Token")) Token = Convert.ToString(objRow["Token"]);
                 if (objColumns.Contains("Secret")) Secret = Convert.ToString(objRow["Secret"]);
@@ -101,8 +104,10 @@ namespace ISLibrary.AspNet
                 if (objColumns.Contains("RoleId")) RoleId = Convert.ToString(objRow["RoleId"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = (DateTime)objRow["CreatedOn"];
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
-                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = (DateTime)objRow["UpdatedOn"];
-                if (objColumns.Contains("UpdatedBy") && objRow["UpdatedBy"] != DBNull.Value) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
+                    UpdatedOn = (DateTime)objRow["UpdatedOn"];
+                if (objColumns.Contains("UpdatedBy") && objRow["UpdatedBy"] != DBNull.Value)
+                    UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (string.IsNullOrEmpty(AccessTokenID)) throw new Exception("Missing AccessTokenID in the datarow");
             }
             catch (Exception ex)
@@ -140,6 +145,7 @@ namespace ISLibrary.AspNet
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
@@ -178,6 +184,7 @@ namespace ISLibrary.AspNet
             {
                 dicParam = null;
             }
+
             return true;
         }
 
@@ -206,6 +213,7 @@ namespace ISLibrary.AspNet
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
@@ -242,6 +250,7 @@ namespace ISLibrary.AspNet
                 dicParam = null;
                 dicWParam = null;
             }
+
             base.Update();
             return true;
         }
@@ -271,6 +280,7 @@ namespace ISLibrary.AspNet
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
+
             return true;
         }
 
@@ -294,6 +304,7 @@ namespace ISLibrary.AspNet
             {
                 dicDParam = null;
             }
+
             return true;
         }
 
@@ -314,18 +325,21 @@ namespace ISLibrary.AspNet
             int intTotalCount = 0;
             return GetAspNetUserAccessTokens(null, null, null, out intTotalCount);
         }
+
         public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter)
         {
             int intTotalCount = 0;
             return GetAspNetUserAccessTokens(Filter, null, null, out intTotalCount);
         }
 
-        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter, int? PageSize,
+            int? PageNumber, out int TotalRecord)
         {
             return GetAspNetUserAccessTokens(Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<AspNetAccessTokens> GetAspNetUserAccessTokens(AspNetAccessTokensFilter Filter,
+            string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             List<AspNetAccessTokens> objReturn = null;
             AspNetAccessTokens objNew = null;
@@ -343,11 +357,18 @@ namespace ISLibrary.AspNet
                          "WHERE 1=1 ";
                 if (Filter != null)
                 {
-                    if (Filter.RoleId != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.RoleId, "RoleId");
-                    if (Filter.AccessTokenID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.AccessTokenID, "AccessTokenID");
+                    if (Filter.RoleId != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.RoleId, "RoleId");
+                    if (Filter.AccessTokenID != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.AccessTokenID, "AccessTokenID");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "Id" : Utility.CustomSorting.GetSortExpression(typeof(AspNetUserCompany), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null)
+                    strSQL = Database.GetPagingSQL(strSQL,
+                        string.IsNullOrEmpty(SortExpression)
+                            ? "AccessTokenId"
+                            : Utility.CustomSorting.GetSortExpression(typeof(AspNetUserCompany), SortExpression),
+                        string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -359,6 +380,8 @@ namespace ISLibrary.AspNet
                         objReturn.Add(objNew);
                     }
                 }
+
+                TotalRecord = objReturn.Count;
             }
             catch (Exception ex)
             {
@@ -368,6 +391,7 @@ namespace ISLibrary.AspNet
             {
                 objData = null;
             }
+
             return objReturn;
         }
     }
