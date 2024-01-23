@@ -158,6 +158,7 @@ namespace ISLibrary.AspNet
                 if (string.IsNullOrEmpty(Secret)) throw new Exception("Secret is required");
                 if (string.IsNullOrEmpty(RoleId)) throw new Exception("RoleId is required");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                dicParam["AccessTokenID"] = AccessTokenID;
                 dicParam["ApplicationName"] = ApplicationName;
                 dicParam["TokenName"] = TokenName;
                 dicParam["Token"] = Token;
@@ -166,7 +167,7 @@ namespace ISLibrary.AspNet
                 dicParam["RoleId"] = RoleId;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedBy"] = CreatedBy;
-                AccessTokenID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AspNetAccessTokens"), objConn, objTran).ToString();
+                Database.ExecuteSQL(Database.GetInsertSQL(dicParam, nameof(AspNetAccessTokens)));
                 Load(objConn, objTran);
             }
             catch (Exception ex)
