@@ -22,8 +22,8 @@ namespace ISLibrary
             LotNumbered,
             [Description("Serialized Inventory Item")]
             Serialized,
-            [Description("Non-Inventory Item")]
-            NonInventory,
+            [Description("Assembly Item")]
+            Assembly,
             [Description("Kit Item")]
             Kit
         }

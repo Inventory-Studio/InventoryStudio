@@ -25,13 +25,22 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="itemFormTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="item-details-tab" data-toggle="tab" href="#step1" role="tab" aria-controls="step1" aria-selected="true">Item Details</a>
+                        <a class="nav-link active" id="item-details-tab" data-bs-toggle="tab" href="#step1" role="tab" aria-controls="step1" aria-selected="true">Item Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="attributes-tab" data-toggle="tab" href="#step2" role="tab" aria-controls="step2" aria-selected="false">Item Barcode</a>
+                        <a class="nav-link" id="barcode-tab" data-bs-toggle="tab" href="#barcode-content" role="tab" aria-controls="barcode-content" aria-selected="false">Item Barcode</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="matrix-tab" data-toggle="tab" href="#step3" role="tab" aria-controls="step3" aria-selected="false">Item Component</a>
+                        <a class="nav-link" id="component-tab" data-bs-toggle="tab" href="#component-content" role="tab" aria-controls="component-content" aria-selected="false" style="display: none;">Item Component</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="kit-item-tab" data-bs-toggle="tab" href="#kit-item-content" role="tab" aria-controls="kit-item-content" aria-selected="false" style="display: none;">Kit Item</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="attribute-tab" data-bs-toggle="tab" href="#attribute-content" role="tab" aria-controls="attribute-content" aria-selected="false" style="display: none;">Attributes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="matrix-tab" data-bs-toggle="tab" href="#matrix-content" role="tab" aria-controls="matrix-content" aria-selected="false" style="display: none;">Matrix</a>
                     </li>
                 </ul>
             </div>
@@ -39,7 +48,6 @@
                 <div class="tab-content" id="itemFormTabContent">
                     <!-- Step 1 -->
                     <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
-                        <!-- Step 1 content here... (from the form content previously provided) -->
                         <div class="row">
                         <div class="form-group col-md-6">
                             <label for="itemType">Item Type *</label>
@@ -136,7 +144,7 @@
 
                     </div>
                     <!-- Step 2 -->
-                    <div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="attributes-tab">
+                    <div class="tab-pane fade" id="barcode-content" role="tabpanel" aria-labelledby="barcode-tab">
                         <div class="row">
                             <div class="col-12">
                                 <h2>Item Barcode(s)</h2>
@@ -157,7 +165,7 @@
                         </div>
                     </div>
                     <!-- Step 3 -->
-                    <div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="matrix-tab">
+                    <div class="tab-pane fade" id="component-content" role="tabpanel" aria-labelledby="component-tab">
                         <div class="row">
                             <div class="col-12">
                                 <h2>Item Component(s)</h2>
@@ -179,99 +187,124 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="tab-pane fade" id="kit-item-tab" role="tabpanel" aria-labelledby="kit-item-tab">
+                        <div class="row">
+                            <div class="col-12">
+                                <h2>Kit Items</h2>
+                                <button type="button" id="addItemComponent" class="btn btn-primary mb-2">Add</button>
+                                <table class="table" id="itemComponentsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Unit of Measure</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dynamic rows will be added here -->
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-secondary">Back</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
+                        <div class="row">
+                        
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
+                        <div class="row">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Buttons -->
         <div class="form-group mt-3">
-            <button type="button" class="btn btn-secondary" onclick="goToPreviousStep()">Previous</button>
-            <button type="button" class="btn btn-primary" onclick="goToNextStep()">Next</button>
             <button type="submit" class="btn btn-success">Save</button>
         </div>
     </form>
 </div>
 
 
-<div class="hide">
-    <div id="inventoryItemForm">
-        <div class="tab-pane fade" id="step2" role="tabpanel" aria-labelledby="attributes-tab">
-            <div class="row">
-                <div class="col-12">
-                    <h2>Item Barcode(s)</h2>
-                    <button type="button" id="addRow" class="btn btn-primary mb-2">Add</button>
-                    <table class="table" id="barcodeTable">
-                        <thead>
-                            <tr>
-                                <th>Barcode</th>
-                                <th>Type</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Rows will be added here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-     
-        <div class="tab-pane fade" id="step3" role="tabpanel" aria-labelledby="matrix-tab">
-            <div class="row">
-                <div class="col-12">
-                    <h2>Item Component(s)</h2>
-                    <button type="button" id="addItemComponent" class="btn btn-primary mb-2">Add</button>
-                    <table class="table" id="itemComponentsTable">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Unit of Measure</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamic rows will be added here -->
-                        </tbody>
-                    </table>
-                    <button class="btn btn-secondary">Back</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
 
 
-<script>
-
-        function goToNextStep() {
-            var currentTab = $('#itemFormTab .nav-link.active');
-            var nextTab = currentTab.parent().next().find('.nav-link');
-            if (nextTab.length !== 0) {
-                nextTab.tab('show');
-            }
-        }
-
-        function goToPreviousStep() {
-            var currentTab = $('#itemFormTab .nav-link.active');
-            var prevTab = currentTab.parent().prev().find('.nav-link');
-            if (prevTab.length !== 0) {
-                prevTab.tab('show');
-            }
-        }
+<script>        
 
         function toggleMatrix() {
             var isChecked = $('#createMatrixCheckbox').is(':checked');
             if (isChecked) {
-                $('#matrixFormContainer').load('/Item/MatrixForm'); // Use the correct URL to your action
+                $('#component-tab').hide();
+                $('#barcode-tab').hide();
+                $('#kit-item-tab').hide();
+                $('#attribute-tab').show();
+                $('#matrix-tab').show();
+                $("#ItemType option[value='Kit']").prop('disabled', true);
             } else {
-                $('#matrixFormContainer').empty();
+                $('#component-tab').show();
+                $('#barcode-tab').show();
+                $('#kit-item-tab').hide();
+                $('#attribute-tab').hide();
+                $('#matrix-tab').hide();
+                $("#ItemType option[value='Kit']").prop('disabled', false);
             }
         }
 
 
     $(document).ready(function () {
+
+        $('#ItemType').change(function () {
+            var selectedItemType = $(this).val();
+            var isChecked = $('#createMatrixCheckbox').is(':checked');
+            if (!isChecked){
+                switch (selectedItemType) {
+                    case 'Inventory':
+                    case 'LotNumbered':
+                    case 'Serialized':
+                        $('#component-tab').hide();
+                        $('#barcode-tab').show();
+                        $('#kit-item-tab').hide();
+                        $('#attribute-tab').hide();
+                        $('#matrix-tab').hide();
+                        $('#createMatrixCheckbox').prop('disabled', false);
+                        break;
+                    case 'Assembly':
+                        $('#component-tab').show();
+                        $('#barcode-tab').show();
+                        $('#kit-item-tab').hide();
+                        $('#attribute-tab').hide();
+                        $('#matrix-tab').hide();
+                        $('#createMatrixCheckbox').prop('disabled', false);
+                        break;
+                    case 'Kit':
+                        $('#component-tab').hide();
+                        $('#barcode-tab').show();
+                        $('#kit-item-tab').show();
+                        $('#attribute-tab').hide();
+                        $('#matrix-tab').hide();
+                        $('#createMatrixCheckbox').prop('disabled', true);
+                        break;
+                    default:
+                        $('#component-tab').hide();
+                        $('#barcode-tab').show();
+                        $('#kit-item-tab').hide();
+                        $('#attribute-tab').hide();
+                        $('#matrix-tab').hide();
+                        $('#createMatrixCheckbox').prop('disabled', false);
+                        break;
+                }
+            }
+            
+        });
+
+
+
         $('#addBarCodes').click(function () {
             var $tableBody = $('#barcodeTable').find('tbody');
             var $newRow = $('<tr/>');
