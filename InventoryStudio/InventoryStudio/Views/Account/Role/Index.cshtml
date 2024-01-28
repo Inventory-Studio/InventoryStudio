@@ -57,11 +57,14 @@
             if (pdfdata?.length> 0) {
                 var exportProperties = {
                     dataSource: pdfdata,
-                    includeHiddenColumn: true
+                    includeHiddenColumn: true,
+                    fileName: "IS_Roles.pdf"
                 };
                 gridObj.pdfExport(exportProperties);
                 } else {
-                    gridObj.pdfExport();
+                    gridObj.pdfExport({
+                        fileName: "IS_Roles.pdf"
+                    });
                 }
             }
             if (args.item.id === 'Grid_excelexport') {
@@ -69,11 +72,14 @@
                 if (exceldata?.length > 0) {
                     var exportProperties = {
                         dataSource: exceldata,
-                        includeHiddenColumn: true
+                        includeHiddenColumn: true,
+                        fileName: "IS_Roles.xlsx"
                     };
                     gridObj.excelExport(exportProperties);
                 } else {
-                    gridObj.excelExport();
+                    gridObj.excelExport({
+                        fileName: "IS_Roles.xlsx"
+                    });
                 }
 
             }

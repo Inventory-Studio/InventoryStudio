@@ -2,81 +2,79 @@
 
 @{
     ViewData["Title"] = "Company-Details";
+
+    string NormalizedBoolean(bool value)
+    {
+        return value ? "Yes" : "No";
+    }
 }
 
-<h1>Details</h1>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Company Details</div>
+            <div class="hstack btn-list mt-md-0 mt-2">
+                <a asp-controller="Company" asp-action="Edit" asp-route-id="@Model.CompanyID" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Create user button">
+                    <i class="bi-pencil-fill me-2 align-middle d-inline-block fs-16"></i>Edit Company
+                </a>
+                <a asp-controller="Company" asp-action="Index" type="button" class="btn btn-sm btn-light btn-wave hstack align-items-center" aria-label="Invite button">
+                    Back to List
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>Company</h4>
-    <hr />
-    <dl class="row">
+        <div class="card-body">
+            <div class="row">
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CompanyName)</label>
+                    <p>@Model.CompanyName</p>
+                </div>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CompanyName)
-        </dd>
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.AutomateFulfillment)</label>
+                    <p>@NormalizedBoolean(Model.AutomateFulfillment)</p>
+                </div>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.AutomateFulfillment)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.AutomateFulfillment)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ShippoAPIKey)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ShippoAPIKey)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IncludePackingSlipOnLabel)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyGUID)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CompanyGUID)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DefaultFulfillmentMethod)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DefaultFulfillmentMethod)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DefaultFulfillmentStrategy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DefaultFulfillmentStrategy)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DefaultAllocationStrategy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DefaultAllocationStrategy)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedOn)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedOn)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedOn)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedOn)
-        </dd>
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.ShippoAPIKey)</label>
+                    <p>@Model.ShippoAPIKey</p>
+                </div>
 
-    </dl>
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.IncludePackingSlipOnLabel)</label>
+                    <p>@NormalizedBoolean(Model.IncludePackingSlipOnLabel)</p>
+                </div>
 
-    <form asp-action="Delete">
-        <a asp-action="Edit" asp-route-id="@Model?.CompanyID">Edit</a> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CompanyGUID)</label>
+                    <p>@Model.CompanyGUID</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.DefaultAllocationStrategy)</label>
+                    <p>@Model.DefaultFulfillmentMethod</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.DefaultFulfillmentStrategy)</label>
+                    <p>@Model.DefaultFulfillmentStrategy</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.DefaultAllocationStrategy)</label>
+                    <p>@Model.DefaultAllocationStrategy</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CreatedOn)</label>
+                    <p>@Model.CreatedOn</p>
+                </div>
+
+                <div class="d-flex flex-column col-md-4">
+                    <label class="form-label">@Html.DisplayNameFor(model => model.CreatedBy)</label>
+                    <p>@Model.CreatedBy</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

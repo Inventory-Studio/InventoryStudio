@@ -36,42 +36,41 @@ builder.Services.AddRazorPages(options =>
 });
 
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                   .AddCookie(options =>
-                   {
-                       options.LoginPath = "/Account/Login";
-                       options.AccessDeniedPath = "/Account/AccessDenied";
-                       options.LogoutPath = "/Account/Logout";
-                   });
-
 var tokenSection = builder.Configuration.GetSection("Authentication:Jwt");
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+//defalt using Cookie 
+builder.Services.AddAuthentication()
+     .AddCookie(options =>
+     {
+         options.LoginPath = "/Identity/Account/Login";
+         options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+         options.LogoutPath = "/Identity/Account/Logout";
+     })
+    .AddJwtBearer(options =>
     {
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuer = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = tokenSection["Issuer"],
-        ValidAudience = tokenSection["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSection["Key"])),
-        ClockSkew = TimeSpan.Zero
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = async context =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var authService = context.HttpContext.RequestServices.GetRequiredService<InventoryStudio.Services.Authorization.IAuthorizationService>();
-            await authService.ValidateToken(context);
-        }
-
-    };
-}).AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-});
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = tokenSection["Issuer"],
+            ValidAudience = tokenSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSection["Key"])),
+            ClockSkew = TimeSpan.Zero
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var authService = context.HttpContext.RequestServices.GetRequiredService<InventoryStudio.Services.Authorization.IAuthorizationService>();
+                await authService.ValidateToken(context);
+            }
+        };
+    }).AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    });
 
 builder.Services.AddScoped<InventoryStudio.Services.Authorization.IAuthorizationService, AuthorizationService>();
 
