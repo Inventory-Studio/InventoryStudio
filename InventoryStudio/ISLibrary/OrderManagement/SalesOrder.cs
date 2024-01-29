@@ -88,6 +88,7 @@ namespace ISLibrary.OrderManagement
         public SalesOrder(string CompanyID)
         {
             this.CompanyID = CompanyID;
+            Load();
         }
 
         public SalesOrder(string CompanyID, string SalesOrderID)
@@ -223,7 +224,6 @@ namespace ISLibrary.OrderManagement
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-            ItemParent objItemParent = null;
 
             try
             {
@@ -233,7 +233,7 @@ namespace ISLibrary.OrderManagement
                 if (IsClosed == null) throw new Exception("IsClosed is required");
                 if (SignatureRequired == null) throw new Exception("SignatureRequired is  required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, ItemNumber already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, SalesOrder already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
@@ -277,7 +277,6 @@ namespace ISLibrary.OrderManagement
             finally
             {
                 dicParam = null;
-                objItemParent = null;
             }
             return true;
         }
@@ -315,17 +314,14 @@ namespace ISLibrary.OrderManagement
         {
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
-            ItemParent objItemParent = null;
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(PONumber)) throw new Exception("PONumber is required");
                 if (TranDate == null) throw new Exception("TranDate is required");
-                if (IsClosed == null) throw new Exception("IsClosed is required");
-                if (SignatureRequired == null) throw new Exception("SignatureRequired is  required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
-                if (IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (IsNew) throw new Exception("Update cannot be performed, SalesOrderID is missing");
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["CustomerID"] = CustomerID;
@@ -430,6 +426,7 @@ namespace ISLibrary.OrderManagement
             }
             return true;
         }
+
         private bool ObjectAlreadyExists()
         {
             string strSQL = string.Empty;
