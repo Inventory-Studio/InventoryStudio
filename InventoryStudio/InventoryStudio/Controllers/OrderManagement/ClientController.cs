@@ -12,19 +12,19 @@ namespace InventoryStudio.Controllers.OrderManagement
 {
     public class ClientController : Controller
     {
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
             var clients = Client.GetClients(company.Value);
             var list = new List<ClientViewModel>();
             foreach (var client in clients)
             {
-                list.Add(ClientConvdrtViewModel(client));
+                list.Add(ClientConvertViewModel(client));
             }
             return View(list);
         }
 
-        private ClientViewModel ClientConvdrtViewModel(Client client)
+        private ClientViewModel ClientConvertViewModel(Client client)
         {
             var viewModel = new ClientViewModel();
             viewModel.ClientId = client.ClientID;
@@ -58,7 +58,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var client = new Client(company.Value, id);
             if (client == null)
                 return NotFound();
-            var detailViewModel = ClientConvdrtViewModel(client);
+            var detailViewModel = ClientConvertViewModel(client);
             return View(detailViewModel);
         }
 
@@ -150,7 +150,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
             var client = new Client(company.Value, id);
-            var viewModel = ClientConvdrtViewModel(client);
+            var viewModel = ClientConvertViewModel(client);
             return View(viewModel);
         }
 
