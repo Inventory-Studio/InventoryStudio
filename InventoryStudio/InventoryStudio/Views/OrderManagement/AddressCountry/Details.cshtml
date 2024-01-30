@@ -1,0 +1,42 @@
+﻿@model InventoryStudio.Models.OrderManagement.AddressCountry.AddressCountryViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>AddressCountry</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CountryName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CountryName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UspscountryName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UspscountryName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsEligibleForPltfedEx)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsEligibleForPltfedEx)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EelPfc)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EelPfc)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.CountryId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

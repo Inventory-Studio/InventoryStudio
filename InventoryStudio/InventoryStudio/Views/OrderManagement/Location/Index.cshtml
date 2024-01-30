@@ -1,0 +1,234 @@
+﻿@model IEnumerable<InventoryStudio.Models.OrderManagement.Location.LocationViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ParentLocationId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LocationNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LocationName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseBins)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseLotNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseCartonNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseVendorCartonNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UseSerialNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AllowMultiplePackagePerFulfillment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AllowAutoPick)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AllowAutoPickApproval)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AllowNegativeInventory)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultAddressValidation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultSignatureRequirement)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultSignatureRequirementAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultCountryOfOrigin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultHscode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultLowestShippingRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaximumPickScanRequirement)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaximumPackScanRequirement)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DisplayWeightMode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FulfillmentCombineStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EnableSimpleMode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EnableSimpleModePick)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EnableSimpleModePack)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValidateSource)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VarianceBinId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DefaultPackageDimension)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedOn)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParentLocationId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocationName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UseBins)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UseLotNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UseCartonNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UseVendorCartonNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UseSerialNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AllowMultiplePackagePerFulfillment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AllowAutoPick)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AllowAutoPickApproval)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AllowNegativeInventory)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultAddressValidation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultSignatureRequirement)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultSignatureRequirementAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultCountryOfOrigin)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultHscode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultLowestShippingRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaximumPickScanRequirement)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaximumPackScanRequirement)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DisplayWeightMode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FulfillmentCombineStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EnableSimpleMode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EnableSimpleModePick)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EnableSimpleModePack)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValidateSource)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VarianceBinId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefaultPackageDimension)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedOn)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.LocationId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.LocationId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.LocationId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
