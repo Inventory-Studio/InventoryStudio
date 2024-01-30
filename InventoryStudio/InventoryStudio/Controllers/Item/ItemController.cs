@@ -56,31 +56,27 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Item-Item-Create")]
         [HttpPost]
-        public IActionResult Create(string roleName)
+        public IActionResult Create(Item item)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
                 ModelState.AddModelError("", "Invalid organization information.");
-                return View("~/Views/Item/Item/Create.cshtml");
+                return View("~/Views/Item/Item/Create.cshtml", item);
             }
 
-            var role = new AspNetRoles
-            {
-                Name = roleName,
-                NormalizedName = roleName.ToUpper(),
-                CompanyId = organizationClaim.Value
-            };
+            item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
+            item.CompanyID = organizationClaim.Value;
 
             try
             {
-                role.Create();
-                return RedirectToAction("Index");
+                ItemParent.CreateItem(item);
+                return View("~/Views/Item/Item/Create.cshtml", item);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("created_error", ex.Message);
-                return View("~/Views/Item/Item/Create.cshtml");
+                return View("~/Views/Item/Item/Create.cshtml", item);
             }
         }
 

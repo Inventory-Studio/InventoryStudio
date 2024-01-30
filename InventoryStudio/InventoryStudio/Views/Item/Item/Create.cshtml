@@ -1,5 +1,5 @@
 ﻿@using System.Reflection
-@model Item
+@model Item 
 
 @{
     ViewData["Title"] = "Create Item";
@@ -62,13 +62,13 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox"  id="createMatrixCheckbox" onchange="toggleMatrix()">
+                                    <input asp-for="IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()" />                 
                                     <label class="form-check-label" for="createMatrix">
                                         Create Matrix
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="receiveIndividually">
+                                    <input asp-for="IsShipReceiveIndividually" type="checkbox" class="form-control" />                                  
                                     <label class="form-check-label" for="receiveIndividually">
                                         Receive Individually
                                     </label>
@@ -84,62 +84,62 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                             <label for="hsCode">HS Code</label>
-                            <input type="text" class="form-control" id="hsCode">
+                                <input asp-for="HSCode" class="form-control" />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="goodDescription">Good Description</label>
-                            <input type="text" class="form-control" id="goodDescription">
+                                <input asp-for="GoodDescription" class="form-control" />
                         </div>
                         </div>
                         <div class="form-group">
                             <label for="countryOfOrigin">Country of Origin</label>
-                            <input type="text" class="form-control" id="countryOfOrigin">
+                            <input asp-for="CountryOfOrigin" class="form-control" />
                         </div>
 
                         <hr>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="hsCode">Package Length</label>
-                                <input type="text" class="form-control" id="hsCode">
+                                <input asp-for="PackageLength" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="goodDescription">Package Width</label>
-                                <input type="text" class="form-control" id="goodDescription">
+                                <input asp-for="PackageWidth" class="form-control" />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="hsCode">Package Height</label>
-                                <input type="text" class="form-control" id="hsCode">
+                                <input asp-for="PackageHeight" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="goodDescription">Package Dimension Unit of Measure</label>
-                                <input type="text" class="form-control" id="goodDescription">
+                                <input asp-for="PackageDimensionUOM" class="form-control" />
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="countryOfOrigin">Package Weight</label>
-                            <input type="text" class="form-control" id="countryOfOrigin">
+                            <input asp-for="PackageWeight" class="form-control" />
                         </div>
 
                         <hr>
 
                         <div class="row">
                             <div class="form-group col-md-6">
-                                <label for="hsCode">Sales Description</label>
-                                <input type="text" class="form-control" id="hsCode">
+                                <label for="SalesDescription">Sales Description</label>
+                                <input asp-for="SalesDescription" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="goodDescription">Purchase Description</label>
-                                <input type="text" class="form-control" id="goodDescription">
+                                <label for="PurchaseDescription">Purchase Description</label>
+                                <input asp-for="PurchaseDescription" class="form-control" />
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="countryOfOrigin">Shipping Memo</label>
-                            <input type="text" class="form-control" id="countryOfOrigin">
+                            <label for="Memo">Shipping Memo</label>
+                            <input asp-for="Memo" class="form-control" />
                         </div>
 
                     </div>
@@ -158,7 +158,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Rows will be added here -->
+                                        @if (Model != null)
+                                        {
+                                            foreach (var itemBarcode in Model.ItemBarcodes ?? Enumerable.Empty<ItemBarcode>())
+                                        {
+                                           
+                                        }   
+                                        }                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -179,8 +185,14 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <!-- Dynamic rows will be added here -->
+                                    <tbody>                                        
+                                         @if (Model != null)
+                                        {
+                                            foreach (var ItemComponent in Model.ItemComponents ?? Enumerable.Empty<ItemComponent>())
+                                            {
+
+                                            }
+                                        }
                                     </tbody>
                                 </table>
                                 <button class="btn btn-secondary">Back</button>
@@ -203,7 +215,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Dynamic rows will be added here -->
+                                         @if (Model != null)
+                                        {
+                                            foreach (var ItemKit in Model.ItemKits ?? Enumerable.Empty<ItemKit>())
+                                            {
+
+                                            }
+                                        }
                                     </tbody>
                                 </table>
                                 <button class="btn btn-secondary">Back</button>

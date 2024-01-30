@@ -43,7 +43,6 @@ namespace ISLibrary
         public string ItemID { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(ItemID); } }
         public string CompanyID { get; set; }
-        public string ClientID { get; set; }
         public string VendorID { get; set; }
         public string ItemParentID { get; set; }
         //public string ItemType { get; set; }
@@ -68,6 +67,24 @@ namespace ISLibrary
         public DateTime? UpdatedOn { get; private set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; private set; }
+
+        //view attribute
+        public string ItemParentNumber { get; set; }
+        public string Label { get; set; }
+        public int? ItemUnitTypeID { get; set; }
+        public int? PrimarySalesUnitID { get; set; }
+        public int? PrimaryPurchaseUnitID { get; set; }
+        public int? PrimaryStockUnitID { get; set; }
+        public string ImageURL { get; set; }
+        public decimal? UnitCost { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public bool? UseSingleBin { get; set; }
+        public bool? FulfillByKit { get; set; }
+        public bool? ReceiveByKit { get; set; }
+        public string HSCode { get; set; }
+        public string GoodDescription { get; set; }
+        public string CountryOfOrigin { get; set; }
+        public int? BinID { get; set; }
 
         private List<ItemAttributeValueLine> mItemAttributeValueLines = null;
         public List<ItemAttributeValueLine> ItemAttributeValueLines
@@ -271,7 +288,7 @@ namespace ISLibrary
                 objColumns = objRow.Table.Columns;
                 if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
+               
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
                 if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value) Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType ItemType);
                 //if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
@@ -356,7 +373,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemParentID"] = ItemParentID;
                 dicParam["ItemType"] = ItemType;
                 dicParam["ItemNumber"] = ItemNumber;
@@ -497,7 +513,7 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
+              
                 dicParam["ItemParentID"] = ItemParentID;
                 dicParam["ItemType"] = ItemType;
                 dicParam["ItemNumber"] = ItemNumber;
@@ -689,7 +705,7 @@ namespace ISLibrary
                      "FROM Item (NOLOCK) p " +
                      "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
                      "AND p.ItemNumber=" + Database.HandleQuote(ItemNumber);
-            if (!string.IsNullOrEmpty(ClientID)) strSQL += "AND p.ClientID=" + Database.HandleQuote(ClientID);
+          
 
             if (!string.IsNullOrEmpty(ItemID)) strSQL += "AND p.ItemID<>" + Database.HandleQuote(ItemID);
             return Database.HasRows(strSQL);
@@ -790,5 +806,8 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+
+
     }
 }

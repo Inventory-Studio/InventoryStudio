@@ -14,7 +14,6 @@ namespace ISLibrary
         public string ItemParentID { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(ItemParentID); } }
         public string CompanyID { get; set; }
-        public string ClientID { get; set; }
         public string ItemNumber { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; private set; }
@@ -153,7 +152,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
+               
                 if (objColumns.Contains("ItemNumber")) ItemNumber = Convert.ToString(objRow["ItemNumber"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
@@ -215,7 +214,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemNumber"] = ItemNumber;
                 dicParam["CreatedBy"] = CreatedBy;
                 ItemParentID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemParent"), objConn, objTran).ToString();
@@ -315,7 +313,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemNumber"] = ItemNumber;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicWParam["ItemParentID"] = ItemParentID;
@@ -444,8 +441,7 @@ namespace ISLibrary
                      "FROM ItemParent (NOLOCK) p " +
                      "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
                      "AND p.ItemNumber=" + Database.HandleQuote(ItemNumber);
-            if (!string.IsNullOrEmpty(ClientID)) strSQL += "AND p.ClientID=" + Database.HandleQuote(ClientID);
-
+            
             if (!string.IsNullOrEmpty(ItemParentID)) strSQL += "AND p.ItemParentID<>" + Database.HandleQuote(ItemParentID);
             return Database.HasRows(strSQL);
         }
@@ -537,5 +533,19 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+        public static Item CreateItem(Item item)
+        {
+            ItemParent itemParent = new ItemParent();
+            itemParent.CompanyID = item.CompanyID;
+            itemParent.ItemNumber = item.ItemNumber;
+            itemParent.CreatedBy = item.CreatedBy;
+
+            itemParent.Items = new List<Item> { item };
+
+            itemParent.Create();
+            return item;
+        }
+
     }
 }
