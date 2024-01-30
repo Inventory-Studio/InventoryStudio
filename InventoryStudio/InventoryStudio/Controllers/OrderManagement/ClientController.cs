@@ -1,11 +1,8 @@
-﻿using Azure.Core;
-using InventoryStudio.Models;
-using InventoryStudio.Models.OrderManagement.Client;
+﻿using InventoryStudio.Models.OrderManagement.Client;
 using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace InventoryStudio.Controllers.OrderManagement
@@ -21,7 +18,8 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 list.Add(ClientConvertViewModel(client));
             }
-            return View(list);
+
+            return View("~/Views/OrderManagement/Client/Index.cshtml", list);
         }
 
         private ClientViewModel ClientConvertViewModel(Client client)
@@ -40,18 +38,19 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (createdUser != null)
                     viewModel.CreatedBy = createdUser.UserName;
             }
+
             if (!string.IsNullOrEmpty(client.UpdatedBy))
             {
                 var updatedUser = new AspNetUsers(client.UpdatedBy);
                 if (updatedUser != null)
                     viewModel.UpdatedBy = updatedUser.UserName;
             }
+
             return viewModel;
         }
 
-        public async Task<IActionResult> Details(string? id)
+        public IActionResult Details(string? id)
         {
-
             if (id == null)
                 return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
@@ -59,7 +58,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (client == null)
                 return NotFound();
             var detailViewModel = ClientConvertViewModel(client);
-            return View(detailViewModel);
+            return View("~/Views/OrderManagement/Client/Details.cshtml", detailViewModel);
         }
 
         public IActionResult Create()
@@ -67,13 +66,16 @@ namespace InventoryStudio.Controllers.OrderManagement
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
-            ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName");
-            return View();
+            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
+            CreateClientViewModel createClientViewModel = new();
+            return View("~/Views/OrderManagement/Client/Create.cshtml", createClientViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CompanyId,CompanyName,FirstName,LastName,EmailAddress")] CreateClientViewModel input)
+        public IActionResult Create(
+            [Bind("CompanyId,CompanyName,FirstName,LastName,EmailAddress")]
+            CreateClientViewModel input)
         {
             if (ModelState.IsValid)
             {
@@ -87,11 +89,12 @@ namespace InventoryStudio.Controllers.OrderManagement
                 client.Create();
                 return RedirectToAction(nameof(Index));
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
-            var companies = user.Companies;
+            var companies = user.Companies ?? new List<Company>();
             ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName", input.CompanyId);
-            return View(input);
+            return View("~/Views/OrderManagement/Client/Create.cshtml");
         }
 
         public IActionResult Edit(string id)
@@ -114,12 +117,14 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.FirstName = client.FirstName;
             viewModel.LastName = client.LastName;
             viewModel.EmailAddress = client.EmailAddress;
-            return View(viewModel);
+            return View("~/Views/OrderManagement/Client/Edit.cshtml", viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("ClientId,CompanyId,CompanyName,FirstName,LastName,EmailAddress")] EditClientViewModel input)
+        public IActionResult Edit(string id,
+            [Bind("ClientId,CompanyId,CompanyName,FirstName,LastName,EmailAddress")]
+            EditClientViewModel input)
         {
             if (id != input.ClientID)
                 return NotFound();
@@ -137,11 +142,12 @@ namespace InventoryStudio.Controllers.OrderManagement
                 client.Update();
                 return RedirectToAction(nameof(Index));
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
-            var companies = user.Companies;
+            var companies = user.Companies ?? new List<Company>();
             ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName");
-            return View(input);
+            return View("~/Views/OrderManagement/Client/Edit.cshtml");
         }
 
         public IActionResult Delete(string id)
@@ -151,7 +157,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
             var client = new Client(company.Value, id);
             var viewModel = ClientConvertViewModel(client);
-            return View(viewModel);
+            return View("~/Views/OrderManagement/Client/Delete.cshtml", viewModel);
         }
 
         [HttpPost, ActionName("Delete")]
