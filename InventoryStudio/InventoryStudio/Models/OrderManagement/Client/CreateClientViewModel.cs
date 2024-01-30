@@ -6,7 +6,7 @@ namespace InventoryStudio.Models.OrderManagement.Client
     {
         [Required]
         [Display(Name = "Company")]
-        public long CompanyId { get; set; }
+        public string CompanyId { get; set; }
 
         [Required]
         public string CompanyName { get; set; } = null!;

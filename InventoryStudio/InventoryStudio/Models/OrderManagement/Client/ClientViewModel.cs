@@ -4,7 +4,7 @@ namespace InventoryStudio.Models.OrderManagement.Client
 {
     public class ClientViewModel
     {
-        public long ClientId { get; set; }
+        public string ClientId { get; set; }
 
         public string CompanyName { get; set; }
 

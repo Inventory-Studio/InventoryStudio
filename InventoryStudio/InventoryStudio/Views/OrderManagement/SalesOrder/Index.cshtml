@@ -1,0 +1,222 @@
+﻿@model IEnumerable<InventoryStudio.Models.OrderManagement.SalesOrder.SalesOrderViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Ponumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TranDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingTaxAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemTaxAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiscountAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SalesSource)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingMethod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingCarrier)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingPackage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShippingServiceCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShipFrom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShipTo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsClosed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExternalId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InternalNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CustomerNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GiftMessage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LabelMessage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReferenceNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SignatureRequired)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShopifyOrderId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BillToAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShipToAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedOn)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ponumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TranDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingTaxAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemTaxAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiscountAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SalesSource)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingMethod)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingCarrier)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingPackage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippingServiceCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipFrom)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipTo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsClosed)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExternalId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InternalNote)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CustomerNote)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GiftMessage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LabelMessage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReferenceNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SignatureRequired)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShopifyOrderId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BillToAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Customer)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipToAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedOn)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.SalesOrderId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.SalesOrderId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.SalesOrderId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
