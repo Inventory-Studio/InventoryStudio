@@ -60,40 +60,11 @@
     </div>
 </script>
 
+
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
+
 <!-- Javascript logic for datagrid -->
 <script lang="js">
-    function toolbarClick(args) {
-        var gridObj = document.getElementById("Grid").ej2_instances[0];
-        if (args.item.id === 'Grid_pdfexport') {
-            var pdfdata = gridObj.getSelectedRecords();
-            if (pdfdata?.length > 0) {
-                var exportProperties = {
-                    dataSource: pdfdata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Users.pdf"
-                };
-                gridObj.pdfExport(exportProperties);
-            } else {
-                gridObj.pdfExport({
-                    fileName: "IS_Users.pdf"
-                });
-            }
-        }
-        if (args.item.id === 'Grid_excelexport') {
-            var exceldata = gridObj.getSelectedRecords();
-            if (exceldata?.length > 0) {
-                var exportProperties = {
-                    dataSource: exceldata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Users.xlsx"
-                };
-                gridObj.excelExport(exportProperties);
-            } else {
-                gridObj.excelExport({
-                    fileName: "IS_Users.xlsx"
-                });
-            }
-
-        }
-    }
+    const toolbarClick = customExportToolbarClick("Grid", "IS_Users");
 </script>
+

@@ -4,6 +4,8 @@ using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
+using System.Text.Json;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -197,6 +199,103 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (client != null)
                 client.Delete();
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Insert([FromBody] CRUDModel<Client> value)
+        {
+            return Json(value.Value);
+        }
+
+        public IActionResult Update([FromBody] CRUDModel<Client> value)
+        {
+            return Json(value.Value ?? new Client());
+        }
+
+
+        public IActionResult Remove([FromBody] CRUDModel<Client> value)
+        {
+            if (value.Key != null)
+            {
+                DeleteConfirmed(value.Value.ClientID);
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<Client> dataSource = new List<Client>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                {
+                    ClientFilter clientFilter = new();
+                    dataSource = Client.GetClients(
+                        company.ToString(),
+                        clientFilter,
+                        dm.Take,
+                        (dm.Skip / dm.Take) + 1,
+                        out totalRecord
+                    );
+                }
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
         }
     }
 }
