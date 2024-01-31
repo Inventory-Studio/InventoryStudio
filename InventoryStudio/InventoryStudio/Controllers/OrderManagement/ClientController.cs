@@ -12,26 +12,28 @@ namespace InventoryStudio.Controllers.OrderManagement
         public IActionResult Index()
         {
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var clients = Client.GetClients(company.Value);
-            var list = new List<ClientViewModel>();
-            foreach (var client in clients)
+            if (company == null)
             {
-                list.Add(ClientConvertViewModel(client));
+                return NotFound();
             }
 
+            var clients = Client.GetClients(company.Value);
+            var list = clients.Select(ClientConvertViewModel).ToList();
             return View("~/Views/OrderManagement/Client/Index.cshtml", list);
         }
 
         private ClientViewModel ClientConvertViewModel(Client client)
         {
-            var viewModel = new ClientViewModel();
-            viewModel.ClientId = client.ClientID;
-            viewModel.CompanyName = client.CompanyName;
-            viewModel.FirstName = client.FirstName;
-            viewModel.LastName = client.LastName;
-            viewModel.EmailAddress = client.EmailAddress;
-            viewModel.CreatedOn = client.CreatedOn;
-            viewModel.UpdatedOn = client.UpdatedOn;
+            ClientViewModel viewModel = new()
+            {
+                ClientId = client.ClientID,
+                CompanyName = client.CompanyName,
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                EmailAddress = client.EmailAddress,
+                CreatedOn = client.CreatedOn,
+                UpdatedOn = client.UpdatedOn
+            };
             if (!string.IsNullOrEmpty(client.CreatedBy))
             {
                 var createdUser = new AspNetUsers(client.CreatedBy);
@@ -54,9 +56,17 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (id == null)
                 return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company == null)
+            {
+                return NotFound();
+            }
+
             var client = new Client(company.Value, id);
             if (client == null)
+            {
                 return NotFound();
+            }
+
             var detailViewModel = ClientConvertViewModel(client);
             return View("~/Views/OrderManagement/Client/Details.cshtml", detailViewModel);
         }
@@ -99,9 +109,14 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         public IActionResult Edit(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company == null)
+            {
+                return NotFound();
+            }
+
             var client = new Client(company.Value, id);
             if (client == null)
                 return NotFound();
@@ -110,13 +125,15 @@ namespace InventoryStudio.Controllers.OrderManagement
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
             ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName");
-            var viewModel = new EditClientViewModel();
-            viewModel.ClientID = client.ClientID;
-            viewModel.CompanyID = client.CompanyID;
-            viewModel.CompanyName = client.CompanyName;
-            viewModel.FirstName = client.FirstName;
-            viewModel.LastName = client.LastName;
-            viewModel.EmailAddress = client.EmailAddress;
+            EditClientViewModel viewModel = new()
+            {
+                ClientID = client.ClientID,
+                CompanyID = client.CompanyID,
+                CompanyName = client.CompanyName,
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                EmailAddress = client.EmailAddress
+            };
             return View("~/Views/OrderManagement/Client/Edit.cshtml", viewModel);
         }
 
@@ -152,9 +169,14 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         public IActionResult Delete(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
                 return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company == null)
+            {
+                return NotFound();
+            }
+
             var client = new Client(company.Value, id);
             var viewModel = ClientConvertViewModel(client);
             return View("~/Views/OrderManagement/Client/Delete.cshtml", viewModel);
@@ -164,10 +186,15 @@ namespace InventoryStudio.Controllers.OrderManagement
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(string id)
         {
-            if (id == null) return NotFound();
+            if (string.IsNullOrEmpty(id)) return NotFound();
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company == null)
+            {
+                return NotFound();
+            }
+
             var client = new Client(company.Value, id);
-            if (client == null)
+            if (client != null)
                 client.Delete();
             return RedirectToAction(nameof(Index));
         }
