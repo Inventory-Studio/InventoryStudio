@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    var normalizedBoolean = "normalizedBooleanFn";
+    var normalizeBoolean = "normalizedBooleanFn";
 }
 
 <div class="container-fluid py-4 h-100">
@@ -35,7 +35,7 @@
                     </e-grid-column>
                     <e-grid-column field="ApplicationName" headerText="Application Name" width="200"></e-grid-column>
                     <e-grid-column field="TokenName" headerText="Token Name" width="200"></e-grid-column>
-                    <e-grid-column field="InActive" headerText="Inactive" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="InActive" headerText="Inactive" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="Role" headerText="Role" width="120"></e-grid-column>
                     <e-grid-column field="CreatedOn" headerText="Created On" width="180"></e-grid-column>
                     <e-grid-column field="CreatedBy" headerText="Created By" width="180"></e-grid-column>
@@ -66,5 +66,6 @@
 
 <!-- Javascript logic for datagrid -->
 <script lang="js">
+    var normalizedBooleanFn = normalizedBoolean;
     const toolbarClick = customExportToolbarClick("Grid", "IS_Access_Tokens");
 </script>

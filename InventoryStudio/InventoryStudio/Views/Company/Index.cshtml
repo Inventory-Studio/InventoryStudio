@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Company";
-    var normalizedBoolean = "normalizedBooleanFn";
+    var normalizeBoolean = "normalizedBooleanFn";
 }
 
 
@@ -34,9 +34,9 @@
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="CompanyName" headerText="Company Name" width="120"></e-grid-column>
-                    <e-grid-column field="AutomateFulfillment" headerText="Automate Fulfillment" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="AutomateFulfillment" headerText="Automate Fulfillment" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="ShippoAPIKey" headerText="Shippo API Key" width="120"></e-grid-column>
-                    <e-grid-column field="IncludePackingSlipOnLabel" headerText="Include Packing Slip" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="IncludePackingSlipOnLabel" headerText="Include Packing Slip" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="DefaultFulfillmentMethod" headerText="Default Fulfillment Method" width="120"></e-grid-column>
                     <e-grid-column field="DefaultFulfillmentStrategy" headerText="Default Fulfillment Strategy" width="120"></e-grid-column>
                     <e-grid-column field="DefaultAllocationStrategy" headerText="Default Allocation Strategy" width="120"></e-grid-column>
@@ -63,6 +63,7 @@
 
 <!-- Javascript logic for datagrid -->
 <script lang="js">
+    var normalizedBooleanFn = normalizedBoolean;
     const toolbarClick = customExportToolbarClick("Grid", "IS_Companies");
 </script>
 

@@ -1,4 +1,4 @@
-﻿function normalizedBooleanFn(field, data, column) {
+﻿function normalizedBoolean(field, data, column) {
     const value = data[field];
     if (value) {
         return "Yes";

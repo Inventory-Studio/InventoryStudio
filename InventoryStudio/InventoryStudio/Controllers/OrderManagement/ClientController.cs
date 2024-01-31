@@ -13,15 +13,7 @@ namespace InventoryStudio.Controllers.OrderManagement
     {
         public IActionResult Index()
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company == null)
-            {
-                return NotFound();
-            }
-
-            var clients = Client.GetClients(company.Value);
-            var list = clients.Select(ClientConvertViewModel).ToList();
-            return View("~/Views/OrderManagement/Client/Index.cshtml", list);
+            return View("~/Views/OrderManagement/Client/Index.cshtml");
         }
 
         private ClientViewModel ClientConvertViewModel(Client client)
