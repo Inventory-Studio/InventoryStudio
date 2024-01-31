@@ -2,9 +2,9 @@
 {
     public class EditAddressViewModel
     {
-        public long AddressId { get; set; }
+        public string AddressID { get; set; }
 
-        public long CompanyId { get; set; }
+        public string CompanyID { get; set; }
 
         public string? FullName { get; set; }
 
@@ -24,7 +24,7 @@
 
         public string? PostalCode { get; set; }
 
-        public string? CountryId { get; set; }
+        public string? CountryID { get; set; }
 
         public string? Email { get; set; }
 

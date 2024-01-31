@@ -22,6 +22,8 @@ namespace ISLibrary.OrderManagement
 
         public decimal? Length { get; set; }
 
+        public decimal? Width { get; set; }
+
         public decimal? Height { get; set; }
 
         public decimal? Weight { get; set; }
@@ -63,6 +65,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("PackageDimensionID")) PackageDimensionID = Convert.ToString(objRow["PackageDimensionID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                 if (objColumns.Contains("Name")) Name = Convert.ToString(objRow["Name"]);
+                if (objColumns.Contains("Width")) Width = objRow["Width"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Width"]);
                 if (objColumns.Contains("Length")) Length = objRow["Length"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Length"]);
                 if (objColumns.Contains("Height")) Height = objRow["Height"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Height"]);
                 if (objColumns.Contains("Weight")) Weight = objRow["Weight"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Weight"]);
@@ -156,6 +159,7 @@ namespace ISLibrary.OrderManagement
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["Name"] = Name;
+                dicParam["Width"] = Width;
                 dicParam["Length"] = Length;
                 dicParam["Height"] = Height;
                 dicParam["Weight"] = Weight;
@@ -222,6 +226,7 @@ namespace ISLibrary.OrderManagement
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["Name"] = Name;
+                dicParam["Width"] = Width;
                 dicParam["Length"] = Length;
                 dicParam["Height"] = Height;
                 dicParam["Weight"] = Weight;

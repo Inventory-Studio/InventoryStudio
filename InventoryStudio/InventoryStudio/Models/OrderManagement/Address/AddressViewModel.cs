@@ -2,7 +2,7 @@
 {
     public class AddressViewModel
     {
-        public long AddressId { get; set; }
+        public string AddressID { get; set; }
 
         public string Company { get; set; }
 

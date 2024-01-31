@@ -2,7 +2,7 @@
 {
     public class CreatePackageDimensionViewModel
     {
-        public long? CompanyId { get; set; }
+        public string CompanyID { get; set; }
 
         public string? Name { get; set; }
 

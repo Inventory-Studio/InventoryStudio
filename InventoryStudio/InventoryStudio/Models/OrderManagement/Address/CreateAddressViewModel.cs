@@ -3,7 +3,7 @@
     public class CreateAddressViewModel
     {
 
-        public long CompanyId { get; set; }
+        public string CompanyID { get; set; }
 
         public string? FullName { get; set; }
 
@@ -23,7 +23,7 @@
 
         public string? PostalCode { get; set; }
 
-        public string? CountryId { get; set; }
+        public string? CountryID { get; set; }
 
         public string? Email { get; set; }
 

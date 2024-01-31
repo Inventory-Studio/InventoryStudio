@@ -2,7 +2,7 @@
 {
     public class PackageDimensionViewModel
     {
-        public long PackageDimensionId { get; set; }
+        public string PackageDimensionID { get; set; }
 
         public string? Company { get; set; }
 

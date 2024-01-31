@@ -13,9 +13,9 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CountryId" class="control-label"></label>
-                <input asp-for="CountryId" class="form-control" />
-                <span asp-validation-for="CountryId" class="text-danger"></span>
+                <label asp-for="CountryID" class="control-label"></label>
+                <input asp-for="CountryID" class="form-control" />
+                <span asp-validation-for="CountryID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CountryName" class="control-label"></label>
@@ -23,19 +23,19 @@
                 <span asp-validation-for="CountryName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UspscountryName" class="control-label"></label>
-                <input asp-for="UspscountryName" class="form-control" />
-                <span asp-validation-for="UspscountryName" class="text-danger"></span>
+                <label asp-for="USPSCountryName" class="control-label"></label>
+                <input asp-for="USPSCountryName" class="form-control" />
+                <span asp-validation-for="USPSCountryName" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsEligibleForPltfedEx" /> @Html.DisplayNameFor(model => model.IsEligibleForPltfedEx)
+                    <input class="form-check-input" asp-for="IsEligibleForPLTFedEX" /> @Html.DisplayNameFor(model => model.IsEligibleForPLTFedEX)
                 </label>
             </div>
             <div class="form-group">
-                <label asp-for="EelPfc" class="control-label"></label>
-                <input asp-for="EelPfc" class="form-control" />
-                <span asp-validation-for="EelPfc" class="text-danger"></span>
+                <label asp-for="EEL_PFC" class="control-label"></label>
+                <input asp-for="EEL_PFC" class="form-control" />
+                <span asp-validation-for="EEL_PFC" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

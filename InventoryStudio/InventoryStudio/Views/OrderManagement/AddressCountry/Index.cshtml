@@ -16,10 +16,10 @@
                 @Html.DisplayNameFor(model => model.CountryName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UspscountryName)
+                @Html.DisplayNameFor(model => model.USPSCountryName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsEligibleForPltfedEx)
+                @Html.DisplayNameFor(model => model.IsEligibleForPLTFedEX)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EelPfc)
@@ -35,18 +35,18 @@
                     @Html.DisplayFor(modelItem => item.CountryName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UspscountryName)
+                    @Html.DisplayFor(modelItem => item.USPSCountryName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IsEligibleForPltfedEx)
+                    @Html.DisplayFor(modelItem => item.IsEligibleForPLTFedEX)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EelPfc)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CountryId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.CountryId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CountryId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.CountryID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.CountryID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CountryID">Delete</a>
                 </td>
             </tr>
         }

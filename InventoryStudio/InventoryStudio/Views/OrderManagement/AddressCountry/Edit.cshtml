@@ -12,26 +12,26 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CountryId" />
+            <input type="hidden" asp-for="CountryID" />
             <div class="form-group">
                 <label asp-for="CountryName" class="control-label"></label>
                 <input asp-for="CountryName" class="form-control" />
                 <span asp-validation-for="CountryName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UspscountryName" class="control-label"></label>
-                <input asp-for="UspscountryName" class="form-control" />
-                <span asp-validation-for="UspscountryName" class="text-danger"></span>
+                <label asp-for="USPSCountryName" class="control-label"></label>
+                <input asp-for="USPSCountryName" class="form-control" />
+                <span asp-validation-for="USPSCountryName" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsEligibleForPltfedEx" /> @Html.DisplayNameFor(model => model.IsEligibleForPltfedEx)
+                    <input class="form-check-input" asp-for="IsEligibleForPLTFedEX" /> @Html.DisplayNameFor(model => model.IsEligibleForPLTFedEX)
                 </label>
             </div>
             <div class="form-group">
-                <label asp-for="EelPfc" class="control-label"></label>
-                <input asp-for="EelPfc" class="form-control" />
-                <span asp-validation-for="EelPfc" class="text-danger"></span>
+                <label asp-for="EEL_PFC" class="control-label"></label>
+                <input asp-for="EEL_PFC" class="form-control" />
+                <span asp-validation-for="EEL_PFC" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

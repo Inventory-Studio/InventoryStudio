@@ -2,9 +2,9 @@
 {
     public class EditPackageDimensionViewModel
     {
-        public long PackageDimensionId { get; set; }
+        public string PackageDimensionID { get; set; }
 
-        public long? CompanyId { get; set; }
+        public string? CompanyID { get; set; }
 
         public string? Name { get; set; }
 
