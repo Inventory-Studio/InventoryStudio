@@ -31,7 +31,11 @@
                     <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
-                    <e-grid-column field="Name" headerText="Name" width="120"></e-grid-column>
+                    <e-grid-column field="ItemNumber" headerText="Item Number" width="120"></e-grid-column>
+                    <e-grid-column field="ItemName" headerText="Name" width="120"></e-grid-column>
+                    <e-grid-column field="ItemType" headerText="Item Type" width="120"></e-grid-column>
+                    <e-grid-column field="UpdatedOn" headerText="Updated On" width="120"></e-grid-column>
+                    <e-grid-column field="CreatedOn" headerText="Created On" width="120"></e-grid-column>
                     <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
