@@ -1,23 +1,32 @@
 ﻿@model List<Company>
 
-<h2>All Companies for User</h2>
-
-@if (Model.Any())
-{
-    <ul>
-        @foreach (var company in Model)
-        {
-            <li>
-                @company.CompanyName
-                <form asp-action="SwitchCompany" asp-controller="Account" method="post" style="display: inline-block;">
-                    <input type="hidden" name="companyId" value="@company.CompanyID" />
-                    <button type="submit">Switch</button>
-                </form>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>No organizations found for the user.</p>
-}
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header">
+            <div class="card-title">Select a Company</div>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var company in Model)
+                    {
+                        <li class="list-group-item">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="fs-6">@company.CompanyName</span>
+                                <form asp-action="SwitchCompany" asp-controller="Account" method="post" style="display: inline-block;">
+                                    <input type="hidden" name="companyId" value="@company.CompanyID"/>
+                                    <button class="btn btn-sm btn-primary" type="submit">Switch</button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No role found for the user.</p>
+            }
+        </div>
+    </div>
+</div>
