@@ -5,12 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.Json;
+using InventoryStudio.Models.AccessToken;
+using ISLibrary.AspNet;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
     public class AddressController : Controller
     {
-
         public IActionResult Index()
         {
             Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
@@ -20,6 +23,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 list.Add(EntitieConvertViewModel(address));
             }
+
             return View("~/Views/OrderManagement/Address/Index.cshtml", list);
         }
 
@@ -33,12 +37,14 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (company != null)
                     viewModel.Company = company.CompanyName;
             }
+
             if (!string.IsNullOrEmpty(address.CountryID))
             {
                 var country = new AddressCountry(address.CountryID);
                 if (country != null)
                     viewModel.Country = country.CountryName;
             }
+
             viewModel.FullName = address.FullName;
             viewModel.Attention = address.Attention;
             viewModel.CompanyName = address.CompanyName;
@@ -59,6 +65,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (user != null)
                     viewModel.UpdatedBy = user.UserName;
             }
+
             viewModel.UpdatedOn = address.UpdatedOn;
             if (!string.IsNullOrEmpty(address.CreatedBy))
             {
@@ -66,6 +73,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (user != null)
                     viewModel.CreatedBy = user.UserName;
             }
+
             viewModel.CreatedOn = address.CreatedOn;
             return viewModel;
         }
@@ -94,7 +102,10 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")] CreateAddressViewModel input)
+        public IActionResult Create(
+            [Bind(
+                "CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")]
+            CreateAddressViewModel input)
         {
             if (ModelState.IsValid)
             {
@@ -119,6 +130,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.CreatedOn = DateTime.Now;
                 address.Create();
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -165,7 +177,10 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("AddressID,CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")] EditAddressViewModel input)
+        public IActionResult Edit(string id,
+            [Bind(
+                "AddressID,CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")]
+            EditAddressViewModel input)
         {
             if (id != input.AddressID)
                 return NotFound();
@@ -192,6 +207,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.UpdatedOn = DateTime.Now;
                 return RedirectToAction(nameof(Index));
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -223,6 +239,100 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Insert([FromBody] CRUDModel<Address> value)
+        {
+            return Json(value.Value);
+        }
 
+        public IActionResult Update([FromBody] CRUDModel<Address> value)
+        {
+            return Json(value.Value ?? new Address());
+        }
+
+        public IActionResult Remove([FromBody] CRUDModel<Address> value)
+        {
+            if (value.Key != null)
+            {
+                DeleteConfirmed(value.Key.ToString() ?? "");
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<AddressViewModel> dataSource = new List<AddressViewModel>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                {
+                    AddressFilter addressFilter = new();
+                    dataSource = Address.GetAddresses(
+                        company.ToString(),
+                        addressFilter,
+                        dm.Take,
+                        (dm.Skip / dm.Take) + 1,
+                        out totalRecord
+                    ).Select(EntitieConvertViewModel);
+                }
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
+        }
     }
 }
