@@ -422,33 +422,91 @@
 
 
         //ItemComponet
-        var productOptions = [
-            "Tshirt-Style-A_Small_Black - Tshirt-123",
-            "Tshirt-Style-A_Medium_Black - Tshirt-Style-A",
-            // ... Add all product names here
-        ];
+        // Global variable to store product options
+        var ItemComponetProductOptions = null;
 
+        // Fetch product data when the page loads
+        fetchProductOptions();
+
+        // Function to fetch product data from the server
+        function fetchProductOptions() {
+            $.ajax({
+                url: '/Item/GetCompoentChildItems', 
+                method: 'GET',
+                success: function (response) {
+
+                    // Assuming the backend returns data in the format { dataSource: [{ ItemName, ItemId }, ...] }
+                    ItemComponetProductOptions = response.dataSource.map(function (item) {
+                        // Create an option element with the text being the ItemName and the value being the ItemId    
+                   console.log(item.itemID);
+                        return $('<option>').text(item.itemName).val(item.itemID);                      
+                    });
+                    // Update the select elements with these options
+                    updateSelectElements();
+                },
+                error: function (error) {
+                    console.error('Error fetching product data:', error);
+                }
+            });
+        }
+        function updateSelectElements() {
+            $('.item-select').each(function () {
+                $(this).empty().append(ItemComponetProductOptions);
+            });
+        }
+
+        // Add a new row when the 'Add' button is clicked
         $('#addItemComponent').click(function () {
+            // Create a new table row
             var newRow = $('<tr>');
-            newRow.append($('<td>').append($('<select>').addClass('form-control item-select').append(productOptions.map(function (option) {
-                return $('<option>').text(option);
-            }))));
+            var select = $('<select>').addClass('form-control item-select');
+
+            // Append the product options to the select element
+            select.append(ItemComponetProductOptions);
+
+            newRow.append($('<td>').append(select));
             newRow.append($('<td>').append($('<input>').attr('type', 'number').addClass('form-control').val(1)));
             newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control')));
+
             var actions = $('<td>').append($('<button>').addClass('btn btn-success btn-sm confirmBtn').html('&#10003;'));
             actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;'));
             newRow.append(actions);
+
+            // Append the new row to the table's tbody
             $('#itemComponentsTable tbody').append(newRow);
         });
 
+
         $(document).on('click', '.confirmBtn', function () {
-            $(this).closest('tr').find('select, input').each(function () {
-                var value = $(this).val();
-                $(this).parent().text(value);
-            });
-            $(this).siblings('.deleteBtn').remove();
-            $(this).remove();
+            // Get the current row
+            var $tableBody = $('#component-content').find('tbody');
+            var index = $tableBody.find('tr').length - 1;
+            var $row = $(this).closest('tr');
+            var itemName = $row.find('select').eq(0).text();
+            var itemId = $row.find('select').eq(0).val();
+            var quantity = $row.find('input').eq(0).val();
+            $row.find('td').eq(0).text(itemName);
+            $row.find('td').eq(1).text(quantity);
+
+            var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemComponents[' + index + '].ChildItemID',
+                value: itemId
+            }).appendTo($row);
+
+            var $hiddenTypeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemComponents[' + index + '].Quantity',
+                value: quantity
+            }).appendTo($row);
+
+            // Remove the action buttons from the current row
+            var $actionsCell = $row.find('td').eq(3);
+            $actionsCell.html('');
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
         });
+
 
         $(document).on('click', '.deleteBtn', function () {
             $(this).closest('tr').remove();

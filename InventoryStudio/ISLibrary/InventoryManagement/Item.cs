@@ -438,6 +438,25 @@ namespace ISLibrary
                     }
                 }
 
+                if (ItemComponents != null)
+                {
+                    foreach (ItemComponent objItemComponent in ItemComponents)
+                    {
+                        if (objItemComponent.IsNew)
+                        {
+                            objItemComponent.CompanyID = CompanyID;
+                            objItemComponent.ItemID = ItemID;
+                            objItemComponent.CreatedBy = CreatedBy;
+                            objItemComponent.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemComponent.UpdatedBy = CreatedBy;
+                            objItemComponent.Update(objConn, objTran);
+                        }
+                    }
+                }
+
                 if (ItemBarcodes != null)
                 {
                     foreach (ItemBarcode objItemBarcode in ItemBarcodes)
