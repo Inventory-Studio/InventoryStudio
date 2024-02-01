@@ -2,7 +2,7 @@
 {
     public class CustomerViewModel
     {
-        public long CustomerId { get; set; }
+        public string CustomerID { get; set; }
 
         public string Company { get; set; }
 
@@ -16,7 +16,7 @@
 
         public string? EmailAddress { get; set; }
 
-        public string? ExternalId { get; set; }
+        public string? ExternalID { get; set; }
 
         public string UpdatedBy { get; set; }
 

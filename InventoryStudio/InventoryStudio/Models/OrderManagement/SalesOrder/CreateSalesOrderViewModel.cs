@@ -2,21 +2,19 @@
 {
     public class CreateSalesOrderViewModel
     {
-        public long SalesOrderId { get; set; }
+        public string CompanyID { get; set; }
 
-        public long CompanyId { get; set; }
+        public string? CustomerID { get; set; }
 
-        public long? CustomerId { get; set; }
+        public string PONumber { get; set; } = null!;
 
-        public string Ponumber { get; set; } = null!;
+        public DateTime TranDate { get; set; }
 
-        public DateOnly TranDate { get; set; }
+        public string? LocationID { get; set; }
 
-        public long? LocationId { get; set; }
+        public string? BillToAddressID { get; set; }
 
-        public long? BillToAddressId { get; set; }
-
-        public long ShipToAddressId { get; set; }
+        public string ShipToAddressID { get; set; }
 
         public decimal? ShippingAmount { get; set; }
 
@@ -44,7 +42,7 @@
 
         public bool IsClosed { get; set; }
 
-        public string? ExternalId { get; set; }
+        public string? ExternalID { get; set; }
 
         public string? InternalNote { get; set; }
 
@@ -58,7 +56,7 @@
 
         public bool SignatureRequired { get; set; }
 
-        public string? ShopifyOrderId { get; set; }
+        public string? ShopifyOrderID { get; set; }
 
 
     }

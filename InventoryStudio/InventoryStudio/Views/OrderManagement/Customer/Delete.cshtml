@@ -36,10 +36,10 @@
             @Html.DisplayFor(model => model.EmailAddress)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ExternalId)
+            @Html.DisplayNameFor(model => model.ExternalID)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ExternalId)
+            @Html.DisplayFor(model => model.ExternalID)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Client)
@@ -80,7 +80,7 @@
     </dl>
 
     <form asp-action="Delete">
-        <input type="hidden" asp-for="CustomerId" />
+        <input type="hidden" asp-for="CustomerID" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

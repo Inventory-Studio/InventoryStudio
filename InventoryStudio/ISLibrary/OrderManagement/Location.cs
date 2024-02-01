@@ -62,7 +62,7 @@ namespace ISLibrary.OrderManagement
 
         public string? FulfillmentCombineStatus { get; set; }
 
-        public long? DefaultPackageDimensionID { get; set; }
+        public string? DefaultPackageDimensionID { get; set; }
 
         public bool EnableSimpleMode { get; set; }
 
@@ -129,15 +129,15 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("AllowNegativeInventory")) AllowNegativeInventory = Convert.ToBoolean(objRow["AllowNegativeInventory"]);
                 if (objColumns.Contains("DefaultAddressValidation")) DefaultAddressValidation = Convert.ToBoolean(objRow["DefaultAddressValidation"]);
                 if (objColumns.Contains("DefaultSignatureRequirement")) DefaultSignatureRequirement = Convert.ToBoolean(objRow["DefaultSignatureRequirement"]);
-                if (objColumns.Contains("DefaultSignatureRequirementAmount")) DefaultSignatureRequirementAmount = objRow["DefaultSignatureRequirementAmount"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["DefaultSignatureRequirementAmount"]);
+                if (objColumns.Contains("DefaultSignatureRequirementAmount")) DefaultSignatureRequirementAmount = objRow["DefaultSignatureRequirementAmount"] == DBNull.Value ? null : Convert.ToDecimal(objRow["DefaultSignatureRequirementAmount"]);
                 if (objColumns.Contains("DefaultCountryOfOrigin")) DefaultCountryOfOrigin = Convert.ToString(objRow["DefaultCountryOfOrigin"]);
                 if (objColumns.Contains("DefaultHSCode")) DefaultHSCode = Convert.ToString(objRow["DefaultHSCode"]);
                 if (objColumns.Contains("DefaultLowestShippingRate")) DefaultLowestShippingRate = Convert.ToBoolean(objRow["DefaultLowestShippingRate"]);
-                if (objColumns.Contains("MaximumPickScanRequirement")) MaximumPickScanRequirement = objRow["MaximumPickScanRequirement"] == DBNull.Value ? null : (int?)Convert.ToInt32(objRow["MaximumPickScanRequirement"]);
-                if (objColumns.Contains("MaximumPackScanRequirement")) MaximumPackScanRequirement = objRow["MaximumPackScanRequirement"] == DBNull.Value ? null : (int?)Convert.ToInt32(objRow["MaximumPackScanRequirement"]);
+                if (objColumns.Contains("MaximumPickScanRequirement")) MaximumPickScanRequirement = objRow["MaximumPickScanRequirement"] == DBNull.Value ? null : Convert.ToInt32(objRow["MaximumPickScanRequirement"]);
+                if (objColumns.Contains("MaximumPackScanRequirement")) MaximumPackScanRequirement = objRow["MaximumPackScanRequirement"] == DBNull.Value ? null : Convert.ToInt32(objRow["MaximumPackScanRequirement"]);
                 if (objColumns.Contains("DisplayWeightMode")) DisplayWeightMode = Convert.ToString(objRow["DisplayWeightMode"]);
                 if (objColumns.Contains("FulfillmentCombineStatus")) FulfillmentCombineStatus = Convert.ToString(objRow["FulfillmentCombineStatus"]);
-                if (objColumns.Contains("DefaultPackageDimensionID")) DefaultPackageDimensionID = objRow["DefaultPackageDimensionID"] == DBNull.Value ? null : (long?)Convert.ToInt64(objRow["DefaultPackageDimensionID"]);
+                if (objColumns.Contains("DefaultPackageDimensionID")) DefaultPackageDimensionID = objRow["DefaultPackageDimensionID"] == DBNull.Value ? null : Convert.ToString(objRow["DefaultPackageDimensionID"]);
                 if (objColumns.Contains("EnableSimpleMode")) EnableSimpleMode = Convert.ToBoolean(objRow["EnableSimpleMode"]);
                 if (objColumns.Contains("EnableSimpleModePick")) EnableSimpleModePick = Convert.ToBoolean(objRow["EnableSimpleModePick"]);
                 if (objColumns.Contains("EnableSimpleModePack")) EnableSimpleModePack = Convert.ToBoolean(objRow["EnableSimpleModePack"]);
@@ -439,14 +439,14 @@ namespace ISLibrary.OrderManagement
             return Database.HasRows(strSQL);
         }
 
-        public static Location GetPackageDimension(string CompanyID, LocationFilter Filter)
+        public static Location GetLocation(string CompanyID, LocationFilter Filter)
         {
             List<Location> objItems = null;
             Location objReturn = null;
 
             try
             {
-                objItems = GetPackageDimensions(CompanyID, Filter);
+                objItems = GetLocations(CompanyID, Filter);
                 if (objItems != null && objItems.Count >= 1) objReturn = objItems[0];
             }
             catch (Exception ex)
@@ -460,24 +460,24 @@ namespace ISLibrary.OrderManagement
             return objReturn;
         }
 
-        public static List<Location> GetPackageDimensions(string CompanyID)
+        public static List<Location> GetLocations(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetPackageDimensions(CompanyID, null, null, null, out intTotalCount);
+            return GetLocations(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<Location> GetPackageDimensions(string CompanyID, LocationFilter Filter)
+        public static List<Location> GetLocations(string CompanyID, LocationFilter Filter)
         {
             int intTotalCount = 0;
-            return GetPackageDimensions(CompanyID, Filter, null, null, out intTotalCount);
+            return GetLocations(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<Location> GetPackageDimensions(string CompanyID, LocationFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Location> GetLocations(string CompanyID, LocationFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetPackageDimensions(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetLocations(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<Location> GetPackageDimensions(string CompanyID, LocationFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Location> GetLocations(string CompanyID, LocationFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             List<Location> objReturn = null;
             Location objNew = null;

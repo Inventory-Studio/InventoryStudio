@@ -2,9 +2,9 @@
 {
     public class CreateLocationViewModel
     {
-        public long CompanyId { get; set; }
+        public string CompanyID { get; set; }
 
-        public long? ParentLocationId { get; set; }
+        public string? ParentLocationID { get; set; }
 
         public string? LocationNumber { get; set; }
 
@@ -48,7 +48,7 @@
 
         public string? FulfillmentCombineStatus { get; set; }
 
-        public long? DefaultPackageDimensionId { get; set; }
+        public string? DefaultPackageDimensionID { get; set; }
 
         public bool EnableSimpleMode { get; set; }
 
@@ -58,9 +58,9 @@
 
         public bool ValidateSource { get; set; }
 
-        public long? AddressId { get; set; }
+        public string? AddressID { get; set; }
 
-        public long? VarianceBinId { get; set; }
+        public string? VarianceBinID { get; set; }
 
     }
 }

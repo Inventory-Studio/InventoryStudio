@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.EmailAddress)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ExternalId)
+                @Html.DisplayNameFor(model => model.ExternalID)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Client)
@@ -65,7 +65,7 @@
                     @Html.DisplayFor(modelItem => item.EmailAddress)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ExternalId)
+                    @Html.DisplayFor(modelItem => item.ExternalID)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Client)
@@ -86,9 +86,9 @@
                     @Html.DisplayFor(modelItem => item.UpdatedOn)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CustomerId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.CustomerId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CustomerId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.CustomerID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.CustomerID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CustomerID">Delete</a>
                 </td>
             </tr>
         }

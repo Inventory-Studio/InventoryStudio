@@ -2,15 +2,15 @@
 {
     public class SalesOrderViewModel
     {
-        public long SalesOrderId { get; set; }
+        public string SalesOrderID { get; set; }
 
         public string Company { get; set; }
 
         public string? Customer { get; set; }
 
-        public string Ponumber { get; set; } = null!;
+        public string PONumber { get; set; } = null!;
 
-        public DateOnly TranDate { get; set; }
+        public DateTime TranDate { get; set; }
 
         public string? Location { get; set; }
 
@@ -44,7 +44,7 @@
 
         public bool IsClosed { get; set; }
 
-        public string? ExternalId { get; set; }
+        public string? ExternalID { get; set; }
 
         public string? InternalNote { get; set; }
 
@@ -58,7 +58,7 @@
 
         public bool SignatureRequired { get; set; }
 
-        public string? ShopifyOrderId { get; set; }
+        public string? ShopifyOrderID { get; set; }
 
         public string? UpdatedBy { get; set; }
 

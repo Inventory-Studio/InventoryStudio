@@ -2,11 +2,11 @@
 {
     public class LocationViewModel
     {
-        public long LocationId { get; set; }
+        public string LocationID { get; set; }
 
         public string Company { get; set; }
 
-        public long? ParentLocationId { get; set; }
+        public string? ParentLocationID { get; set; }
 
         public string? LocationNumber { get; set; }
 
@@ -38,7 +38,7 @@
 
         public string? DefaultCountryOfOrigin { get; set; }
 
-        public string? DefaultHscode { get; set; }
+        public string? DefaultHSCode { get; set; }
 
         public bool DefaultLowestShippingRate { get; set; }
 
@@ -62,7 +62,7 @@
 
         public string? Address { get; set; }
 
-        public long? VarianceBinId { get; set; }
+        public string? VarianceBinID { get; set; }
 
         public string? UpdatedBy { get; set; }
 

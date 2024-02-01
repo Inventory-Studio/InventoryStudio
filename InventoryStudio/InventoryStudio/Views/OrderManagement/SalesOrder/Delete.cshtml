@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Ponumber)
+            @Html.DisplayNameFor(model => model.PONumber)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Ponumber)
+            @Html.DisplayFor(model => model.PONumber)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.TranDate)
@@ -102,10 +102,10 @@
             @Html.DisplayFor(model => model.IsClosed)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ExternalId)
+            @Html.DisplayNameFor(model => model.ExternalID)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ExternalId)
+            @Html.DisplayFor(model => model.ExternalID)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.InternalNote)
@@ -144,10 +144,10 @@
             @Html.DisplayFor(model => model.SignatureRequired)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ShopifyOrderId)
+            @Html.DisplayNameFor(model => model.ShopifyOrderID)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ShopifyOrderId)
+            @Html.DisplayFor(model => model.ShopifyOrderID)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.BillToAddress)
@@ -206,7 +206,7 @@
     </dl>
 
     <form asp-action="Delete">
-        <input type="hidden" asp-for="SalesOrderId" />
+        <input type="hidden" asp-for="SalesOrderID" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

@@ -2,11 +2,11 @@
 {
     public class EditCustomerViewModel
     {
-        public long CustomerId { get; set; }
+        public string CustomerID { get; set; }
 
-        public long CompanyId { get; set; }
+        public string CompanyID { get; set; }
 
-        public long? ClientId { get; set; }
+        public string? ClientID { get; set; }
 
         public string? CompanyName { get; set; }
 
@@ -16,7 +16,7 @@
 
         public string? EmailAddress { get; set; }
 
-        public string? ExternalId { get; set; }
+        public string? ExternalID { get; set; }
 
     }
 }

@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Ponumber)
+                @Html.DisplayNameFor(model => model.PONumber)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.TranDate)
@@ -58,7 +58,7 @@
                 @Html.DisplayNameFor(model => model.IsClosed)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ExternalId)
+                @Html.DisplayNameFor(model => model.ExternalID)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.InternalNote)
@@ -79,7 +79,7 @@
                 @Html.DisplayNameFor(model => model.SignatureRequired)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ShopifyOrderId)
+                @Html.DisplayNameFor(model => model.ShopifyOrderID)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.BillToAddress)
@@ -116,7 +116,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Ponumber)
+                    @Html.DisplayFor(modelItem => item.PONumber)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TranDate)
@@ -161,7 +161,7 @@
                     @Html.DisplayFor(modelItem => item.IsClosed)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ExternalId)
+                    @Html.DisplayFor(modelItem => item.ExternalID)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.InternalNote)
@@ -182,7 +182,7 @@
                     @Html.DisplayFor(modelItem => item.SignatureRequired)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ShopifyOrderId)
+                    @Html.DisplayFor(modelItem => item.ShopifyOrderID)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.BillToAddress)
@@ -212,9 +212,9 @@
                     @Html.DisplayFor(modelItem => item.UpdatedOn)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.SalesOrderId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.SalesOrderId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.SalesOrderId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.SalesOrderID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.SalesOrderID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.SalesOrderID">Delete</a>
                 </td>
             </tr>
         }

@@ -13,29 +13,29 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CompanyId" class="control-label"></label>
-                <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
+                <label asp-for="CompanyID" class="control-label"></label>
+                <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="SalesOrderId" class="control-label"></label>
-                <select asp-for="SalesOrderId" class="form-control" asp-items="ViewBag.SalesOrderId"></select>
+                <label asp-for="SalesOrderID" class="control-label"></label>
+                <select asp-for="SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrderID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="LocationId" class="control-label"></label>
-                <select asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+                <label asp-for="LocationID" class="control-label"></label>
+                <select asp-for="LocationID" class="form-control" asp-items="ViewBag.LocationID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="ItemId" class="control-label"></label>
-                <select asp-for="ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
+                <label asp-for="ItemID" class="control-label"></label>
+                <select asp-for="ItemID" class="form-control" asp-items="ViewBag.ItemID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="ParentSalesOrderLineId" class="control-label"></label>
-                <select asp-for="ParentSalesOrderLineId" class="form-control" asp-items="ViewBag.ParentSalesOrderLineId"></select>
+                <label asp-for="ParentSalesOrderLineID" class="control-label"></label>
+                <input asp-for="ParentSalesOrderLineID" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="ItemSku" class="control-label"></label>
-                <input asp-for="ItemSku" class="form-control" />
-                <span asp-validation-for="ItemSku" class="text-danger"></span>
+                <label asp-for="ItemSKU" class="control-label"></label>
+                <input asp-for="ItemSKU" class="form-control" />
+                <span asp-validation-for="ItemSKU" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ItemName" class="control-label"></label>
@@ -43,14 +43,14 @@
                 <span asp-validation-for="ItemName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ItemImageUrl" class="control-label"></label>
-                <input asp-for="ItemImageUrl" class="form-control" />
-                <span asp-validation-for="ItemImageUrl" class="text-danger"></span>
+                <label asp-for="ItemImageURL" class="control-label"></label>
+                <input asp-for="ItemImageURL" class="form-control" />
+                <span asp-validation-for="ItemImageURL" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ItemUpc" class="control-label"></label>
-                <input asp-for="ItemUpc" class="form-control" />
-                <span asp-validation-for="ItemUpc" class="text-danger"></span>
+                <label asp-for="ItemUPC" class="control-label"></label>
+                <input asp-for="ItemUPC" class="form-control" />
+                <span asp-validation-for="ItemUPC" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
@@ -73,9 +73,9 @@
                 <span asp-validation-for="QuantityShipped" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ItemUnitId" class="control-label"></label>
-                <input asp-for="ItemUnitId" class="form-control" />
-                <span asp-validation-for="ItemUnitId" class="text-danger"></span>
+                <label asp-for="ItemUnitID" class="control-label"></label>
+                <input asp-for="ItemUnitID" class="form-control" />
+                <span asp-validation-for="ItemUnitID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>
@@ -88,9 +88,9 @@
                 <span asp-validation-for="TaxRate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ExternalId" class="control-label"></label>
-                <input asp-for="ExternalId" class="form-control" />
-                <span asp-validation-for="ExternalId" class="text-danger"></span>
+                <label asp-for="ExternalID" class="control-label"></label>
+                <input asp-for="ExternalID" class="form-control" />
+                <span asp-validation-for="ExternalID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
