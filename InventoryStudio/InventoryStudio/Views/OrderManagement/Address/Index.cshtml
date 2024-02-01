@@ -54,6 +54,20 @@
     </div>
 </div>
 
+
+<!-- Actions template -->
+<script id="actions" type="text/x-template">
+    <div class="hstack gap-2">
+        <a href="/Address/Edit?id=${AddressID}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
+            <i class="bi-pencil-fill"></i>
+        </a>
+        <a href="/Address/Details?id=${AddressID}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View user" aria-label="View user button">
+            <i class="bi-eye-fill"></i>
+        </a>
+    </div>
+</script>
+
+
 <script src="@Url.Content("~/js/utils/utils.js")"></script>
 
 <!-- Javascript logic for datagrid -->
