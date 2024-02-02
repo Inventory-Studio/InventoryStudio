@@ -490,7 +490,7 @@ namespace ISLibrary.OrderManagement
 
                 objReturn = new List<Location>();
 
-                strSQL = "SELECT p.* " +
+                strSQL = "SELECT l.* " +
                          "FROM Location (NOLOCK) l " +
                          "WHERE l.CompanyID=" + Database.HandleQuote(CompanyID);
 
