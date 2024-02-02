@@ -11,6 +11,22 @@ namespace InventoryStudio.Controllers.OrderManagement
 {
     public class ClientController : Controller
     {
+        private readonly string CompanyID = string.Empty;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public ClientController(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
+        }
         public IActionResult Index()
         {
             return View("~/Views/OrderManagement/Client/Index.cshtml");
@@ -49,17 +65,12 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (id == null)
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company == null)
-            {
+            if (string.IsNullOrEmpty(CompanyID))
                 return NotFound();
-            }
 
-            var client = new Client(company.Value, id);
+            var client = new Client(CompanyID, id);
             if (client == null)
-            {
                 return NotFound();
-            }
 
             var detailViewModel = ClientConvertViewModel(client);
             return View("~/Views/OrderManagement/Client/Details.cshtml", detailViewModel);
@@ -105,13 +116,11 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company == null)
-            {
+            if (string.IsNullOrEmpty(CompanyID))
                 return NotFound();
-            }
 
-            var client = new Client(company.Value, id);
+
+            var client = new Client(CompanyID, id);
             if (client == null)
                 return NotFound();
 
@@ -165,13 +174,9 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (string.IsNullOrEmpty(id))
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company == null)
-            {
+            if (string.IsNullOrEmpty(CompanyID))
                 return NotFound();
-            }
-
-            var client = new Client(company.Value, id);
+            var client = new Client(CompanyID, id);
             var viewModel = ClientConvertViewModel(client);
             return View("~/Views/OrderManagement/Client/Delete.cshtml", viewModel);
         }
@@ -181,13 +186,9 @@ namespace InventoryStudio.Controllers.OrderManagement
         public IActionResult DeleteConfirmed(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company == null)
-            {
+            if (string.IsNullOrEmpty(CompanyID))
                 return NotFound();
-            }
-
-            var client = new Client(company.Value, id);
+            var client = new Client(CompanyID, id);
             if (client != null)
                 client.Delete();
             return RedirectToAction(nameof(Index));
@@ -221,12 +222,11 @@ namespace InventoryStudio.Controllers.OrderManagement
             int totalRecord = 0;
             if (dm.Skip != 0 || dm.Take != 0)
             {
-                Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-                if (company != null)
+                if (!string.IsNullOrEmpty(CompanyID))
                 {
                     ClientFilter clientFilter = new();
                     dataSource = Client.GetClients(
-                        company.ToString(),
+                        CompanyID,
                         clientFilter,
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,

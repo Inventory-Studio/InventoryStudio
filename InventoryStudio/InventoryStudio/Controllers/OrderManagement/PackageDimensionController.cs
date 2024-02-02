@@ -11,10 +11,24 @@ namespace InventoryStudio.Controllers.OrderManagement
 {
     public class PackageDimensionController : Controller
     {
+        private readonly string CompanyID = string.Empty;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PackageDimensionController(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
+        }
         public IActionResult Index()
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var packageDimensions = PackageDimension.GetPackageDimensions(company.Value);
+            var packageDimensions = PackageDimension.GetPackageDimensions(CompanyID);
             var list = new List<PackageDimensionViewModel>();
             foreach (var packageDimension in packageDimensions)
             {
@@ -49,8 +63,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (id == null)
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var packageDimension = new PackageDimension(company.Value, id);
+            var packageDimension = new PackageDimension(CompanyID, id);
             if (packageDimension == null)
                 return NotFound();
             var detailViewModel = EntitieConvertViewModel(packageDimension);
@@ -99,8 +112,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (id == null)
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var packageDimension = new PackageDimension(company.Value, id);
+            var packageDimension = new PackageDimension(CompanyID, id);
             if (packageDimension == null)
                 return NotFound();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -159,8 +171,8 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (id == null)
                 return NotFound();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var packageDimension = new PackageDimension(company.Value, id);
+
+            var packageDimension = new PackageDimension(CompanyID, id);
             var viewModel = EntitieConvertViewModel(packageDimension);
             return View("~/Views/OrderManagement/PackageDimension/Delete.cshtml", viewModel);
         }
@@ -170,8 +182,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(string id)
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var packageDimension = new PackageDimension(company.Value, id);
+            var packageDimension = new PackageDimension(CompanyID, id);
             if (packageDimension != null)
                 packageDimension.Delete();
             return RedirectToAction(nameof(Index));

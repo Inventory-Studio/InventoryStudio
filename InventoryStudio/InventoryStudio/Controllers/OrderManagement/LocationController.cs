@@ -12,11 +12,19 @@ namespace InventoryStudio.Controllers.OrderManagement
     public class LocationController : Controller
     {
         private readonly string CompanyID = string.Empty;
-        public LocationController()
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public LocationController(IHttpContextAccessor httpContextAccessor)
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company != null)
-                CompanyID = company.Value;
+            _httpContextAccessor = httpContextAccessor;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
         }
         public IActionResult Index()
         {

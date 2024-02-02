@@ -271,7 +271,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 {
                     AddressFilter addressFilter = new();
                     dataSource = Address.GetAddresses(
-                        company.ToString(),
+                        company.Value,
                         addressFilter,
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,
