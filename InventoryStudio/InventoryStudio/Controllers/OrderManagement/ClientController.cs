@@ -27,6 +27,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                     CompanyID = company.Value;
             }
         }
+
         public IActionResult Index()
         {
             return View("~/Views/OrderManagement/Client/Index.cshtml");
@@ -127,7 +128,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
-            ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName");
+            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             EditClientViewModel viewModel = new()
             {
                 ClientID = client.ClientID,
@@ -209,7 +210,11 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (value.Key != null)
             {
-                DeleteConfirmed(value.Value.ClientID);
+                var id = value.Key.ToString();
+                if (!string.IsNullOrEmpty(id))
+                {
+                    DeleteConfirmed(id);
+                }
             }
 
             return Json(value);

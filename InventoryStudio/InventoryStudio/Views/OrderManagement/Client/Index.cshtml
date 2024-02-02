@@ -29,7 +29,7 @@
                 </e-data-manager>
                 @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
                 <e-grid-columns>
-                    <e-grid-column visible="false" field="CompanyID" headerText="ID" type="int" isPrimaryKey="true"
+                    <e-grid-column visible="false" field="ClientID" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="CompanyName" headerText="Company Name" width="120"></e-grid-column>
@@ -49,10 +49,10 @@
 <!-- Actions template -->
 <script id="actions" type="text/x-template">
     <div class="hstack gap-2">
-        <a href="/Company/Edit?id=${CompanyID}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
+        <a href="/Client/Edit?id=${ClientID}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
             <i class="bi-pencil-fill"></i>
         </a>
-        <a href="/Company/Details?id=${CompanyID}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View user" aria-label="View user button">
+        <a href="/Client/Details?id=${ClientID}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View user" aria-label="View user button">
             <i class="bi-eye-fill"></i>
         </a>
     </div>
