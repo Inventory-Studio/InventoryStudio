@@ -4,81 +4,62 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Customer</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CompanyName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.EmailAddress)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.EmailAddress)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ExternalID)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ExternalID)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Client)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Client)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Company)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Company)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedBy)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedOn)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedOn)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedBy)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedBy)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedOn)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedOn)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.CustomerID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Customer Details</div>
+            <div class="hstack btn-list mt-md-0 mt-2">
+                <a asp-controller="Customer" asp-action="Edit" asp-route-id="@Model.CustomerID" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Edit Address button">
+                    <i class="bi-pencil-fill me-2 align-middle d-inline-block fs-16"></i>Edit Customer
+                </a>
+                <a class="btn btn-sm btn-light" asp-controller="Customer" asp-action="Index" aria-label="Back to List">Back to List</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.CompanyName)</label>
+                <p>@Model.CompanyName</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.FirstName)</label>
+                <p>@Model.FirstName</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.LastName)</label>
+                <p>@Model.LastName</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.EmailAddress)</label>
+                <p>@Model.EmailAddress</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.ExternalID)</label>
+                <p>@Model.ExternalID</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.Client)</label>
+                <p>@Model.Client</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.Company)</label>
+                <p>@Model.Company</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.CreatedBy)</label>
+                <p>@Model.CreatedBy</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.CreatedOn)</label>
+                <p>@Model.CreatedOn</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedBy)</label>
+                <p>@Model.UpdatedBy</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedOn)</label>
+                <p>@Model.UpdatedOn</p>
+            </div>
+        </div>
+    </div>
 </div>
