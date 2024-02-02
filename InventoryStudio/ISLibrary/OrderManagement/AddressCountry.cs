@@ -91,7 +91,7 @@ namespace ISLibrary.OrderManagement
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
-            return base.Create();
+            return true;
         }
 
         public override bool Create(SqlConnection objConn, SqlTransaction objTran)

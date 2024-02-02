@@ -220,7 +220,7 @@ namespace ISLibrary.OrderManagement
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
             }
-            return base.Create();
+            return true;
         }
 
 
