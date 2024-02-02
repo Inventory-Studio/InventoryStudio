@@ -93,10 +93,27 @@ namespace ISLibrary.OrderManagement
                 objColumns = objRow.Table.Columns;
                 if (objColumns.Contains("SalesOrderLineID")) SalesOrderLineID = Convert.ToString(objRow["SalesOrderLineID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                // Populate other properties from DataRow
-                // Example:
-                // if (objColumns.Contains("SalesOrderID")) SalesOrderID = Convert.ToString(objRow["SalesOrderID"]);
-                // ...
+                if (objColumns.Contains("SalesOrderID")) SalesOrderID = Convert.ToString(objRow["SalesOrderID"]);
+                if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
+                if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
+                if (objColumns.Contains("ParentSalesOrderLineID")) ParentSalesOrderLineID = Convert.ToString(objRow["ParentSalesOrderLineID"]);
+                if (objColumns.Contains("ItemSKU")) ItemSKU = Convert.ToString(objRow["ItemSKU"]);
+                if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
+                if (objColumns.Contains("ItemImageURL")) ItemImageURL = Convert.ToString(objRow["ItemImageURL"]);
+                if (objColumns.Contains("ItemUPC")) ItemUPC = Convert.ToString(objRow["ItemUPC"]);
+                if (objColumns.Contains("Description")) Description = Convert.ToString(objRow["Description"]);
+                if (objColumns.Contains("Quantity") && objRow["Quantity"] != DBNull.Value) Quantity = Convert.ToDecimal(objRow["Quantity"]);
+                if (objColumns.Contains("Quantity") && objRow["QuantityCommitted"] != DBNull.Value) QuantityCommitted = Convert.ToDecimal(objRow["QuantityCommitted"]);
+                if (objColumns.Contains("Quantity") && objRow["QuantityShipped"] != DBNull.Value) QuantityShipped = Convert.ToDecimal(objRow["QuantityShipped"]);
+                if (objColumns.Contains("ItemUnitID")) ItemUnitID = Convert.ToString(objRow["ItemUnitID"]);
+                if (objColumns.Contains("Quantity") && objRow["UnitPrice"] != DBNull.Value) UnitPrice = Convert.ToDecimal(objRow["UnitPrice"]);
+                if (objColumns.Contains("Quantity") && objRow["TaxRate"] != DBNull.Value) TaxRate = Convert.ToDecimal(objRow["TaxRate"]);
+                if (objColumns.Contains("Status")) Status = Convert.ToString(objRow["Status"]);
+                if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
+                if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
+                if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
             }
             catch (Exception ex)
             {

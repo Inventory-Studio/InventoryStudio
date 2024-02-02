@@ -13,11 +13,18 @@ namespace InventoryStudio.Controllers.OrderManagement
     {
         private readonly string CompanyID = string.Empty;
 
-        public SalesOrderController()
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public SalesOrderController(IHttpContextAccessor httpContextAccessor)
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company != null)
-                CompanyID = company.Value;
+            _httpContextAccessor = httpContextAccessor;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
         }
 
 
