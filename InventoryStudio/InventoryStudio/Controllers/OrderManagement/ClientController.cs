@@ -222,7 +222,7 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
         {
-            IEnumerable<Client> dataSource = new List<Client>().AsEnumerable();
+            IEnumerable<ClientViewModel> dataSource = new List<ClientViewModel>().AsEnumerable();
             DataOperations operation = new();
             int totalRecord = 0;
             if (dm.Skip != 0 || dm.Take != 0)
@@ -236,7 +236,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,
                         out totalRecord
-                    );
+                    ).Select(ClientConvertViewModel);
                 }
             }
 
