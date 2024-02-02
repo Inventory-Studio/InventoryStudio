@@ -79,8 +79,8 @@ namespace ISLibrary
         public decimal? UnitCost { get; set; }
         public decimal? UnitPrice { get; set; }
         public bool? UseSingleBin { get; set; }
-        public bool? FulfillByKit { get; set; }
-        public bool? ReceiveByKit { get; set; }
+        public bool FulfillByKit { get; set; }
+        public bool ReceiveByKit { get; set; }
         public string HSCode { get; set; }
         public string GoodDescription { get; set; }
         public string CountryOfOrigin { get; set; }
@@ -294,6 +294,8 @@ namespace ISLibrary
                 if (objColumns.Contains("Barcode")) Barcode = Convert.ToString(objRow["Barcode"]);
                 if (objColumns.Contains("IsBarcoded")) IsBarcoded = Convert.ToBoolean(objRow["IsBarcoded"]);
                 if (objColumns.Contains("IsShipReceiveIndividually")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["IsShipReceiveIndividually"]);
+                if (objColumns.Contains("FulfillByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["FulfillByKit"]);
+                if (objColumns.Contains("ReceiveByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["ReceiveByKit"]);
                 if (objColumns.Contains("DisplayComponents")) DisplayComponents = Convert.ToBoolean(objRow["DisplayComponents"]);
                 if (objColumns.Contains("UnitOfMeasure")) UnitOfMeasure = Convert.ToString(objRow["UnitOfMeasure"]);
                 if (objColumns.Contains("Memo")) Memo = Convert.ToString(objRow["Memo"]);
@@ -382,6 +384,8 @@ namespace ISLibrary
                 dicParam["Barcode"] = Barcode;
                 dicParam["IsBarcoded"] = IsBarcoded;
                 dicParam["IsShipReceiveIndividually"] = IsShipReceiveIndividually;
+                dicParam["FulfillByKit"] = FulfillByKit;
+                dicParam["ReceiveByKit"] = ReceiveByKit;
                 dicParam["DisplayComponents"] = DisplayComponents;
                 dicParam["UnitOfMeasure"] = UnitOfMeasure;
                 dicParam["PackageWeight"] = PackageWeight;

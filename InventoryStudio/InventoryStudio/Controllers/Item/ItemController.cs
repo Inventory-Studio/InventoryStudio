@@ -176,5 +176,23 @@ namespace InventoryStudio.Controllers
 
             return Json(new { dataSource = data });
         }
+
+
+        public IActionResult GetKitChildItems()
+        {
+            IEnumerable<Item> dataSource = new List<Item>().AsEnumerable();
+            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+            if (company != null)
+            {
+                dataSource = Item.GetItems(company.Value).AsEnumerable();
+            }
+
+            var data = dataSource.Select(item => new {
+                ItemName = item.ItemName,
+                ItemID = item.ItemID
+            });
+
+            return Json(new { dataSource = data });
+        }
     }
 }
