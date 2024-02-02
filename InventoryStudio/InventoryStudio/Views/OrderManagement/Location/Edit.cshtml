@@ -4,174 +4,141 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>Location</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="LocationID" />
-            <div class="form-group">
-                <label asp-for="CompanyID" class="control-label"></label>
-                <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
-                <span asp-validation-for="CompanyID" class="text-danger"></span>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Edit Location</div>
+            <div>
+                <a class="btn btn-sm btn-light" asp-controller="Location" asp-action="Index">Back to List</a>
             </div>
-            <div class="form-group">
-                <label asp-for="ParentLocationID" class="control-label"></label>
-                <input asp-for="ParentLocationID" class="form-control" />
-                <span asp-validation-for="ParentLocationID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LocationNumber" class="control-label"></label>
-                <input asp-for="LocationNumber" class="form-control" />
-                <span asp-validation-for="LocationNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LocationName" class="control-label"></label>
-                <input asp-for="LocationName" class="form-control" />
-                <span asp-validation-for="LocationName" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="UseBins" /> @Html.DisplayNameFor(model => model.UseBins)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="UseLotNumber" /> @Html.DisplayNameFor(model => model.UseLotNumber)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="UseCartonNumber" /> @Html.DisplayNameFor(model => model.UseCartonNumber)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="UseVendorCartonNumber" /> @Html.DisplayNameFor(model => model.UseVendorCartonNumber)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="UseSerialNumber" /> @Html.DisplayNameFor(model => model.UseSerialNumber)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AllowMultiplePackagePerFulfillment" /> @Html.DisplayNameFor(model => model.AllowMultiplePackagePerFulfillment)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AllowAutoPick" /> @Html.DisplayNameFor(model => model.AllowAutoPick)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AllowAutoPickApproval" /> @Html.DisplayNameFor(model => model.AllowAutoPickApproval)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AllowNegativeInventory" /> @Html.DisplayNameFor(model => model.AllowNegativeInventory)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="DefaultAddressValidation" /> @Html.DisplayNameFor(model => model.DefaultAddressValidation)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="DefaultSignatureRequirement" /> @Html.DisplayNameFor(model => model.DefaultSignatureRequirement)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultSignatureRequirementAmount" class="control-label"></label>
-                <input asp-for="DefaultSignatureRequirementAmount" class="form-control" />
-                <span asp-validation-for="DefaultSignatureRequirementAmount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultCountryOfOrigin" class="control-label"></label>
-                <input asp-for="DefaultCountryOfOrigin" class="form-control" />
-                <span asp-validation-for="DefaultCountryOfOrigin" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultHSCode" class="control-label"></label>
-                <input asp-for="DefaultHSCode" class="form-control" />
-                <span asp-validation-for="DefaultHSCode" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="DefaultLowestShippingRate" /> @Html.DisplayNameFor(model => model.DefaultLowestShippingRate)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaximumPickScanRequirement" class="control-label"></label>
-                <input asp-for="MaximumPickScanRequirement" class="form-control" />
-                <span asp-validation-for="MaximumPickScanRequirement" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaximumPackScanRequirement" class="control-label"></label>
-                <input asp-for="MaximumPackScanRequirement" class="form-control" />
-                <span asp-validation-for="MaximumPackScanRequirement" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DisplayWeightMode" class="control-label"></label>
-                <input asp-for="DisplayWeightMode" class="form-control" />
-                <span asp-validation-for="DisplayWeightMode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FulfillmentCombineStatus" class="control-label"></label>
-                <input asp-for="FulfillmentCombineStatus" class="form-control" />
-                <span asp-validation-for="FulfillmentCombineStatus" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DefaultPackageDimensionID" class="control-label"></label>
-                <select asp-for="DefaultPackageDimensionID" class="form-control" asp-items="ViewBag.DefaultPackageDimensionID"></select>
-                <span asp-validation-for="DefaultPackageDimensionID" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="EnableSimpleMode" /> @Html.DisplayNameFor(model => model.EnableSimpleMode)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="EnableSimpleModePick" /> @Html.DisplayNameFor(model => model.EnableSimpleModePick)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="EnableSimpleModePack" /> @Html.DisplayNameFor(model => model.EnableSimpleModePack)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="ValidateSource" /> @Html.DisplayNameFor(model => model.ValidateSource)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="AddressID" class="control-label"></label>
-                <select asp-for="AddressID" class="form-control" asp-items="ViewBag.AddressID"></select>
-                <span asp-validation-for="AddressID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="VarianceBinID" class="control-label"></label>
-                <input asp-for="VarianceBinID" class="form-control" />
-                <span asp-validation-for="VarianceBinID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+        <div class="card-body">
+            <form asp-controller="Location" asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="LocationID"/>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CompanyID" class="form-label"></label>
+                    <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ParentLocationID" class="form-label"></label>
+                    <input asp-for="ParentLocationID" class="form-control"/>
+                    <span asp-validation-for="ParentLocationID" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="LocationNumber" class="form-label"></label>
+                    <input asp-for="LocationNumber" class="form-control"/>
+                    <span asp-validation-for="LocationNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="LocationName" class="form-label"></label>
+                    <input asp-for="LocationName" class="form-control"/>
+                    <span asp-validation-for="LocationName" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="UseBins"/> @Html.DisplayNameFor(model => model.UseBins)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="UseLotNumber"/> @Html.DisplayNameFor(model => model.UseLotNumber)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="UseCartonNumber"/> @Html.DisplayNameFor(model => model.UseCartonNumber)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="UseVendorCartonNumber"/> @Html.DisplayNameFor(model => model.UseVendorCartonNumber)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="UseSerialNumber"/> @Html.DisplayNameFor(model => model.UseSerialNumber)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="AllowAutoPickApproval"/> @Html.DisplayNameFor(model => model.AllowAutoPickApproval)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="AllowNegativeInventory"/> @Html.DisplayNameFor(model => model.AllowNegativeInventory)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="DefaultSignatureRequirement"/> @Html.DisplayNameFor(model => model.DefaultSignatureRequirement)
+                    </label>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultSignatureRequirementAmount" class="form-label"></label>
+                    <input asp-for="DefaultSignatureRequirementAmount" class="form-control"/>
+                    <span asp-validation-for="DefaultSignatureRequirementAmount" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultCountryOfOrigin" class="form-label"></label>
+                    <input asp-for="DefaultCountryOfOrigin" class="form-control"/>
+                    <span asp-validation-for="DefaultCountryOfOrigin" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultHSCode" class="form-label"></label>
+                    <input asp-for="DefaultHSCode" class="form-control"/>
+                    <span asp-validation-for="DefaultHSCode" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="MaximumPickScanRequirement" class="form-label"></label>
+                    <input asp-for="MaximumPickScanRequirement" class="form-control"/>
+                    <span asp-validation-for="MaximumPickScanRequirement" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="MaximumPackScanRequirement" class="form-label"></label>
+                    <input asp-for="MaximumPackScanRequirement" class="form-control"/>
+                    <span asp-validation-for="MaximumPackScanRequirement" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="DefaultPackageDimensionID" class="form-label"></label>
+                    <select asp-for="DefaultPackageDimensionID" class="form-control" asp-items="ViewBag.DefaultPackageDimensionID"></select>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="EnableSimpleMode"/> @Html.DisplayNameFor(model => model.EnableSimpleMode)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="EnableSimpleModePick"/> @Html.DisplayNameFor(model => model.EnableSimpleModePick)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="EnableSimpleModePack"/> @Html.DisplayNameFor(model => model.EnableSimpleModePack)
+                    </label>
+                </div>
+                <div class="form-group form-check col-12 mb-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="ValidateSource"/> @Html.DisplayNameFor(model => model.ValidateSource)
+                    </label>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="AddressID" class="form-label"></label>
+                    <select asp-for="AddressID" class="form-control" asp-items="ViewBag.AddressID"></select>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="VarianceBinID" class="form-label"></label>
+                    <input asp-for="VarianceBinID" class="form-control"/>
+                    <span asp-validation-for="VarianceBinID" class="text-danger"></span>
+                </div>
+                <div class="form-group col-12">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
