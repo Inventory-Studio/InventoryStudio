@@ -4,44 +4,45 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
 
-<h4>AddressCountry</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CountryID" />
-            <div class="form-group">
-                <label asp-for="CountryName" class="control-label"></label>
-                <input asp-for="CountryName" class="form-control" />
-                <span asp-validation-for="CountryName" class="text-danger"></span>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Create Address Country</div>
+            <div>
+                <a class="btn btn-sm btn-light" asp-controller="AddressCountry" asp-action="Index">Back to List</a>
             </div>
-            <div class="form-group">
-                <label asp-for="USPSCountryName" class="control-label"></label>
-                <input asp-for="USPSCountryName" class="form-control" />
-                <span asp-validation-for="USPSCountryName" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsEligibleForPLTFedEX" /> @Html.DisplayNameFor(model => model.IsEligibleForPLTFedEX)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="EEL_PFC" class="control-label"></label>
-                <input asp-for="EEL_PFC" class="form-control" />
-                <span asp-validation-for="EEL_PFC" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="AddressCountry" asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="CountryID"/>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CountryName" class="form-label"></label>
+                    <input asp-for="CountryName" class="form-control"/>
+                    <span asp-validation-for="CountryName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="USPSCountryName" class="form-label"></label>
+                    <input asp-for="USPSCountryName" class="form-control"/>
+                    <span asp-validation-for="USPSCountryName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="EEL_PFC" class="form-label"></label>
+                    <input asp-for="EEL_PFC" class="form-control"/>
+                    <span asp-validation-for="EEL_PFC" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check col-12 mb-3 ms-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="IsEligibleForPLTFedEX"/> @Html.DisplayNameFor(model => model.IsEligibleForPLTFedEX)
+                    </label>
+                </div>
+                <div class="form-group col-12">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
