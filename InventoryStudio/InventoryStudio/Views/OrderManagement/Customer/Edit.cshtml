@@ -4,59 +4,57 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>Customer</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CustomerID" />
-            <div class="form-group">
-                <label asp-for="CompanyID" class="control-label"></label>
-                <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
-                <span asp-validation-for="CompanyID" class="text-danger"></span>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Create Customer</div>
+            <div>
+                <a class="btn btn-sm btn-light" asp-controller="Customer" asp-action="Index">Back to List</a>
             </div>
-            <div class="form-group">
-                <label asp-for="ClientID" class="control-label"></label>
-                <select asp-for="ClientID" class="form-control" asp-items="ViewBag.ClientID"></select>
-                <span asp-validation-for="ClientID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CompanyName" class="control-label"></label>
-                <input asp-for="CompanyName" class="form-control" />
-                <span asp-validation-for="CompanyName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EmailAddress" class="control-label"></label>
-                <input asp-for="EmailAddress" class="form-control" />
-                <span asp-validation-for="EmailAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ExternalID" class="control-label"></label>
-                <input asp-for="ExternalID" class="form-control" />
-                <span asp-validation-for="ExternalID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="Customer" asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="CustomerID"/>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CompanyID" class="form-label"></label>
+                    <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ClientID" class="form-label"></label>
+                    <select asp-for="ClientID" class="form-control" asp-items="ViewBag.ClientID"></select>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CompanyName" class="form-label"></label>
+                    <input asp-for="CompanyName" class="form-control"/>
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control"/>
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control"/>
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="EmailAddress" class="form-label"></label>
+                    <input asp-for="EmailAddress" class="form-control"/>
+                    <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ExternalID" class="form-label"></label>
+                    <input asp-for="ExternalID" class="form-control"/>
+                    <span asp-validation-for="ExternalID" class="text-danger"></span>
+                </div>
+                <div class="form-group col-12">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
