@@ -71,7 +71,7 @@ namespace InventoryStudio.Controllers
 
             try
             {
-                ItemParent.CreateItem(itemViewModel.Item);
+                ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes);
                 return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
             catch (Exception ex)

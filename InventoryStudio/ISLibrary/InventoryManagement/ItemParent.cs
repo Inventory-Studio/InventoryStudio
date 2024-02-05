@@ -93,6 +93,39 @@ namespace ISLibrary
                 mItemAttributes = value;
             }
         }
+
+        private List<ItemMatrix> mItemMatrices = null;
+        public List<ItemMatrix> ItemMatrices
+        {
+            get
+            {
+                ItemMatrixFilter objFilter = null;
+
+                try
+                {
+                    if (mItemMatrices == null)
+                    {
+                        if (!string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemParentID))
+                        {
+                            objFilter = new ItemMatrixFilter();
+                            objFilter.ItemParentID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.ItemParentID.SearchString = ItemParentID;
+                            mItemMatrices = ItemMatrix.GetItemMatrices(CompanyID, objFilter);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mItemMatrices;
+            }
+        }
+
         public ItemParent()
         {
         }
@@ -237,6 +270,28 @@ namespace ISLibrary
                         }
                     }
                 }
+
+                if (ItemMatrices != null)
+                {
+                    foreach (ItemMatrix objItemMatrix in ItemMatrices)
+                    {
+                        if (objItemMatrix.IsNew)
+                        {
+                            //objItemAttributeValueLine.IsLoaded = false;
+                            objItemMatrix.CompanyID = CompanyID;
+                            objItemMatrix.ItemParentID = ItemParentID;
+                            objItemMatrix.CreatedBy = CreatedBy;
+                            objItemMatrix.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemMatrix.UpdatedBy = CreatedBy;
+                            objItemMatrix.Update(objConn, objTran);
+                        }
+                    }
+                }
+
+
 
                 if (Items != null)
                 {
@@ -534,7 +589,7 @@ namespace ISLibrary
             return objReturn;
         }
 
-        public static Item CreateItem(Item item)
+        public static Item CreateItem(Item item,List<ItemAttribute> itemAttributes)
         {
             ItemParent itemParent = new ItemParent();
             itemParent.CompanyID = item.CompanyID;
@@ -542,7 +597,7 @@ namespace ISLibrary
             itemParent.CreatedBy = item.CreatedBy;
 
             itemParent.Items = new List<Item> { item };
-
+            itemParent.ItemAttributes = itemAttributes;
             itemParent.Create();
             return item;
         }

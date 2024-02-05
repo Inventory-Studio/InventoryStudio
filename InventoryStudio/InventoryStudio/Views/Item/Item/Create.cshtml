@@ -73,7 +73,7 @@
                                         Receive Individually
                                     </label>
                                 </div>
-                                <div id="kit-options">
+                                <div id="kit-options" style="display:none">
                                     <div class="form-check">
                                         <input asp-for="@Model.Item.FulfillByKit" type="checkbox" class="form-check-input" />
                                         <label class="form-check-label" for="FulfillByKit">
@@ -185,63 +185,9 @@
                         </div>
                     </div>
                     <!-- Step 3 -->
-                    <div class="tab-pane fade" id="component-content" role="tabpanel" aria-labelledby="component-tab">
-                        <div class="row">
-                            <div class="col-12">
-                                <h2>Item Component(s)</h2>
-                                <button type="button" id="addItemComponent" class="btn btn-primary mb-2">Add</button>
-                                <table class="table" id="itemComponentsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Item</th>
-                                            <th>Quantity</th>
-                                            <th>Unit of Measure</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>                                        
-                                         @if (Model != null)
-                                        {
-                                            foreach (var ItemComponent in Model.Item.ItemComponents ?? Enumerable.Empty<ItemComponent>())
-                                            {
-
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-secondary">Back</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="kit-item-content" role="tabpanel" aria-labelledby="kit-item-tab">
-                        <div class="row">
-                            <div class="col-12">
-                                <h2>Kit Items</h2>
-                                <button type="button" id="addkitItem" class="btn btn-primary mb-2">Add</button>
-                                <table class="table" id="itemKitTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Item</th>
-                                            <th>Quantity</th>
-                                            <th>Unit of Measure</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                         @if (Model != null)
-                                        {
-                                            foreach (var ItemKit in Model.Item.ItemKits ?? Enumerable.Empty<ItemKit>())
-                                            {
-
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-secondary">Back</button>
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("~/Views/Item/Item/_Component.cshtml", Model)
+                   
+                    @await Html.PartialAsync("~/Views/Item/Item/_Kit.cshtml", Model)
 
                     @await Html.PartialAsync("~/Views/Item/Item/_Matrix.cshtml", Model)
                     
@@ -431,179 +377,10 @@
 
 
 
-        //ItemComponet
-        // Global variable to store product options
-        var ItemComponetProductOptions = null;
-
-        // Fetch product data when the page loads
-        fetchProductOptions();
-
-        // Function to fetch product data from the server
-        function fetchProductOptions() {
-            $.ajax({
-                url: '/Item/GetCompoentChildItems', 
-                method: 'GET',
-                success: function (response) {
-
-                    // Assuming the backend returns data in the format { dataSource: [{ ItemName, ItemId }, ...] }
-                    ItemComponetProductOptions = response.dataSource.map(function (item) {
-                        // Create an option element with the text being the ItemName and the value being the ItemId    
-            
-                        return $('<option>').text(item.itemName).val(item.itemID);                      
-                    });
-                    // Update the select elements with these options
-                    //updateSelectElements();
-                },
-                error: function (error) {
-                    console.error('Error fetching product data:', error);
-                }
-            });
-        }
-        function updateSelectElements() {
-            $('.item-select').each(function () {
-                $(this).empty().append(ItemComponetProductOptions);
-            });
-        }
-
-        // Add a new row when the 'Add' button is clicked
-        $('#addItemComponent').click(function () {
-            // Create a new table row
-            var newRow = $('<tr>');
-            var select = $('<select>').addClass('form-control item-select');
-
-            // Append the product options to the select element
-            select.append(ItemComponetProductOptions);
-
-            newRow.append($('<td>').append(select));
-            newRow.append($('<td>').append($('<input>').attr('type', 'number').addClass('form-control').val(1)));
-            newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control')));
-
-            var actions = $('<td>').append($('<button>').addClass('btn btn-success btn-sm confirmBtn').html('&#10003;'));
-            actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;'));
-            newRow.append(actions);
-
-            // Append the new row to the table's tbody
-            $('#itemComponentsTable tbody').append(newRow);
-        });
+       
 
 
-        $(document).on('click', '.confirmBtn', function () {
-            // Get the current row
-            var $tableBody = $('#component-content').find('tbody');
-            var index = $tableBody.find('tr').length - 1;
-            var $row = $(this).closest('tr');
-            var itemName = $row.find('select').eq(0).text();
-            var itemId = $row.find('select').eq(0).val();
-            var quantity = $row.find('input').eq(0).val();
-            $row.find('td').eq(0).text(itemName);
-            $row.find('td').eq(1).text(quantity);
-
-            var $hiddenBarcodeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemComponents[' + index + '].ChildItemID',
-                value: itemId
-            }).appendTo($row);
-
-            var $hiddenTypeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemComponents[' + index + '].Quantity',
-                value: quantity
-            }).appendTo($row);
-
-            // Remove the action buttons from the current row
-            var $actionsCell = $row.find('td').eq(3);
-            $actionsCell.html('');
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
-        });
-
-        $(document).on('click', '.deleteBtn', function () {
-            $(this).closest('tr').remove();
-        });
-
-
-        //ItemKit
-        // Global variable to store product options
-        var ItemKitProductOptions = null;
-
-        // Fetch product data when the page loads
-        fetchKitProductOptions();
-
-        // Function to fetch product data from the server
-        function fetchKitProductOptions() {
-            $.ajax({
-                url: '/Item/GetKitChildItems',
-                method: 'GET',
-                success: function (response) {
-
-                    // Assuming the backend returns data in the format { dataSource: [{ ItemName, ItemId }, ...] }
-                    ItemKitProductOptions = response.dataSource.map(function (item) {
-                        // Create an option element with the text being the ItemName and the value being the ItemId
-                       
-                        return $('<option>').text(item.itemName).val(item.itemID);
-                    });
-                    // Update the select elements with these options
-                    //updateSelectElements();
-                },
-                error: function (error) {
-                    console.error('Error fetching product data:', error);
-                }
-            });
-        }
-     
-
-        // Add a new row when the 'Add' button is clicked
-        $('#addkitItem').click(function () {
-            // Create a new table row
-            var newRow = $('<tr>');
-            var select = $('<select>').addClass('form-control item-select');
-
-            // Append the product options to the select element
-            select.append(ItemKitProductOptions);
-
-            newRow.append($('<td>').append(select));
-            newRow.append($('<td>').append($('<input>').attr('type', 'number').addClass('form-control').val(1)));
-            newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control')));
-
-            var actions = $('<td>').append($('<button>').addClass('btn btn-success btn-sm confirmKitItemBtn').html('&#10003;'));
-            actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;'));
-            newRow.append(actions);
-
-            // Append the new row to the table's tbody
-            $('#itemKitTable tbody').append(newRow);
-        });
-
-
-        $(document).on('click', '.confirmKitItemBtn', function () {
-            // Get the current row
-            var $tableBody = $('#kit-item-tab').find('tbody');
-            var index = $tableBody.find('tr').length - 1;
-            var $row = $(this).closest('tr');
-            var itemName = $row.find('select').eq(0).text();
-            var itemId = $row.find('select').eq(0).val();
-            var quantity = $row.find('input').eq(0).val();
-            $row.find('td').eq(0).text(itemName);
-            $row.find('td').eq(1).text(quantity);
-
-            var $hiddenBarcodeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemKits[' + index + '].ChildItemID',
-                value: itemId
-            }).appendTo($row);
-
-            var $hiddenTypeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemKits[' + index + '].Quantity',
-                value: quantity
-            }).appendTo($row);
-
-            // Remove the action buttons from the current row
-            var $actionsCell = $row.find('td').eq(3);
-            $actionsCell.html('');
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
-        });
-
+       
 
     });
     
