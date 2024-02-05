@@ -1,5 +1,5 @@
 ﻿@using System.Reflection
-@model Item 
+@model ItemViewModel
 
 @{
     ViewData["Title"] = "Create Item";
@@ -51,37 +51,37 @@
                         <div class="row">
                         <div class="form-group col-md-6">
                             <label for="itemType">Item Type *</label>
-                            <select asp-for="ItemType" asp-items="@enumItemTypeSelectList" class="form-control"></select>
+                            <select asp-for="@Model.Item.ItemType" asp-items="@enumItemTypeSelectList" class="form-control"></select>
                         </div>
                             <div class="form-group col-md-6">
-                                <label asp-for="ItemNumber">Item Number</label>
-                                <input asp-for="ItemNumber" class="form-control" onchange="addItemBarcode()" />
+                                <label asp-for="@Model.Item.ItemNumber">Item Number</label>
+                                <input asp-for="@Model.Item.ItemNumber" class="form-control" onchange="addItemBarcode()" />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <div class="form-check">
-                                    <input asp-for="IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()" />                 
+                                    <input asp-for="@Model.Item.IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()" />                 
                                     <label class="form-check-label" for="createMatrix">
                                         Create Matrix
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input asp-for="IsShipReceiveIndividually" type="checkbox" class="form-check-input" />
+                                    <input asp-for="@Model.Item.IsShipReceiveIndividually" type="checkbox" class="form-check-input" />
                                     <label class="form-check-label" for="receiveIndividually">
                                         Receive Individually
                                     </label>
                                 </div>
                                 <div id="kit-options">
                                     <div class="form-check">
-                                        <input asp-for="FulfillByKit" type="checkbox" class="form-check-input" />
+                                        <input asp-for="@Model.Item.FulfillByKit" type="checkbox" class="form-check-input" />
                                         <label class="form-check-label" for="FulfillByKit">
                                             Fulfill By Kit
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input asp-for="ReceiveByKit" type="checkbox" class="form-check-input" />
+                                        <input asp-for="@Model.Item.ReceiveByKit" type="checkbox" class="form-check-input" />
                                         <label class="form-check-label" for="ReceiveByKit">
                                             Receive By Kit
                                         </label>
@@ -89,8 +89,8 @@
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
-                                <label asp-for="ItemName">Item Name</label>
-                                <input asp-for="ItemName" class="form-control" />
+                                <label asp-for="@Model.Item.ItemName">Item Name</label>
+                                <input asp-for="@Model.Item.ItemName" class="form-control" />
                             </div>
                         </div>
 
@@ -98,44 +98,44 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                             <label for="hsCode">HS Code</label>
-                                <input asp-for="HSCode" class="form-control" />
+                                <input asp-for="@Model.Item.HSCode" class="form-control" />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="goodDescription">Good Description</label>
-                                <input asp-for="GoodDescription" class="form-control" />
+                                <input asp-for="@Model.Item.GoodDescription" class="form-control" />
                         </div>
                         </div>
                         <div class="form-group">
                             <label for="countryOfOrigin">Country of Origin</label>
-                            <input asp-for="CountryOfOrigin" class="form-control" />
+                            <input asp-for="@Model.Item.CountryOfOrigin" class="form-control" />
                         </div>
 
                         <hr>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="hsCode">Package Length</label>
-                                <input asp-for="PackageLength" class="form-control" />
+                                <input asp-for="@Model.Item.PackageLength" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="goodDescription">Package Width</label>
-                                <input asp-for="PackageWidth" class="form-control" />
+                                <input asp-for="@Model.Item.PackageWidth" class="form-control" />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="hsCode">Package Height</label>
-                                <input asp-for="PackageHeight" class="form-control" />
+                                <input asp-for="@Model.Item.PackageHeight" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="goodDescription">Package Dimension Unit of Measure</label>
-                                <input asp-for="PackageDimensionUOM" class="form-control" />
+                                <input asp-for="@Model.Item.PackageDimensionUOM" class="form-control" />
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="countryOfOrigin">Package Weight</label>
-                            <input asp-for="PackageWeight" class="form-control" />
+                            <input asp-for="@Model.Item.PackageWeight" class="form-control" />
                         </div>
 
                         <hr>
@@ -143,17 +143,17 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="SalesDescription">Sales Description</label>
-                                <input asp-for="SalesDescription" class="form-control" />
+                                <input asp-for="@Model.Item.SalesDescription" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="PurchaseDescription">Purchase Description</label>
-                                <input asp-for="PurchaseDescription" class="form-control" />
+                                <input asp-for="@Model.Item.PurchaseDescription" class="form-control" />
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="Memo">Shipping Memo</label>
-                            <input asp-for="Memo" class="form-control" />
+                            <input asp-for="@Model.Item.Memo" class="form-control" />
                         </div>
 
                     </div>
@@ -174,7 +174,7 @@
                                     <tbody>
                                         @if (Model != null)
                                         {
-                                            foreach (var itemBarcode in Model.ItemBarcodes ?? Enumerable.Empty<ItemBarcode>())
+                                            foreach (var itemBarcode in Model.Item.ItemBarcodes ?? Enumerable.Empty<ItemBarcode>())
                                         {
                                            
                                         }   
@@ -202,7 +202,7 @@
                                     <tbody>                                        
                                          @if (Model != null)
                                         {
-                                            foreach (var ItemComponent in Model.ItemComponents ?? Enumerable.Empty<ItemComponent>())
+                                            foreach (var ItemComponent in Model.Item.ItemComponents ?? Enumerable.Empty<ItemComponent>())
                                             {
 
                                             }
@@ -231,7 +231,7 @@
                                     <tbody>
                                          @if (Model != null)
                                         {
-                                            foreach (var ItemKit in Model.ItemKits ?? Enumerable.Empty<ItemKit>())
+                                            foreach (var ItemKit in Model.Item.ItemKits ?? Enumerable.Empty<ItemKit>())
                                             {
 
                                             }
@@ -243,16 +243,8 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
-                        <div class="row">
-                        
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
-                        <div class="row">
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("~/Views/Item/Item/_Matrix.cshtml", Model)
+                    
                 </div>
             </div>
         </div>
@@ -290,20 +282,20 @@
 
 
     function addItemBarcode() {
-        var itemNumber = $('#ItemNumber').val();
+        var itemNumber = $('#Item_ItemNumber').val();
         var barcodeExists = false;
         var $tableBody = $('#barcodeTable').find('tbody');
 
         // 遍历表格的行以检查是否存在相同的条目
         $tableBody.find('tr').each(function () {
             var $row = $(this);
-            var currentItemType = $row.find('input[name^="ItemBarcodes["][name$="].Type"]').val();
+            var currentItemType = $row.find('input[name^="Item.ItemBarcodes["][name$="].Type"]').val();
 
             if (currentItemType == 'Item Number') {
                 barcodeExists = true;
                 // 可以在这里更新这一行的显示内容，如果需要的话
                 $row.find('.barcode-display').text(itemNumber);
-                $row.find('input[name^="ItemBarcodes["][name$="].Barcode"]').val(itemNumber)
+                $row.find('input[name^="Item.ItemBarcodes["][name$="].Barcode"]').val(itemNumber)
                 return false; // 退出循环
             }
         });
@@ -320,13 +312,13 @@
             // 创建隐藏输入字段
             var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemBarcodes[' + index + '].Barcode',
+                name: 'Item.ItemBarcodes[' + index + '].Barcode',
                 value: itemNumber
             }).appendTo($newRow); // 将隐藏字段添加到新行中
 
             var $hiddenTypeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemBarcodes[' + index + '].Type',
+                name: 'Item.ItemBarcodes[' + index + '].Type',
                 value: 'Item Number'
             }).appendTo($newRow); // 将隐藏字段添加到新行中
 
@@ -338,7 +330,7 @@
 
     $(document).ready(function () {
 
-        $('#ItemType').change(function () {
+        $('#Item_ItemType').change(function () {
             var selectedItemType = $(this).val();
             var isChecked = $('#createMatrixCheckbox').is(':checked');
             if (!isChecked){
@@ -508,13 +500,13 @@
 
             var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemComponents[' + index + '].ChildItemID',
+                name: 'Item.ItemComponents[' + index + '].ChildItemID',
                 value: itemId
             }).appendTo($row);
 
             var $hiddenTypeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemComponents[' + index + '].Quantity',
+                name: 'Item.ItemComponents[' + index + '].Quantity',
                 value: quantity
             }).appendTo($row);
 
@@ -595,13 +587,13 @@
 
             var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemKits[' + index + '].ChildItemID',
+                name: 'Item.ItemKits[' + index + '].ChildItemID',
                 value: itemId
             }).appendTo($row);
 
             var $hiddenTypeInput = $('<input/>', {
                 type: 'hidden',
-                name: 'ItemKits[' + index + '].Quantity',
+                name: 'Item.ItemKits[' + index + '].Quantity',
                 value: quantity
             }).appendTo($row);
 
@@ -611,6 +603,8 @@
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
         });
+
+
     });
     
 </script>

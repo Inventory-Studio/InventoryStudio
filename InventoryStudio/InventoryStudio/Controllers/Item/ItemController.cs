@@ -57,27 +57,27 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Item-Item-Create")]
         [HttpPost]
-        public IActionResult Create(Item item)
+        public IActionResult Create(ItemViewModel itemViewModel)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
                 ModelState.AddModelError("", "Invalid organization information.");
-                return View("~/Views/Item/Item/Create.cshtml", item);
+                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
 
-            item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
-            item.CompanyID = organizationClaim.Value;
+            itemViewModel.Item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
+            itemViewModel.Item.CompanyID = organizationClaim.Value;
 
             try
             {
-                ItemParent.CreateItem(item);
-                return View("~/Views/Item/Item/Create.cshtml", item);
+                ItemParent.CreateItem(itemViewModel.Item);
+                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("created_error", ex.Message);
-                return View("~/Views/Item/Item/Create.cshtml", item);
+                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
         }
 

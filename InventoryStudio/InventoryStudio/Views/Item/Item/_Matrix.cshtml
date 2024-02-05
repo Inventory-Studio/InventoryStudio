@@ -1,0 +1,111 @@
+﻿@model ItemViewModel
+
+<div class="tab-pane fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
+    <div class="row">
+            <div class="col-12">
+                <h2>Attributes</h2>
+            <button type="button" id="addAttributes" class="btn btn-primary mb-2">Add</button>
+            <table class="table" id="attributesTable">
+                    <thead>
+                        <tr>
+                            <th>Attribute Name</th>
+                            <th>Attribute Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                        foreach (var ItemAttribute in Model.ItemAttributes ?? Enumerable.Empty<ItemAttribute>())
+                            {
+
+                            }
+                        }
+                    </tbody>
+                </table>
+                <button class="btn btn-secondary">Back</button>
+            </div>
+        
+    </div>
+</div>
+
+<div class="tab-pane fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
+    <div class="row">
+    </div>
+</div>
+
+
+
+<script>
+        $(document).ready(function () {
+            // Disable form submission on Enter key for inputs with tagsinput
+            $(document).on('keypress', '.bootstrap-tagsinput input', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#addAttributes').click(function () {
+                var newRow = $('<tr>');
+
+                // Add an input for attribute name
+            newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control attribute-name')));
+
+                // Add tagsinput for attribute values
+            var tagsInput = $('<input>').attr('type', 'text').addClass('form-control attribute-value').data('role', 'tagsinput');
+                newRow.append($('<td>').append(tagsInput));
+
+                // Add buttons for saving and deleting attributes
+                var actions = $('<td>');
+                actions.append($('<button>').addClass('btn btn-success btn-sm confirmAttributesBtn').html('&#10003;').on('click', function (e) {
+                    // Save attribute logic here
+                    e.preventDefault();
+                }));
+                actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;').on('click', function (e) {
+                    // Delete attribute logic here
+                    e.preventDefault();
+                }));
+                newRow.append(actions);
+
+                // Append the new row to the table's tbody
+                $('#attributesTable tbody').append(newRow);
+
+                // Initialize tagsinput plugin
+                tagsInput.tagsinput();
+            });
+
+        $(document).on('click', '.confirmAttributesBtn', function () {
+            // Get the current row
+            var $tableBody = $('#attributesTable').find('tbody');
+            var index = $tableBody.find('tr').length - 1;
+            var $row = $(this).closest('tr');
+            var attributeName = $row.find('.attribute-name').val();
+            var attributeValues = $row.find('.attribute-value').tagsinput('items'); 
+
+            $row.find('td').eq(0).text(attributeName);
+            $row.find('td').eq(1).empty().text(attributeValues.join(', '));
+
+            var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemAttributes[' + index + '].AttributeName',
+                value: attribute
+            }).appendTo($row);
+
+            attributeValues.forEach(function (value, i) {            
+                $row.append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'ItemAttributes[' + index + '].ItemAttributeValues[' + i + '].AttributeValueName',
+                    value: value
+                }));
+            });
+
+            // Remove the action buttons from the current row
+            var $actionsCell = $row.find('td').eq(3);
+            $actionsCell.html('');
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+        });
+
+        });
+</script>
+
