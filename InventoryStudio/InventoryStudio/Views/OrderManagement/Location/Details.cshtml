@@ -1,0 +1,228 @@
+﻿@model InventoryStudio.Models.OrderManagement.Location.LocationViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Location</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ParentLocationID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ParentLocationID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LocationNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LocationNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LocationName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LocationName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UseBins)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UseBins)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UseLotNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UseLotNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UseCartonNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UseCartonNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UseVendorCartonNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UseVendorCartonNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UseSerialNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UseSerialNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AllowMultiplePackagePerFulfillment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AllowMultiplePackagePerFulfillment)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AllowAutoPick)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AllowAutoPick)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AllowAutoPickApproval)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AllowAutoPickApproval)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AllowNegativeInventory)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AllowNegativeInventory)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultAddressValidation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultAddressValidation)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultSignatureRequirement)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultSignatureRequirement)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultSignatureRequirementAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultSignatureRequirementAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultCountryOfOrigin)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultCountryOfOrigin)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultHSCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultHSCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultLowestShippingRate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultLowestShippingRate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MaximumPickScanRequirement)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MaximumPickScanRequirement)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MaximumPackScanRequirement)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.MaximumPackScanRequirement)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DisplayWeightMode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DisplayWeightMode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FulfillmentCombineStatus)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FulfillmentCombineStatus)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EnableSimpleMode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EnableSimpleMode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EnableSimpleModePick)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EnableSimpleModePick)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EnableSimpleModePack)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EnableSimpleModePack)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ValidateSource)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ValidateSource)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.VarianceBinID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VarianceBinID)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Company)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Company)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DefaultPackageDimension)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DefaultPackageDimension)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedBy)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedOn)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedBy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedBy)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedOn)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.LocationID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

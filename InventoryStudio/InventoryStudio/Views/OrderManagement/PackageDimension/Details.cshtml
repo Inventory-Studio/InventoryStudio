@@ -1,0 +1,79 @@
+﻿@model InventoryStudio.Models.OrderManagement.PackageDimension.PackageDimensionViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>PackageDimension</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Company)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Company)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Length)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Length)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Width)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Width)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Height)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Height)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Weight)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Weight)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WeightUnit)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WeightUnit)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Cost)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Cost)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingPackage)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingPackage)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Template)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Template)
+        </dd>
+
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.PackageDimensionID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

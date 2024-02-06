@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    var normalizedBoolean = "normalizedBooleanFn";
+    var normalizeBoolean = "normalizedBooleanFn";
 }
 
 <div class="container-fluid py-4 h-100">
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="card-body">
-            
+
             <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
                       allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
 
@@ -35,7 +35,7 @@
                     </e-grid-column>
                     <e-grid-column field="ApplicationName" headerText="Application Name" width="200"></e-grid-column>
                     <e-grid-column field="TokenName" headerText="Token Name" width="200"></e-grid-column>
-                    <e-grid-column field="InActive" headerText="Inactive" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="InActive" headerText="Inactive" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="Role" headerText="Role" width="120"></e-grid-column>
                     <e-grid-column field="CreatedOn" headerText="Created On" width="180"></e-grid-column>
                     <e-grid-column field="CreatedBy" headerText="Created By" width="180"></e-grid-column>
@@ -47,7 +47,6 @@
         </div>
     </div>
 </div>
-
 
 
 <!-- Actions template -->
@@ -62,50 +61,11 @@
     </div>
 </script>
 
+
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
+
 <!-- Javascript logic for datagrid -->
 <script lang="js">
-
- function normalizedBooleanFn(field, data, column) {
-        var value = data[field];
-        if (value) {
-            return "Yes";
-        }
-        return "No";
-    }
-    
-    function toolbarClick(args) {
-        var gridObj = document.getElementById("Grid").ej2_instances[0];
-        if (args.item.id === 'Grid_pdfexport') {
-            var pdfdata = gridObj.getSelectedRecords();
-            if (pdfdata?.length > 0) {
-                var exportProperties = {
-                    dataSource: pdfdata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Access_Tokens.pdf"
-                };
-                gridObj.pdfExport(exportProperties);
-            } else {
-                gridObj.pdfExport({
-                    fileName: "IS_Access_Tokens.pdf"
-                });
-            }
-        }
-        if (args.item.id === 'Grid_excelexport') {
-            var exceldata = gridObj.getSelectedRecords();
-            if (exceldata?.length > 0) {
-                var exportProperties = {
-                    dataSource: exceldata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Access_Tokens.xlsx"
-                };
-                gridObj.excelExport(exportProperties);
-            } else {
-                gridObj.excelExport({
-                    fileName: "IS_Access_Tokens.xlsx"
-                    });
-                
-            }
-
-        }
-    }
+    var normalizedBooleanFn = normalizedBoolean;
+    const toolbarClick = customExportToolbarClick("Grid", "IS_Access_Tokens");
 </script>

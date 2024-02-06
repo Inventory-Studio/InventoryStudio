@@ -1,0 +1,162 @@
+﻿@model IEnumerable<InventoryStudio.Models.OrderManagement.SalesOrderLine.SalesOrderLineViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemSKU)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemImageURL)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemUPC)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuantityCommitted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QuantityShipped)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemUnitID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TaxRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExternalID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Item)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ParentSalesOrderLineID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SalesOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedOn)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemSKU)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemImageURL)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemUPC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuantityCommitted)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuantityShipped)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemUnitID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaxRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExternalID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Item)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParentSalesOrderLineID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SalesOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedOn)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.SalesOrderLineID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.SalesOrderLineID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.SalesOrderLineID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

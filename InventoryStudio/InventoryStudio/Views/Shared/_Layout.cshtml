@@ -4,7 +4,7 @@
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-nav-layout="horizontal" data-theme-mode="light" data-header-styles="light"
-      data-page-style="regular" data-menu-styles="dark" data-toggled="close">
+      data-page-style="regular" data-menu-styles="light" data-toggled="close">
 
 <head>
 
@@ -55,7 +55,7 @@
 
 <!-- SWITCHER -->
 
-<partial name="~/Views/Shared/Layouts/_switcher.cshtml"/>
+@* <partial name="~/Views/Shared/Layouts/_switcher.cshtml"/> *@
 
 <!-- END SWITCHER -->
 <!-- LOADER -->
@@ -78,8 +78,12 @@
     <!-- END SIDEBAR -->
     <!-- MAIN-CONTENT -->
 
+<<<<<<< HEAD
     <div class="main-content app-content">
             <partial name="_ErrorMessage" />
+=======
+    <div class="main-content app-content overflow-auto">
+>>>>>>> develop
         @RenderBody()
     </div>
 
@@ -111,7 +115,7 @@
 <script src="@Url.Content("~/assets/js/custom.js")"></script>
 
 <!-- CUSTOM-SWITCHER JS -->
-<script src="@Url.Content("~/assets/js/custom-switcher.js")"></script>
+@* <script src="@Url.Content("~/assets/js/custom-switcher.js")"></script> *@
 
 <!-- SYNCFUSION -->
 <ejs-scripts></ejs-scripts>

@@ -350,6 +350,7 @@ namespace ISLibrary
                         objReturn.Add(objNew);
                     }
                 }
+                TotalRecord = objReturn.Count();
             }
             catch (Exception ex)
             {
