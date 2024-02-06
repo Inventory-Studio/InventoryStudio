@@ -71,7 +71,7 @@ namespace InventoryStudio.Controllers
 
             try
             {
-                ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes);
+                ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
                 return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
             catch (Exception ex)
@@ -188,7 +188,7 @@ namespace InventoryStudio.Controllers
             }
 
             var data = dataSource.Select(item => new {
-                ItemName = item.ItemName,
+                ItemName = item.ItemNumber + '-' + item.ItemName,
                 ItemID = item.ItemID
             });
 

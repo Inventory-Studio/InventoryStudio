@@ -12,69 +12,76 @@ using Microsoft.Data.SqlClient;
 
 namespace ISLibrary
 {
-    public class ItemMatrix : BaseClass
+    public class ItemMatrixValue : BaseClass
     {
-        public string ItemMatrixID { get; set; }
-        public bool IsNew { get { return string.IsNullOrEmpty(ItemMatrixID); } }
+        public string ItemMatrixValueID { get; set; }
+        public bool IsNew { get { return string.IsNullOrEmpty(ItemMatrixValueID); } }
         public string CompanyID { get; set; }
-        public string ItemParentID { get; set; }
-        public string ItemID { get; set; }
-        public string AttributeValue { get; set; }
+        public string ItemMatrixID { get; set; }
+        public string ItemAttributeID { get; set; }
+        public string ItemAttributeValueID { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; private set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; private set; }
 
-        private List<ItemMatrixValue> mItemMatrixValues = null;
-        public List<ItemMatrixValue> ItemMatrixValues
+        private ItemMatrix mItemMatrix = null;
+        public ItemMatrix ItemMatrix
         {
             get
             {
-                ItemMatrixValueFilter objFilter = null;
-
-                try
+                if (mItemMatrix == null && !string.IsNullOrEmpty(ItemMatrixID) && !string.IsNullOrEmpty(CompanyID))
                 {
-                    if (mItemMatrixValues == null && IsLoaded && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemMatrixID))
-                    {
-                        objFilter = new ItemMatrixValueFilter();
-                        objFilter.ItemMatrixID = new Database.Filter.StringSearch.SearchFilter();
-                        objFilter.ItemMatrixID.SearchString = ItemMatrixID;
-                        mItemMatrixValues = ItemMatrixValue.GetItemMatrixValues(CompanyID, objFilter);
-                    }
+                    mItemMatrix = new ItemMatrix(CompanyID, ItemMatrixID);
                 }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                finally
-                {
-                    objFilter = null;
-                }
-                return mItemMatrixValues;
+                return mItemMatrix;
             }
-            set
+        }
+
+        private ItemAttribute mItemAttribute = null;
+        public ItemAttribute ItemAttribute
+        {
+            get
             {
-                mItemMatrixValues = value;
+                if (mItemAttribute == null && !string.IsNullOrEmpty(ItemAttributeID) && !string.IsNullOrEmpty(CompanyID))
+                {
+                    mItemAttribute = new ItemAttribute(CompanyID, ItemAttributeID);
+                }
+                return mItemAttribute;
             }
         }
 
-        public ItemMatrix()
+        private ItemAttributeValue mItemAttributeValue = null;
+        public ItemAttributeValue ItemAttributeValue
         {
+            get
+            {
+                if (mItemAttributeValue == null && !string.IsNullOrEmpty(ItemAttributeValueID) && !string.IsNullOrEmpty(CompanyID))
+                {
+                    mItemAttributeValue = new ItemAttributeValue(CompanyID, ItemAttributeValueID);
+                }
+                return mItemAttributeValue;
+            }
         }
 
-        public ItemMatrix(string CompanyID)
+        public ItemMatrixValue()
+        {
+
+        }
+
+        public ItemMatrixValue(string CompanyID)
         {
             this.CompanyID = CompanyID;
         }
 
-        public ItemMatrix(string CompanyID, string ItemMatrixID)
+        public ItemMatrixValue(string CompanyID, string ItemMatrixValueID)
         {
             this.CompanyID = CompanyID;
-            this.ItemMatrixID = ItemMatrixID;
+            this.ItemMatrixValueID = ItemMatrixValueID;
             Load();
         }
 
-        public ItemMatrix(DataRow objRow)
+        public ItemMatrixValue(DataRow objRow)
         {
             Load(objRow);
         }
@@ -88,7 +95,7 @@ namespace ISLibrary
 
             try
             {
-                strSQL = "SELECT * FROM ItemMatrix (NOLOCK) WHERE ItemMatrixID=" + Database.HandleQuote(ItemMatrixID);
+                strSQL = "SELECT * FROM ItemMatrixValue (NOLOCK) WHERE ItemMatrixValueID=" + Database.HandleQuote(ItemMatrixValueID);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -96,7 +103,7 @@ namespace ISLibrary
                 }
                 else
                 {
-                    throw new Exception("ItemMatrixID=" + ItemMatrixID + " is not found");
+                    throw new Exception("ItemMatrixValueID=" + ItemMatrixValueID + " is not found");
                 }
             }
             catch (Exception ex)
@@ -111,24 +118,23 @@ namespace ISLibrary
 
         private void Load(DataRow objRow)
         {
-            base.Load();
-
             DataColumnCollection objColumns = null;
 
             try
             {
                 objColumns = objRow.Table.Columns;
 
-                if (objColumns.Contains("ItemMatrixID")) ItemMatrixID = Convert.ToString(objRow["ItemMatrixID"]);
+                if (objColumns.Contains("ItemMatrixValueID")) ItemMatrixValueID = Convert.ToString(objRow["ItemMatrixValueID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
-                if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
+                if (objColumns.Contains("ItemMatrixID")) ItemMatrixID = Convert.ToString(objRow["ItemMatrixID"]);
+                if (objColumns.Contains("ItemAttributeID")) ItemAttributeID = Convert.ToString(objRow["ItemAttributeID"]);
+                if (objColumns.Contains("ItemAttributeValueID")) ItemAttributeValueID = Convert.ToString(objRow["ItemAttributeValueID"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
-                if (string.IsNullOrEmpty(ItemMatrixID)) throw new Exception("Missing ItemMatrixID in the datarow");
+                if (string.IsNullOrEmpty(ItemMatrixValueID)) throw new Exception("Missing ItemMatrixValueID in the datarow");
             }
             catch (Exception ex)
             {
@@ -177,27 +183,19 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
-                if (string.IsNullOrEmpty(ItemParentID)) throw new Exception("ItemParentID must be entered");
+                if (string.IsNullOrEmpty(ItemMatrixID)) throw new Exception("ItemMatrixID must be entered");
+                if (string.IsNullOrEmpty(ItemAttributeID)) throw new Exception("ItemAttributeID must be entered");
+                if (string.IsNullOrEmpty(ItemAttributeValueID)) throw new Exception("ItemAttributeValueID must be entered");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy name must be entered");
-                if (!IsNew) throw new Exception("Create cannot be performed, ItemMatrixID already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, ItemMatrixValueID already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ItemParentID"] = ItemParentID;
-                dicParam["ItemID"] = ItemID;
+                dicParam["ItemMatrixID"] = ItemMatrixID;
+                dicParam["ItemAttributeID"] = ItemAttributeID;
+                dicParam["ItemAttributeValueID"] = ItemAttributeValueID; //ItemAttributeValue.ItemAttributeValueID;
                 dicParam["CreatedBy"] = CreatedBy;
-                ItemMatrixID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemMatrix"), objConn, objTran).ToString();
-
-                if (ItemMatrixValues != null)
-                {
-                    foreach (ItemMatrixValue objItemMatrixValue in ItemMatrixValues)
-                    {
-                        objItemMatrixValue.ItemMatrixID = ItemMatrixID;
-                        objItemMatrixValue.CompanyID = CompanyID;
-                        objItemMatrixValue.CreatedBy = CreatedBy;
-                        objItemMatrixValue.Create(objConn, objTran);
-                    }
-                }
+                ItemMatrixValueID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemMatrixValue"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -249,33 +247,20 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
-                if (string.IsNullOrEmpty(ItemParentID)) throw new Exception("ItemParentID must be entered");
+                if (string.IsNullOrEmpty(ItemMatrixID)) throw new Exception("ItemMatrixID must be entered");
+                if (string.IsNullOrEmpty(ItemAttributeID)) throw new Exception("ItemAttributeID must be entered");
+                if (string.IsNullOrEmpty(ItemAttributeValueID)) throw new Exception("ItemAttributeValueID must be entered");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy name must be entered");
-                if (IsNew) throw new Exception("Update cannot be performed, ItemMatrixID is missing");
+                if (IsNew) throw new Exception("Update cannot be performed, ItemMatrixValueID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ItemParentID"] = ItemParentID;
-                dicParam["ItemID"] = ItemID;
+                dicParam["ItemMatrixID"] = ItemMatrixID;
+                dicParam["ItemAttributeID"] = ItemAttributeID;
+                dicParam["ItemAttributeValueID"] = ItemAttributeValueID;
                 dicParam["UpdatedBy"] = UpdatedBy;
-                dicParam["UpdatedOn"] = DateTime.UtcNow;
-                dicWParam["ItemMatrixID"] = ItemMatrixID;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ItemMatrix"), objConn, objTran);
-
-                foreach (ItemMatrixValue objItemMatrixValue in ItemMatrixValues)
-                {
-                    if (objItemMatrixValue.IsNew)
-                    {
-                        objItemMatrixValue.CreatedBy = UpdatedBy;
-                        objItemMatrixValue.Create(objConn, objTran);
-                    }
-                    else
-                    {
-                        objItemMatrixValue.UpdatedBy = UpdatedBy;
-                        objItemMatrixValue.Update(objConn, objTran);
-                    }
-                }
-
+                dicWParam["ItemMatrixValueID"] = ItemMatrixValueID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ItemMatrixValue"), objConn, objTran);
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -326,14 +311,10 @@ namespace ISLibrary
 
             try
             {
-                if (IsNew) throw new Exception("Delete cannot be performed, ItemMatrixID is missing");
+                if (IsNew) throw new Exception("Delete cannot be performed, ItemMatrixValueID is missing");
 
-                foreach (ItemMatrixValue objValue in ItemMatrixValues)
-                {
-                    objValue.Delete(objConn, objTran);
-                }
-                dicDParam["ItemMatrixID"] = ItemMatrixID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ItemMatrix"), objConn, objTran);
+                dicDParam["ItemMatrixValueID"] = ItemMatrixValueID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ItemMatrixValue"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -348,34 +329,27 @@ namespace ISLibrary
 
         private bool ObjectAlreadyExists()
         {
-            if (string.IsNullOrEmpty(ItemID))
-            {
-                return false;
-            }
-            else
-            {
-                string strSQL = string.Empty;
+            string strSQL = string.Empty;
 
-                strSQL = "SELECT TOP 1 p.* " +
-                         "FROM ItemMatrix (NOLOCK) p " +
-                         "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND p.ItemID=" + Database.HandleQuote(ItemID);
-                if (!string.IsNullOrEmpty(ItemID)) strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
+            strSQL = "SELECT TOP 1 p.* " +
+                     "FROM ItemMatrixValue (NOLOCK) p " +
+                     "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
+                     "AND p.ItemAttributeID=" + Database.HandleQuote(ItemAttributeID) +
+                     "AND p.ItemAttributeValueID=" + Database.HandleQuote(ItemAttributeValueID);
 
-                if (!string.IsNullOrEmpty(ItemMatrixID)) strSQL += "AND p.ItemMatrixID<>" + Database.HandleQuote(ItemMatrixID);
-                return Database.HasRows(strSQL);
-            }
+            if (!string.IsNullOrEmpty(ItemMatrixValueID)) strSQL += "AND p.ItemMatrixValueID<>" + Database.HandleQuote(ItemMatrixValueID);
+            return Database.HasRows(strSQL);
         }
 
-        public static ItemMatrix GetItemMatrix(string CompanyID, ItemMatrixFilter Filter)
+        public static ItemMatrixValue GetItemMatrixValue(string CompanyID, ItemMatrixValueFilter Filter)
         {
-            List<ItemMatrix> objItemMatrices = null;
-            ItemMatrix objReturn = null;
+            List<ItemMatrixValue> objGetItemMatrixValues = null;
+            ItemMatrixValue objReturn = null;
 
             try
             {
-                objItemMatrices = GetItemMatrices(CompanyID, Filter);
-                if (objItemMatrices != null && objItemMatrices.Count >= 1) objReturn = objItemMatrices[0];
+                objGetItemMatrixValues = GetItemMatrixValues(CompanyID, Filter);
+                if (objGetItemMatrixValues != null && objGetItemMatrixValues.Count >= 1) objReturn = objGetItemMatrixValues[0];
             }
             catch (Exception ex)
             {
@@ -383,32 +357,32 @@ namespace ISLibrary
             }
             finally
             {
-                objItemMatrices = null;
+                objGetItemMatrixValues = null;
             }
             return objReturn;
         }
 
-        public static List<ItemMatrix> GetItemMatrices(string CompanyID)
+        public static List<ItemMatrixValue> GetItemMatrixValues(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetItemMatrices(CompanyID, null, null, null, out intTotalCount);
+            return GetItemMatrixValues(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<ItemMatrix> GetItemMatrices(string CompanyID, ItemMatrixFilter Filter)
+        public static List<ItemMatrixValue> GetItemMatrixValues(string CompanyID, ItemMatrixValueFilter Filter)
         {
             int intTotalCount = 0;
-            return GetItemMatrices(CompanyID, Filter, null, null, out intTotalCount);
+            return GetItemMatrixValues(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<ItemMatrix> GetItemMatrices(string CompanyID, ItemMatrixFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ItemMatrixValue> GetItemMatrixValues(string CompanyID, ItemMatrixValueFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetItemMatrices(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetItemMatrixValues(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<ItemMatrix> GetItemMatrices(string CompanyID, ItemMatrixFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ItemMatrixValue> GetItemMatrixValues(string CompanyID, ItemMatrixValueFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<ItemMatrix> objReturn = null;
-            ItemMatrix objNew = null;
+            List<ItemMatrixValue> objReturn = null;
+            ItemMatrixValue objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -418,28 +392,26 @@ namespace ISLibrary
 
                 if (!string.IsNullOrEmpty(CompanyID))
                 {
-                    objReturn = new List<ItemMatrix>();
+                    objReturn = new List<ItemMatrixValue>();
 
                     strSQL = "SELECT i.* " +
-                             "FROM ItemMatrix i (NOLOCK) " +
+                             "FROM ItemMatrixValue i (NOLOCK) " +
                              "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID);
 
                     if (Filter != null)
                     {
-                        if (Filter.ItemParentID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemParentID, "i.ItemParentID");
-                        if (Filter.ItemID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemID, "i.ItemID");
+                        if (Filter.ItemMatrixID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemMatrixID, "i.ItemMatrixID");
+                        if (Filter.ItemAttributeValueID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemAttributeValueID, "i.ItemAttributeValueID");
                     }
 
-                    if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "AttributeName" : Utility.CustomSorting.GetSortExpression(typeof(ItemMatrix), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
-                    else strSQL += " Order by ItemMatrixID";
-
+                    if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "AttributeName" : Utility.CustomSorting.GetSortExpression(typeof(ItemMatrixValue), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                     objData = Database.GetDataSet(strSQL);
 
                     if (objData != null && objData.Tables[0].Rows.Count > 0)
                     {
                         for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                         {
-                            objNew = new ItemMatrix(objData.Tables[0].Rows[i]);
+                            objNew = new ItemMatrixValue(objData.Tables[0].Rows[i]);
                             objNew.IsLoaded = true;
                             objReturn.Add(objNew);
                         }

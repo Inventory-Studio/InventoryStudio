@@ -8,6 +8,7 @@ namespace InventoryStudio.Models
         public Item Item { get; set; }
 
         public List<ItemAttribute> ItemAttributes { get; set; }
+        public List<ItemMatrix> ItemMatrices { get; set; }
 
 
     }

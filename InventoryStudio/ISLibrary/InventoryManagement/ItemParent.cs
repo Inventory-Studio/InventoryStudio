@@ -124,6 +124,10 @@ namespace ISLibrary
                 }
                 return mItemMatrices;
             }
+            set
+            {
+                mItemMatrices = value;
+            }
         }
 
         public ItemParent()
@@ -275,11 +279,45 @@ namespace ISLibrary
                 {
                     foreach (ItemMatrix objItemMatrix in ItemMatrices)
                     {
+                        // Split the AttributeValue by '-' to get individual attribute values
+                        string[] attributeValues = objItemMatrix.AttributeValue.Split('-');
+
+                        
+                        List<ItemMatrixValue> objItemMatrixValues = new List<ItemMatrixValue>();
+
+                        foreach (string attributeValue in attributeValues)
+                        {
+                            // Assuming ItemAttributes is a collection of objItemAttribute
+                            // and each objItemAttribute has a collection of ItemAttributeValue
+                            var itemAttribute = ItemAttributes
+                                .FirstOrDefault(ia => ia.ItemAttributeValues.Any(ava => ava.AttributeValueName == attributeValue));
+
+                            if (itemAttribute != null)
+                            {
+                                // Assuming ItemAttributeValue is a collection and we need the first or default
+                                var itemAttributeValue = itemAttribute.ItemAttributeValues
+                                    .FirstOrDefault(ava => ava.AttributeValueName == attributeValue);
+
+                                if (itemAttributeValue != null)
+                                {
+                                    ItemMatrixValue objItemMatrixValue = new ItemMatrixValue();
+                                    objItemMatrixValue.ItemAttributeID = itemAttribute.ItemAttributeID;
+                                    objItemMatrixValue.ItemAttributeValueID = itemAttributeValue.ItemAttributeValueID;
+                                    objItemMatrixValues.Add(objItemMatrixValue);
+                                }
+                            }
+                        }
+
+                        if (objItemMatrixValues.Count > 0)
+                        {
+                            objItemMatrix.ItemMatrixValues = objItemMatrixValues;
+                        }
+
                         if (objItemMatrix.IsNew)
                         {
-                            //objItemAttributeValueLine.IsLoaded = false;
                             objItemMatrix.CompanyID = CompanyID;
                             objItemMatrix.ItemParentID = ItemParentID;
+                            objItemMatrix.CreatedBy = CreatedBy;
                             objItemMatrix.CreatedBy = CreatedBy;
                             objItemMatrix.Create(objConn, objTran);
                         }
@@ -589,7 +627,7 @@ namespace ISLibrary
             return objReturn;
         }
 
-        public static Item CreateItem(Item item,List<ItemAttribute> itemAttributes)
+        public static Item CreateItem(Item item,List<ItemAttribute> itemAttributes,List<ItemMatrix> itemMatrices)
         {
             ItemParent itemParent = new ItemParent();
             itemParent.CompanyID = item.CompanyID;
@@ -598,6 +636,7 @@ namespace ISLibrary
 
             itemParent.Items = new List<Item> { item };
             itemParent.ItemAttributes = itemAttributes;
+            itemParent.ItemMatrices = itemMatrices;
             itemParent.Create();
             return item;
         }

@@ -52,6 +52,29 @@
     </div>
 </div>
 
+<!-- Bootstrap Modal for existing items -->
+<div class="modal fade" id="existingItemModal" tabindex="-1" role="dialog" aria-labelledby="existingItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="existingItemModalLabel">Use Existing Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- The select dropdown where items will be populated -->
+                <select id="matrixItemSelect" class="form-control">
+                    <!-- Dynamically populated items -->
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="saveItemBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script>
@@ -133,7 +156,6 @@
         });
 
 
-        // Generate matrix combinations
         function generateMatrixCombinations(attributes) {
             var attributeNames = Object.keys(attributes);
             var combinations = cartesianProductOfAttributes(attributes);
@@ -143,13 +165,14 @@
             $matrixTableBody.empty();
 
             // Add new combinations
-            combinations.forEach(function (combination) {
-                var $newMatrixRow = $('<tr>');
+            combinations.forEach(function (combination, index) {
+                var combinationId = combination.join('-');
+                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationId);
 
-                $newMatrixRow.append($('<td>').text('Matrix_' + combination.join('-')));
+                $newMatrixRow.append($('<td>').text('Matrix_' + combinationId));
                 $newMatrixRow.append($('<td>').text('Matrix'));
-                $newMatrixRow.append($('<td>').text('- ' + combination.join('-')));
-                $newMatrixRow.append($('<td>').append($('<button>').addClass('btn btn-primary').text('Use Existing Item')));
+                $newMatrixRow.append($('<td>').text('- ' + combinationId));
+                $newMatrixRow.append($('<td>').append($('<button type="button">').addClass('btn btn-primary use-existing-item-btn').text('Use Existing Item')));
 
                 $matrixTableBody.append($newMatrixRow);
             });
@@ -170,6 +193,100 @@
 
             return results;
         }
+
+        var ItemMatrixProductOptions = null;
+
+        // Fetch product data when the page loads
+        fetchMatrixProductOptions();
+
+        // Function to fetch product data from the server
+        function fetchMatrixProductOptions() {
+            $.ajax({
+                url: '/Item/GetKitChildItems',
+                method: 'GET',
+                success: function (response) {
+
+                    // Assuming the backend returns data in the format { dataSource: [{ ItemName, ItemId }, ...] }
+                    ItemMatrixProductOptions = response.dataSource.map(function (item) {
+                        // Create an option element with the text being the ItemName and the value being the ItemId
+
+                        return $('<option>').text(item.itemName).val(item.itemID);
+                    });
+                    // Update the select elements with these options
+                    //updateSelectElements();
+                },
+                error: function (error) {
+                    console.error('Error fetching product data:', error);
+                }
+            });
+        }
+
+        // When 'Use Existing Item' is clicked, show the modal
+        $(document).on('click', '.use-existing-item-btn', function () {
+            // Assuming the modal has an ID of 'existingItemModal'
+            $('#matrixItemSelect').append(ItemMatrixProductOptions);
+            var combinationId = $(this).closest('tr').data('combination-id');
+            $('#existingItemModal').data('item-id', combinationId);
+            $('#existingItemModal').modal('show');
+        });
+
+        // When an item is selected in the modal and 'Save' is clicked
+        $(document).on('click', '#saveItemBtn', function () {
+            // Get the selected item details
+            var selectedItem = $('#matrixItemSelect').find('option:selected').text();            
+            var selectedItemParts = selectedItem.split('-');
+            var itemId = $('#matrixItemSelect').val();
+            var itemNumber = selectedItemParts[0];
+            var itemName = selectedItemParts[1];
+
+            // Use the combination ID to find the row to update
+            var combinationId = $('#existingItemModal').data('item-id');
+            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+            // Find the index of the row within the tbody
+            var index = $rowToUpdate.index();
+
+            // Update the table row with the selected item details
+            $rowToUpdate.find('td').eq(0).text(itemNumber);
+            $rowToUpdate.find('td').eq(1).text(itemName);
+
+             var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemMatrices[' + index + '].ItemID',
+                value: itemId
+            }).appendTo($rowToUpdate);
+
+            var $hiddenTypeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemMatrices[' + index + '].AttributeValue',
+                value: combinationId
+            }).appendTo($rowToUpdate);
+
+
+            // Change the button to 'Undo' and switch classes
+            $rowToUpdate.find('.use-existing-item-btn').removeClass('use-existing-item-btn').addClass('undo-btn').text('Undo');
+
+            // Close the modal
+            $('#existingItemModal').modal('hide');
+        });
+
+        // When 'Undo' is clicked
+        $(document).on('click', '.undo-btn', function (e) {
+
+            // Prevent the default action and stop the event from bubbling up to prevent triggering the modal
+            e.preventDefault();
+            e.stopPropagation();
+
+            var combinationId = $(this).closest('tr').data('combination-id');
+            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+
+            // Revert the changes made to the row
+            $rowToUpdate.find('td').eq(0).text('Matrix_' + combinationId);
+            $rowToUpdate.find('td').eq(1).text('Matrix');
+            $rowToUpdate.find('td').eq(2).text('- ' + combinationId);
+
+            // Change the button back to 'Use Existing Item'
+            $(this).removeClass('undo-btn').addClass('use-existing-item-btn').text('Use Existing Item');
+        });
 
     });
 </script>
