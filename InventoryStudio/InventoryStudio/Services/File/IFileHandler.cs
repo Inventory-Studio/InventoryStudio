@@ -2,7 +2,7 @@
 {
     public interface IFileHandler<T>
     {
-        Task UploadFileAsync(IFormFile file);
-        Task<byte[]> DownloadFileAsync(IEnumerable<T> entity);
+        Task<byte[]> DownloadFileAsync(IEnumerable<T> records);
+        Task<List<T>> UploadFileAsync(IFormFile file);
     }
 }

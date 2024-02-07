@@ -1,5 +1,6 @@
 using InventoryStudio.Authorization;
 using InventoryStudio.Data;
+using InventoryStudio.File;
 using InventoryStudio.Models;
 using InventoryStudio.Services;
 using InventoryStudio.Services.Authorization;
@@ -16,6 +17,9 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
     "Mgo+DSMBMAY9C3t2VlhhQlJCfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn9RdkRiXX9fcHVXQmZa");
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped(typeof(IFileHandler<>), typeof(CsvFileHandler<>));
+builder.Services.AddScoped(typeof(IFileHandler<>), typeof(ExcelFileHandler<>));
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
