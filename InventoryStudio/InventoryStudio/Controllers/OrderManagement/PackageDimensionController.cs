@@ -97,6 +97,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 packageDimension.Cost = input.Cost;
                 packageDimension.ShippingPackage = input.ShippingPackage;
                 packageDimension.Template = input.Template;
+                packageDimension.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 packageDimension.Create();
                 return RedirectToAction(nameof(Index));
             }
@@ -155,8 +156,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                 packageDimension.Cost = input.Cost;
                 packageDimension.ShippingPackage = input.ShippingPackage;
                 packageDimension.Template = input.Template;
+                packageDimension.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 packageDimension.Update();
-
                 return RedirectToAction(nameof(Index));
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

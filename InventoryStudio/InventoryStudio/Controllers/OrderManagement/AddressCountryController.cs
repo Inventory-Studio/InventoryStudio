@@ -83,7 +83,7 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("CountryID,CountryName,UspscountryName,IsEligibleForPLTFedEX,EEL_PFC")] EditAddressCountryViewModel input)
+        public IActionResult Edit(string id, [Bind("CountryID,CountryName,USPSCountryName,IsEligibleForPLTFedEX,EEL_PFC")] EditAddressCountryViewModel input)
         {
             if (id != input.CountryID)
                 return NotFound();

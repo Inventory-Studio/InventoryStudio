@@ -36,6 +36,14 @@ namespace ISLibrary.OrderManagement
 
         public string? Template { get; set; }
 
+        public string? UpdatedBy { get; set; }
+
+        public DateTime? UpdatedOn { get; set; }
+
+        public string CreatedBy { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
         public PackageDimension() { }
 
         public PackageDimension(string CompanyID)
@@ -73,6 +81,10 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("Cost")) Cost = objRow["Cost"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Cost"]);
                 if (objColumns.Contains("ShippingPackage")) ShippingPackage = Convert.ToString(objRow["ShippingPackage"]);
                 if (objColumns.Contains("Template")) Template = Convert.ToString(objRow["Template"]);
+                if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
+                if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
             }
             catch (Exception ex)
             {
@@ -151,11 +163,11 @@ namespace ISLibrary.OrderManagement
             Hashtable dicParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(PackageDimensionID)) throw new Exception("PackageDimensionID is required");
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
+                if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
-                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["Name"] = Name;
@@ -167,9 +179,9 @@ namespace ISLibrary.OrderManagement
                 dicParam["Cost"] = Cost;
                 dicParam["ShippingPackage"] = ShippingPackage;
                 dicParam["Template"] = Template;
-
+                dicParam["CreatedOn"] = DateTime.Now;
+                dicParam["CreatedBy"] = CreatedBy;
                 PackageDimensionID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "PackageDimension"), objConn, objTran).ToString();
-
 
                 Load(objConn, objTran);
             }
@@ -221,8 +233,9 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(PackageDimensionID)) throw new Exception("PackageDimensionID is required");
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
+                if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["Name"] = Name;
@@ -234,11 +247,9 @@ namespace ISLibrary.OrderManagement
                 dicParam["Cost"] = Cost;
                 dicParam["ShippingPackage"] = ShippingPackage;
                 dicParam["Template"] = Template;
-
-
+                dicParam["UpdatedBy"] = UpdatedBy;
+                dicParam["UpdatedOn"] = DateTime.Now;
                 dicWParam["PackageDimensionID"] = PackageDimensionID;
-
-
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "PackageDimension"), objConn, objTran);
 
 
