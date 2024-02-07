@@ -4,11 +4,11 @@
     {
         public static IFileHandler<T> CreateFileHandler<T>(string fileType)
         {
-            if (fileType == "excel" || fileType == "xls")
+            if (fileType == ".xlsx" || fileType == ".xls")
             {
                 return new ExcelFileHandler<T>();
             }
-            else if (fileType == "csv")
+            else if (fileType == ".csv")
             {
                 return new CsvFileHandler<T>();
             }
