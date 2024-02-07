@@ -103,7 +103,7 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(CountryID)) throw new Exception("CountryID is required");
                 if (string.IsNullOrEmpty(CountryName)) throw new Exception("CountryName is required");
                 if (string.IsNullOrEmpty(USPSCountryName)) throw new Exception("USPSCountryName is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, AddressCountry already exists");
+                //if (!IsNew) throw new Exception("Create cannot be performed, AddressCountry already exists");
 
                 dicParam["CountryID"] = CountryID;
                 dicParam["CountryName"] = CountryName;
