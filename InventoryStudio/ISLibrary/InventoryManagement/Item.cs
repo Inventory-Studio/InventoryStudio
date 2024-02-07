@@ -224,9 +224,9 @@ namespace ISLibrary
         {
         }
 
-        public Item(string CompanyID)
+        public Item(string ItemID)
         {
-            this.CompanyID = CompanyID;
+            this.ItemID = ItemID;
         }
 
         public Item(string CompanyID, string ItemID)
@@ -250,8 +250,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT i.* " +
                          "FROM Item i (NOLOCK) " +
-                         "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND i.ItemID = " + Database.HandleQuote(ItemID);
+                         "WHERE i.ItemID=" + Database.HandleQuote(ItemID) +
+                         "AND i.CompanyID = " + Database.HandleQuote(CompanyID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -285,7 +285,7 @@ namespace ISLibrary
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
-                if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value) Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType ItemType);
+                if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value && Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType itemType)) ItemType = itemType;
                 //if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
                 if (objColumns.Contains("ItemNumber")) ItemNumber = Convert.ToString(objRow["ItemNumber"]);
                 if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
@@ -310,9 +310,9 @@ namespace ISLibrary
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
-                if (objColumns.Contains("HSCode")) CreatedBy = Convert.ToString(objRow["HSCode"]);
-                if (objColumns.Contains("GoodDescription")) CreatedBy = Convert.ToString(objRow["GoodDescription"]);
-                if (objColumns.Contains("CountryOfOrigin")) CreatedBy = Convert.ToString(objRow["CountryOfOrigin"]);
+                if (objColumns.Contains("HSCode")) HSCode = Convert.ToString(objRow["HSCode"]);
+                if (objColumns.Contains("GoodDescription")) GoodDescription = Convert.ToString(objRow["GoodDescription"]);
+                if (objColumns.Contains("CountryOfOrigin")) CountryOfOrigin = Convert.ToString(objRow["CountryOfOrigin"]);
 
 
                 if (string.IsNullOrEmpty(ItemID)) throw new Exception("Missing ItemID in the datarow");
@@ -388,6 +388,7 @@ namespace ISLibrary
                 dicParam["ReceiveByKit"] = ReceiveByKit;
                 dicParam["DisplayComponents"] = DisplayComponents;
                 dicParam["UnitOfMeasure"] = UnitOfMeasure;
+                dicParam["Memo"] = Memo;
                 dicParam["PackageWeight"] = PackageWeight;
                 dicParam["PackageWeightUOM"] = PackageWeightUOM;
                 dicParam["PackageLength"] = PackageLength;
@@ -549,6 +550,8 @@ namespace ISLibrary
                 dicParam["Barcode"] = Barcode;
                 dicParam["IsBarcoded"] = IsBarcoded;
                 dicParam["IsShipReceiveIndividually"] = IsShipReceiveIndividually;
+                dicParam["FulfillByKit"] = FulfillByKit;
+                dicParam["ReceiveByKit"] = ReceiveByKit;
                 dicParam["DisplayComponents"] = DisplayComponents;
                 dicParam["UnitOfMeasure"] = UnitOfMeasure;
                 dicParam["Memo"] = Memo;
@@ -558,6 +561,9 @@ namespace ISLibrary
                 dicParam["PackageWidth"] = PackageWidth;
                 dicParam["PackageHeight"] = PackageHeight;
                 dicParam["PackageDimensionUOM"] = PackageDimensionUOM;
+                dicParam["HSCode"] = HSCode;
+                dicParam["GoodDescription"] = GoodDescription;
+                dicParam["CountryOfOrigin"] = CountryOfOrigin;
 
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicWParam["ItemID"] = ItemID;

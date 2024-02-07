@@ -2,7 +2,7 @@
 @model ItemViewModel
 
 @{
-    ViewData["Title"] = "Create Item";
+    ViewData["Title"] = "Edit Item";
 
     var enumItemTypeSelectList = Enum.GetValues(typeof(Item.enumItemType))
                                      .Cast<Item.enumItemType>()
@@ -20,7 +20,7 @@
 
 <div class="container mt-5">
     <h2>@ViewData["Title"]</h2>
-    <form asp-action="Create" method="post" id="createItemForm">
+    <form asp-action="Edit" method="post" id="EditItemForm">
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="itemFormTab" role="tablist">
@@ -56,6 +56,7 @@
                             <div class="form-group col-md-6">
                                 <label asp-for="@Model.Item.ItemNumber">Item Number</label>
                                 <input asp-for="@Model.Item.ItemNumber" class="form-control" onchange="addItemBarcode()" />
+                                <input asp-for="@Model.Item.ItemID" type="hidden"  />
                             </div>
                         </div>
 
@@ -201,15 +202,58 @@
             }
         }
 
+    function addItemBarcode() {
+        var itemNumber = $('#Item_ItemNumber').val();
+        var barcodeExists = false;
+        var $tableBody = $('#barcodeTable').find('tbody');
 
+        // 遍历表格的行以检查是否存在相同的条目
+        $tableBody.find('tr').each(function () {
+            var $row = $(this);
+            var currentItemType = $row.find('input[name^="Item.ItemBarcodes["][name$="].Type"]').val();
+
+            if (currentItemType == 'Item Number') {
+                barcodeExists = true;
+                // 可以在这里更新这一行的显示内容，如果需要的话
+                $row.find('.barcode-display').text(itemNumber);
+                $row.find('input[name^="Item.ItemBarcodes["][name$="].Barcode"]').val(itemNumber)
+                return false; // 退出循环
+            }
+        });
+
+        // 如果条目不存在，则添加新条目到表格和隐藏字段
+        if (!barcodeExists && itemNumber) {
+            var index = $tableBody.find('tr').length; // 用行数作为索引
+
+            // 创建新的表格行
+            var $newRow = $('<tr/>');
+            $newRow.append($('<td/>').addClass('barcode-display').text(itemNumber)); // 用于显示条形码
+            $newRow.append($('<td/>').text('Item Number')); // 用于显示类型
+
+            // 创建隐藏输入字段
+            var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'Item.ItemBarcodes[' + index + '].Barcode',
+                value: itemNumber
+            }).appendTo($newRow); // 将隐藏字段添加到新行中
+
+            var $hiddenTypeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'Item.ItemBarcodes[' + index + '].Type',
+                value: 'Item Number'
+            }).appendTo($newRow); // 将隐藏字段添加到新行中
+
+            $tableBody.append($newRow); // 将新行添加到表格的 tbody 中
+        }
+    }
    
 
     $(document).ready(function () {
-
+        
         $('#Item_ItemType').change(function () {
             var selectedItemType = $(this).val();
             var isChecked = $('#createMatrixCheckbox').is(':checked');
-            if (!isChecked) {
+            if (!isChecked){
                 switch (selectedItemType) {
                     case 'Inventory':
                     case 'LotNumbered':
@@ -237,7 +281,7 @@
                         $('#kit-item-tab').show();
                         $('#attribute-tab').hide();
                         $('#matrix-tab').hide();
-                        $('#kit-options').show();
+                         $('#kit-options').show();
                         $('#createMatrixCheckbox').prop('disabled', true);
                         break;
                     default:
@@ -251,11 +295,14 @@
                         break;
                 }
             }
-
+            
         });
 
         // Trigger change event on Item Type dropdown to initialize the form
-        $('#Item_ItemType').change();
+        $('#Item_ItemType').change();      
+
+
+       
 
     });
     

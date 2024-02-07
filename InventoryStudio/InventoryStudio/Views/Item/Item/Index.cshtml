@@ -24,11 +24,11 @@
                 </e-grid-editSettings>
                 <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
                 <e-data-manager url="/Item/UrlDatasource" adaptor="UrlAdaptor" insertUrl="/Item/Insert"
-                                updateUrl="/Item/Update" removeUrl="/Item/Remove">
+                                updateUrl="/Item/Edit" removeUrl="/Item/Remove">
                 </e-data-manager>
                 @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
                 <e-grid-columns>
-                    <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                    <e-grid-column visible="false" field="ItemID" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="ItemNumber" headerText="Item Number" width="120"></e-grid-column>
@@ -46,7 +46,7 @@
 <!-- Actions template -->
 <script id="actions" type="text/x-template">
     <div class="hstack gap-2">
-        <a href="/Item/Edit?id=${Id}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit Item" aria-label="Edit Item button">
+        <a href="/Item/Edit?id=${ItemID}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit Item" aria-label="Edit Item button">
             <i class="bi-pencil-fill"></i>
         </a>
     </div>

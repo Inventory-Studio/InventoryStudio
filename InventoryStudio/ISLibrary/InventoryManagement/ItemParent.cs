@@ -460,7 +460,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            //base.Update(); //itemMatrix死循环需要修复
             return true;
         }
 
@@ -638,6 +638,43 @@ namespace ISLibrary
             itemParent.ItemAttributes = itemAttributes;
             itemParent.ItemMatrices = itemMatrices;
             itemParent.Create();
+            return item;
+        } 
+        public static Item UpdateItem(Item item,List<ItemAttribute> itemAttributes,List<ItemMatrix> itemMatrices)
+        {
+            var itemParent = new ItemParent(item.CompanyID,item.ItemParentID);
+            itemParent.UpdatedBy = item.UpdatedBy;
+
+            var existingItem = itemParent.Items.FirstOrDefault(i => i.ItemID == item.ItemID);
+
+            if (existingItem != null)
+            {               
+                existingItem.ItemNumber = item.ItemNumber;
+                existingItem.IsVariation = item.IsVariation;
+                existingItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
+                existingItem.FulfillByKit = item.FulfillByKit;
+                existingItem.ReceiveByKit = item.ReceiveByKit;
+                existingItem.ItemName = item.ItemName;
+                existingItem.HSCode = item.HSCode;
+                existingItem.GoodDescription = item.GoodDescription;
+                existingItem.CountryOfOrigin = item.CountryOfOrigin;
+                existingItem.PackageLength = item.PackageLength;
+                existingItem.PackageWidth = item.PackageWidth;
+                existingItem.PackageHeight = item.PackageHeight;
+                existingItem.PackageDimensionUOM = item.PackageDimensionUOM;
+                existingItem.PackageWeight = item.PackageWeight;
+                existingItem.SalesDescription = item.SalesDescription;
+                existingItem.PurchaseDescription = item.PurchaseDescription;
+                existingItem.Memo = item.Memo;
+                existingItem.ItemBarcodes = item.ItemBarcodes;
+                existingItem.ItemKits = item.ItemKits;
+                existingItem.ItemComponents = item.ItemComponents;
+            }
+
+
+            itemParent.ItemAttributes = itemAttributes;
+            itemParent.ItemMatrices = itemMatrices;
+            itemParent.Update();
             return item;
         }
 

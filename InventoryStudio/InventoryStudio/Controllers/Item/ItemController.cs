@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Syncfusion.EJ2.Base;
+using Newtonsoft.Json;
 
 namespace InventoryStudio.Controllers
 {
@@ -80,6 +81,77 @@ namespace InventoryStudio.Controllers
                 return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
             }
         }
+
+        [Authorize(Policy = "Item-Item-Edit")]
+        public IActionResult Edit(string? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            var itemViewModel = new ItemViewModel();
+
+            if (TempData["FormData"] != null)
+            {
+                string formData = TempData["FormData"].ToString();
+                itemViewModel = JsonConvert.DeserializeObject<ItemViewModel>(formData);
+
+                if (TempData["ErrorMessage"] != null)
+                {
+                    ModelState.AddModelError(string.Empty, TempData["ErrorMessage"].ToString());
+                }
+            }
+            else
+            {
+                var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+                var item = new Item(organizationClaim.Value, id);
+
+                if (item == null)
+                {
+                    return NotFound();
+                }
+
+                var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
+
+                itemViewModel.Item = item;
+                itemViewModel.ItemAttributes = itemParent.ItemAttributes;
+                itemViewModel.ItemMatrices = itemParent.ItemMatrices;
+            }
+           
+
+           
+            return View("~/Views/Item/Item/Edit.cshtml", itemViewModel);
+        }
+
+        [Authorize(Policy = "Item-Item-Edit")]
+        [HttpPost]
+        public IActionResult Edit(ItemViewModel itemViewModel)
+        {
+          
+
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+
+            var item = new Item(organizationClaim.Value, itemViewModel.Item.ItemID);
+
+            itemViewModel.Item.CompanyID = item.CompanyID;
+            itemViewModel.Item.ItemParentID = item.ItemParentID;
+            itemViewModel.Item.UpdatedBy = Convert.ToString(_userManager.GetUserId(User));
+            try
+            {
+                ItemParent.UpdateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
+                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                TempData["FormData"] = JsonConvert.SerializeObject(itemViewModel);
+                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
+
+            }
+
+
+        }
+
 
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
