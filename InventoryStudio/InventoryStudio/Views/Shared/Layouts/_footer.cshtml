@@ -1,8 +1,8 @@
-<footer class="footer mt-auto py-3 bg-white text-center sticky">
+<footer class="footer  text-center py-3 bg-white sticky" style="padding-inline-start: 0">
     <div class="container">
         <span class="text-muted">
             Copyright © <span id="year"></span>
-            <a href="javascript:void(0);" class="text-dark fw-semibold">
+            <a asp-controller="Home" asp-action="Index" class="text-dark fw-semibold">
                 Inventory
                 Studio
             </a>.
@@ -12,3 +12,7 @@
         </span>
     </div>
 </footer>
+
+<script lang="js">
+    document.getElementById("year").innerHTML = new Date().getFullYear();
+</script>

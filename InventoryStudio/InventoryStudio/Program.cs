@@ -1,5 +1,6 @@
 using InventoryStudio.Authorization;
 using InventoryStudio.Data;
+using InventoryStudio.File;
 using InventoryStudio.Models;
 using InventoryStudio.Services;
 using InventoryStudio.Services.Authorization;
@@ -16,6 +17,9 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
     "Mgo+DSMBMAY9C3t2VlhhQlJCfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn9RdkRiXX9fcHVXQmZa");
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped(typeof(IFileHandler<>), typeof(CsvFileHandler<>));
+builder.Services.AddScoped(typeof(IFileHandler<>), typeof(ExcelFileHandler<>));
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -36,42 +40,41 @@ builder.Services.AddRazorPages(options =>
 });
 
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                   .AddCookie(options =>
-                   {
-                       options.LoginPath = "/Account/Login";
-                       options.AccessDeniedPath = "/Account/AccessDenied";
-                       options.LogoutPath = "/Account/Logout";
-                   });
-
 var tokenSection = builder.Configuration.GetSection("Authentication:Jwt");
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+//defalt using Cookie 
+builder.Services.AddAuthentication()
+     .AddCookie(options =>
+     {
+         options.LoginPath = "/Identity/Account/Login";
+         options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+         options.LogoutPath = "/Identity/Account/Logout";
+     })
+    .AddJwtBearer(options =>
     {
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuer = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = tokenSection["Issuer"],
-        ValidAudience = tokenSection["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSection["Key"])),
-        ClockSkew = TimeSpan.Zero
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = async context =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var authService = context.HttpContext.RequestServices.GetRequiredService<InventoryStudio.Services.Authorization.IAuthorizationService>();
-            await authService.ValidateToken(context);
-        }
-
-    };
-}).AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-});
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = tokenSection["Issuer"],
+            ValidAudience = tokenSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSection["Key"])),
+            ClockSkew = TimeSpan.Zero
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var authService = context.HttpContext.RequestServices.GetRequiredService<InventoryStudio.Services.Authorization.IAuthorizationService>();
+                await authService.ValidateToken(context);
+            }
+        };
+    }).AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    });
 
 builder.Services.AddScoped<InventoryStudio.Services.Authorization.IAuthorizationService, AuthorizationService>();
 

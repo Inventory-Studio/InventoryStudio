@@ -14,19 +14,19 @@ namespace ISLibrary
 {
     public class Item : BaseClass
     {
-        //public enum enumItemType
-        //{
-        //    [Description("Inventory Item")]
-        //    Inventory,
-        //    [Description("Lot Numbered Inventory Item")]
-        //    LotNumbered,
-        //    [Description("Serialized Inventory Item")]
-        //    Serialized,
-        //    [Description("Non-Inventory Item")]
-        //    NonInventory,
-        //    [Description("Kit Item")]
-        //    Kit
-        //}
+        public enum enumItemType
+        {
+            [Description("Inventory Item")]
+            Inventory,
+            [Description("Lot Numbered Inventory Item")]
+            LotNumbered,
+            [Description("Serialized Inventory Item")]
+            Serialized,
+            [Description("Assembly Item")]
+            Assembly,
+            [Description("Kit Item")]
+            Kit
+        }
 
         public enum enumWeightUnit
         {
@@ -43,11 +43,10 @@ namespace ISLibrary
         public string ItemID { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(ItemID); } }
         public string CompanyID { get; set; }
-        public string ClientID { get; set; }
         public string VendorID { get; set; }
         public string ItemParentID { get; set; }
-        public string ItemType { get; set; }
-        //public enumItemType? ItemType { get; set; }
+        //public string ItemType { get; set; }
+        public enumItemType? ItemType { get; set; }
         public string ItemNumber { get; set; }
         public string ItemName { get; set; }
         public string SalesDescription { get; set; }
@@ -69,38 +68,56 @@ namespace ISLibrary
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; private set; }
 
-        private List<ItemAttributeValueLine> mItemAttributeValueLines = null;
-        public List<ItemAttributeValueLine> ItemAttributeValueLines
-        {
-            get
-            {
-                ItemAttributeValueLineFilter objFilter = null;
+        //view attribute
+        public string ItemParentNumber { get; set; }
+        public string Label { get; set; }
+        public int? ItemUnitTypeID { get; set; }
+        public int? PrimarySalesUnitID { get; set; }
+        public int? PrimaryPurchaseUnitID { get; set; }
+        public int? PrimaryStockUnitID { get; set; }
+        public string ImageURL { get; set; }
+        public decimal? UnitCost { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public bool? UseSingleBin { get; set; }
+        public bool FulfillByKit { get; set; }
+        public bool ReceiveByKit { get; set; }
+        public string HSCode { get; set; }
+        public string GoodDescription { get; set; }
+        public string CountryOfOrigin { get; set; }
+        public int? BinID { get; set; }
 
-                try
-                {
-                    if (mItemAttributeValueLines == null && IsLoaded && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemID))
-                    {
-                        objFilter = new ItemAttributeValueLineFilter();
-                        objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
-                        objFilter.ItemID.SearchString = ItemID;
-                        mItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                finally
-                {
-                    objFilter = null;
-                }
-                return mItemAttributeValueLines;
-            }
-            set
-            {
-                mItemAttributeValueLines = value;
-            }
-        }
+        //private List<ItemAttributeValueLine> mItemAttributeValueLines = null;
+        //public List<ItemAttributeValueLine> ItemAttributeValueLines
+        //{
+        //    get
+        //    {
+        //        ItemAttributeValueLineFilter objFilter = null;
+
+        //        try
+        //        {
+        //            if (mItemAttributeValueLines == null && IsLoaded && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemID))
+        //            {
+        //                objFilter = new ItemAttributeValueLineFilter();
+        //                objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
+        //                objFilter.ItemID.SearchString = ItemID;
+        //                mItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw ex;
+        //        }
+        //        finally
+        //        {
+        //            objFilter = null;
+        //        }
+        //        return mItemAttributeValueLines;
+        //    }
+        //    set
+        //    {
+        //        mItemAttributeValueLines = value;
+        //    }
+        //}
 
         private List<ItemKit> mItemKits = null;
         public List<ItemKit> ItemKits
@@ -201,20 +218,15 @@ namespace ISLibrary
             }
         }
         public bool IsVariation
-        {
-            get
-            {
-                return ItemAttributeValueLines != null && ItemAttributeValueLines.Count > 0;
-            }
-        }
+        { get; set; }
 
         public Item()
         {
         }
 
-        public Item(string CompanyID)
+        public Item(string ItemID)
         {
-            this.CompanyID = CompanyID;
+            this.ItemID = ItemID;
         }
 
         public Item(string CompanyID, string ItemID)
@@ -238,8 +250,8 @@ namespace ISLibrary
             {
                 strSQL = "SELECT i.* " +
                          "FROM Item i (NOLOCK) " +
-                         "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND i.ItemID = " + Database.HandleQuote(ItemID);
+                         "WHERE i.ItemID=" + Database.HandleQuote(ItemID) +
+                         "AND i.CompanyID = " + Database.HandleQuote(CompanyID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -271,10 +283,10 @@ namespace ISLibrary
                 objColumns = objRow.Table.Columns;
                 if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
+               
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
-                //if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value) Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType ItemType);
-                if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
+                if (objColumns.Contains("ItemType") && objRow["ItemType"] != DBNull.Value && Enum.TryParse(Convert.ToString(objRow["ItemType"]), out enumItemType itemType)) ItemType = itemType;
+                //if (objColumns.Contains("ItemType")) ItemType = Convert.ToString(objRow["ItemType"]);
                 if (objColumns.Contains("ItemNumber")) ItemNumber = Convert.ToString(objRow["ItemNumber"]);
                 if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
                 if (objColumns.Contains("SalesDescription")) SalesDescription = Convert.ToString(objRow["SalesDescription"]);
@@ -282,6 +294,8 @@ namespace ISLibrary
                 if (objColumns.Contains("Barcode")) Barcode = Convert.ToString(objRow["Barcode"]);
                 if (objColumns.Contains("IsBarcoded")) IsBarcoded = Convert.ToBoolean(objRow["IsBarcoded"]);
                 if (objColumns.Contains("IsShipReceiveIndividually")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["IsShipReceiveIndividually"]);
+                if (objColumns.Contains("FulfillByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["FulfillByKit"]);
+                if (objColumns.Contains("ReceiveByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["ReceiveByKit"]);
                 if (objColumns.Contains("DisplayComponents")) DisplayComponents = Convert.ToBoolean(objRow["DisplayComponents"]);
                 if (objColumns.Contains("UnitOfMeasure")) UnitOfMeasure = Convert.ToString(objRow["UnitOfMeasure"]);
                 if (objColumns.Contains("Memo")) Memo = Convert.ToString(objRow["Memo"]);
@@ -295,6 +309,11 @@ namespace ISLibrary
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
+
+                if (objColumns.Contains("HSCode")) HSCode = Convert.ToString(objRow["HSCode"]);
+                if (objColumns.Contains("GoodDescription")) GoodDescription = Convert.ToString(objRow["GoodDescription"]);
+                if (objColumns.Contains("CountryOfOrigin")) CountryOfOrigin = Convert.ToString(objRow["CountryOfOrigin"]);
+
 
                 if (string.IsNullOrEmpty(ItemID)) throw new Exception("Missing ItemID in the datarow");
             }
@@ -356,7 +375,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemParentID"] = ItemParentID;
                 dicParam["ItemType"] = ItemType;
                 dicParam["ItemNumber"] = ItemNumber;
@@ -366,38 +384,44 @@ namespace ISLibrary
                 dicParam["Barcode"] = Barcode;
                 dicParam["IsBarcoded"] = IsBarcoded;
                 dicParam["IsShipReceiveIndividually"] = IsShipReceiveIndividually;
+                dicParam["FulfillByKit"] = FulfillByKit;
+                dicParam["ReceiveByKit"] = ReceiveByKit;
                 dicParam["DisplayComponents"] = DisplayComponents;
                 dicParam["UnitOfMeasure"] = UnitOfMeasure;
+                dicParam["Memo"] = Memo;
                 dicParam["PackageWeight"] = PackageWeight;
                 dicParam["PackageWeightUOM"] = PackageWeightUOM;
                 dicParam["PackageLength"] = PackageLength;
                 dicParam["PackageWidth"] = PackageWidth;
                 dicParam["PackageHeight"] = PackageHeight;
                 dicParam["PackageDimensionUOM"] = PackageDimensionUOM;
+                dicParam["HSCode"] = HSCode;
+                dicParam["GoodDescription"] = GoodDescription;
+                dicParam["CountryOfOrigin"] = CountryOfOrigin;
 
                 dicParam["CreatedBy"] = CreatedBy;
                 ItemID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Item"), objConn, objTran).ToString();
 
-                if (ItemAttributeValueLines != null)
-                {
+                //if (ItemAttributeValueLines != null)
+                //{
 
-                    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
-                    {
-                        if (objItemAttributeValueLine.IsNew)
-                        {
-                            //objItemAttributeValueLine.IsLoaded = false;
-                            objItemAttributeValueLine.CompanyID = CompanyID;
-                            objItemAttributeValueLine.ItemID = ItemID;
-                            objItemAttributeValueLine.CreatedBy = CreatedBy;
-                            objItemAttributeValueLine.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemAttributeValueLine.UpdatedBy = CreatedBy;
-                            objItemAttributeValueLine.Update(objConn, objTran);
-                        }
-                    }
-                }
+                //    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
+                //    {
+                //        if (objItemAttributeValueLine.IsNew)
+                //        {
+                //            //objItemAttributeValueLine.IsLoaded = false;
+                //            objItemAttributeValueLine.CompanyID = CompanyID;
+                //            objItemAttributeValueLine.ItemID = ItemID;
+                //            objItemAttributeValueLine.CreatedBy = CreatedBy;
+                //            objItemAttributeValueLine.Create(objConn, objTran);
+                //        }
+                //        else
+                //        {
+                //            objItemAttributeValueLine.UpdatedBy = CreatedBy;
+                //            objItemAttributeValueLine.Update(objConn, objTran);
+                //        }
+                //    }
+                //}
 
                 if (ItemKits != null)
                 {
@@ -415,6 +439,25 @@ namespace ISLibrary
                         {
                             objItemKit.UpdatedBy = CreatedBy;
                             objItemKit.Update(objConn, objTran);
+                        }
+                    }
+                }
+
+                if (ItemComponents != null)
+                {
+                    foreach (ItemComponent objItemComponent in ItemComponents)
+                    {
+                        if (objItemComponent.IsNew)
+                        {
+                            objItemComponent.CompanyID = CompanyID;
+                            objItemComponent.ItemID = ItemID;
+                            objItemComponent.CreatedBy = CreatedBy;
+                            objItemComponent.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemComponent.UpdatedBy = CreatedBy;
+                            objItemComponent.Update(objConn, objTran);
                         }
                     }
                 }
@@ -497,7 +540,7 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
+              
                 dicParam["ItemParentID"] = ItemParentID;
                 dicParam["ItemType"] = ItemType;
                 dicParam["ItemNumber"] = ItemNumber;
@@ -507,6 +550,8 @@ namespace ISLibrary
                 dicParam["Barcode"] = Barcode;
                 dicParam["IsBarcoded"] = IsBarcoded;
                 dicParam["IsShipReceiveIndividually"] = IsShipReceiveIndividually;
+                dicParam["FulfillByKit"] = FulfillByKit;
+                dicParam["ReceiveByKit"] = ReceiveByKit;
                 dicParam["DisplayComponents"] = DisplayComponents;
                 dicParam["UnitOfMeasure"] = UnitOfMeasure;
                 dicParam["Memo"] = Memo;
@@ -516,6 +561,9 @@ namespace ISLibrary
                 dicParam["PackageWidth"] = PackageWidth;
                 dicParam["PackageHeight"] = PackageHeight;
                 dicParam["PackageDimensionUOM"] = PackageDimensionUOM;
+                dicParam["HSCode"] = HSCode;
+                dicParam["GoodDescription"] = GoodDescription;
+                dicParam["CountryOfOrigin"] = CountryOfOrigin;
 
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicWParam["ItemID"] = ItemID;
@@ -524,33 +572,33 @@ namespace ISLibrary
                 Item currentItem = new Item(CompanyID, ItemID);
 
                 //Delete no longer existing item attributevalueline for the item
-                foreach (ItemAttributeValueLine _currentItemAttributeValueLine in currentItem.ItemAttributeValueLines)
-                {
-                    if (!ItemAttributeValueLines.Exists(x => x.ItemAttributeValueLineID == _currentItemAttributeValueLine.ItemAttributeValueLineID))
-                    {
-                        //_currentItemAttributeValueLine.IsLoaded = true;
-                        _currentItemAttributeValueLine.Delete(objConn, objTran);
-                    }
-                }
+                //foreach (ItemAttributeValueLine _currentItemAttributeValueLine in currentItem.ItemAttributeValueLines)
+                //{
+                //    if (!ItemAttributeValueLines.Exists(x => x.ItemAttributeValueLineID == _currentItemAttributeValueLine.ItemAttributeValueLineID))
+                //    {
+                //        //_currentItemAttributeValueLine.IsLoaded = true;
+                //        _currentItemAttributeValueLine.Delete(objConn, objTran);
+                //    }
+                //}
 
-                if (ItemAttributeValueLines != null)
-                {
-                    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
-                    {
-                        if (objItemAttributeValueLine.IsNew)
-                        {
-                            objItemAttributeValueLine.ItemID = ItemID;
-                            objItemAttributeValueLine.CreatedBy = UpdatedBy;
-                            objItemAttributeValueLine.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemAttributeValueLine.ItemID = ItemID;
-                            objItemAttributeValueLine.UpdatedBy = UpdatedBy;
-                            objItemAttributeValueLine.Update(objConn, objTran);
-                        }
-                    }
-                }
+                //if (ItemAttributeValueLines != null)
+                //{
+                //    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
+                //    {
+                //        if (objItemAttributeValueLine.IsNew)
+                //        {
+                //            objItemAttributeValueLine.ItemID = ItemID;
+                //            objItemAttributeValueLine.CreatedBy = UpdatedBy;
+                //            objItemAttributeValueLine.Create(objConn, objTran);
+                //        }
+                //        else
+                //        {
+                //            objItemAttributeValueLine.ItemID = ItemID;
+                //            objItemAttributeValueLine.UpdatedBy = UpdatedBy;
+                //            objItemAttributeValueLine.Update(objConn, objTran);
+                //        }
+                //    }
+                //}
 
                 //Delete no longer existing item attributevalueline for the item
                 foreach (ItemKit _currentItemKit in currentItem.ItemKits)
@@ -662,10 +710,10 @@ namespace ISLibrary
             {
                 if (IsNew) throw new Exception("Delete cannot be performed, ItemID is missing");
 
-                foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
-                {
-                    objItemAttributeValueLine.Delete(objConn, objTran);
-                }
+                //foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
+                //{
+                //    objItemAttributeValueLine.Delete(objConn, objTran);
+                //}
 
                 dicDParam["ItemID"] = ItemID;
                 Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "Item"), objConn, objTran);
@@ -689,7 +737,7 @@ namespace ISLibrary
                      "FROM Item (NOLOCK) p " +
                      "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
                      "AND p.ItemNumber=" + Database.HandleQuote(ItemNumber);
-            if (!string.IsNullOrEmpty(ClientID)) strSQL += "AND p.ClientID=" + Database.HandleQuote(ClientID);
+          
 
             if (!string.IsNullOrEmpty(ItemID)) strSQL += "AND p.ItemID<>" + Database.HandleQuote(ItemID);
             return Database.HasRows(strSQL);
@@ -790,5 +838,8 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+
+
     }
 }

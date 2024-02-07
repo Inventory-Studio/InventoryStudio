@@ -1,0 +1,211 @@
+﻿@model InventoryStudio.Models.OrderManagement.SalesOrder.SalesOrderViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>SalesOrder</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PONumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PONumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TranDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TranDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingTaxAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingTaxAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ItemTaxAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ItemTaxAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DiscountAmount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DiscountAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SalesSource)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SalesSource)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingMethod)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingMethod)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingCarrier)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingCarrier)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingPackage)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingPackage)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShippingServiceCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShippingServiceCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShipFrom)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShipFrom)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShipTo)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShipTo)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsClosed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsClosed)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ExternalID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ExternalID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.InternalNote)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.InternalNote)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CustomerNote)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CustomerNote)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.GiftMessage)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GiftMessage)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LabelMessage)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LabelMessage)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ReferenceNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ReferenceNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SignatureRequired)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SignatureRequired)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShopifyOrderID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShopifyOrderID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BillToAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.BillToAddress)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Company)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Company)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Customer)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Location)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShipToAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShipToAddress)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedBy)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedOn)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedBy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedBy)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedOn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedOn)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.SalesOrderID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

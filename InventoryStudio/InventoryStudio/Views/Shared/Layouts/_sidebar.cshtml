@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+
 <aside class="app-sidebar sticky" id="sidebar">
 
     <!-- Start::main-sidebar-header -->
@@ -37,62 +40,118 @@
                 </li>
                 <!-- End::slide -->
                 <!-- Start::slide -->
-                <li class="slide has-sub">
-                    <a href="javascript:void(0);" class="side-menu__item">
-                        <i class="bx bx-lock side-menu__icon"></i>
-                        <span class="side-menu__label">Auth</span>
-                        <i class="fe fe-chevron-right side-menu__angle"></i>
-                    </a>
-                    <ul class="slide-menu child1">
-                        <li class="slide side-menu__label1">
-                            <a href="javascript:void(0);">Auth</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-area="Identity" asp-page="/Account/Login" class="side-menu__item">Log In</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-area="Identity" asp-page="/Account/Register" class="side-menu__item">Register</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="slide has-sub">
-                    <a href="javascript:void(0);" class="side-menu__item">
-                        <i class="bx bx-user-check side-menu__icon"></i>
-                        <span class="side-menu__label">User Management</span>
-                        <i class="fe fe-chevron-right side-menu__angle"></i>
-                    </a>
-                    <ul class="slide-menu child1">
-                        <li class="slide side-menu__label1">
-                            <a href="javascript:void(0);">User Management</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-controller="User" asp-action="Index" class="side-menu__item">User</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-controller="Role" asp-action="Index" class="side-menu__item">Role</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-controller="AccessToken" asp-action="Index" class="side-menu__item">Access Token</a>
-                        </li>
-                    </ul>
-                </li>
+                @* <li class="slide has-sub"> *@
+                @*     <a href="javascript:void(0);" class="side-menu__item"> *@
+                @*         <i class="bx bx-lock side-menu__icon"></i> *@
+                @*         <span class="side-menu__label">Auth</span> *@
+                @*         <i class="fe fe-chevron-right side-menu__angle"></i> *@
+                @*     </a> *@
+                @*     <ul class="slide-menu child1"> *@
+                @*         <li class="slide side-menu__label1"> *@
+                @*             <a href="javascript:void(0);">Auth</a> *@
+                @*         </li> *@
+                @*         <li class="slide"> *@
+                @*             <a asp-area="Identity" asp-page="/Account/Login" class="side-menu__item">Log In</a> *@
+                @*         </li> *@
+                @*         <li class="slide"> *@
+                @*             <a asp-area="Identity" asp-page="/Account/Register" class="side-menu__item">Register</a> *@
+                @*         </li> *@
+                @*     </ul> *@
+                @* </li> *@
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">
+                            <i class="bx bx-user-check side-menu__icon"></i>
+                            <span class="side-menu__label">User Management</span>
+                            <i class="fe fe-chevron-right side-menu__angle"></i>
+                        </a>
+                        <ul class="slide-menu child1">
+                            <li class="slide side-menu__label1">
+                                <a href="javascript:void(0);">User Management</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="User" asp-action="Index" class="side-menu__item">User</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Role" asp-action="Index" class="side-menu__item">Role</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="AccessToken" asp-action="Index" class="side-menu__item">Access Token</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="slide has-sub">
-                    <a href="javascript:void(0);" class="side-menu__item">
-                        <i class="bx bx-user-check side-menu__icon"></i>
-                        <span class="side-menu__label">Company</span>
-                        <i class="fe fe-chevron-right side-menu__angle"></i>
-                    </a>
-                    <ul class="slide-menu child1">
-                        <li class="slide side-menu__label1">
-                            <a href="javascript:void(0);">Company</a>
-                        </li>
-                        <li class="slide">
-                            <a asp-controller="Company" asp-action="Index" class="side-menu__item">Index</a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">
+                            <i class="bx bx-user-check side-menu__icon"></i>
+                            <span class="side-menu__label">Inventory</span>
+                            <i class="fe fe-chevron-right side-menu__angle"></i>
+                        </a>
+                        <ul class="slide-menu child1">
+                            <li class="slide side-menu__label1">
+                                <a href="javascript:void(0);">Inventory</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Item" asp-action="Index" class="side-menu__item">Item</a>
+                            </li>
+                        </ul>
+                    </li>
 
+                    <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">
+                            <i class="bx bx-user-check side-menu__icon"></i>
+                            <span class="side-menu__label">Order Management</span>
+                            <i class="fe fe-chevron-right side-menu__angle"></i>
+                        </a>
+                        <ul class="slide-menu child1">
+                            <li class="slide side-menu__label1">
+                                <a href="javascript:void(0);">Order Management</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Client" asp-action="Index" class="side-menu__item">Client</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Address" asp-action="Index" class="side-menu__item">Address</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="AddressCountry" asp-action="Index" class="side-menu__item">Address Country</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Customer" asp-action="Index" class="side-menu__item">Customer</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Location" asp-action="Index" class="side-menu__item">Location</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="PackageDimension" asp-action="Index" class="side-menu__item">Package Dimension</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="SalesOrder" asp-action="Index" class="side-menu__item">Sales Order</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="SalesOrderLine" asp-action="Index" class="side-menu__item">Sales Order Line</a>
+                            </li>
+                        </ul>
+                    </li>
+
+
+                    <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">
+                            <i class="bx bx-user-check side-menu__icon"></i>
+                            <span class="side-menu__label">Company</span>
+                            <i class="fe fe-chevron-right side-menu__angle"></i>
+                        </a>
+                        <ul class="slide-menu child1">
+                            <li class="slide side-menu__label1">
+                                <a href="javascript:void(0);">Company</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="Company" asp-action="Index" class="side-menu__item">Index</a>
+                            </li>
+                        </ul>
+                    </li>
+                }
                 <!-- End::slide -->
             </ul>
             <div class="slide-right" id="slide-right">

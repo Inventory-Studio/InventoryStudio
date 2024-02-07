@@ -1,0 +1,157 @@
+﻿@model InventoryStudio.Models.OrderManagement.Location.LocationViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Location Details</div>
+            <div class="hstack btn-list mt-md-0 mt-2">
+                <a asp-controller="Location" asp-action="Edit" asp-route-id="@Model.LocationID" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center" aria-label="Edit Address button">
+                    <i class="bi-pencil-fill me-2 align-middle d-inline-block fs-16"></i>Edit Location 
+                </a>
+                <a class="btn btn-sm btn-light" asp-controller="Location" asp-action="Index" aria-label="Back to List">Back to List</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.ParentLocationID)</label>
+                <p>@Model.ParentLocationID</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.LocationNumber)</label>
+                <p>@Model.LocationNumber</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.LocationName)</label>
+                <p>@Model.LocationName</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UseBins)</label>
+                <p>@Model.UseBins</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UseLotNumber)</label>
+                <p>@Model.UseLotNumber</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UseCartonNumber)</label>
+                <p>@Model.UseCartonNumber</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UseVendorCartonNumber)</label>
+                <p>@Model.UseVendorCartonNumber</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UseSerialNumber)</label>
+                <p>@Model.UseSerialNumber</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.AllowMultiplePackagePerFulfillment)</label>
+                <p>@Model.AllowMultiplePackagePerFulfillment</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.AllowAutoPick)</label>
+                <p>@Model.AllowAutoPick</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.AllowAutoPickApproval)</label>
+                <p>@Model.AllowAutoPickApproval</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.AllowNegativeInventory)</label>
+                <p>@Model.AllowNegativeInventory</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultAddressValidation)</label>
+                <p>@Model.DefaultAddressValidation</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultSignatureRequirement)</label>
+                <p>@Model.DefaultSignatureRequirement</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultSignatureRequirementAmount)</label>
+                <p>@Model.DefaultSignatureRequirementAmount</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultCountryOfOrigin)</label>
+                <p>@Model.DefaultCountryOfOrigin</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultHSCode)</label>
+                <p>@Model.DefaultHSCode</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultLowestShippingRate)</label>
+                <p>@Model.DefaultLowestShippingRate</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.MaximumPackScanRequirement)</label>
+                <p>@Model.MaximumPackScanRequirement</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.MaximumPickScanRequirement)</label>
+                <p>@Model.MaximumPickScanRequirement</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DisplayWeightMode)</label>
+                <p>@Model.DisplayWeightMode</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.FulfillmentCombineStatus)</label>
+                <p>@Model.FulfillmentCombineStatus</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.EnableSimpleMode)</label>
+                <p>@Model.EnableSimpleMode</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.EnableSimpleModePack)</label>
+                <p>@Model.EnableSimpleModePack</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.EnableSimpleModePick)</label>
+                <p>@Model.EnableSimpleModePick</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.ValidateSource)</label>
+                <p>@Model.ValidateSource</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.VarianceBinID)</label>
+                <p>@Model.VarianceBinID</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.Address)</label>
+                <p>@Model.Address</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.Company)</label>
+                <p>@Model.Company</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.DefaultPackageDimension)</label>
+                <p>@Model.DefaultPackageDimension</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.CreatedBy)</label>
+                <p>@Model.CreatedBy</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.CreatedOn)</label>
+                <p>@Model.CreatedOn</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedBy)</label>
+                <p>@Model.UpdatedBy</p>
+            </div>
+            <div class="d-flex flex-column col-md-4">
+                <label class="form-label">@Html.DisplayNameFor(model => model.UpdatedOn)</label>
+                <p>@Model.UpdatedOn</p>
+            </div>
+        </div>
+    </div>
+</div>

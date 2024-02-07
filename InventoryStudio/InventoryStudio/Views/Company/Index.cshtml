@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Company";
-    var normalizedBoolean = "normalizedBooleanFn";
+    var normalizeBoolean = "normalizedBooleanFn";
 }
 
 
@@ -34,9 +34,9 @@
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="CompanyName" headerText="Company Name" width="120"></e-grid-column>
-                    <e-grid-column field="AutomateFulfillment" headerText="Automate Fulfillment" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="AutomateFulfillment" headerText="Automate Fulfillment" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="ShippoAPIKey" headerText="Shippo API Key" width="120"></e-grid-column>
-                    <e-grid-column field="IncludePackingSlipOnLabel" headerText="Include Packing Slip" valueAccessor="normalizedBoolean" width="120"></e-grid-column>
+                    <e-grid-column field="IncludePackingSlipOnLabel" headerText="Include Packing Slip" valueAccessor="normalizeBoolean" width="120"></e-grid-column>
                     <e-grid-column field="DefaultFulfillmentMethod" headerText="Default Fulfillment Method" width="120"></e-grid-column>
                     <e-grid-column field="DefaultFulfillmentStrategy" headerText="Default Fulfillment Strategy" width="120"></e-grid-column>
                     <e-grid-column field="DefaultAllocationStrategy" headerText="Default Allocation Strategy" width="120"></e-grid-column>
@@ -59,50 +59,11 @@
     </div>
 </script>
 
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
 
 <!-- Javascript logic for datagrid -->
 <script lang="js">
-
-    function normalizedBooleanFn(field, data, column) {
-        var value = data[field];
-        if (value) {
-            return "Yes";
-        }
-        return "No";
-    }
-
-    function toolbarClick(args) {
-        var gridObj = document.getElementById("Grid").ej2_instances[0];
-        if (args.item.id === 'Grid_pdfexport') {
-            var pdfdata = gridObj.getSelectedRecords();
-            if (pdfdata?.length > 0) {
-                var exportProperties = {
-                    dataSource: pdfdata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Companies.pdf"
-                };
-                gridObj.pdfExport(exportProperties);
-            } else {
-                gridObj.pdfExport({
-                    fileName: "IS_Companies.pdf"
-                });
-            }
-        }
-        if (args.item.id === 'Grid_excelexport') {
-            var exceldata = gridObj.getSelectedRecords();
-            if (exceldata?.length > 0) {
-                var exportProperties = {
-                    dataSource: exceldata,
-                    includeHiddenColumn: true,
-                    fileName: "IS_Companies.xlsx"
-                };
-                gridObj.excelExport(exportProperties);
-            } else {
-                gridObj.excelExport({
-                    fileName: "IS_Companies.xlsx"
-                });
-            }
-
-        }
-    }
+    var normalizedBooleanFn = normalizedBoolean;
+    const toolbarClick = customExportToolbarClick("Grid", "IS_Companies");
 </script>
+

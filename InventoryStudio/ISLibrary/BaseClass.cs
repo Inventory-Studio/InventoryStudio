@@ -106,7 +106,7 @@ namespace ISLibrary
                 auditData.ParentKey = ParentKey;
                 auditData.ParentObject = ParentObject;
                 auditData.ChangedValue = auditDataJson;
-                auditData.CreatedBy = UpdatedBy;
+                auditData.CreatedBy = UpdatedBy ?? CreatedBy ;
                 
                 auditData.Create();
 

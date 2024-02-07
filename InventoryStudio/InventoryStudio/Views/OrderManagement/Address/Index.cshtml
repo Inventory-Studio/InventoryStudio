@@ -1,0 +1,77 @@
+﻿@model IEnumerable<InventoryStudio.Models.OrderManagement.Address.AddressViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container-fluid py-4 h-100">
+    <div class="card custom-card h-100">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Address Management</div>
+            <div>
+                <a asp-controller="Address" asp-action="Create" class="btn btn-sm btn-primary hstack align-items-center"><i class="bi-plus me-2 align-middle d-inline-block fs-16"></i>Create Address</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <ejs-grid id="Grid" class="h-100" allowPaging="true" allowReordering="true" allowSorting="true" toolbarClick="toolbarClick" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+                      allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Delete", "PdfExport", "ExcelExport" })">
+
+                <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
+                </e-grid-editSettings>
+                <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
+                <e-data-manager url="/Address/UrlDatasource" adaptor="UrlAdaptor" insertUrl="/Address/Insert"
+                                updateUrl="/Address/Update" removeUrl="/Address/Remove">
+                </e-data-manager>
+                @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
+                <e-grid-columns>
+                    <e-grid-column visible="false" field="AddressID" headerText="ID" type="int" isPrimaryKey="true"
+                                   validationRules="@(new { number = true })" width="80">
+                    </e-grid-column>
+                    <e-grid-column field="Company" headerText="Company" width="120"></e-grid-column>
+                    <e-grid-column field="Country" headerText="Country" width="120"></e-grid-column>
+                    <e-grid-column field="FullName" headerText="Full Name" width="120"></e-grid-column>
+                    <e-grid-column field="Attention" headerText="Attention" width="120"></e-grid-column>
+                    <e-grid-column field="CompanyName" headerText="Company Name" width="120"></e-grid-column>
+                    <e-grid-column field="Address1" headerText="Address 1" width="120"></e-grid-column>
+                    <e-grid-column field="Address2" headerText="Address 2" width="120"></e-grid-column>
+                    <e-grid-column field="Address3" headerText="Address 3" width="120"></e-grid-column>
+                    <e-grid-column field="City" headerText="City" width="120"></e-grid-column>
+                    <e-grid-column field="State" headerText="State" width="120"></e-grid-column>
+                    <e-grid-column field="PostalCode" headerText="Postal Code" width="120"></e-grid-column>
+                    <e-grid-column field="Email" headerText="E-mail" width="120"></e-grid-column>
+                    <e-grid-column field="Phone" headerText="Phone" width="120"></e-grid-column>
+                    <e-grid-column field="Zone" headerText="Zone" width="120"></e-grid-column>
+                    <e-grid-column field="IsInvalidAddress" headerText="Is Invalid Address" width="120"></e-grid-column>
+                    <e-grid-column field="IsAddressUpdated" headerText="Is Address Updated" width="120"></e-grid-column>
+                    <e-grid-column field="CreatedBy" headerText="Created By" width="120"></e-grid-column>
+                    <e-grid-column field="CreatedOn" headerText="Created On" width="120"></e-grid-column>
+                    <e-grid-column field="UpdatedBy" headerText="Updated By" width="120"></e-grid-column>
+                    <e-grid-column field="UpdatedOn" headerText="Updated On" width="120"></e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </div>
+</div>
+
+
+<!-- Actions template -->
+<script id="actions" type="text/x-template">
+    <div class="hstack gap-2">
+        <a href="/Address/Edit?id=${AddressID}" class="btn btn-icon btn-warning-light" data-bs-toggle="tooltip" title="Edit user" aria-label="Edit user button">
+            <i class="bi-pencil-fill"></i>
+        </a>
+        <a href="/Address/Details?id=${AddressID}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View user" aria-label="View user button">
+            <i class="bi-eye-fill"></i>
+        </a>
+    </div>
+</script>
+
+
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
+
+<!-- Javascript logic for datagrid -->
+<script lang="js">
+    var normalizedBooleanFn = normalizedBoolean;
+    const toolbarClick = customExportToolbarClick("Grid", "IS_Access_Tokens");
+</script>
