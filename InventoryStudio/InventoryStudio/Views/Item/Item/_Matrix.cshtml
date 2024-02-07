@@ -1,0 +1,293 @@
+﻿@model ItemViewModel
+
+<div class="tab-pane fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
+    <div class="row">
+            <div class="col-12">
+                <h2>Attributes</h2>
+            <button type="button" id="addAttributes" class="btn btn-primary mb-2">Add</button>
+            <table class="table" id="attributesTable">
+                    <thead>
+                        <tr>
+                            <th>Attribute Name</th>
+                            <th>Attribute Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                        foreach (var ItemAttribute in Model.ItemAttributes ?? Enumerable.Empty<ItemAttribute>())
+                            {
+
+                            }
+                        }
+                    </tbody>
+                </table>
+                <button class="btn btn-secondary">Back</button>
+            </div>
+        
+    </div>
+</div>
+
+<div class="tab-pane fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
+    <div class="row">
+        <div class="col-12">
+            <h2>Matrix Attribute(s)</h2>
+            @*<button type="button" id="addAttributes" class="btn btn-primary mb-2">Batch Update</button>*@
+            <table class="table" id="matrixTable">
+                <thead>
+                    <tr>
+                        <th>Item Number</th>
+                        <th>Item Name</th>
+                        <th>Attributes</th>
+                        <th>Use Existing Item</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+            </table>
+            <button class="btn btn-secondary">Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Modal for existing items -->
+<div class="modal fade" id="existingItemModal" tabindex="-1" role="dialog" aria-labelledby="existingItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="existingItemModalLabel">Use Existing Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- The select dropdown where items will be populated -->
+                <select id="matrixItemSelect" class="form-control">
+                    <!-- Dynamically populated items -->
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="saveItemBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+            // Disable form submission on Enter key for inputs with tagsinput
+            $(document).on('keypress', '.bootstrap-tagsinput input', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#addAttributes').click(function () {
+                var newRow = $('<tr>');
+
+                // Add an input for attribute name
+            newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control attribute-name')));
+
+                // Add tagsinput for attribute values
+            var tagsInput = $('<input>').attr('type', 'text').addClass('form-control attribute-value').data('role', 'tagsinput');
+                newRow.append($('<td>').append(tagsInput));
+
+                // Add buttons for saving and deleting attributes
+                var actions = $('<td>');
+                actions.append($('<button>').addClass('btn btn-success btn-sm confirmAttributesBtn').html('&#10003;').on('click', function (e) {
+                    // Save attribute logic here
+                    e.preventDefault();
+                }));
+                actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;').on('click', function (e) {
+                    // Delete attribute logic here
+                    e.preventDefault();
+                }));
+                newRow.append(actions);
+
+                // Append the new row to the table's tbody
+                $('#attributesTable tbody').append(newRow);
+
+                // Initialize tagsinput plugin
+                tagsInput.tagsinput();
+            });
+
+
+        var attributes = {};
+
+        $(document).on('click', '.confirmAttributesBtn', function () {
+            // Get the current row
+            var $tableBody = $('#attributesTable').find('tbody');
+            var index = $tableBody.find('tr').length - 1;
+            var $row = $(this).closest('tr');
+            var attributeName = $row.find('.attribute-name').val();
+            var attributeValues = $row.find('.attribute-value').tagsinput('items'); 
+
+            $row.find('td').eq(0).text(attributeName);
+            $row.find('td').eq(1).empty().text(attributeValues.join(', '));
+
+            var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemAttributes[' + index + '].AttributeName',
+                value: attributeName
+            }).appendTo($row);
+
+            attributeValues.forEach(function (value, i) {            
+                $row.append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'ItemAttributes[' + index + '].ItemAttributeValues[' + i + '].AttributeValueName',
+                    value: value
+                }));
+            });
+
+            // Remove the action buttons from the current row
+            var $actionsCell = $row.find('td').eq(2);
+            $actionsCell.html('');
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+
+            // Store the attribute and its values
+            attributes[attributeName] = attributeValues;
+
+            // Generate and display all attribute combinations
+            generateMatrixCombinations(attributes);
+        });
+
+
+        function generateMatrixCombinations(attributes) {
+            var attributeNames = Object.keys(attributes);
+            var combinations = cartesianProductOfAttributes(attributes);
+
+            // Clear existing matrix entries
+            var $matrixTableBody = $('#matrixTable').find('tbody');
+            $matrixTableBody.empty();
+
+            // Add new combinations
+            combinations.forEach(function (combination, index) {
+                var combinationId = combination.join('-');
+                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationId);
+
+                $newMatrixRow.append($('<td>').text('Matrix_' + combinationId));
+                $newMatrixRow.append($('<td>').text('Matrix'));
+                $newMatrixRow.append($('<td>').text('- ' + combinationId));
+                $newMatrixRow.append($('<td>').append($('<button type="button">').addClass('btn btn-primary use-existing-item-btn').text('Use Existing Item')));
+
+                $matrixTableBody.append($newMatrixRow);
+            });
+        }
+
+        // Compute the Cartesian product
+        function cartesianProductOfAttributes(attributes) {
+            var keys = Object.keys(attributes);
+            var results = keys.reduce(function (acc, key) {
+                var newAcc = [];
+                acc.forEach(function (item) {
+                    attributes[key].forEach(function (value) {
+                        newAcc.push(item.concat([value]));
+                    });
+                });
+                return newAcc;
+            }, [[]]); // Initial value as an array containing an empty array
+
+            return results;
+        }
+
+        var ItemMatrixProductOptions = null;
+
+        // Fetch product data when the page loads
+        fetchMatrixProductOptions();
+
+        // Function to fetch product data from the server
+        function fetchMatrixProductOptions() {
+            $.ajax({
+                url: '/Item/GetKitChildItems',
+                method: 'GET',
+                success: function (response) {
+
+                    // Assuming the backend returns data in the format { dataSource: [{ ItemName, ItemId }, ...] }
+                    ItemMatrixProductOptions = response.dataSource.map(function (item) {
+                        // Create an option element with the text being the ItemName and the value being the ItemId
+
+                        return $('<option>').text(item.itemName).val(item.itemID);
+                    });
+                    // Update the select elements with these options
+                    //updateSelectElements();
+                },
+                error: function (error) {
+                    console.error('Error fetching product data:', error);
+                }
+            });
+        }
+
+        // When 'Use Existing Item' is clicked, show the modal
+        $(document).on('click', '.use-existing-item-btn', function () {
+            // Assuming the modal has an ID of 'existingItemModal'
+            $('#matrixItemSelect').append(ItemMatrixProductOptions);
+            var combinationId = $(this).closest('tr').data('combination-id');
+            $('#existingItemModal').data('item-id', combinationId);
+            $('#existingItemModal').modal('show');
+        });
+
+        // When an item is selected in the modal and 'Save' is clicked
+        $(document).on('click', '#saveItemBtn', function () {
+            // Get the selected item details
+            var selectedItem = $('#matrixItemSelect').find('option:selected').text();            
+            var selectedItemParts = selectedItem.split('-');
+            var itemId = $('#matrixItemSelect').val();
+            var itemNumber = selectedItemParts[0];
+            var itemName = selectedItemParts[1];
+
+            // Use the combination ID to find the row to update
+            var combinationId = $('#existingItemModal').data('item-id');
+            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+            // Find the index of the row within the tbody
+            var index = $rowToUpdate.index();
+
+            // Update the table row with the selected item details
+            $rowToUpdate.find('td').eq(0).text(itemNumber);
+            $rowToUpdate.find('td').eq(1).text(itemName);
+
+             var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemMatrices[' + index + '].ItemID',
+                value: itemId
+            }).appendTo($rowToUpdate);
+
+            var $hiddenTypeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'ItemMatrices[' + index + '].AttributeValue',
+                value: combinationId
+            }).appendTo($rowToUpdate);
+
+
+            // Change the button to 'Undo' and switch classes
+            $rowToUpdate.find('.use-existing-item-btn').removeClass('use-existing-item-btn').addClass('undo-btn').text('Undo');
+
+            // Close the modal
+            $('#existingItemModal').modal('hide');
+        });
+
+        // When 'Undo' is clicked
+        $(document).on('click', '.undo-btn', function (e) {
+
+            // Prevent the default action and stop the event from bubbling up to prevent triggering the modal
+            e.preventDefault();
+            e.stopPropagation();
+
+            var combinationId = $(this).closest('tr').data('combination-id');
+            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+
+            // Revert the changes made to the row
+            $rowToUpdate.find('td').eq(0).text('Matrix_' + combinationId);
+            $rowToUpdate.find('td').eq(1).text('Matrix');
+            $rowToUpdate.find('td').eq(2).text('- ' + combinationId);
+
+            // Change the button back to 'Use Existing Item'
+            $(this).removeClass('undo-btn').addClass('use-existing-item-btn').text('Use Existing Item');
+        });
+
+    });
+</script>
+

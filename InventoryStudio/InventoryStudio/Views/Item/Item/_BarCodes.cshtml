@@ -1,0 +1,125 @@
+﻿@model ItemViewModel
+
+<div class="tab-pane fade" id="barcode-content" role="tabpanel" aria-labelledby="barcode-tab">
+    <div class="row">
+        <div class="col-12">
+            <h2>Item Barcode(s)</h2>
+            <button type="button" id="addBarCodes" class="btn btn-primary mb-2">Add</button>
+            <table class="table" id="barcodeTable">
+                <thead>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Item.ItemBarcodes !=null)
+                    {
+                        int index = 0;
+                        foreach (var itemBarcode in Model.Item.ItemBarcodes)
+                        {
+                            <tr>
+                                <td>
+                                    @itemBarcode.Barcode
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].Barcode" value="@itemBarcode.Barcode">
+                                </td>
+                                <td>
+                                    @itemBarcode.Type
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].Type" value=">@itemBarcode.Type">
+                                </td>
+                                <td>
+
+                                    @if (itemBarcode.Type != "Item Number")
+                                    {
+                                        <button type="button" class="btn btn-info btn-sm editItemBarCodeBtn">Edit</button>
+                                        <button type="button" class="btn btn-danger btn-sm deleteBtn">Delete</button>
+                                    }
+
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function () {
+        
+
+        $('#addBarCodes').click(function () {
+            var $tableBody = $('#barcodeTable').find('tbody');
+            var $newRow = $('<tr/>');
+            $newRow.append($('<td/>').html('<input type="text" class="form-control" placeholder="Barcode">'));
+            $newRow.append($('<td/>').html('<input type="text" class="form-control" placeholder="Type">'));
+
+            var $actionsCell = $('<td/>');
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-success btn-sm saveItemBarCodeBtn').text('√'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('x'));
+            $newRow.append($actionsCell);
+            $tableBody.append($newRow);
+        });
+
+        $(document).on('click', '.saveItemBarCodeBtn', function () {
+            var $tableBody = $('#barcodeTable').find('tbody');
+            var index = $tableBody.find('tr').length - 1;
+            var $row = $(this).closest('tr');
+            var barcodeVal = $row.find('input').eq(0).val();
+            var typeVal = $row.find('input').eq(1).val();
+            $row.find('td').eq(0).text(barcodeVal);
+            $row.find('td').eq(1).text(typeVal);
+
+            var $hiddenBarcodeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'Item.ItemBarcodes[' + index + '].Barcode',
+                value: barcodeVal
+            }).appendTo($row.find('td').eq(0));
+
+            var $hiddenTypeInput = $('<input/>', {
+                type: 'hidden',
+                name: 'Item.ItemBarcodes[' + index + '].Type',
+                value: typeVal
+            }).appendTo($row.find('td').eq(1));
+
+            var $actionsCell = $row.find('td').eq(2);
+            $actionsCell.html('');
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemBarCodeBtn').text('Edit'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+        });
+
+        $(document).on('click', '.deleteBtn', function () {
+            $(this).closest('tr').remove();
+        });
+
+        $(document).on('click', '.editItemBarCodeBtn', function () {
+            // Get the current row
+            var $row = $(this).closest('tr');
+
+            // Iterate over each cell in the current row
+            $row.find('td').each(function () {
+                var $td = $(this);
+                var text = $td.text().trim(); // Get the text content of the cell
+                var inputName = $td.find('input[type="hidden"]').attr('name'); // Get the name of the hidden input
+
+                if (inputName) { // Check if there's a hidden input
+                    // Replace the cell content with an editable input field
+                    $td.html('<input type="text" class="form-control" name="' + inputName.replace('[index]', '[' + $row.index() + ']') + '" value="' + text + '">');
+                }
+            });
+
+            // Replace the edit button with a save button
+            $(this).replaceWith('<button type="button" class="btn btn-success btn-sm saveItemBarCodeBtn">√</button>');
+        });
+
+       
+
+    });
+</script>
+
