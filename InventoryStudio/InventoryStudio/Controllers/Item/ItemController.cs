@@ -93,7 +93,7 @@ namespace InventoryStudio.Controllers
 
             if (TempData["FormData"] != null)
             {
-                string formData = TempData["FormData"].ToString();
+                string formData = TempData["FormData"] as string;
                 itemViewModel = JsonConvert.DeserializeObject<ItemViewModel>(formData);
 
                 if (TempData["ErrorMessage"] != null)

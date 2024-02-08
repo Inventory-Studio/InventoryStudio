@@ -294,8 +294,8 @@ namespace ISLibrary
                 if (objColumns.Contains("Barcode")) Barcode = Convert.ToString(objRow["Barcode"]);
                 if (objColumns.Contains("IsBarcoded")) IsBarcoded = Convert.ToBoolean(objRow["IsBarcoded"]);
                 if (objColumns.Contains("IsShipReceiveIndividually")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["IsShipReceiveIndividually"]);
-                if (objColumns.Contains("FulfillByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["FulfillByKit"]);
-                if (objColumns.Contains("ReceiveByKit")) IsShipReceiveIndividually = Convert.ToBoolean(objRow["ReceiveByKit"]);
+                if (objColumns.Contains("FulfillByKit")) FulfillByKit = Convert.ToBoolean(objRow["FulfillByKit"]);
+                if (objColumns.Contains("ReceiveByKit")) ReceiveByKit = Convert.ToBoolean(objRow["ReceiveByKit"]);
                 if (objColumns.Contains("DisplayComponents")) DisplayComponents = Convert.ToBoolean(objRow["DisplayComponents"]);
                 if (objColumns.Contains("UnitOfMeasure")) UnitOfMeasure = Convert.ToString(objRow["UnitOfMeasure"]);
                 if (objColumns.Contains("Memo")) Memo = Convert.ToString(objRow["Memo"]);
@@ -571,34 +571,32 @@ namespace ISLibrary
 
                 Item currentItem = new Item(CompanyID, ItemID);
 
-                //Delete no longer existing item attributevalueline for the item
-                //foreach (ItemAttributeValueLine _currentItemAttributeValueLine in currentItem.ItemAttributeValueLines)
-                //{
-                //    if (!ItemAttributeValueLines.Exists(x => x.ItemAttributeValueLineID == _currentItemAttributeValueLine.ItemAttributeValueLineID))
-                //    {
-                //        //_currentItemAttributeValueLine.IsLoaded = true;
-                //        _currentItemAttributeValueLine.Delete(objConn, objTran);
-                //    }
-                //}
+                foreach (ItemComponent _currentItemComponent in currentItem.ItemComponents)
+                {
+                    if (!ItemComponents.Exists(x => x.ItemComponentID == _currentItemComponent.ItemComponentID))
+                    {
+                        _currentItemComponent.Delete(objConn, objTran);
+                    }
+                }
 
-                //if (ItemAttributeValueLines != null)
-                //{
-                //    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
-                //    {
-                //        if (objItemAttributeValueLine.IsNew)
-                //        {
-                //            objItemAttributeValueLine.ItemID = ItemID;
-                //            objItemAttributeValueLine.CreatedBy = UpdatedBy;
-                //            objItemAttributeValueLine.Create(objConn, objTran);
-                //        }
-                //        else
-                //        {
-                //            objItemAttributeValueLine.ItemID = ItemID;
-                //            objItemAttributeValueLine.UpdatedBy = UpdatedBy;
-                //            objItemAttributeValueLine.Update(objConn, objTran);
-                //        }
-                //    }
-                //}
+                if (ItemComponents != null)
+                {
+                    foreach (ItemComponent objItemComponent in ItemComponents)
+                    {
+                        if (objItemComponent.IsNew)
+                        {
+                            objItemComponent.CompanyID = CompanyID;
+                            objItemComponent.ItemID = ItemID;
+                            objItemComponent.CreatedBy = CreatedBy;
+                            objItemComponent.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemComponent.UpdatedBy = UpdatedBy;
+                            objItemComponent.Update(objConn, objTran);
+                        }
+                    }
+                }
 
                 //Delete no longer existing item attributevalueline for the item
                 foreach (ItemKit _currentItemKit in currentItem.ItemKits)

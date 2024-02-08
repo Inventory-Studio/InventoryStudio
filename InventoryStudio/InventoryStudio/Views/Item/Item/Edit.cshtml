@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="form-check">
                                     <input asp-for="@Model.Item.IsShipReceiveIndividually" type="checkbox" class="form-check-input" />
-                                    <label class="form-check-label" for="receiveIndividually">
+                                    <label class="form-check-label" for="IsShipReceiveIndividually">
                                         Receive Individually
                                     </label>
                                 </div>
@@ -203,49 +203,88 @@
         }
 
     function addItemBarcode() {
-        var itemNumber = $('#Item_ItemNumber').val();
-        var barcodeExists = false;
-        var $tableBody = $('#barcodeTable').find('tbody');
+    var itemNumber = $('#Item_ItemNumber').val();
+    var barcodeExists = false;
+    var $tableBody = $('#barcodeTable').find('tbody');
 
-        // 遍历表格的行以检查是否存在相同的条目
-        $tableBody.find('tr').each(function () {
-            var $row = $(this);
-            var currentItemType = $row.find('input[name^="Item.ItemBarcodes["][name$="].Type"]').val();
+    // Iterate through the rows of the table to check if an entry with the same item number already exists
+    $tableBody.find('tr').each(function () {
+        var $row = $(this);
+        var currentItemType = $row.find('input[name^="Item.ItemBarcodes["][name$="].Type"]').val();
 
-            if (currentItemType == 'Item Number') {
+        if (currentItemType == 'Item Number') {
                 barcodeExists = true;
-                // 可以在这里更新这一行的显示内容，如果需要的话
-                $row.find('.barcode-display').text(itemNumber);
-                $row.find('input[name^="Item.ItemBarcodes["][name$="].Barcode"]').val(itemNumber)
-                return false; // 退出循环
+
+                var barcodeInput = $row.find('input[name^="Item.ItemBarcodes["][name$="].Barcode"]');
+                barcodeInput.val(itemNumber);
+
+                var $td = $row.find('td:first');
+                // Remove any text nodes in the td, preparing to insert updated text
+                $td.contents().filter(function() {
+                    return this.nodeType == 3; // Node.TEXT_NODE
+                }).remove();
+                // Insert the new barcode text before the hidden input
+                barcodeInput.before(document.createTextNode(itemNumber));
+                return false; // Break the loop since we've found and updated the existing entry
             }
         });
 
-        // 如果条目不存在，则添加新条目到表格和隐藏字段
+        // If no existing entry was found, add a new row to the table with the new barcode information
         if (!barcodeExists && itemNumber) {
-            var index = $tableBody.find('tr').length; // 用行数作为索引
+            var index = $tableBody.find('tr').length; // Use the row count as the new index
 
-            // 创建新的表格行
+            // Create a new table row
             var $newRow = $('<tr/>');
-            $newRow.append($('<td/>').addClass('barcode-display').text(itemNumber)); // 用于显示条形码
-            $newRow.append($('<td/>').text('Item Number')); // 用于显示类型
+            // Add a cell for displaying the barcode
+            $newRow.append($('<td/>').addClass('barcode-display').text(itemNumber)); 
+            // Add a cell for displaying the type
+            $newRow.append($('<td/>').text('Item Number'));
 
-            // 创建隐藏输入字段
+            // Create a hidden input for the barcode value
             var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
                 name: 'Item.ItemBarcodes[' + index + '].Barcode',
                 value: itemNumber
-            }).appendTo($newRow); // 将隐藏字段添加到新行中
+            }).appendTo($newRow); // Add the hidden input to the new row
 
+            // Create a hidden input for the barcode type
             var $hiddenTypeInput = $('<input/>', {
                 type: 'hidden',
                 name: 'Item.ItemBarcodes[' + index + '].Type',
                 value: 'Item Number'
-            }).appendTo($newRow); // 将隐藏字段添加到新行中
+            }).appendTo($newRow); // Add the hidden input to the new row
 
-            $tableBody.append($newRow); // 将新行添加到表格的 tbody 中
+            // Add the new row to the table body
+            $tableBody.append($newRow);
         }
     }
+
+    function reindexTableInputs(tableSelector) {
+        // Iterate through each row in the specified table
+        $(tableSelector + ' tbody tr').each(function(index) {
+            // Update the name attribute for each input element within the row to reflect the new index
+            $(this).find('input').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    // Use a regular expression to find and replace the index within the name attribute
+                    var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                    $(this).attr('name', newName);
+                }
+            });
+        });
+    }
+
+    // Before form submission, call reindexTableInputs for each table
+    $('form').submit(function(e) {
+        reindexTableInputs('#barcodeTable');
+        reindexTableInputs('#itemComponentsTable');
+        reindexTableInputs('#itemKitTable');
+        reindexTableInputs('#attributesTable');
+        reindexTableInputs('#matrixTable');
+        // Allow the form to be submitted normally
+    });
+
+
    
 
     $(document).ready(function () {

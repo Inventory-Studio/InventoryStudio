@@ -26,10 +26,10 @@
                                 </td>
                                 <td>
                                     @itemBarcode.Type
-                                    <input type="hidden" name="Item.ItemBarcodes[@index].Type" value=">@itemBarcode.Type">
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].Type" value="@itemBarcode.Type">
                                 </td>
                                 <td>
-
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].ItemBarcodeID" value="@itemBarcode.ItemBarcodeID">
                                     @if (itemBarcode.Type != "Item Number")
                                     {
                                         <button type="button" class="btn btn-info btn-sm editItemBarCodeBtn">Edit</button>

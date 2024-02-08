@@ -15,13 +15,35 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null)
+                    @if (Model != null && Model.Item.ItemComponents != null)
                     {
-                        foreach (var ItemComponent in Model.Item.ItemComponents ?? Enumerable.Empty<ItemComponent>())
+                        int index = 0;
+                        foreach (var ItemComponent in Model.Item.ItemComponents )
                         {
+                            if (ItemComponent.ChildItem != null)
+                            {
+                                <tr>
+                                    <td>
+                                        @ItemComponent.ChildItem.ItemName
+                                        <input type="hidden" name="Item.ItemComponents[@index].ChildItemID" value="@ItemComponent.ChildItemID">
+                                    </td>
+                                    <td>
+                                        @ItemComponent.Quantity
+                                        <input type="hidden" name="Item.ItemComponents[@index].Type" value="@ItemComponent.Quantity">
+                                    </td>
+                                    <td><input type="text" class="form-control"></td>
+                                    <td>
+                                        <input type="hidden" name="Item.ItemComponents[@index].ItemComponentID" value="@ItemComponent.ItemComponentID">
+                                        <button type="button" class="btn btn-info btn-sm editItemComponentBtn">Edit</button>
+                                        <button type="button" class="btn btn-danger btn-sm deleteBtn">Delete</button>                                   
 
+                                    </td>
+                                </tr>
+                                index++;
+                            }
                         }
                     }
+
                 </tbody>
             </table>
             <button class="btn btn-secondary">Back</button>
@@ -81,7 +103,7 @@
             newRow.append($('<td>').append($('<input>').attr('type', 'number').addClass('form-control').val(1)));
             newRow.append($('<td>').append($('<input>').attr('type', 'text').addClass('form-control')));
 
-            var actions = $('<td>').append($('<button>').addClass('btn btn-success btn-sm confirmBtn').html('&#10003;'));
+            var actions = $('<td>').append($('<button>').addClass('btn btn-success btn-sm saveItemComponentBtn').html('&#10003;'));
             actions.append($('<button>').addClass('btn btn-danger btn-sm deleteBtn').html('&times;'));
             newRow.append(actions);
 
@@ -90,35 +112,58 @@
         });
 
 
-        $(document).on('click', '.confirmBtn', function () {
-            // Get the current row
-            var $tableBody = $('#component-content').find('tbody');
-            var index = $tableBody.find('tr').length - 1;
+      $(document).on('click', '.editItemComponentBtn', function () {
             var $row = $(this).closest('tr');
-            var itemName = $row.find('select').eq(0).text();
-            var itemId = $row.find('select').eq(0).val();
-            var quantity = $row.find('input').eq(0).val();
-            $row.find('td').eq(0).text(itemName);
-            $row.find('td').eq(1).text(quantity);
 
-            var $hiddenBarcodeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemComponents[' + index + '].ChildItemID',
-                value: itemId
-            }).appendTo($row);
+            // Assuming the first cell contains the item name as text and a hidden input for the item ID
+            var itemName = $row.find('td:first').text().trim();
+            var itemId = $row.find('input[type="hidden"][name*="ChildItemID"]').val();
 
-            var $hiddenTypeInput = $('<input/>', {
-                type: 'hidden',
-                name: 'Item.ItemComponents[' + index + '].Quantity',
-                value: quantity
-            }).appendTo($row);
+            // Transform the first cell into a dropdown for item selection
+            var $select = $('<select>').addClass('form-control item-select');
+            // Append previously fetched options to the select element. Ensure fetchProductOptions() populates a global variable correctly.
+            $select.append(ItemComponetProductOptions);
+            // Set the selected value based on the item ID
+            $select.val(itemId);
+            $row.find('td:first').empty().append($select);
 
-            // Remove the action buttons from the current row
-            var $actionsCell = $row.find('td').eq(3);
-            $actionsCell.html('');
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editBtn').text('Edit'));
+            // Transform the second cell for quantity into an editable input field
+            var quantity = $row.find('td').eq(1).text().trim();
+            $row.find('td').eq(1).empty().append($('<input>').attr('type', 'number').addClass('form-control').val(quantity));
+
+            // Replace the edit and delete buttons with a save and cancel button
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-success btn-sm saveItemComponentBtn').html('&#10003;')); // Save button
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm cancelBtn').html('&times;')); // Cancel button
+        });
+
+        // Handle the save operation
+        $(document).on('click', '.saveItemComponentBtn', function () {
+            var $row = $(this).closest('tr');
+
+            // Extract values from the editable inputs/select
+            var itemName = $row.find('select.item-select option:selected').text();
+            var itemId = $row.find('select.item-select').val();
+            var quantity = $row.find('input[type="number"]').val();
+
+            // Update the row with the new values and convert inputs back to text
+            $row.find('td:first').text(itemName).append($('<input>').attr('type', 'hidden').attr('name', 'Item.ItemComponents[' + $row.index() + '].ChildItemID').val(itemId));
+            $row.find('td').eq(1).text(quantity).append($('<input>').attr('type', 'hidden').attr('name', 'Item.ItemComponents[' + $row.index() + '].Quantity').val(quantity));
+
+            // Replace save and cancel buttons back to edit and delete
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemComponentBtn').text('Edit'));
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
         });
+
+        // Handle the cancel operation
+        $(document).on('click', '.cancelBtn', function () {
+            // Reload or reset the row to its original state. This may require re-fetching the data or storing the original state before editing.
+            location.reload(); // Simple but not efficient way to reset the state. Consider more sophisticated state management for production use.
+        });
+
 
         $(document).on('click', '.deleteBtn', function () {
             $(this).closest('tr').remove();
