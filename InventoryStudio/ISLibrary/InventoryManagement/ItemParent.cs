@@ -14,7 +14,6 @@ namespace ISLibrary
         public string ItemParentID { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(ItemParentID); } }
         public string CompanyID { get; set; }
-        public string ClientID { get; set; }
         public string ItemNumber { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; private set; }
@@ -94,6 +93,43 @@ namespace ISLibrary
                 mItemAttributes = value;
             }
         }
+
+        private List<ItemMatrix> mItemMatrices = null;
+        public List<ItemMatrix> ItemMatrices
+        {
+            get
+            {
+                ItemMatrixFilter objFilter = null;
+
+                try
+                {
+                    if (mItemMatrices == null)
+                    {
+                        if (!string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemParentID))
+                        {
+                            objFilter = new ItemMatrixFilter();
+                            objFilter.ItemParentID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.ItemParentID.SearchString = ItemParentID;
+                            mItemMatrices = ItemMatrix.GetItemMatrices(CompanyID, objFilter);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mItemMatrices;
+            }
+            set
+            {
+                mItemMatrices = value;
+            }
+        }
+
         public ItemParent()
         {
         }
@@ -153,7 +189,7 @@ namespace ISLibrary
 
                 if (objColumns.Contains("ItemParentID")) ItemParentID = Convert.ToString(objRow["ItemParentID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
+               
                 if (objColumns.Contains("ItemNumber")) ItemNumber = Convert.ToString(objRow["ItemNumber"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
@@ -215,7 +251,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemNumber"] = ItemNumber;
                 dicParam["CreatedBy"] = CreatedBy;
                 ItemParentID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemParent"), objConn, objTran).ToString();
@@ -239,6 +274,62 @@ namespace ISLibrary
                         }
                     }
                 }
+
+                if (ItemMatrices != null)
+                {
+                    foreach (ItemMatrix objItemMatrix in ItemMatrices)
+                    {
+                        // Split the AttributeValue by '-' to get individual attribute values
+                        string[] attributeValues = objItemMatrix.AttributeValue.Split('-');
+
+                        
+                        List<ItemMatrixValue> objItemMatrixValues = new List<ItemMatrixValue>();
+
+                        foreach (string attributeValue in attributeValues)
+                        {
+                            // Assuming ItemAttributes is a collection of objItemAttribute
+                            // and each objItemAttribute has a collection of ItemAttributeValue
+                            var itemAttribute = ItemAttributes
+                                .FirstOrDefault(ia => ia.ItemAttributeValues.Any(ava => ava.AttributeValueName == attributeValue));
+
+                            if (itemAttribute != null)
+                            {
+                                // Assuming ItemAttributeValue is a collection and we need the first or default
+                                var itemAttributeValue = itemAttribute.ItemAttributeValues
+                                    .FirstOrDefault(ava => ava.AttributeValueName == attributeValue);
+
+                                if (itemAttributeValue != null)
+                                {
+                                    ItemMatrixValue objItemMatrixValue = new ItemMatrixValue();
+                                    objItemMatrixValue.ItemAttributeID = itemAttribute.ItemAttributeID;
+                                    objItemMatrixValue.ItemAttributeValueID = itemAttributeValue.ItemAttributeValueID;
+                                    objItemMatrixValues.Add(objItemMatrixValue);
+                                }
+                            }
+                        }
+
+                        if (objItemMatrixValues.Count > 0)
+                        {
+                            objItemMatrix.ItemMatrixValues = objItemMatrixValues;
+                        }
+
+                        if (objItemMatrix.IsNew)
+                        {
+                            objItemMatrix.CompanyID = CompanyID;
+                            objItemMatrix.ItemParentID = ItemParentID;
+                            objItemMatrix.CreatedBy = CreatedBy;
+                            objItemMatrix.CreatedBy = CreatedBy;
+                            objItemMatrix.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemMatrix.UpdatedBy = CreatedBy;
+                            objItemMatrix.Update(objConn, objTran);
+                        }
+                    }
+                }
+
+
 
                 if (Items != null)
                 {
@@ -315,7 +406,6 @@ namespace ISLibrary
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
                 dicParam["ItemNumber"] = ItemNumber;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicWParam["ItemParentID"] = ItemParentID;
@@ -370,7 +460,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            //base.Update(); //itemMatrix死循环需要修复
             return true;
         }
 
@@ -444,8 +534,7 @@ namespace ISLibrary
                      "FROM ItemParent (NOLOCK) p " +
                      "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
                      "AND p.ItemNumber=" + Database.HandleQuote(ItemNumber);
-            if (!string.IsNullOrEmpty(ClientID)) strSQL += "AND p.ClientID=" + Database.HandleQuote(ClientID);
-
+            
             if (!string.IsNullOrEmpty(ItemParentID)) strSQL += "AND p.ItemParentID<>" + Database.HandleQuote(ItemParentID);
             return Database.HasRows(strSQL);
         }
@@ -537,5 +626,57 @@ namespace ISLibrary
             }
             return objReturn;
         }
+
+        public static Item CreateItem(Item item,List<ItemAttribute> itemAttributes,List<ItemMatrix> itemMatrices)
+        {
+            ItemParent itemParent = new ItemParent();
+            itemParent.CompanyID = item.CompanyID;
+            itemParent.ItemNumber = item.ItemNumber;
+            itemParent.CreatedBy = item.CreatedBy;
+
+            itemParent.Items = new List<Item> { item };
+            itemParent.ItemAttributes = itemAttributes;
+            itemParent.ItemMatrices = itemMatrices;
+            itemParent.Create();
+            return item;
+        } 
+        public static Item UpdateItem(Item item,List<ItemAttribute> itemAttributes,List<ItemMatrix> itemMatrices)
+        {
+            var itemParent = new ItemParent(item.CompanyID,item.ItemParentID);
+            itemParent.UpdatedBy = item.UpdatedBy;
+
+            var existingItem = itemParent.Items.FirstOrDefault(i => i.ItemID == item.ItemID);
+
+            if (existingItem != null)
+            {               
+                existingItem.ItemNumber = item.ItemNumber;
+                existingItem.IsVariation = item.IsVariation;
+                existingItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
+                existingItem.FulfillByKit = item.FulfillByKit;
+                existingItem.ReceiveByKit = item.ReceiveByKit;
+                existingItem.ItemName = item.ItemName;
+                existingItem.HSCode = item.HSCode;
+                existingItem.GoodDescription = item.GoodDescription;
+                existingItem.CountryOfOrigin = item.CountryOfOrigin;
+                existingItem.PackageLength = item.PackageLength;
+                existingItem.PackageWidth = item.PackageWidth;
+                existingItem.PackageHeight = item.PackageHeight;
+                existingItem.PackageDimensionUOM = item.PackageDimensionUOM;
+                existingItem.PackageWeight = item.PackageWeight;
+                existingItem.SalesDescription = item.SalesDescription;
+                existingItem.PurchaseDescription = item.PurchaseDescription;
+                existingItem.Memo = item.Memo;
+                existingItem.ItemBarcodes = item.ItemBarcodes;
+                existingItem.ItemKits = item.ItemKits;
+                existingItem.ItemComponents = item.ItemComponents;
+            }
+
+
+            itemParent.ItemAttributes = itemAttributes;
+            itemParent.ItemMatrices = itemMatrices;
+            itemParent.Update();
+            return item;
+        }
+
     }
 }

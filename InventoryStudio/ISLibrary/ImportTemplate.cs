@@ -1,65 +1,58 @@
 ﻿using CLRFramework;
+using ISLibrary.OrderManagement;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISLibrary.OrderManagement
+namespace ISLibrary
 {
-    public class PackageDimension : BaseClass
+    public class ImportTemplate : BaseClass
     {
-        public string PackageDimensionID { get; set; }
+        public string ImportTemplateID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(PackageDimensionID); } }
+        public bool IsNew { get { return string.IsNullOrEmpty(ImportTemplateID); } }
 
-        public string? CompanyID { get; set; }
+        public string CompanyID { get; set; }
 
-        public string? Name { get; set; }
+        public string TemplateName { get; set; }
 
-        public decimal? Length { get; set; }
+        public string Type { get; set; }
 
-        public decimal? Width { get; set; }
+        public string ImportType { get; set; }
 
-        public decimal? Height { get; set; }
+        [DisplayName("Updated By")]
+        public string UpdatedBy { get; set; }
 
-        public decimal? Weight { get; set; }
-
-        public string? WeightUnit { get; set; }
-
-        public decimal? Cost { get; set; }
-
-        public string? ShippingPackage { get; set; }
-
-        public string? Template { get; set; }
-
-        public string? UpdatedBy { get; set; }
-
+        [DisplayName("Updated On")]
         public DateTime? UpdatedOn { get; set; }
 
+        [DisplayName("Created By")]
         public string CreatedBy { get; set; }
 
-        public DateTime CreatedOn { get; set; }
+        [DisplayName("Created On")]
+        public DateTime? CreatedOn { get; set; }
 
-        public PackageDimension() { }
-
-        public PackageDimension(string CompanyID)
+        public ImportTemplate(string CompanyID)
         {
             this.CompanyID = CompanyID;
             Load();
         }
 
-        public PackageDimension(string CompanyID, string PackageDimensionID)
+        public ImportTemplate(string CompanyID, string ImportTemplateID)
         {
             this.CompanyID = CompanyID;
-            this.PackageDimensionID = PackageDimensionID;
+            this.ImportTemplateID = ImportTemplateID;
             Load();
         }
 
-        public PackageDimension(DataRow row)
+        public ImportTemplate(DataRow row)
         {
             Load(row);
         }
@@ -70,22 +63,19 @@ namespace ISLibrary.OrderManagement
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("PackageDimensionID")) PackageDimensionID = Convert.ToString(objRow["PackageDimensionID"]);
+                if (objColumns.Contains("ImportTemplateID")) ImportTemplateID = Convert.ToString(objRow["ImportTemplateID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("Name")) Name = Convert.ToString(objRow["Name"]);
-                if (objColumns.Contains("Width")) Width = objRow["Width"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Width"]);
-                if (objColumns.Contains("Length")) Length = objRow["Length"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Length"]);
-                if (objColumns.Contains("Height")) Height = objRow["Height"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Height"]);
-                if (objColumns.Contains("Weight")) Weight = objRow["Weight"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Weight"]);
-                if (objColumns.Contains("WeightUnit")) WeightUnit = Convert.ToString(objRow["WeightUnit"]);
-                if (objColumns.Contains("Cost")) Cost = objRow["Cost"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(objRow["Cost"]);
-                if (objColumns.Contains("ShippingPackage")) ShippingPackage = Convert.ToString(objRow["ShippingPackage"]);
-                if (objColumns.Contains("Template")) Template = Convert.ToString(objRow["Template"]);
+                if (objColumns.Contains("TemplateName")) TemplateName = Convert.ToString(objRow["TemplateName"]);
+                if (objColumns.Contains("Type")) Type = Convert.ToString(objRow["Type"]);
+                if (objColumns.Contains("ImportType")) ImportType = Convert.ToString(objRow["ImportType"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
+
+                if (string.IsNullOrEmpty(ImportTemplateID)) throw new Exception("Missing ImportTemplateID in the datarow");
             }
+
             catch (Exception ex)
             {
                 throw ex;
@@ -103,10 +93,10 @@ namespace ISLibrary.OrderManagement
 
             try
             {
-                strSQL = "SELECT p.* " +
-                         "FROM PackageDimension p (NOLOCK) " +
-                         "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND p.PackageDimensionID = " + Database.HandleQuote(PackageDimensionID);
+                strSQL = "SELECT i.* " +
+                         "FROM ImportTemplate i (NOLOCK) " +
+                         "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
+                         "AND i.ImportTemplateID = " + Database.HandleQuote(ImportTemplateID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -115,7 +105,7 @@ namespace ISLibrary.OrderManagement
                 }
                 else
                 {
-                    throw new Exception("PackageDimension is not found");
+                    throw new Exception("ImportTemplate is not found");
                 }
             }
             catch (Exception ex)
@@ -164,25 +154,19 @@ namespace ISLibrary.OrderManagement
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
+                if (string.IsNullOrEmpty(TemplateName)) throw new Exception("TemplateName is required");
+                if (string.IsNullOrEmpty(Type)) throw new Exception("Type is required");
+                if (string.IsNullOrEmpty(ImportType)) throw new Exception("ImportType is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
+                if (!IsNew) throw new Exception("Create cannot be performed, ImportTemplate already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
-
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["Name"] = Name;
-                dicParam["Width"] = Width;
-                dicParam["Length"] = Length;
-                dicParam["Height"] = Height;
-                dicParam["Weight"] = Weight;
-                dicParam["WeightUnit"] = WeightUnit;
-                dicParam["Cost"] = Cost;
-                dicParam["ShippingPackage"] = ShippingPackage;
-                dicParam["Template"] = Template;
+                dicParam["TemplateName"] = TemplateName;
+                dicParam["Type"] = Type;
+                dicParam["ImportType"] = ImportType;
                 dicParam["CreatedOn"] = DateTime.Now;
                 dicParam["CreatedBy"] = CreatedBy;
-                PackageDimensionID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "PackageDimension"), objConn, objTran).ToString();
-
+                ImportTemplateID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportTemplate"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -230,29 +214,21 @@ namespace ISLibrary.OrderManagement
             Hashtable dicWParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(PackageDimensionID)) throw new Exception("PackageDimensionID is required");
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(Name)) throw new Exception("Name is required");
+                if (string.IsNullOrEmpty(TemplateName)) throw new Exception("TemplateName is required");
+                if (string.IsNullOrEmpty(Type)) throw new Exception("Type is required");
+                if (string.IsNullOrEmpty(ImportType)) throw new Exception("ImportType is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
-                if (IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
+                if (IsNew) throw new Exception("Update cannot be performed, ClientID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
-
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["Name"] = Name;
-                dicParam["Width"] = Width;
-                dicParam["Length"] = Length;
-                dicParam["Height"] = Height;
-                dicParam["Weight"] = Weight;
-                dicParam["WeightUnit"] = WeightUnit;
-                dicParam["Cost"] = Cost;
-                dicParam["ShippingPackage"] = ShippingPackage;
-                dicParam["Template"] = Template;
+                dicParam["TemplateName"] = TemplateName;
+                dicParam["Type"] = Type;
+                dicParam["ImportType"] = ImportType;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
-                dicWParam["PackageDimensionID"] = PackageDimensionID;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "PackageDimension"), objConn, objTran);
-
-
+                dicWParam["ImportTemplateID"] = ImportTemplateID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ImportTemplate"), objConn, objTran);
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -272,7 +248,6 @@ namespace ISLibrary.OrderManagement
         {
             SqlConnection objConn = null;
             SqlTransaction objTran = null;
-
             try
             {
                 objConn = new SqlConnection(Database.DefaultConnectionString);
@@ -299,15 +274,13 @@ namespace ISLibrary.OrderManagement
         public override bool Delete(SqlConnection objConn, SqlTransaction objTran)
         {
             if (!IsLoaded) Load();
-
             base.Delete();
-
             Hashtable dicDParam = new Hashtable();
             try
             {
-                if (IsNew) throw new Exception("Delete cannot be performed, PackageDimensionID is missing");
-                dicDParam["PackageDimensionID"] = PackageDimensionID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "PackageDimension"), objConn, objTran);
+                if (IsNew) throw new Exception("Delete cannot be performed, ImportTemplateID is missing");
+                dicDParam["ImportTemplateID"] = ImportTemplateID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ImportTemplate"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -319,91 +292,69 @@ namespace ISLibrary.OrderManagement
             }
             return true;
         }
+
         private bool ObjectAlreadyExists()
         {
             string strSQL = string.Empty;
-            strSQL = "SELECT TOP 1 p.* " +
-                     "FROM PackageDimension (NOLOCK) p " +
-                     "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND p.PackageDimensionID=" + Database.HandleQuote(PackageDimensionID);
+            strSQL = "SELECT TOP 1 i.* " +
+                     "FROM ImportTemplate (NOLOCK) i " +
+                     "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
+                     "AND i.ImportTemplateID=" + Database.HandleQuote(ImportTemplateID);
             return Database.HasRows(strSQL);
         }
 
-
-        public static PackageDimension GetPackageDimension(string CompanyID, PackageDimensionFilter Filter)
-        {
-            List<PackageDimension> objItems = null;
-            PackageDimension objReturn = null;
-
-            try
-            {
-                objItems = GetPackageDimensions(CompanyID, Filter);
-                if (objItems != null && objItems.Count >= 1) objReturn = objItems[0];
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                objItems = null;
-            }
-            return objReturn;
-        }
-
-        public static List<PackageDimension> GetPackageDimensions(string CompanyID)
+        public static List<ImportTemplate> GetImportTemplates(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetPackageDimensions(CompanyID, null, null, null, out intTotalCount);
+            return GetImportTemplates(CompanyID, null, null, null, out intTotalCount);
         }
-
-        public static List<PackageDimension> GetPackageDimensions(string CompanyID, PackageDimensionFilter Filter)
+        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter)
         {
             int intTotalCount = 0;
-            return GetPackageDimensions(CompanyID, Filter, null, null, out intTotalCount);
+            return GetImportTemplates(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<PackageDimension> GetPackageDimensions(string CompanyID, PackageDimensionFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetPackageDimensions(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetImportTemplates(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<PackageDimension> GetPackageDimensions(string CompanyID, PackageDimensionFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<PackageDimension> objReturn = null;
-            PackageDimension objNew = null;
+            List<ImportTemplate> objReturn = null;
+            ImportTemplate objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
             try
             {
                 TotalRecord = 0;
-
-                objReturn = new List<PackageDimension>();
-
-                strSQL = "SELECT p.* " +
-                         "FROM PackageDimension (NOLOCK) p " +
-                         "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID);
+                objReturn = new List<ImportTemplate>();
+                strSQL = "SELECT i.* " +
+                         "FROM ImportTemplate (NOLOCK) i " +
+                         "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID);
 
                 if (Filter != null)
                 {
-                    if (Filter.PackageDimensionID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.PackageDimensionID, "p.PackageDimensionID");
-                    if (Filter.Name != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Name, "p.Name");
-
+                    if (Filter.TemplateName != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.TemplateName, "i.CompanyName");
+                    if (Filter.Type != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Type, "i.Type");
+                    if (Filter.ImportType != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ImportType, "i.ImportType");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "PackageDimensionID" : Utility.CustomSorting.GetSortExpression(typeof(PackageDimension), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "ImportTemplateID" : Utility.CustomSorting.GetSortExpression(typeof(ImportTemplate), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new PackageDimension(objData.Tables[0].Rows[i]);
+                        objNew = new ImportTemplate(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
                 }
+
+                TotalRecord = objReturn.Count();
             }
             catch (Exception ex)
             {
@@ -416,5 +367,7 @@ namespace ISLibrary.OrderManagement
             }
             return objReturn;
         }
+
+
     }
 }

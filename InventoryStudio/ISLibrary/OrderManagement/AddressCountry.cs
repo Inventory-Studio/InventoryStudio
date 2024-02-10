@@ -35,6 +35,7 @@ namespace ISLibrary.OrderManagement
         public AddressCountry(string countryID)
         {
             this.CountryID = countryID;
+            Load();
         }
 
         public AddressCountry(DataRow row)
@@ -64,6 +65,39 @@ namespace ISLibrary.OrderManagement
             {
                 objColumns = null;
             }
+        }
+
+        protected override void Load()
+        {
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT a.* " +
+                         "FROM AddressCountry a (NOLOCK) " +
+                         "WHERE a.CountryID=" + Database.HandleQuote(CountryID);
+
+
+                objData = Database.GetDataSet(strSQL);
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    Load(objData.Tables[0].Rows[0]);
+                }
+                else
+                {
+                    throw new Exception("AddressCountry is not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            base.Load();
         }
 
         public override bool Create()
@@ -103,7 +137,7 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(CountryID)) throw new Exception("CountryID is required");
                 if (string.IsNullOrEmpty(CountryName)) throw new Exception("CountryName is required");
                 if (string.IsNullOrEmpty(USPSCountryName)) throw new Exception("USPSCountryName is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, AddressCountry already exists");
+                //if (!IsNew) throw new Exception("Create cannot be performed, AddressCountry already exists");
 
                 dicParam["CountryID"] = CountryID;
                 dicParam["CountryName"] = CountryName;

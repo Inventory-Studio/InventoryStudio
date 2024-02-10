@@ -44,6 +44,8 @@
     <!-- SYNCFUSION CUSTOM CSS -->
     <link href="@Url.Content("~/assets/css/syncfusion-styles.css")" rel="stylesheet">
 
+    @*jquery js*@
+    <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
 
     @await RenderSectionAsync("Styles", required: false)
 
@@ -76,7 +78,10 @@
     <!-- END SIDEBAR -->
     <!-- MAIN-CONTENT -->
 
-    <div class="main-content app-content overflow-auto">
+
+    <div class="main-content app-content  overflow-auto">
+       <partial name="_ErrorMessage" />  
+
         @RenderBody()
     </div>
 
