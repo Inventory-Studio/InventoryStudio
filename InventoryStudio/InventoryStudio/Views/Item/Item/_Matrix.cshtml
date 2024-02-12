@@ -14,11 +14,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null)
+                    @if (Model != null && Model.ItemAttributes != null )
                         {
-                        foreach (var ItemAttribute in Model.ItemAttributes ?? Enumerable.Empty<ItemAttribute>())
+                        int index = 0;                        
+                        foreach (var ItemAttribute in Model.ItemAttributes)                            
                             {
+                            int valueIndex = 0;
+                            <tr>
+                                <td>
+                                    @ItemAttribute.AttributeName
+                                    <input type="hidden" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName">
+                                </td>
+                                <td>
+                                    @foreach (var itemAttributeValue in ItemAttribute.ItemAttributeValues)
+                                    {
+                                        @itemAttributeValue.AttributeValueName
 
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID " value="@itemAttributeValue.ItemAttributeValueID">
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName " value="@itemAttributeValue.AttributeValueName">
+                                        valueIndex++;
+                                    }                                    
+                                </td>
+                                <td>
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
+                                    <button type="button" class="btn btn-info btn-sm editItemAttributeBtn">Edit</button>
+                                    <button type="button" class="btn btn-danger btn-sm deleteAttributeBtn">Delete</button>
+                                </td>
+                              
+                            </tr>
+                            index++;
                             }
                         }
                     </tbody>
@@ -133,7 +157,7 @@
                 type: 'hidden',
                 name: 'ItemAttributes[' + index + '].AttributeName',
                 value: attributeName
-            }).appendTo($row);
+            }).appendTo($row.find('td').eq(0));
 
             attributeValues.forEach(function (value, i) {            
                 $row.append($('<input>').attr({
