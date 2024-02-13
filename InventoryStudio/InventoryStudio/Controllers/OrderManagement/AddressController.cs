@@ -239,17 +239,17 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Insert([FromBody] CRUDModel<Address> value)
+        public IActionResult Insert([FromBody] CRUDModel<AddressViewModel> value)
         {
             return Json(value.Value);
         }
 
-        public IActionResult Update([FromBody] CRUDModel<Address> value)
+        public IActionResult Update([FromBody] CRUDModel<AddressViewModel> value)
         {
-            return Json(value.Value ?? new Address());
+            return Json(value.Value ?? new AddressViewModel());
         }
 
-        public IActionResult Remove([FromBody] CRUDModel<Address> value)
+        public IActionResult Remove([FromBody] CRUDModel<AddressViewModel> value)
         {
             if (value.Key != null)
             {

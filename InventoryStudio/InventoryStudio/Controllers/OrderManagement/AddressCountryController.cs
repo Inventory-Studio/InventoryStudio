@@ -136,12 +136,12 @@ namespace InventoryStudio.Controllers.OrderManagement
             return Json(value.Value);
         }
 
-        public IActionResult Update([FromBody] CRUDModel<AddressCountry> value)
+        public IActionResult Update([FromBody] CRUDModel<AddressCountryViewModel> value)
         {
-            return Json(value.Value ?? new AddressCountry());
+            return Json(value.Value ?? new AddressCountryViewModel());
         }
 
-        public IActionResult Remove([FromBody] CRUDModel<AddressCountry> value)
+        public IActionResult Remove([FromBody] CRUDModel<AddressCountryViewModel> value)
         {
             if (value.Key != null)
             {

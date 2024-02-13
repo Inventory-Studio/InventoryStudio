@@ -195,18 +195,18 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Insert([FromBody] CRUDModel<Client> value)
+        public IActionResult Insert([FromBody] CRUDModel<ClientViewModel> value)
         {
             return Json(value.Value);
         }
 
-        public IActionResult Update([FromBody] CRUDModel<Client> value)
+        public IActionResult Update([FromBody] CRUDModel<ClientViewModel> value)
         {
-            return Json(value.Value ?? new Client());
+            return Json(value.Value ?? new ClientViewModel());
         }
 
 
-        public IActionResult Remove([FromBody] CRUDModel<Client> value)
+        public IActionResult Remove([FromBody] CRUDModel<ClientViewModel> value)
         {
             if (value.Key != null)
             {
