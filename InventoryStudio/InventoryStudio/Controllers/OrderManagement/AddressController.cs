@@ -31,7 +31,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             var viewModel = new AddressViewModel();
             viewModel.AddressID = address.AddressID;
-            if (string.IsNullOrEmpty(address.CompanyID))
+            if (!string.IsNullOrEmpty(address.CompanyID))
             {
                 var company = new Company(address.CompanyID);
                 if (company != null)
@@ -59,7 +59,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.Zone = address.Zone;
             viewModel.IsInvalidAddress = address.IsInvalidAddress;
             viewModel.IsAddressUpdated = address.IsAddressUpdated;
-            if (string.IsNullOrEmpty(address.UpdatedBy))
+            if (!string.IsNullOrEmpty(address.UpdatedBy))
             {
                 var user = new AspNetUsers(address.UpdatedBy);
                 if (user != null)
