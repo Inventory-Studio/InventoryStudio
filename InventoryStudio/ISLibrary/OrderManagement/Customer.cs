@@ -92,6 +92,39 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+        protected override void Load()
+        {
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT c.* " +
+                         "FROM Customer c (NOLOCK) " +
+                         "WHERE c.CompanyID=" + Database.HandleQuote(CompanyID) +
+                         "AND c.CustomerID = " + Database.HandleQuote(CustomerID);
+
+                objData = Database.GetDataSet(strSQL);
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    Load(objData.Tables[0].Rows[0]);
+                }
+                else
+                {
+                    throw new Exception("Client is not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            base.Load();
+        }
+
         public bool Create()
         {
             SqlConnection objConn = null;

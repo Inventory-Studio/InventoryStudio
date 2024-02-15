@@ -65,6 +65,7 @@ namespace ISLibrary.OrderManagement
         public Address(string addressID)
         {
             this.AddressID = addressID;
+            Load();
         }
 
         public Address(DataRow row)
@@ -110,6 +111,39 @@ namespace ISLibrary.OrderManagement
             {
                 objColumns = null;
             }
+        }
+
+
+        protected override void Load()
+        {
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT a.* " +
+                         "FROM Address a (NOLOCK) " +
+                         "WHERE a.AddressID=" + Database.HandleQuote(AddressID);
+
+                objData = Database.GetDataSet(strSQL);
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    Load(objData.Tables[0].Rows[0]);
+                }
+                else
+                {
+                    throw new Exception("Address is not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            base.Load();
         }
 
         public override bool Create()
