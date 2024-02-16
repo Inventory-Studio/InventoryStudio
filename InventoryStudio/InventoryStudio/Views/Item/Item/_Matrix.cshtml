@@ -22,18 +22,25 @@
                             int valueIndex = 0;
                             <tr>
                                 <td>
-                                    @ItemAttribute.AttributeName
-                                    <input type="hidden" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName">
+                                    <span class="attribute-name-display">@ItemAttribute.AttributeName</span>
+                                    <input type="text" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName" class="attribute-name-input" style="display:none;">
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
                                 </td>
                                 <td>
+                                    @{
+                                        var allAttributeValues = string.Join(",", ItemAttribute.ItemAttributeValues.Select(v => v.AttributeValueName));
+                                    }
+                                    <span class="attribute-value-display">@allAttributeValues</span>
                                     @foreach (var itemAttributeValue in ItemAttribute.ItemAttributeValues)
                                     {
-                                        @itemAttributeValue.AttributeValueName
-
+                                        
+                                       
                                         <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID " value="@itemAttributeValue.ItemAttributeValueID">
                                         <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName " value="@itemAttributeValue.AttributeValueName">
                                         valueIndex++;
-                                    }                                    
+                                    }
+
+                                    <input type="hidden" class="form-control attribute-value-input"  value="@allAttributeValues">
                                 </td>
                                 <td>
                                     <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
@@ -141,6 +148,73 @@
 
 
         var attributes = {};
+
+        $(document).on('click', '.editItemAttributeBtn', function () {
+            var $row = $(this).closest('tr');
+
+            var $attributeValueInput = $row.find('.attribute-value-input');
+            
+
+            var originalAttributeValues = $attributeValueInput.val(); //save old value
+            $row.data('original-values', originalAttributeValues);
+
+            var attributeName = $row.find('.attribute-name-display').text().trim(); 
+            var attributeValues = [];
+
+            // 假设每个属性值都包含在它自己的 span.attribute-value-display 元素中
+            originalAttributeValues.split(',').forEach(function (value) {
+                attributeValues.push(value.trim()); // 收集并清理属性值
+            });
+
+            // 转换属性名称为可编辑输入
+            $row.find('.attribute-name-input').val(attributeName).show();
+            $row.find('.attribute-name-display').hide();
+
+            // 转换属性值为 tagsinput，这里假设 .attribute-value-input 已经初始化为 tagsinput
+            $attributeValueInput.tagsinput('removeAll'); // 清除现有的标签
+            attributeValues.forEach(value => $attributeValueInput.tagsinput('add', value)); // 添加收集到的属性值作为标签
+            $attributeValueInput.show(); // 显示 tagsinput 控件
+            $row.find('.attribute-value-display').hide();
+
+            // 更新操作按钮
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-success btn-sm saveAttributeBtn').html('&#10003;')); // Save button
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm cancelBtn').html('&times;')); // Cancel button
+        });
+
+        $(document).on('click', '.saveAttributeBtn', function () {
+            var $row = $(this).closest('tr');
+            var updatedAttributeValues = $row.find('.attribute-value-input').tagsinput('items'); // 获取更新后的标签值
+
+            // 获取属性名称，以确保隐藏的输入字段与之对应
+            var attributeName = $row.find('.attribute-name-input').val().trim();
+
+            // 移除与当前属性相关的所有旧的隐藏输入，以便重新添加
+            $row.find('input[name^="ItemAttributes["]').remove();
+
+            // 为每个更新后的属性值添加新的隐藏输入字段
+            updatedAttributeValues.forEach(function (value, valueIndex) {
+                // 注意：这里假设每个属性值都是新增的，没有考虑保留现有值的ID
+                $row.append($('<input>').attr({
+                    type: 'hidden',
+                    name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${valueIndex}].AttributeValueName`,
+                    value: value
+                }));
+            });
+
+            // 更新属性名称和值的显示
+            $row.find('.attribute-name-display').text(attributeName).show();
+            $row.find('.attribute-name-input').hide();
+            $row.find('.attribute-value-display').text(updatedAttributeValues.join(', ')).show();
+            $row.find('.attribute-value-input').tagsinput('destroy')
+
+
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemAttributeBtn').text('Edit'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+        });
 
         $(document).on('click', '.confirmAttributesBtn', function () {
             // Get the current row
