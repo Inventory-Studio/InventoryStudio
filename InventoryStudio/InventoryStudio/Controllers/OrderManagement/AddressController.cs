@@ -205,6 +205,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.IsAddressUpdated = input.IsAddressUpdated;
                 address.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 address.UpdatedOn = DateTime.Now;
+                address.Update();
                 return RedirectToAction(nameof(Index));
             }
 

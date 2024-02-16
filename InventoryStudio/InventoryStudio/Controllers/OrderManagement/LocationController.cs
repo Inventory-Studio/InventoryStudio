@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -311,6 +313,106 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (location != null)
                 location.Delete();
             return RedirectToAction(nameof(Index));
+        }
+        
+        public IActionResult Insert([FromBody] CRUDModel value)
+        {
+            return Json(value.Value);
+        }
+
+        public IActionResult Update([FromBody] CRUDModel value)
+        {
+            return Json(value.Value ?? new LocationViewModel());
+        }
+
+
+        public IActionResult Remove([FromBody] CRUDModel<LocationViewModel> value)
+        {
+            if (value.Key != null)
+            {
+                var id = value.Key.ToString();
+                if (!string.IsNullOrEmpty(id))
+                {
+                    DeleteConfirmed(id);
+                }
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<LocationViewModel> dataSource = new List<LocationViewModel>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                if (!string.IsNullOrEmpty(CompanyID))
+                {
+                    LocationFilter locationFilter = new();
+                    dataSource = Location.GetLocations(
+                        CompanyID,
+                        locationFilter,
+                        dm.Take,
+                        (dm.Skip / dm.Take) + 1,
+                        out totalRecord
+                    ).Select(EntityConvertViewModel);
+                }
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
         }
 
     }

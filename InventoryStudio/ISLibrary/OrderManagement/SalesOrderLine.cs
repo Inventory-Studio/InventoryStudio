@@ -125,6 +125,39 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+
+        protected override void Load()
+        {
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT s.* " +
+                         "FROM SalesOrderLine s (NOLOCK) " +
+                         "WHERE s.CompanyID=" + Database.HandleQuote(CompanyID) +
+                         "AND s.SalesOrderLineID = " + Database.HandleQuote(SalesOrderLineID);
+
+                objData = Database.GetDataSet(strSQL);
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    Load(objData.Tables[0].Rows[0]);
+                }
+                else
+                {
+                    throw new Exception("SalesOrderLine is not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+            base.Load();
+        }
         public bool Create()
         {
             SqlConnection objConn = null;
