@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="card-body">
-            <form class="row" asp-controller="PackageDimension" asp-action="Edit">
+            <form class="row" asp-controller="PackageDimension" asp-action="Edit" asp-route-id="@Context.Request.Query["id"]">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="PackageDimensionID"/>
                 <div class="form-group col-md-6 mb-3">

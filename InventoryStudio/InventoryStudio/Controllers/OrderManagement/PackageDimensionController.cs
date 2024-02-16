@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -14,6 +16,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         private readonly string CompanyID = string.Empty;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         public PackageDimensionController(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -26,6 +29,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                     CompanyID = company.Value;
             }
         }
+
         public IActionResult Index()
         {
             var packageDimensions = PackageDimension.GetPackageDimensions(CompanyID);
@@ -34,6 +38,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 list.Add(EntitieConvertViewModel(packageDimension));
             }
+
             return View("~/Views/OrderManagement/PackageDimension/Index.cshtml", list);
         }
 
@@ -47,6 +52,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (company != null)
                     viewModel.Company = company.CompanyName;
             }
+
             viewModel.Name = packageDimension.Name;
             viewModel.Length = packageDimension.Length;
             viewModel.Width = packageDimension.Width;
@@ -82,7 +88,9 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CompanyID,Name,Length,Width,Height,Weight,WeightUnit,Cost,ShippingPackage,Template")] CreatePackageDimensionViewModel input)
+        public IActionResult Create(
+            [Bind("CompanyID,Name,Length,Width,Height,Weight,WeightUnit,Cost,ShippingPackage,Template")]
+            CreatePackageDimensionViewModel input)
         {
             if (ModelState.IsValid)
             {
@@ -101,6 +109,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 packageDimension.Create();
                 return RedirectToAction(nameof(Index));
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -137,13 +146,15 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("PackageDimensionID,CompanyID,Name,Length,Width,Height,Weight,WeightUnit,Cost,ShippingPackage,Template")] EditPackageDimensionViewModel input)
+        public IActionResult Edit([FromRoute] string id,
+            [Bind(
+                "PackageDimensionID,CompanyID,Name,Length,Width,Height,Weight,WeightUnit,Cost,ShippingPackage,Template")]
+            EditPackageDimensionViewModel input)
         {
             if (id != input.PackageDimensionID)
                 return NotFound();
             if (ModelState.IsValid)
             {
-
                 var packageDimension = new PackageDimension();
                 packageDimension.PackageDimensionID = input.PackageDimensionID;
                 packageDimension.CompanyID = input.CompanyID;
@@ -160,6 +171,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 packageDimension.Update();
                 return RedirectToAction(nameof(Index));
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -189,5 +201,105 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
+
+        public IActionResult Insert([FromBody] CRUDModel value)
+        {
+            return Json(value.Value);
+        }
+
+        public IActionResult Update([FromBody] CRUDModel<PackageDimensionViewModel> value)
+        {
+            return Json(value.Value ?? new PackageDimensionViewModel());
+        }
+
+
+        public IActionResult Remove([FromBody] CRUDModel<PackageDimensionViewModel> value)
+        {
+            if (value.Key != null)
+            {
+                var id = value.Key.ToString();
+                if (!string.IsNullOrEmpty(id))
+                {
+                    DeleteConfirmed(id);
+                }
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<PackageDimensionViewModel> dataSource = new List<PackageDimensionViewModel>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                if (!string.IsNullOrEmpty(CompanyID))
+                {
+                    PackageDimensionFilter packageDimensionFilter = new();
+                    dataSource = PackageDimension.GetPackageDimensions(
+                        CompanyID,
+                        packageDimensionFilter,
+                        dm.Take,
+                        (dm.Skip / dm.Take) + 1,
+                        out totalRecord
+                    ).Select(EntitieConvertViewModel);
+                }
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
+        }
     }
 }
