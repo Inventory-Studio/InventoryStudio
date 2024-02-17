@@ -146,8 +146,14 @@ namespace ISLibrary
             return changes;
         }
 
-        protected void MapValues(Dictionary<string, object> values)
+        protected void MapValues(Dictionary<string, object> values, int currentDepth = 0, int maxDepth = 3)
         {
+            // Check the current depth
+            if (currentDepth > maxDepth)
+            {
+                return;
+            }
+
             var properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             bool primaryKeyRecorded = false;
@@ -175,13 +181,16 @@ namespace ISLibrary
                                 {
                                     baseClassItem.ParentKey = this.PrimaryKey;
                                     baseClassItem.ParentObject = this.GetType().Name;
+                                    // Recursively map values of the base class item, increasing the depth
+                                    baseClassItem.MapValues(values, currentDepth + 1, maxDepth); // This assumes MapValues method is appropriately accessible or modified for recursion
                                 }
                             }
                         }
                     }
-
-
-                    values[property.Name] = property.GetValue(this);
+                    else
+                    {
+                        values[property.Name] = property.GetValue(this);
+                    }
                 }
             }
         }

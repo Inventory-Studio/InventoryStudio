@@ -284,18 +284,21 @@ namespace ISLibrary
             base.Delete();
 
             Hashtable dicDParam = new Hashtable();
-            ItemAttributeValueLineFilter objFilter = null;
-            List<ItemAttributeValueLine> objItemAttributeValueLines = null;
+            ItemMatrixValueFilter objFilter = null;
+            List<ItemMatrixValue> objItemMatrixValues = null;
 
             try
             {
                 if (IsNew) throw new Exception("Delete cannot be performed, ItemAttributeValueID is missing");
 
-                objFilter = new ItemAttributeValueLineFilter();
+                objFilter = new ItemMatrixValueFilter();
                 objFilter.ItemAttributeValueID = new Database.Filter.StringSearch.SearchFilter();
                 objFilter.ItemAttributeValueID.SearchString = ItemAttributeValueID;
-                objItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
-                if (objItemAttributeValueLines != null && objItemAttributeValueLines.Count > 0) throw new Exception("More than one item is setup using this item attrivute value.");
+                objItemMatrixValues = ItemMatrixValue.GetItemMatrixValues(CompanyID, objFilter);
+                foreach (ItemMatrixValue objItemMatrixValue in objItemMatrixValues)
+                {
+                        objItemMatrixValue.Delete(objConn, objTran);                    
+                }
 
                 dicDParam["ItemAttributeValueID"] = ItemAttributeValueID;
                 Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ItemAttributeValue"), objConn, objTran);

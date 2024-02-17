@@ -423,6 +423,7 @@ namespace ISLibrary
                         }
                         else
                         {
+                            objItemAttribute.CompanyID = CompanyID;
                             objItemAttribute.UpdatedBy = UpdatedBy;
                             objItemAttribute.Update(objConn, objTran);
                         }
@@ -650,7 +651,6 @@ namespace ISLibrary
             if (existingItem != null)
             {               
                 existingItem.ItemNumber = item.ItemNumber;
-                existingItem.IsVariation = item.IsVariation;
                 existingItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
                 existingItem.FulfillByKit = item.FulfillByKit;
                 existingItem.ReceiveByKit = item.ReceiveByKit;

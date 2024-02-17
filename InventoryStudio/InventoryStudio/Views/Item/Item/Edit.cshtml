@@ -63,7 +63,7 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <div class="form-check">
-                                    <input asp-for="@Model.Item.IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()" />                 
+                                    <input asp-for="@Model.ItemParent.IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()" />
                                     <label class="form-check-label" for="createMatrix">
                                         Create Matrix
                                     </label>
@@ -340,6 +340,7 @@
         // Trigger change event on Item Type dropdown to initialize the form
         $('#Item_ItemType').change();      
 
+        toggleMatrix();
 
        
 

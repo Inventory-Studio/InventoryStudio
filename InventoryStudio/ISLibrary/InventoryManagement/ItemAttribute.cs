@@ -240,32 +240,39 @@ namespace ISLibrary
             Hashtable dicWParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
+                //if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
                 if (string.IsNullOrEmpty(AttributeName.Trim())) throw new Exception("Attribute name must be entered");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy name must be entered");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemAttributeID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
-                dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
-                dicParam["ItemParentID"] = ItemParentID;
+                //dicParam["CompanyID"] = CompanyID;
+                //dicParam["ClientID"] = ClientID;
+                //dicParam["ItemParentID"] = ItemParentID;
                 dicParam["AttributeName"] = AttributeName;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicWParam["ItemAttributeID"] = ItemAttributeID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ItemAttribute"), objConn, objTran);
 
+                ItemAttribute currentItemAttribute = new ItemAttribute(CompanyID, ItemAttributeID);
+
+                foreach (ItemAttributeValue _currentItemAttributeValue in currentItemAttribute.ItemAttributeValues)
+                {
+                    if (!ItemAttributeValues.Exists(x => x.ItemAttributeValueID == _currentItemAttributeValue.ItemAttributeValueID))
+                    {
+                        _currentItemAttributeValue.Delete(objConn, objTran);
+                    }
+                }
+
                 foreach (ItemAttributeValue objItemAttributeValue in ItemAttributeValues)
                 {
                     if (objItemAttributeValue.IsNew)
                     {
+                        objItemAttributeValue.ItemAttributeID = ItemAttributeID;
+                        objItemAttributeValue.CompanyID = CompanyID;
                         objItemAttributeValue.CreatedBy = UpdatedBy;
                         objItemAttributeValue.Create(objConn, objTran);
-                    }
-                    else
-                    {
-                        objItemAttributeValue.UpdatedBy = UpdatedBy;
-                        objItemAttributeValue.Update(objConn, objTran);
                     }
                 }
 

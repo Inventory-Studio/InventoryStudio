@@ -114,6 +114,7 @@ namespace InventoryStudio.Controllers
                 var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
 
                 itemViewModel.Item = item;
+                itemViewModel.ItemParent = itemParent;
                 itemViewModel.ItemAttributes = itemParent.ItemAttributes;
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
             }

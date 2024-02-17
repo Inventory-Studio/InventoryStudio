@@ -160,7 +160,22 @@
 
             var attributeName = $row.find('.attribute-name-display').text().trim(); 
             var attributeValues = [];
+            var attributeValuesWithId = [];
 
+            $row.find('input[type="hidden"][name*="ItemAttributeValues"]').each(function () {               
+                if ($(this).attr('name').includes('.ItemAttributeValueID')) {
+                    // 这是ID字段
+                    var id = $(this).val();
+                    // 立即下一个隐藏的输入应该是相应的Value字段
+                    var value = $(this).next('input[type="hidden"][name*=".AttributeValueName"]').val();
+
+                    attributeValuesWithId.push({ value: value, id: id });
+                }
+            });
+
+            // 存储原始属性值和ID
+            $row.data('original-values-with-id', attributeValuesWithId);
+            console.log(attributeValuesWithId);
             // 假设每个属性值都包含在它自己的 span.attribute-value-display 元素中
             originalAttributeValues.split(',').forEach(function (value) {
                 attributeValues.push(value.trim()); // 收集并清理属性值
@@ -186,21 +201,33 @@
         $(document).on('click', '.saveAttributeBtn', function () {
             var $row = $(this).closest('tr');
             var updatedAttributeValues = $row.find('.attribute-value-input').tagsinput('items'); // 获取更新后的标签值
-
+            var originalValuesWithId = $row.data('original-values-with-id') || [];
             // 获取属性名称，以确保隐藏的输入字段与之对应
             var attributeName = $row.find('.attribute-name-input').val().trim();
 
-            // 移除与当前属性相关的所有旧的隐藏输入，以便重新添加
-            $row.find('input[name^="ItemAttributes["]').remove();
+            // 只移除与ItemAttributeValues相关的隐藏输入，保留ItemAttributeID和AttributeName输入
+            $row.find('input[name*="ItemAttributeValues"]').remove();
 
-            // 为每个更新后的属性值添加新的隐藏输入字段
-            updatedAttributeValues.forEach(function (value, valueIndex) {
-                // 注意：这里假设每个属性值都是新增的，没有考虑保留现有值的ID
+       
+
+            // 为更新后的属性值添加隐藏输入字段，尽量保留ID
+            updatedAttributeValues.forEach(function (value, index) {
+                var originalValueWithId = originalValuesWithId.find(item => item.value === value);
+                var valueId = originalValueWithId ? originalValueWithId.id : '';
+
                 $row.append($('<input>').attr({
                     type: 'hidden',
-                    name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${valueIndex}].AttributeValueName`,
+                    name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${index}].AttributeValueName`,
                     value: value
                 }));
+
+                if (valueId) {
+                    $row.append($('<input>').attr({
+                        type: 'hidden',
+                        name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${index}].ItemAttributeValueID`,
+                        value: valueId
+                    }));
+                }
             });
 
             // 更新属性名称和值的显示
