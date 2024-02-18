@@ -35,8 +35,8 @@
                                     {
                                         
                                        
-                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID " value="@itemAttributeValue.ItemAttributeValueID">
-                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName " value="@itemAttributeValue.AttributeValueName">
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID" value="@itemAttributeValue.ItemAttributeValueID">
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName" value="@itemAttributeValue.AttributeValueName">
                                         valueIndex++;
                                     }
 
@@ -71,7 +71,7 @@
                         <th>Item Number</th>
                         <th>Item Name</th>
                         <th>Attributes</th>
-                        <th>Use Existing Item</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,8 +107,31 @@
     </div>
 </div>
 
+@{
+    // Build a JSON string for the attributes object, ensuring Model.ItemAttributes is not null
+    var attributesJson = Model.ItemAttributes != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.ItemAttributes.ToDictionary(
+        attr => attr.AttributeName,
+        attr => attr.ItemAttributeValues != null ? attr.ItemAttributeValues.Select(v => v.AttributeValueName).ToList() : new List<string>() // Ensure ItemAttributeValues is not null
+    )) : "[]"; // Provide an empty array as a fallback
+
+    // Build a JSON string for the ItemMatrices, ensuring Model.ItemMatrices is not null
+    var itemMatricesJson = Model.ItemMatrices != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.ItemMatrices.Select(
+        matrix => new
+        {
+            matrix.ItemID,
+            AttributeValueCombination = matrix.ItemMatrixValues != null ? string.Join("-", matrix.ItemMatrixValues.Select(v => v.ItemAttributeValue?.AttributeValueName)) : null, // Concatenate AttributeValueName with "-", ensure ItemMatrixValues is not null
+            ItemNumber = matrix.Item?.ItemNumber, // Use null-conditional operator to access Item properties
+            ItemName = matrix.Item?.ItemName,
+            matrix.ItemMatrixID
+        }
+    )) : "[]"; // Provide an empty array as a fallback
+}
+
+
+
 
 <script>
+
     $(document).ready(function () {
             // Disable form submission on Enter key for inputs with tagsinput
             $(document).on('keypress', '.bootstrap-tagsinput input', function (e) {
@@ -147,7 +170,8 @@
             });
 
 
-        var attributes = {};
+        var attributes = @Html.Raw(attributesJson);
+        var itemMatrices = @Html.Raw(itemMatricesJson);
 
         $(document).on('click', '.editItemAttributeBtn', function () {
             var $row = $(this).closest('tr');
@@ -281,23 +305,51 @@
         });
 
 
-        function generateMatrixCombinations(attributes) {
-            var attributeNames = Object.keys(attributes);
+        function generateMatrixCombinations(attributes, itemMatrices) {
             var combinations = cartesianProductOfAttributes(attributes);
-
-            // Clear existing matrix entries
             var $matrixTableBody = $('#matrixTable').find('tbody');
             $matrixTableBody.empty();
 
-            // Add new combinations
-            combinations.forEach(function (combination, index) {
-                var combinationId = combination.join('-');
-                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationId);
+            // 确保 itemMatrices 是一个数组，如果是 null 或 undefined，则默认为空数组
+            itemMatrices = itemMatrices || [];
 
-                $newMatrixRow.append($('<td>').text('Matrix_' + combinationId));
-                $newMatrixRow.append($('<td>').text('Matrix'));
-                $newMatrixRow.append($('<td>').text('- ' + combinationId));
-                $newMatrixRow.append($('<td>').append($('<button type="button">').addClass('btn btn-primary use-existing-item-btn').text('Use Existing Item')));
+            combinations.forEach(function (combination, index) {
+                var combinationString = combination.join('-');
+                var matchingMatrix = itemMatrices.find(matrix => matrix.AttributeValueCombination === combinationString);
+                console.log(itemMatrices);
+                console.log(matchingMatrix);
+                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationString);
+                $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemNumber : 'Matrix_' + index));
+                $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemName : 'Matrix Name'));
+                $newMatrixRow.append($('<td>').text(combinationString));
+
+                if (matchingMatrix) {
+                    var $actionsTd = $('<td>');
+                    var $unbindButton = $('<button type="button">')
+                        .addClass('btn btn-primary undo-btn')
+                        .text('Undo')
+                        .data('item-id', matchingMatrix.ItemID) // 假设 ItemID 是用来识别项目的键                        
+                        .data('attribute-value', combinationString);
+
+                    $actionsTd.append($unbindButton);
+                    $newMatrixRow.data('itemMatrixID', matchingMatrix.ItemMatrixID)
+
+                    var $hiddenMatrixItemIDInput = $('<input/>', {
+                        type: 'hidden',
+                        name: 'ItemMatrices[' + index + '].ItemMatrixID',
+                        value: matchingMatrix.ItemMatrixID
+                    });
+                    $actionsTd.append($hiddenMatrixItemIDInput);
+                    $newMatrixRow.append($actionsTd);
+                } else {
+                    // 对于未匹配的矩阵，提供“使用现有项”按钮
+                    var $useExistingButton = $('<button type="button">')
+                        .addClass('btn btn-primary use-existing-item-btn')
+                        .text('Use Existing Item')
+                        .data('combination', combinationString);
+
+                    $newMatrixRow.append($('<td>').append($useExistingButton));
+                }
 
                 $matrixTableBody.append($newMatrixRow);
             });
@@ -351,7 +403,7 @@
             // Assuming the modal has an ID of 'existingItemModal'
             $('#matrixItemSelect').append(ItemMatrixProductOptions);
             var combinationId = $(this).closest('tr').data('combination-id');
-            $('#existingItemModal').data('item-id', combinationId);
+            $('#existingItemModal').data('combination-id', combinationId);
             $('#existingItemModal').modal('show');
         });
 
@@ -365,7 +417,7 @@
             var itemName = selectedItemParts[1];
 
             // Use the combination ID to find the row to update
-            var combinationId = $('#existingItemModal').data('item-id');
+            var combinationId = $('#existingItemModal').data('combination-id');
             var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
             // Find the index of the row within the tbody
             var index = $rowToUpdate.index();
@@ -373,6 +425,17 @@
             // Update the table row with the selected item details
             $rowToUpdate.find('td').eq(0).text(itemNumber);
             $rowToUpdate.find('td').eq(1).text(itemName);
+
+            if ($rowToUpdate.data('itemMatrixID')) {
+                // 如果有，更新 ItemMatrixID 的隐藏 input
+                var $hiddenMatrixIDInput = $('<input/>', {
+                    type: 'hidden',
+                    name: `ItemMatrices[${index}].ItemMatrixID`,
+                    value: $rowToUpdate.data('itemMatrixID')
+                });
+                $rowToUpdate.append($hiddenMatrixIDInput);
+            }
+
 
              var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
@@ -401,17 +464,25 @@
             e.preventDefault();
             e.stopPropagation();
 
-            var combinationId = $(this).closest('tr').data('combination-id');
-            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+            var $row = $(this).closest('tr');
+            var combinationId = $row.data('combination-id');
+
+            // Remove the hidden input for ItemMatrixID
+            $row.find('input[name*="ItemMatrices["][name$="].ItemMatrixID"]').remove();
 
             // Revert the changes made to the row
-            $rowToUpdate.find('td').eq(0).text('Matrix_' + combinationId);
-            $rowToUpdate.find('td').eq(1).text('Matrix');
-            $rowToUpdate.find('td').eq(2).text('- ' + combinationId);
+            $row.find('td').eq(0).text('Matrix_' + combinationId);
+            $row.find('td').eq(1).text('Matrix');
+            $row.find('td').eq(2).text('- ' + combinationId);
 
             // Change the button back to 'Use Existing Item'
             $(this).removeClass('undo-btn').addClass('use-existing-item-btn').text('Use Existing Item');
         });
+
+        generateMatrixCombinations(attributes, itemMatrices);
+    
+
+        
 
     });
 </script>
