@@ -1,8 +1,8 @@
 ﻿namespace InventoryStudio.File
 {
-    public interface IFileHandler<T>
+    public interface IFileHandler<T> where T : class
     {
-        Task<byte[]> DownloadFileAsync(IEnumerable<T> records);
-        Task<List<T>> UploadFileAsync(IFormFile file);
+        Task<byte[]> Export(params IEnumerable<T>[] recordLists);
+        Task<List<T>> Import(IFormFile file);
     }
 }

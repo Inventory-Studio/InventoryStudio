@@ -3,41 +3,60 @@ using NPOI.XSSF.UserModel;
 
 namespace InventoryStudio.File
 {
-    public class ExcelFileHandler<T> : IFileHandler<T>
+    public class ExcelFileHandler<T> : IFileHandler<T> where T : class
     {
-        public Task<byte[]> DownloadFileAsync(IEnumerable<T> records)
+        private readonly List<Type> _entityTypes;
+
+        public ExcelFileHandler(params Type[] entityTypes)
+        {
+            _entityTypes = entityTypes.ToList();
+        }
+        public async Task<byte[]> Export(params IEnumerable<T>[] recordLists)
         {
             using (var fileStream = new MemoryStream())
             {
                 var workbook = new XSSFWorkbook();
-                var sheet = workbook.CreateSheet("Sheet1");
-                var headerRow = sheet.CreateRow(0);
-                var properties = typeof(T).GetProperties();
-                for (int i = 0; i < properties.Length; i++)
+
+                for (int i = 0; i < _entityTypes.Count; i++)
                 {
-                    headerRow.CreateCell(i).SetCellValue(properties[i].Name);
-                }
-                int rowIndex = 1;
-                foreach (var record in records)
-                {
-                    var row = sheet.CreateRow(rowIndex);
-                    for (int i = 0; i < properties.Length; i++)
+                    var entityType = _entityTypes[i];
+                    var sheet = workbook.CreateSheet(entityType.Name);
+                    var headerRow = sheet.CreateRow(0);
+                    var properties = entityType.GetProperties();
+
+                    for (int j = 0; j < properties.Length; j++)
                     {
-                        var cell = row.CreateCell(i);
-                        var value = properties[i].GetValue(record);
-                        if (value != null)
-                        {
-                            cell.SetCellValue(value.ToString());
-                        }
+                        headerRow.CreateCell(j).SetCellValue(properties[j].Name);
                     }
-                    rowIndex++;
+
+                    var recordList = recordLists[i].Cast<object>();
+                    int rowIndex = 1;
+
+                    foreach (var record in recordList)
+                    {
+                        var row = sheet.CreateRow(rowIndex);
+
+                        for (int j = 0; j < properties.Length; j++)
+                        {
+                            var cell = row.CreateCell(j);
+                            var value = properties[j].GetValue(record);
+
+                            if (value != null)
+                            {
+                                cell.SetCellValue(value.ToString());
+                            }
+                        }
+
+                        rowIndex++;
+                    }
                 }
+
                 workbook.Write(fileStream);
-                return Task.FromResult(fileStream.ToArray());
+                return await Task.FromResult(fileStream.ToArray());
             }
         }
 
-        public async Task<List<T>> UploadFileAsync(IFormFile file)
+        public async Task<List<T>> Import(IFormFile file)
         {
             using (var stream = new MemoryStream())
             {
