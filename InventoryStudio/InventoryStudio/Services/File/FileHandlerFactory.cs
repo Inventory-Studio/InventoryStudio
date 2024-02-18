@@ -2,7 +2,7 @@
 {
     public class FileHandlerFactory
     {
-        public static IFileHandler<T> CreateFileHandler<T>(string fileType)
+        public static IFileHandler<T> CreateFileHandler<T>(string fileType) where T : class
         {
             if (fileType == ".xlsx" || fileType == ".xls")
             {

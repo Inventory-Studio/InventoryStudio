@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace InventoryStudio.File
 {
-    public class CsvFileHandler<T> : IFileHandler<T>
+    public class CsvFileHandler<T> : IFileHandler<T> where T : class
     {
-        public async Task<byte[]> DownloadFileAsync(IEnumerable<T> records)
+        public async Task<byte[]> Export(params IEnumerable<T>[] records)
         {
             using (var writer = new StringWriter())
             {
@@ -24,7 +24,7 @@ namespace InventoryStudio.File
             }
         }
 
-        public async Task<List<T>> UploadFileAsync(IFormFile file)
+        public async Task<List<T>> Import(IFormFile file)
         {
             using (var stream = new MemoryStream())
             {
