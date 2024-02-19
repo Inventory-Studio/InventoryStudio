@@ -11,7 +11,7 @@ namespace InventoryStudio.File
             {
                 var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
                 csvWriter.WriteHeader<T>();
-                await csvWriter.WriteRecordsAsync(records);
+                await csvWriter.WriteRecordsAsync(records[0]);
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var streamWriter = new StreamWriter(memoryStream))

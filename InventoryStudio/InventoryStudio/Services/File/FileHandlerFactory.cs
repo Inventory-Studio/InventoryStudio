@@ -4,9 +4,9 @@
     {
         public static IFileHandler<T> CreateFileHandler<T>(string fileType) where T : class
         {
-            if (fileType == ".xlsx" || fileType == ".xls")
+            if (fileType == ".xls" || fileType == ".xlsx")
             {
-                return new ExcelFileHandler<T>();
+                return new ExcelFileHandler<T>(typeof(T));
             }
             else if (fileType == ".csv")
             {
@@ -14,7 +14,7 @@
             }
             else
             {
-                throw new NotSupportedException("Unsupported file type");
+                throw new NotSupportedException($"Unsupported file format: {fileType}");
             }
         }
     }

@@ -63,24 +63,36 @@ namespace InventoryStudio.File
                 await file.CopyToAsync(stream);
                 stream.Position = 0;
                 var workbook = new XSSFWorkbook(stream);
-                var sheet = workbook.GetSheetAt(0);
-                var properties = typeof(T).GetProperties();
                 var records = new List<T>();
-                for (int i = 1; i <= sheet.LastRowNum; i++)
+                for (int i = 0; i < _entityTypes.Count; i++)
                 {
-                    var row = sheet.GetRow(i);
-                    var record = Activator.CreateInstance<T>();
-                    for (int j = 0; j < properties.Length; j++)
+                    var entityType = _entityTypes[i];
+                    var sheet = workbook.GetSheet(entityType.Name);
+                    if (sheet == null)
                     {
-                        var cell = row.GetCell(j);
-                        if (cell != null)
-                        {
-                            var value = Convert.ChangeType(cell.ToString(), properties[j].PropertyType);
-                            properties[j].SetValue(record, value);
-                        }
+                        sheet = workbook.GetSheetAt(i);
                     }
-                    records.Add(record);
+                    var properties = entityType.GetProperties();
+                    var recordList = new List<T>();
+                    for (int j = 1; j <= sheet.LastRowNum; j++)
+                    {
+                        var row = sheet.GetRow(j);
+                        var record = (T)Activator.CreateInstance(entityType);
+
+                        for (int k = 0; k < properties.Length; k++)
+                        {
+                            var cell = row.GetCell(k);
+                            if (cell != null)
+                            {
+                                var value = Convert.ChangeType(cell.ToString(), properties[k].PropertyType);
+                                properties[k].SetValue(record, value);
+                            }
+                        }
+                        recordList.Add(record);
+                    }
+                    records.AddRange(recordList);
                 }
+
                 return records;
             }
         }
