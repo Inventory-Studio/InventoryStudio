@@ -73,7 +73,7 @@ namespace InventoryStudio.Controllers
             try
             {
                 ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
+                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
             }
             catch (Exception ex)
             {
@@ -165,11 +165,11 @@ namespace InventoryStudio.Controllers
                 Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
                 {
-                    
+                    ItemFilter itemFilter = new ItemFilter();
 
                     dataSource = Item.GetItems(
                         company.Value,
-                        null,
+                        itemFilter,
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,
                         out totalRecord

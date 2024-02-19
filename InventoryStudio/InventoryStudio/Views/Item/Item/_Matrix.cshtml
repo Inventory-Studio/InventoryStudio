@@ -109,22 +109,40 @@
 
 @{
     // Build a JSON string for the attributes object, ensuring Model.ItemAttributes is not null
-    var attributesJson = Model.ItemAttributes != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.ItemAttributes.ToDictionary(
-        attr => attr.AttributeName,
-        attr => attr.ItemAttributeValues != null ? attr.ItemAttributeValues.Select(v => v.AttributeValueName).ToList() : new List<string>() // Ensure ItemAttributeValues is not null
-    )) : "[]"; // Provide an empty array as a fallback
+    var attributesJson = "[]";
+
+    if (Model != null && Model.ItemAttributes != null)
+    {
+        var attributesDictionary = Model.ItemAttributes
+            .Where(attr => attr != null) // Ensure each attribute is not null
+            .ToDictionary(
+                attr => attr.AttributeName,
+                attr => attr.ItemAttributeValues != null ? attr.ItemAttributeValues
+                    .Where(val => val != null) // Ensure each attribute value is not null
+                    .Select(v => v.AttributeValueName)
+                    .ToList() : new List<string>()
+            );
+
+        attributesJson = Newtonsoft.Json.JsonConvert.SerializeObject(attributesDictionary);
+    }// Provide an empty array as a fallback
 
     // Build a JSON string for the ItemMatrices, ensuring Model.ItemMatrices is not null
-    var itemMatricesJson = Model.ItemMatrices != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.ItemMatrices.Select(
-        matrix => new
-        {
-            matrix.ItemID,
-            AttributeValueCombination = matrix.ItemMatrixValues != null ? string.Join("-", matrix.ItemMatrixValues.Select(v => v.ItemAttributeValue?.AttributeValueName)) : null, // Concatenate AttributeValueName with "-", ensure ItemMatrixValues is not null
-            ItemNumber = matrix.Item?.ItemNumber, // Use null-conditional operator to access Item properties
-            ItemName = matrix.Item?.ItemName,
-            matrix.ItemMatrixID
-        }
-    )) : "[]"; // Provide an empty array as a fallback
+    var itemMatricesJson = "[]";
+    if (Model != null && Model.ItemMatrices != null)
+    {
+        var itemMatricesDictionary = Model.ItemMatrices.Select(
+            matrix => new
+            {
+                matrix.ItemID,
+                AttributeValueCombination = matrix.ItemMatrixValues != null ? string.Join("-", matrix.ItemMatrixValues.Select(v => v.ItemAttributeValue?.AttributeValueName)) : null, // Concatenate AttributeValueName with "-", ensure ItemMatrixValues is not null
+                ItemNumber = matrix.Item?.ItemNumber, // Use null-conditional operator to access Item properties
+                ItemName = matrix.Item?.ItemName,
+                matrix.ItemMatrixID
+            }
+        );
+        itemMatricesJson = Newtonsoft.Json.JsonConvert.SerializeObject(itemMatricesDictionary);
+        // Provide an empty array as a fallback
+    }
 }
 
 
@@ -265,6 +283,12 @@
             $actionsCell.empty();
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemAttributeBtn').text('Edit'));
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+
+            // 在这里更新属性和值
+            updateAttributesFromDOM();
+
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
         });
 
         $(document).on('click', '.confirmAttributesBtn', function () {
@@ -298,12 +322,35 @@
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
 
             // Store the attribute and its values
-            attributes[attributeName] = attributeValues;
+            // 在这里更新属性和值
+            updateAttributesFromDOM();
 
-            // Generate and display all attribute combinations
-            generateMatrixCombinations(attributes);
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
         });
 
+        function updateAttributesFromDOM() {
+            attributes = {}; // 重置 attributes 对象
+
+            $('#attributesTable tbody tr').each(function () {
+                var $row = $(this);
+                var attributeName = $row.find('.attribute-name-input').val() || $row.find('.attribute-name-display').text();
+                var attributeValues = [];
+
+                // 使用选择器匹配所有相关的隐藏输入字段，并提取它们的值
+                $row.find('input[name*="ItemAttributeValues"]').each(function () {
+                    var name = $(this).attr('name');
+                    var value = $(this).val();
+
+                    // 确保只选择 AttributeValueName 字段
+                    if (name.includes('AttributeValueName')) {
+                        attributeValues.push(value);
+                    }
+                });
+
+                attributes[attributeName] = attributeValues;
+            });
+        }
 
         function generateMatrixCombinations(attributes, itemMatrices) {
             var combinations = cartesianProductOfAttributes(attributes);
@@ -316,8 +363,6 @@
             combinations.forEach(function (combination, index) {
                 var combinationString = combination.join('-');
                 var matchingMatrix = itemMatrices.find(matrix => matrix.AttributeValueCombination === combinationString);
-                console.log(itemMatrices);
-                console.log(matchingMatrix);
                 var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationString);
                 $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemNumber : 'Matrix_' + index));
                 $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemName : 'Matrix Name'));
@@ -328,7 +373,7 @@
                     var $unbindButton = $('<button type="button">')
                         .addClass('btn btn-primary undo-btn')
                         .text('Undo')
-                        .data('item-id', matchingMatrix.ItemID) // 假设 ItemID 是用来识别项目的键                        
+                        .data('item-id', matchingMatrix.ItemID)                        
                         .data('attribute-value', combinationString);
 
                     $actionsTd.append($unbindButton);
@@ -339,7 +384,13 @@
                         name: 'ItemMatrices[' + index + '].ItemMatrixID',
                         value: matchingMatrix.ItemMatrixID
                     });
+                    var $hiddenItemIDInput = $('<input/>', {
+                        type: 'hidden',
+                        name: 'ItemMatrices[' + index + '].ItemID',
+                        value: matchingMatrix.ItemID
+                    });
                     $actionsTd.append($hiddenMatrixItemIDInput);
+                    $actionsTd.append($hiddenItemIDInput);
                     $newMatrixRow.append($actionsTd);
                 } else {
                     // 对于未匹配的矩阵，提供“使用现有项”按钮
@@ -469,6 +520,7 @@
 
             // Remove the hidden input for ItemMatrixID
             $row.find('input[name*="ItemMatrices["][name$="].ItemMatrixID"]').remove();
+            $row.find('input[name*="ItemMatrices["][name$="].ItemID"]').remove();
 
             // Revert the changes made to the row
             $row.find('td').eq(0).text('Matrix_' + combinationId);

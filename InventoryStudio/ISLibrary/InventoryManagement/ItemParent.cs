@@ -732,6 +732,10 @@ namespace ISLibrary
                 existingItem.ItemBarcodes = item.ItemBarcodes;
                 existingItem.ItemKits = item.ItemKits;
                 existingItem.ItemComponents = item.ItemComponents;
+
+
+                existingItem.ItemType = item.ItemType;
+
             }
 
 
