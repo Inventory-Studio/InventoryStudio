@@ -399,7 +399,6 @@ namespace ISLibrary
                 dicParam["HSCode"] = HSCode;
                 dicParam["GoodDescription"] = GoodDescription;
                 dicParam["CountryOfOrigin"] = CountryOfOrigin;
-                dicParam["IsVa"] = CountryOfOrigin;
 
                 dicParam["CreatedBy"] = CreatedBy;
                 ItemID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Item"), objConn, objTran).ToString();
@@ -826,6 +825,8 @@ namespace ISLibrary
                         objReturn.Add(objNew);
                     }
                 }
+
+                TotalRecord = objReturn.Count();
             }
             catch (Exception ex)
             {
