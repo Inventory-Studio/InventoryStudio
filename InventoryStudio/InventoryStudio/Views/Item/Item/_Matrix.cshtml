@@ -282,7 +282,7 @@
             var $actionsCell = $row.find('td:last');
             $actionsCell.empty();
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemAttributeBtn').text('Edit'));
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteAttributeBtn').text('Delete'));
 
             // 在这里更新属性和值
             updateAttributesFromDOM();
@@ -306,7 +306,7 @@
                 type: 'hidden',
                 name: 'ItemAttributes[' + index + '].AttributeName',
                 value: attributeName
-            }).appendTo($row.find('td').eq(0));
+            }).addClass('attribute-name-input').appendTo($row.find('td').eq(0));
 
             attributeValues.forEach(function (value, i) {            
                 $row.append($('<input>').attr({
@@ -319,7 +319,7 @@
             // Remove the action buttons from the current row
             var $actionsCell = $row.find('td').eq(2);
             $actionsCell.html('');
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteAttributeBtn').text('Delete'));
 
             // Store the attribute and its values
             // 在这里更新属性和值
@@ -327,6 +327,15 @@
 
             // 重新计算矩阵组合并更新UI
             generateMatrixCombinations(attributes, itemMatrices);
+        });
+
+        $(document).on('click', '.deleteAttributeBtn', function () {
+            $(this).closest('tr').remove();
+            updateAttributesFromDOM();
+
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
+
         });
 
         function updateAttributesFromDOM() {
