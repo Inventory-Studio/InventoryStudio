@@ -181,82 +181,75 @@
 
 
 <script>
+    function toggleMatrix() {
+        var isChecked = $('#createMatrixCheckbox').is(':checked');
+        console.log(isChecked);
+        if (isChecked) {
+            $('#component-tab').hide();
+            $('#barcode-tab').hide();
+            $('#kit-item-tab').hide();
+            $('#attribute-tab').show();
+            $('#matrix-tab').show();
+            $("#ItemType option[value='Kit']").prop('disabled', true);
+        } else {
+            $('#component-tab').show();
+            $('#barcode-tab').show();
+            $('#kit-item-tab').hide();
+            $('#attribute-tab').hide();
+            $('#matrix-tab').hide();
+            $("#ItemType option[value='Kit']").prop('disabled', false);
+        }
+    }
 
-    $(document).ready(function () {
-
-        changeItemType();
-
-        toggleMatrix();
-
-        function toggleMatrix() {
-            var isChecked = $('#createMatrixCheckbox').is(':checked');
-            console.log(isChecked);
-            if (isChecked) {
-                $('#component-tab').hide();
-                $('#barcode-tab').hide();
-                $('#kit-item-tab').hide();
-                $('#attribute-tab').show();
-                $('#matrix-tab').show();
-                $("#ItemType option[value='Kit']").prop('disabled', true);
-            } else {
-                $('#component-tab').show();
-                $('#barcode-tab').show();
-                $('#kit-item-tab').hide();
-                $('#attribute-tab').hide();
-                $('#matrix-tab').hide();
-                $("#ItemType option[value='Kit']").prop('disabled', false);
+    function changeItemType() {
+        var selectedItemType = $('#Item_ItemNumber').val();
+        var isChecked = $('#createMatrixCheckbox').is(':checked');
+        if (!isChecked) {
+            switch (selectedItemType) {
+                case 'Inventory':
+                case 'LotNumbered':
+                case 'Serialized':
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
+                case 'Assembly':
+                    $('#component-tab').show();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
+                case 'Kit':
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').show();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').show();
+                    $('#createMatrixCheckbox').prop('disabled', true);
+                    break;
+                default:
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
             }
         }
 
-        function changeItemType() {
-            var selectedItemType = $('#Item_ItemNumber').val();
-            var isChecked = $('#createMatrixCheckbox').is(':checked');
-            if (!isChecked) {
-                switch (selectedItemType) {
-                    case 'Inventory':
-                    case 'LotNumbered':
-                    case 'Serialized':
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                    case 'Assembly':
-                        $('#component-tab').show();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                    case 'Kit':
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').show();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').show();
-                        $('#createMatrixCheckbox').prop('disabled', true);
-                        break;
-                    default:
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                }
-            }
+    };
 
-        };
-
-        function addItemBarcode() {
+     function addItemBarcode() {
             var itemNumber = $('#Item_ItemNumber').val();
             var barcodeExists = false;
             var $tableBody = $('#barcodeTable').find('tbody');
@@ -327,6 +320,13 @@
                 });
             });
         }
+
+    $(document).ready(function () {
+
+        changeItemType();
+
+        toggleMatrix();
+       
 
         // Before form submission, call reindexTableInputs for each table
         $('form').submit(function (e) {
