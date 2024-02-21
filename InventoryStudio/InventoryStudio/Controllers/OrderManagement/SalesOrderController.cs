@@ -153,7 +153,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = input.CompanyID;
-                salesOrder.CompanyID = input.CustomerID;
+                salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 salesOrder.LocationID = input.LocationID;
