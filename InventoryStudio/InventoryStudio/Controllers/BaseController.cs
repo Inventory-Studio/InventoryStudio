@@ -1,19 +1,13 @@
-﻿using InventoryStudio.Models;
-using InventoryStudio.Models.ViewModels;
-using InventoryStudio.Services.Authorization;
+﻿using InventoryStudio.Models.ViewModels;
 using ISLibrary;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.IdentityModel.Tokens;
-using Syncfusion.EJ2.Linq;
+
 
 namespace InventoryStudio.Controllers;
 
 public class BaseController : Controller
 {
-    // private readonly UserManager<User> _userManager;
-    // private readonly IAuthorizationService _authorizationService;
     public MainLayoutViewModel? mainLayoutViewModel { get; private set; }
 
     public BaseController()
