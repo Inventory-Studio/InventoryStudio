@@ -26,18 +26,25 @@ public class BaseController : Controller
         var userId = User?.Claims.FirstOrDefault(t =>
             t.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
         var companyId = User?.Claims?.FirstOrDefault(t => t.Type == "CompanyId");
-
-        if (userId == null)
+        
+        var mainLayoutVm = new MainLayoutViewModel()
         {
-            return new MainLayoutViewModel();
+            FullName = "N/A",
+            CurrentCompany = ""
+        };
+        
+        if (userId != null)
+        {
+            var user = new AspNetUsers(userId.Value);
+            mainLayoutVm.FullName = user.UserName;
         }
 
-        var user = new AspNetUsers(userId?.Value ?? "");
-        var company = new Company(companyId?.Value ?? "");
-        return new MainLayoutViewModel()
+        if (companyId != null)
         {
-            FullName = user.UserName,
-            CurrentCompany = company.CompanyName
-        };
+            var company = new Company(companyId.Value);
+            mainLayoutVm.CurrentCompany = company.CompanyName;
+        }
+
+        return mainLayoutVm;
     }
 }
