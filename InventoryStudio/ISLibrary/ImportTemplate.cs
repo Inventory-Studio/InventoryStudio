@@ -52,6 +52,11 @@ namespace ISLibrary
             Load();
         }
 
+        public ImportTemplate()
+        {
+
+        }
+
         public ImportTemplate(DataRow row)
         {
             Load(row);

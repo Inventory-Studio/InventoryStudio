@@ -11,7 +11,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class LocationController : Controller
+    public class LocationController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

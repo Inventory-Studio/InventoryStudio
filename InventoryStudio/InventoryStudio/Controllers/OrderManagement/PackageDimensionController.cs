@@ -11,7 +11,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class PackageDimensionController : Controller
+    public class PackageDimensionController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

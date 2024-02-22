@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
 using InventoryStudio.Models;
+using InventoryStudio.Models.ViewModels;
+using InventoryStudio.Services.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryStudio.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 

@@ -12,7 +12,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class AddressController : Controller
+    public class AddressController : BaseController
     {
         public IActionResult Index()
         {
