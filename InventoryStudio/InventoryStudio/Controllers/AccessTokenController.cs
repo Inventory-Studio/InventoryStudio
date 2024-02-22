@@ -13,7 +13,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers
 {
-    public class AccessTokenController : Controller
+    public class AccessTokenController : BaseController
     {
         private readonly IAuthorizationService _authorizationService;
 

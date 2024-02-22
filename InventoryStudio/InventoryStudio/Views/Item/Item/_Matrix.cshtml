@@ -14,11 +14,42 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null)
+                    @if (Model != null && Model.ItemAttributes != null )
                         {
-                        foreach (var ItemAttribute in Model.ItemAttributes ?? Enumerable.Empty<ItemAttribute>())
+                        int index = 0;                        
+                        foreach (var ItemAttribute in Model.ItemAttributes)                            
                             {
+                            int valueIndex = 0;
+                            <tr>
+                                <td>
+                                    <span class="attribute-name-display">@ItemAttribute.AttributeName</span>
+                                    <input type="text" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName" class="attribute-name-input" style="display:none;">
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
+                                </td>
+                                <td>
+                                    @{
+                                        var allAttributeValues = string.Join(",", ItemAttribute.ItemAttributeValues.Select(v => v.AttributeValueName));
+                                    }
+                                    <span class="attribute-value-display">@allAttributeValues</span>
+                                    @foreach (var itemAttributeValue in ItemAttribute.ItemAttributeValues)
+                                    {
+                                        
+                                       
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID" value="@itemAttributeValue.ItemAttributeValueID">
+                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName" value="@itemAttributeValue.AttributeValueName">
+                                        valueIndex++;
+                                    }
 
+                                    <input type="hidden" class="form-control attribute-value-input"  value="@allAttributeValues">
+                                </td>
+                                <td>
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
+                                    <button type="button" class="btn btn-info btn-sm editItemAttributeBtn">Edit</button>
+                                    <button type="button" class="btn btn-danger btn-sm deleteAttributeBtn">Delete</button>
+                                </td>
+                              
+                            </tr>
+                            index++;
                             }
                         }
                     </tbody>
@@ -40,7 +71,7 @@
                         <th>Item Number</th>
                         <th>Item Name</th>
                         <th>Attributes</th>
-                        <th>Use Existing Item</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,8 +107,49 @@
     </div>
 </div>
 
+@{
+    // Build a JSON string for the attributes object, ensuring Model.ItemAttributes is not null
+    var attributesJson = "[]";
+
+    if (Model != null && Model.ItemAttributes != null)
+    {
+        var attributesDictionary = Model.ItemAttributes
+            .Where(attr => attr != null) // Ensure each attribute is not null
+            .ToDictionary(
+                attr => attr.AttributeName,
+                attr => attr.ItemAttributeValues != null ? attr.ItemAttributeValues
+                    .Where(val => val != null) // Ensure each attribute value is not null
+                    .Select(v => v.AttributeValueName)
+                    .ToList() : new List<string>()
+            );
+
+        attributesJson = Newtonsoft.Json.JsonConvert.SerializeObject(attributesDictionary);
+    }// Provide an empty array as a fallback
+
+    // Build a JSON string for the ItemMatrices, ensuring Model.ItemMatrices is not null
+    var itemMatricesJson = "[]";
+    if (Model != null && Model.ItemMatrices != null)
+    {
+        var itemMatricesDictionary = Model.ItemMatrices.Select(
+            matrix => new
+            {
+                matrix.ItemID,
+                AttributeValueCombination = matrix.ItemMatrixValues != null ? string.Join("-", matrix.ItemMatrixValues.Select(v => v.ItemAttributeValue?.AttributeValueName)) : null, // Concatenate AttributeValueName with "-", ensure ItemMatrixValues is not null
+                ItemNumber = matrix.Item?.ItemNumber, // Use null-conditional operator to access Item properties
+                ItemName = matrix.Item?.ItemName,
+                matrix.ItemMatrixID
+            }
+        );
+        itemMatricesJson = Newtonsoft.Json.JsonConvert.SerializeObject(itemMatricesDictionary);
+        // Provide an empty array as a fallback
+    }
+}
+
+
+
 
 <script>
+
     $(document).ready(function () {
             // Disable form submission on Enter key for inputs with tagsinput
             $(document).on('keypress', '.bootstrap-tagsinput input', function (e) {
@@ -116,7 +188,108 @@
             });
 
 
-        var attributes = {};
+        var attributes = @Html.Raw(attributesJson);
+        var itemMatrices = @Html.Raw(itemMatricesJson);
+
+        $(document).on('click', '.editItemAttributeBtn', function () {
+            var $row = $(this).closest('tr');
+
+            var $attributeValueInput = $row.find('.attribute-value-input');
+            
+
+            var originalAttributeValues = $attributeValueInput.val(); //save old value
+            $row.data('original-values', originalAttributeValues);
+
+            var attributeName = $row.find('.attribute-name-display').text().trim(); 
+            var attributeValues = [];
+            var attributeValuesWithId = [];
+
+            $row.find('input[type="hidden"][name*="ItemAttributeValues"]').each(function () {               
+                if ($(this).attr('name').includes('.ItemAttributeValueID')) {
+                    // 这是ID字段
+                    var id = $(this).val();
+                    // 立即下一个隐藏的输入应该是相应的Value字段
+                    var value = $(this).next('input[type="hidden"][name*=".AttributeValueName"]').val();
+
+                    attributeValuesWithId.push({ value: value, id: id });
+                }
+            });
+
+            // 存储原始属性值和ID
+            $row.data('original-values-with-id', attributeValuesWithId);
+            console.log(attributeValuesWithId);
+            // 假设每个属性值都包含在它自己的 span.attribute-value-display 元素中
+            originalAttributeValues.split(',').forEach(function (value) {
+                attributeValues.push(value.trim()); // 收集并清理属性值
+            });
+
+            // 转换属性名称为可编辑输入
+            $row.find('.attribute-name-input').val(attributeName).show();
+            $row.find('.attribute-name-display').hide();
+
+            // 转换属性值为 tagsinput，这里假设 .attribute-value-input 已经初始化为 tagsinput
+            $attributeValueInput.tagsinput('removeAll'); // 清除现有的标签
+            attributeValues.forEach(value => $attributeValueInput.tagsinput('add', value)); // 添加收集到的属性值作为标签
+            $attributeValueInput.show(); // 显示 tagsinput 控件
+            $row.find('.attribute-value-display').hide();
+
+            // 更新操作按钮
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-success btn-sm saveAttributeBtn').html('&#10003;')); // Save button
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm cancelBtn').html('&times;')); // Cancel button
+        });
+
+        $(document).on('click', '.saveAttributeBtn', function () {
+            var $row = $(this).closest('tr');
+            var updatedAttributeValues = $row.find('.attribute-value-input').tagsinput('items'); // 获取更新后的标签值
+            var originalValuesWithId = $row.data('original-values-with-id') || [];
+            // 获取属性名称，以确保隐藏的输入字段与之对应
+            var attributeName = $row.find('.attribute-name-input').val().trim();
+
+            // 只移除与ItemAttributeValues相关的隐藏输入，保留ItemAttributeID和AttributeName输入
+            $row.find('input[name*="ItemAttributeValues"]').remove();
+
+       
+
+            // 为更新后的属性值添加隐藏输入字段，尽量保留ID
+            updatedAttributeValues.forEach(function (value, index) {
+                var originalValueWithId = originalValuesWithId.find(item => item.value === value);
+                var valueId = originalValueWithId ? originalValueWithId.id : '';
+
+                $row.append($('<input>').attr({
+                    type: 'hidden',
+                    name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${index}].AttributeValueName`,
+                    value: value
+                }));
+
+                if (valueId) {
+                    $row.append($('<input>').attr({
+                        type: 'hidden',
+                        name: `ItemAttributes[${$row.index()}].ItemAttributeValues[${index}].ItemAttributeValueID`,
+                        value: valueId
+                    }));
+                }
+            });
+
+            // 更新属性名称和值的显示
+            $row.find('.attribute-name-display').text(attributeName).show();
+            $row.find('.attribute-name-input').hide();
+            $row.find('.attribute-value-display').text(updatedAttributeValues.join(', ')).show();
+            $row.find('.attribute-value-input').tagsinput('destroy')
+
+
+            var $actionsCell = $row.find('td:last');
+            $actionsCell.empty();
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemAttributeBtn').text('Edit'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteAttributeBtn').text('Delete'));
+
+            // 在这里更新属性和值
+            updateAttributesFromDOM();
+
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
+        });
 
         $(document).on('click', '.confirmAttributesBtn', function () {
             // Get the current row
@@ -133,7 +306,7 @@
                 type: 'hidden',
                 name: 'ItemAttributes[' + index + '].AttributeName',
                 value: attributeName
-            }).appendTo($row);
+            }).addClass('attribute-name-input').appendTo($row.find('td').eq(0));
 
             attributeValues.forEach(function (value, i) {            
                 $row.append($('<input>').attr({
@@ -146,33 +319,97 @@
             // Remove the action buttons from the current row
             var $actionsCell = $row.find('td').eq(2);
             $actionsCell.html('');
-            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
+            $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteAttributeBtn').text('Delete'));
 
             // Store the attribute and its values
-            attributes[attributeName] = attributeValues;
+            // 在这里更新属性和值
+            updateAttributesFromDOM();
 
-            // Generate and display all attribute combinations
-            generateMatrixCombinations(attributes);
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
         });
 
+        $(document).on('click', '.deleteAttributeBtn', function () {
+            $(this).closest('tr').remove();
+            updateAttributesFromDOM();
 
-        function generateMatrixCombinations(attributes) {
-            var attributeNames = Object.keys(attributes);
+            // 重新计算矩阵组合并更新UI
+            generateMatrixCombinations(attributes, itemMatrices);
+
+        });
+
+        function updateAttributesFromDOM() {
+            attributes = {}; // 重置 attributes 对象
+
+            $('#attributesTable tbody tr').each(function () {
+                var $row = $(this);
+                var attributeName = $row.find('.attribute-name-input').val() || $row.find('.attribute-name-display').text();
+                var attributeValues = [];
+
+                // 使用选择器匹配所有相关的隐藏输入字段，并提取它们的值
+                $row.find('input[name*="ItemAttributeValues"]').each(function () {
+                    var name = $(this).attr('name');
+                    var value = $(this).val();
+
+                    // 确保只选择 AttributeValueName 字段
+                    if (name.includes('AttributeValueName')) {
+                        attributeValues.push(value);
+                    }
+                });
+
+                attributes[attributeName] = attributeValues;
+            });
+        }
+
+        function generateMatrixCombinations(attributes, itemMatrices) {
             var combinations = cartesianProductOfAttributes(attributes);
-
-            // Clear existing matrix entries
             var $matrixTableBody = $('#matrixTable').find('tbody');
             $matrixTableBody.empty();
 
-            // Add new combinations
-            combinations.forEach(function (combination, index) {
-                var combinationId = combination.join('-');
-                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationId);
+            // 确保 itemMatrices 是一个数组，如果是 null 或 undefined，则默认为空数组
+            itemMatrices = itemMatrices || [];
 
-                $newMatrixRow.append($('<td>').text('Matrix_' + combinationId));
-                $newMatrixRow.append($('<td>').text('Matrix'));
-                $newMatrixRow.append($('<td>').text('- ' + combinationId));
-                $newMatrixRow.append($('<td>').append($('<button type="button">').addClass('btn btn-primary use-existing-item-btn').text('Use Existing Item')));
+            combinations.forEach(function (combination, index) {
+                var combinationString = combination.join('-');
+                var matchingMatrix = itemMatrices.find(matrix => matrix.AttributeValueCombination === combinationString);
+                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationString);
+                $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemNumber : 'Matrix_' + index));
+                $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemName : 'Matrix Name'));
+                $newMatrixRow.append($('<td>').text(combinationString));
+
+                if (matchingMatrix) {
+                    var $actionsTd = $('<td>');
+                    var $unbindButton = $('<button type="button">')
+                        .addClass('btn btn-primary undo-btn')
+                        .text('Undo')
+                        .data('item-id', matchingMatrix.ItemID)                        
+                        .data('attribute-value', combinationString);
+
+                    $actionsTd.append($unbindButton);
+                    $newMatrixRow.data('itemMatrixID', matchingMatrix.ItemMatrixID)
+
+                    var $hiddenMatrixItemIDInput = $('<input/>', {
+                        type: 'hidden',
+                        name: 'ItemMatrices[' + index + '].ItemMatrixID',
+                        value: matchingMatrix.ItemMatrixID
+                    });
+                    var $hiddenItemIDInput = $('<input/>', {
+                        type: 'hidden',
+                        name: 'ItemMatrices[' + index + '].ItemID',
+                        value: matchingMatrix.ItemID
+                    });
+                    $actionsTd.append($hiddenMatrixItemIDInput);
+                    $actionsTd.append($hiddenItemIDInput);
+                    $newMatrixRow.append($actionsTd);
+                } else {
+                    // 对于未匹配的矩阵，提供“使用现有项”按钮
+                    var $useExistingButton = $('<button type="button">')
+                        .addClass('btn btn-primary use-existing-item-btn')
+                        .text('Use Existing Item')
+                        .data('combination', combinationString);
+
+                    $newMatrixRow.append($('<td>').append($useExistingButton));
+                }
 
                 $matrixTableBody.append($newMatrixRow);
             });
@@ -226,7 +463,7 @@
             // Assuming the modal has an ID of 'existingItemModal'
             $('#matrixItemSelect').append(ItemMatrixProductOptions);
             var combinationId = $(this).closest('tr').data('combination-id');
-            $('#existingItemModal').data('item-id', combinationId);
+            $('#existingItemModal').data('combination-id', combinationId);
             $('#existingItemModal').modal('show');
         });
 
@@ -240,7 +477,7 @@
             var itemName = selectedItemParts[1];
 
             // Use the combination ID to find the row to update
-            var combinationId = $('#existingItemModal').data('item-id');
+            var combinationId = $('#existingItemModal').data('combination-id');
             var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
             // Find the index of the row within the tbody
             var index = $rowToUpdate.index();
@@ -248,6 +485,17 @@
             // Update the table row with the selected item details
             $rowToUpdate.find('td').eq(0).text(itemNumber);
             $rowToUpdate.find('td').eq(1).text(itemName);
+
+            if ($rowToUpdate.data('itemMatrixID')) {
+                // 如果有，更新 ItemMatrixID 的隐藏 input
+                var $hiddenMatrixIDInput = $('<input/>', {
+                    type: 'hidden',
+                    name: `ItemMatrices[${index}].ItemMatrixID`,
+                    value: $rowToUpdate.data('itemMatrixID')
+                });
+                $rowToUpdate.append($hiddenMatrixIDInput);
+            }
+
 
              var $hiddenBarcodeInput = $('<input/>', {
                 type: 'hidden',
@@ -276,17 +524,26 @@
             e.preventDefault();
             e.stopPropagation();
 
-            var combinationId = $(this).closest('tr').data('combination-id');
-            var $rowToUpdate = $('#matrixTable').find(`tr[data-combination-id="${combinationId}"]`);
+            var $row = $(this).closest('tr');
+            var combinationId = $row.data('combination-id');
+
+            // Remove the hidden input for ItemMatrixID
+            $row.find('input[name*="ItemMatrices["][name$="].ItemMatrixID"]').remove();
+            $row.find('input[name*="ItemMatrices["][name$="].ItemID"]').remove();
 
             // Revert the changes made to the row
-            $rowToUpdate.find('td').eq(0).text('Matrix_' + combinationId);
-            $rowToUpdate.find('td').eq(1).text('Matrix');
-            $rowToUpdate.find('td').eq(2).text('- ' + combinationId);
+            $row.find('td').eq(0).text('Matrix_' + combinationId);
+            $row.find('td').eq(1).text('Matrix');
+            $row.find('td').eq(2).text('- ' + combinationId);
 
             // Change the button back to 'Use Existing Item'
             $(this).removeClass('undo-btn').addClass('use-existing-item-btn').text('Use Existing Item');
         });
+
+        generateMatrixCombinations(attributes, itemMatrices);
+    
+
+        
 
     });
 </script>

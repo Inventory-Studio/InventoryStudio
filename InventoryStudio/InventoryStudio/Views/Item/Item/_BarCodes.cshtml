@@ -26,10 +26,10 @@
                                 </td>
                                 <td>
                                     @itemBarcode.Type
-                                    <input type="hidden" name="Item.ItemBarcodes[@index].Type" value=">@itemBarcode.Type">
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].Type" value="@itemBarcode.Type">
                                 </td>
                                 <td>
-
+                                    <input type="hidden" name="Item.ItemBarcodes[@index].ItemBarcodeID" value="@itemBarcode.ItemBarcodeID">
                                     @if (itemBarcode.Type != "Item Number")
                                     {
                                         <button type="button" class="btn btn-info btn-sm editItemBarCodeBtn">Edit</button>
@@ -88,8 +88,13 @@
                 value: typeVal
             }).appendTo($row.find('td').eq(1));
 
+            var $hiddenItemBarcodeIDInput = $row.find('input[name*="ItemBarcodeID"]').clone();
+
             var $actionsCell = $row.find('td').eq(2);
             $actionsCell.html('');
+            if ($hiddenItemBarcodeIDInput.length) {
+                $actionsCell.append($hiddenItemBarcodeIDInput);
+            }
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-info btn-sm editItemBarCodeBtn').text('Edit'));
             $actionsCell.append($('<button type="button"/>').addClass('btn btn-danger btn-sm deleteBtn').text('Delete'));
         });
@@ -108,7 +113,7 @@
                 var text = $td.text().trim(); // Get the text content of the cell
                 var inputName = $td.find('input[type="hidden"]').attr('name'); // Get the name of the hidden input
 
-                if (inputName) { // Check if there's a hidden input
+                if (inputName.endsWith('.Barcode') || inputName.endsWith('.Type')) { // Check if there's a hidden input
                     // Replace the cell content with an editable input field
                     $td.html('<input type="text" class="form-control" name="' + inputName.replace('[index]', '[' + $row.index() + ']') + '" value="' + text + '">');
                 }

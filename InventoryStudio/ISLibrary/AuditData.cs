@@ -17,6 +17,7 @@ namespace ISLibrary
         public string AuditDataID { get; set; }
         public bool IsNew { get { return string.IsNullOrEmpty(AuditDataID); } }
         public string ObjectID { get; set; }
+        public string Type { get; set; }
         public string ObjectName { get; set; }
         public string ChangedValue { get; set; }
         public string CreatedBy { get; set; }
@@ -136,6 +137,7 @@ namespace ISLibrary
             {
                 dicParam["ObjectID"] = ObjectID;
                 dicParam["ObjectName"] = ObjectName;
+                dicParam["Type"] = Type;
                 dicParam["ParentKey"] = ParentKey;
                 dicParam["ParentObject"] = ParentObject;
                 dicParam["ChangedValue"] = ChangedValue;

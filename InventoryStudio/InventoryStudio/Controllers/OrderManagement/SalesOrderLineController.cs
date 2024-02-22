@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class SalesOrderLineController : Controller
+    public class SalesOrderLineController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

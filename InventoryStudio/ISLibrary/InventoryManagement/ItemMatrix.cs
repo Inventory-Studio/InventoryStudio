@@ -58,6 +58,32 @@ namespace ISLibrary
             }
         }
 
+        private Item mItem = null;
+        public Item Item
+        {
+            get
+            {
+
+                try
+                {
+                    if (mItem == null && IsLoaded && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemID))
+                    {
+                        mItem = new Item(CompanyID,ItemID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                return mItem;
+            }
+            set
+            {
+                mItem = value;
+            }
+        }
+
+        public string AttributeValueCombination => GetAttributeValueCombination();
         public ItemMatrix()
         {
         }
@@ -195,6 +221,8 @@ namespace ISLibrary
                         objItemMatrixValue.ItemMatrixID = ItemMatrixID;
                         objItemMatrixValue.CompanyID = CompanyID;
                         objItemMatrixValue.CreatedBy = CreatedBy;
+                        objItemMatrixValue.ParentKey = ItemParentID;
+                        objItemMatrixValue.ParentObject = "ItemParent";
                         objItemMatrixValue.Create(objConn, objTran);
                     }
                 }
@@ -208,6 +236,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -248,33 +277,30 @@ namespace ISLibrary
 
             try
             {
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
-                if (string.IsNullOrEmpty(ItemParentID)) throw new Exception("ItemParentID must be entered");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy name must be entered");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemMatrixID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
-                dicParam["CompanyID"] = CompanyID;
-                dicParam["ItemParentID"] = ItemParentID;
+             
                 dicParam["ItemID"] = ItemID;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicWParam["ItemMatrixID"] = ItemMatrixID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ItemMatrix"), objConn, objTran);
 
-                foreach (ItemMatrixValue objItemMatrixValue in ItemMatrixValues)
-                {
-                    if (objItemMatrixValue.IsNew)
-                    {
-                        objItemMatrixValue.CreatedBy = UpdatedBy;
-                        objItemMatrixValue.Create(objConn, objTran);
-                    }
-                    else
-                    {
-                        objItemMatrixValue.UpdatedBy = UpdatedBy;
-                        objItemMatrixValue.Update(objConn, objTran);
-                    }
-                }
+                //foreach (ItemMatrixValue objItemMatrixValue in ItemMatrixValues)
+                //{
+                //    if (objItemMatrixValue.IsNew)
+                //    {
+                //        objItemMatrixValue.CreatedBy = UpdatedBy;
+                //        objItemMatrixValue.Create(objConn, objTran);
+                //    }
+                //    else
+                //    {
+                //        objItemMatrixValue.UpdatedBy = UpdatedBy;
+                //        objItemMatrixValue.Update(objConn, objTran);
+                //    }
+                //}
 
                 Load(objConn, objTran);
             }
@@ -287,6 +313,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -359,8 +386,8 @@ namespace ISLibrary
                 strSQL = "SELECT TOP 1 p.* " +
                          "FROM ItemMatrix (NOLOCK) p " +
                          "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND p.ItemID=" + Database.HandleQuote(ItemID);
-                if (!string.IsNullOrEmpty(ItemID)) strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
+                         "AND p.ItemID=" + Database.HandleQuote(ItemID) +
+                         "AND p.ItemParentID=" + Database.HandleQuote(ItemParentID);
 
                 if (!string.IsNullOrEmpty(ItemMatrixID)) strSQL += "AND p.ItemMatrixID<>" + Database.HandleQuote(ItemMatrixID);
                 return Database.HasRows(strSQL);
@@ -456,6 +483,21 @@ namespace ISLibrary
                 objNew = null;
             }
             return objReturn;
+        }
+
+        public string GetAttributeValueCombination()
+        {
+            if (ItemMatrixValues == null || !ItemMatrixValues.Any())
+            {
+                return string.Empty;
+            }
+       
+            var attributeValueCombination = string.Join("-",
+                ItemMatrixValues
+                    .Select(v => v.ItemAttributeValue?.AttributeValueName ?? string.Empty)
+                    .Where(name => !string.IsNullOrEmpty(name)));
+
+            return attributeValueCombination;
         }
     }
 }

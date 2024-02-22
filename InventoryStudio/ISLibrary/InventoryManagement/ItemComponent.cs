@@ -85,7 +85,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
+            
         }
 
         private void Load(DataRow objRow)
@@ -116,6 +116,8 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+
+            base.Load();
         }
 
         public override bool Create()
@@ -177,6 +179,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -209,20 +212,17 @@ namespace ISLibrary
         }
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
-        {         
+        {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(ItemID)) throw new Exception("ItemID is required");
                 if (string.IsNullOrEmpty(ChildItemID)) throw new Exception("ChildItemID is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
-                dicParam["CompanyID"] = CompanyID;
-                dicParam["ItemID"] = ItemID;
                 dicParam["ChildItemID"] = ChildItemID;
                 dicParam["Quantity"] = Quantity;
                 dicParam["UpdatedBy"] = UpdatedBy;
@@ -240,7 +240,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -293,6 +293,8 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

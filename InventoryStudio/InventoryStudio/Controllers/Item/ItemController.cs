@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace InventoryStudio.Controllers
 {
-    public class ItemController : Controller
+    public class ItemController : BaseController
 
     { 
         private readonly UserManager<User> _userManager;
@@ -73,7 +73,7 @@ namespace InventoryStudio.Controllers
             try
             {
                 ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
+                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace InventoryStudio.Controllers
 
             if (TempData["FormData"] != null)
             {
-                string formData = TempData["FormData"].ToString();
+                string formData = TempData["FormData"] as string;
                 itemViewModel = JsonConvert.DeserializeObject<ItemViewModel>(formData);
 
                 if (TempData["ErrorMessage"] != null)
@@ -114,6 +114,7 @@ namespace InventoryStudio.Controllers
                 var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
 
                 itemViewModel.Item = item;
+                itemViewModel.ItemParent = itemParent;
                 itemViewModel.ItemAttributes = itemParent.ItemAttributes;
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
             }
@@ -164,11 +165,11 @@ namespace InventoryStudio.Controllers
                 Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
                 {
-                    
+                    ItemFilter itemFilter = new ItemFilter();
 
                     dataSource = Item.GetItems(
                         company.Value,
-                        null,
+                        itemFilter,
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,
                         out totalRecord

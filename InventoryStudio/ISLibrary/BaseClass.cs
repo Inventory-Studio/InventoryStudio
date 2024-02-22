@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
@@ -21,6 +22,16 @@ namespace ISLibrary
         // if the data is null, system will record all the attributes changed, if it have value, system will trace the attributes in it
         protected virtual List<string> TraceAttributes { get; set; }
 
+        public enum enumActionType
+        {
+            [Description("Create")]
+            Create,
+            [Description("Update")]
+            Update,
+            [Description("Delete")]
+            Delete
+        }
+
         public BaseClass()
         {
             OriginalValues = new Dictionary<string, object>();
@@ -41,8 +52,15 @@ namespace ISLibrary
 
         public virtual bool Create()
         {
+           
             if (IsLoaded) throw new Exception("Create() cannot be performed because object is loaded from constructors");
             return true;
+        }
+
+        public void LogAuditData(enumActionType action)
+        {
+            MapValues(CurrentValues);
+            RecordChange(action);
         }
 
         public virtual bool Create(SqlConnection objConn, SqlTransaction objTran)
@@ -55,9 +73,6 @@ namespace ISLibrary
 
         public virtual bool Update()
         {
-
-            MapValues(CurrentValues);
-            RecordChange("Update");
             if (!IsLoaded) throw new Exception("Update() cannot be performed because object is not loaded from constructors");
             return true;
         }
@@ -92,13 +107,23 @@ namespace ISLibrary
             return true;
         }
 
-        protected void RecordChange(string action)
+        protected void RecordChange(enumActionType action)
         {
-            var changes = GetChangedProperties();
-            if (changes.Count > 0)
-            {                
+            var changedProperties = new Dictionary<string, object>();
+         
+            if(action== enumActionType.Delete)
+            {
+                 changedProperties = OriginalValues;
+            }
+            else
+            {
+                 changedProperties = GetChangedProperties();
+            }
+            
+            if (changedProperties.Count > 0)
+            {                             
                 // Serialize auditData to JSON and store it
-                string auditDataJson = JsonSerializer.Serialize(changes);
+                string auditDataJson = JsonSerializer.Serialize(changedProperties);
 
                 var auditData = new AuditData();
                 auditData.ObjectID = PrimaryKey;
@@ -107,6 +132,7 @@ namespace ISLibrary
                 auditData.ParentObject = ParentObject;
                 auditData.ChangedValue = auditDataJson;
                 auditData.CreatedBy = UpdatedBy ?? CreatedBy ;
+                auditData.Type = action.ToString();
                 
                 auditData.Create();
 
@@ -115,39 +141,52 @@ namespace ISLibrary
             
         }
 
-        private Dictionary<string, Dictionary<string, object>> GetChangedProperties()
+        private Dictionary<string, object> GetChangedProperties()
 
         {
-            var changes = new Dictionary<string, Dictionary<string, object>>();
+            var changes = new Dictionary<string, object>();
 
 
             foreach (var kvp in CurrentValues)
             {
-                if (OriginalValues.TryGetValue(kvp.Key, out var originalValue))
+                // Skip comparison for ParentKey and ParentObject
+                if (kvp.Key == "ParentKey" || kvp.Key == "ParentObject")
                 {
-                    if (!Equals(originalValue, kvp.Value))
+                    continue;
+                }
+
+                OriginalValues.TryGetValue(kvp.Key, out var originalValue);
+
+                // Skip if both originalValue and kvp.Value are null or empty
+                if (String.IsNullOrEmpty(originalValue?.ToString()) && String.IsNullOrEmpty(kvp.Value?.ToString()))
+                {
+                    continue;
+                }
+
+                if (!Equals(originalValue, kvp.Value))
+                {                   
+                    // Check if originalValue has a specific value (not null and not empty string)
+                    if (!String.IsNullOrEmpty(originalValue?.ToString()))
                     {
                         changes[kvp.Key] = new Dictionary<string, object>
-                            {
-                                { "OriginalValue", originalValue },
-                                { "CurrentValue", kvp.Value }
-                            };
+                        {
+                            { "OriginalValue", originalValue },
+                            { "CurrentValue", kvp.Value }
+                        };
                     }
-                }
-                else
-                {
-                    changes[kvp.Key] = new Dictionary<string, object>
+                    else
                     {
-                        { "OriginalValue", null },
-                        { "CurrentValue", kvp.Value }
-                    };
-                }
+                        changes[kvp.Key] = kvp.Value;
+                    }
+                    
+                }       
             }
             return changes;
         }
 
         protected void MapValues(Dictionary<string, object> values)
-        {
+        {           
+
             var properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             bool primaryKeyRecorded = false;
@@ -163,45 +202,30 @@ namespace ISLibrary
 
                 if (property.CanRead && ((TraceAttributes.Count > 0 && TraceAttributes.Contains(property.Name)) || TraceAttributes.Count == 0))
                 {
-                    if (IsListOfBaseClass(property.PropertyType))
+                    // Check if the property type is an entity class (custom class) or a list of entity classes
+                    bool isEntityClass = property.PropertyType.IsClass && !property.PropertyType.IsPrimitive && !property.PropertyType.IsValueType && property.PropertyType != typeof(string);
+                    bool isListOfEntityClass = property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>) && property.PropertyType.GetGenericArguments()[0].IsClass;
+
+                    if (!(isEntityClass || isListOfEntityClass))
                     {
-                        var list = (IList)property.GetValue(this);
-                        if (list != null)
-                        {
-                            foreach (var item in list)
-                            {
-                                var baseClassItem = item as BaseClass;
-                                if (baseClassItem != null)
-                                {
-                                    baseClassItem.ParentKey = this.PrimaryKey;
-                                    baseClassItem.ParentObject = this.GetType().Name;
-                                }
-                            }
-                        }
+                        // If the property type is not an entity class or a list of entity classes, assign its value
+                        // Translate: If the property type is neither an Object (entity class) nor a List of Objects (entity classes), then assign the value.
+                       values[property.Name] = property.GetValue(this);
+                                            
                     }
-
-
-                    values[property.Name] = property.GetValue(this);
                 }
             }
-        }
 
-
-
-        private bool IsListOfBaseClass(Type type)
-        {
-            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(List<>))
+            // Directly assign UpdatedBy and CreatedBy if they exist in the dictionary
+            if (values.ContainsKey("UpdatedBy"))
             {
-                return false;
+                this.UpdatedBy = values["UpdatedBy"] as string; // Assumes the value is a string
             }
 
-            var genericArguments = type.GetGenericArguments();
-            if (genericArguments.Length == 1 && typeof(BaseClass).IsAssignableFrom(genericArguments[0]))
+            if (values.ContainsKey("CreatedBy"))
             {
-                return true;
+                this.CreatedBy = values["CreatedBy"] as string; // Assumes the value is a string
             }
-
-            return false;
         }
     }
 }

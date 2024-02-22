@@ -102,12 +102,10 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
         }
 
         private void Load(DataRow objRow)
         {
-            base.Load();
 
             DataColumnCollection objColumns = null;
 
@@ -135,6 +133,8 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+
+            base.Load();
         }
 
         public override bool Create()
@@ -191,6 +191,8 @@ namespace ISLibrary
                     objItemAttributeValue.ItemAttributeID = ItemAttributeID;
                     objItemAttributeValue.CompanyID = CompanyID;
                     objItemAttributeValue.CreatedBy = CreatedBy;
+                    objItemAttributeValue.ParentKey = ItemParentID;
+                    objItemAttributeValue.ParentObject = "ItemParent";
                     objItemAttributeValue.Create(objConn, objTran);
                 }
                 Load(objConn, objTran);
@@ -203,6 +205,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -236,36 +239,46 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
+                //if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID name must be entered");
                 if (string.IsNullOrEmpty(AttributeName.Trim())) throw new Exception("Attribute name must be entered");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy name must be entered");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemAttributeID is missing");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
-                dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
-                dicParam["ItemParentID"] = ItemParentID;
+                //dicParam["CompanyID"] = CompanyID;
+                //dicParam["ClientID"] = ClientID;
+                //dicParam["ItemParentID"] = ItemParentID;
                 dicParam["AttributeName"] = AttributeName;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicWParam["ItemAttributeID"] = ItemAttributeID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ItemAttribute"), objConn, objTran);
 
+                ItemAttribute currentItemAttribute = new ItemAttribute(CompanyID, ItemAttributeID);
+
+                foreach (ItemAttributeValue _currentItemAttributeValue in currentItemAttribute.ItemAttributeValues)
+                {
+                    if (!ItemAttributeValues.Exists(x => x.ItemAttributeValueID == _currentItemAttributeValue.ItemAttributeValueID))
+                    {
+                        _currentItemAttributeValue.Delete(objConn, objTran);
+                    }
+                }
+
                 foreach (ItemAttributeValue objItemAttributeValue in ItemAttributeValues)
                 {
                     if (objItemAttributeValue.IsNew)
                     {
+                        objItemAttributeValue.ItemAttributeID = ItemAttributeID;
+                        objItemAttributeValue.CompanyID = CompanyID;
                         objItemAttributeValue.CreatedBy = UpdatedBy;
+                        objItemAttributeValue.ParentKey = ItemParentID;
+                        objItemAttributeValue.ParentObject = "ItemParent";
                         objItemAttributeValue.Create(objConn, objTran);
-                    }
-                    else
-                    {
-                        objItemAttributeValue.UpdatedBy = UpdatedBy;
-                        objItemAttributeValue.Update(objConn, objTran);
                     }
                 }
 
@@ -280,7 +293,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -337,6 +351,8 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

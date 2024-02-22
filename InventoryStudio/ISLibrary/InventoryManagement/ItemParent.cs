@@ -264,17 +264,21 @@ namespace ISLibrary
                             objItemAttribute.ItemParentID = ItemParentID;
                             objItemAttribute.CompanyID = CompanyID;
                             objItemAttribute.CreatedBy = CreatedBy;
+                            objItemAttribute.ParentKey = ItemParentID;
+                            objItemAttribute.ParentObject = "ItemParent";
                             objItemAttribute.Create(objConn, objTran);
                         }
                         else
                         {
                             objItemAttribute.ItemParentID = ItemParentID;
                             objItemAttribute.UpdatedBy = CreatedBy;
+                            objItemAttribute.ParentKey = ItemParentID;
+                            objItemAttribute.ParentObject = "ItemParent";
                             objItemAttribute.Update(objConn, objTran);
                         }
                     }
                 }
-
+               
                 if (ItemMatrices != null)
                 {
                     foreach (ItemMatrix objItemMatrix in ItemMatrices)
@@ -318,12 +322,15 @@ namespace ISLibrary
                             objItemMatrix.CompanyID = CompanyID;
                             objItemMatrix.ItemParentID = ItemParentID;
                             objItemMatrix.CreatedBy = CreatedBy;
-                            objItemMatrix.CreatedBy = CreatedBy;
+                            objItemMatrix.ParentKey = ItemParentID;
+                            objItemMatrix.ParentObject = "ItemParent";
                             objItemMatrix.Create(objConn, objTran);
                         }
                         else
                         {
                             objItemMatrix.UpdatedBy = CreatedBy;
+                            objItemMatrix.ParentKey = ItemParentID;
+                            objItemMatrix.ParentObject = "ItemParent";
                             objItemMatrix.Update(objConn, objTran);
                         }
                     }
@@ -341,12 +348,16 @@ namespace ISLibrary
                             objItem.ItemParentID = ItemParentID;
                             objItem.CompanyID = CompanyID;
                             objItem.CreatedBy = CreatedBy;
+                            objItem.ParentKey = ItemParentID;
+                            objItem.ParentObject = "ItemParent";
                             objItem.Create(objConn, objTran);
                         }
                         else
                         {
                             objItem.ItemParentID = ItemParentID;
                             objItem.UpdatedBy = CreatedBy;
+                            objItem.ParentKey = ItemParentID;
+                            objItem.ParentObject = "ItemParent";
                             objItem.Update(objConn, objTran);
                         }
                     }
@@ -362,6 +373,8 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -394,7 +407,8 @@ namespace ISLibrary
         }
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
-        {           
+        {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
@@ -423,8 +437,73 @@ namespace ISLibrary
                         }
                         else
                         {
+                            objItemAttribute.CompanyID = CompanyID;
                             objItemAttribute.UpdatedBy = UpdatedBy;
                             objItemAttribute.Update(objConn, objTran);
+                        }
+                    }
+                }
+
+                ItemParent currentItemParent = new ItemParent(CompanyID, ItemParentID);
+
+                foreach (ItemMatrix _currentItemMatrix in currentItemParent.ItemMatrices)
+                {
+                    if (!ItemMatrices.Exists(x => x.ItemMatrixID == _currentItemMatrix.ItemMatrixID))
+                    {
+                        _currentItemMatrix.Delete(objConn, objTran);
+                    }
+                }
+
+                if (ItemMatrices != null)
+                {
+                    foreach (ItemMatrix objItemMatrix in ItemMatrices)
+                    {
+                        if (objItemMatrix.IsNew)
+                        {
+
+                            // Split the AttributeValue by '-' to get individual attribute values
+                            string[] attributeValues = objItemMatrix.AttributeValue.Split('-');
+
+                            List<ItemMatrixValue> objItemMatrixValues = new List<ItemMatrixValue>();
+
+                            foreach (string attributeValue in attributeValues)
+                            {
+                                // Assuming ItemAttributes is a collection of objItemAttribute
+                                // and each objItemAttribute has a collection of ItemAttributeValue
+                                var itemAttribute = ItemAttributes
+                                    .FirstOrDefault(ia => ia.ItemAttributeValues.Any(ava => ava.AttributeValueName == attributeValue));
+
+                                if (itemAttribute != null)
+                                {
+                                    // Assuming ItemAttributeValue is a collection and we need the first or default
+                                    var itemAttributeValue = itemAttribute.ItemAttributeValues
+                                        .FirstOrDefault(ava => ava.AttributeValueName == attributeValue);
+
+                                    if (itemAttributeValue != null)
+                                    {
+                                        ItemMatrixValue objItemMatrixValue = new ItemMatrixValue();
+                                        objItemMatrixValue.ItemAttributeID = itemAttribute.ItemAttributeID;
+                                        objItemMatrixValue.ItemAttributeValueID = itemAttributeValue.ItemAttributeValueID;
+                                        objItemMatrixValues.Add(objItemMatrixValue);
+                                    }
+                                }
+                            }
+
+                            if (objItemMatrixValues.Count > 0)
+                            {
+                                objItemMatrix.ItemMatrixValues = objItemMatrixValues;
+                            }
+
+                        
+                            objItemMatrix.CompanyID = CompanyID;
+                            objItemMatrix.ItemParentID = ItemParentID;
+                            objItemMatrix.CreatedBy = UpdatedBy;
+                            objItemMatrix.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objItemMatrix.UpdatedBy = CreatedBy;
+                            objItemMatrix.Update(objConn, objTran);
                         }
                     }
                 }
@@ -460,7 +539,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            //base.Update(); //itemMatrix死循环需要修复
+
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -650,7 +730,6 @@ namespace ISLibrary
             if (existingItem != null)
             {               
                 existingItem.ItemNumber = item.ItemNumber;
-                existingItem.IsVariation = item.IsVariation;
                 existingItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
                 existingItem.FulfillByKit = item.FulfillByKit;
                 existingItem.ReceiveByKit = item.ReceiveByKit;
@@ -669,11 +748,21 @@ namespace ISLibrary
                 existingItem.ItemBarcodes = item.ItemBarcodes;
                 existingItem.ItemKits = item.ItemKits;
                 existingItem.ItemComponents = item.ItemComponents;
+
+
+                existingItem.ItemType = item.ItemType;
+
             }
 
 
             itemParent.ItemAttributes = itemAttributes;
-            itemParent.ItemMatrices = itemMatrices;
+            if (itemMatrices ==null)
+            {
+                itemParent.ItemMatrices = new List<ItemMatrix>();
+            }
+            else {
+                itemParent.ItemMatrices = itemMatrices;
+            }            
             itemParent.Update();
             return item;
         }

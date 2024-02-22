@@ -9,7 +9,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class ClientController : Controller
+    public class ClientController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 
@@ -83,20 +83,19 @@ namespace InventoryStudio.Controllers.OrderManagement
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
             ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
-            CreateClientViewModel createClientViewModel = new();
-            return View("~/Views/OrderManagement/Client/Create.cshtml", createClientViewModel);
+            return View("~/Views/OrderManagement/Client/Create.cshtml");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(
-            [Bind("CompanyId,CompanyName,FirstName,LastName,EmailAddress")]
+            [Bind("CompanyID,CompanyName,FirstName,LastName,EmailAddress")]
             CreateClientViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var client = new Client();
-                client.CompanyID = input.CompanyId;
+                client.CompanyID = input.CompanyID;
                 client.CompanyName = input.CompanyName;
                 client.FirstName = input.FirstName;
                 client.LastName = input.LastName;
@@ -105,11 +104,10 @@ namespace InventoryStudio.Controllers.OrderManagement
                 client.Create();
                 return RedirectToAction(nameof(Index));
             }
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies ?? new List<Company>();
-            ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName", input.CompanyId);
+            ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName", input.CompanyID);
             return View("~/Views/OrderManagement/Client/Create.cshtml");
         }
 
@@ -119,12 +117,9 @@ namespace InventoryStudio.Controllers.OrderManagement
                 return NotFound();
             if (string.IsNullOrEmpty(CompanyID))
                 return NotFound();
-
-
             var client = new Client(CompanyID, id);
             if (client == null)
                 return NotFound();
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -144,7 +139,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(string id,
-            [Bind("ClientId,CompanyId,CompanyName,FirstName,LastName,EmailAddress")]
+            [Bind("ClientID,CompanyID,CompanyName,FirstName,LastName,EmailAddress")]
             EditClientViewModel input)
         {
             if (id != input.ClientID)
@@ -167,7 +162,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies ?? new List<Company>();
-            ViewData["CompanyId"] = new SelectList(companies, "CompanyId", "CompanyName");
+            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             return View("~/Views/OrderManagement/Client/Edit.cshtml");
         }
 
@@ -195,18 +190,18 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Insert([FromBody] CRUDModel<Client> value)
+        public IActionResult Insert([FromBody] CRUDModel<ClientViewModel> value)
         {
             return Json(value.Value);
         }
 
-        public IActionResult Update([FromBody] CRUDModel<Client> value)
+        public IActionResult Update([FromBody] CRUDModel<ClientViewModel> value)
         {
-            return Json(value.Value ?? new Client());
+            return Json(value.Value ?? new ClientViewModel());
         }
 
 
-        public IActionResult Remove([FromBody] CRUDModel<Client> value)
+        public IActionResult Remove([FromBody] CRUDModel<ClientViewModel> value)
         {
             if (value.Key != null)
             {

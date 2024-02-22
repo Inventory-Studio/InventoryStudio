@@ -25,18 +25,18 @@ namespace ISLibrary
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; private set; }
 
-        private ItemMatrix mItemMatrix = null;
-        public ItemMatrix ItemMatrix
-        {
-            get
-            {
-                if (mItemMatrix == null && !string.IsNullOrEmpty(ItemMatrixID) && !string.IsNullOrEmpty(CompanyID))
-                {
-                    mItemMatrix = new ItemMatrix(CompanyID, ItemMatrixID);
-                }
-                return mItemMatrix;
-            }
-        }
+        //private ItemMatrix mItemMatrix = null;
+        //public ItemMatrix ItemMatrix
+        //{
+        //    get
+        //    {
+        //        if (mItemMatrix == null && !string.IsNullOrEmpty(ItemMatrixID) && !string.IsNullOrEmpty(CompanyID))
+        //        {
+        //            mItemMatrix = new ItemMatrix(CompanyID, ItemMatrixID);
+        //        }
+        //        return mItemMatrix;
+        //    }
+        //}
 
         private ItemAttribute mItemAttribute = null;
         public ItemAttribute ItemAttribute
@@ -206,6 +206,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -272,6 +273,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -335,6 +337,7 @@ namespace ISLibrary
                      "FROM ItemMatrixValue (NOLOCK) p " +
                      "WHERE p.CompanyID=" + Database.HandleQuote(CompanyID) +
                      "AND p.ItemAttributeID=" + Database.HandleQuote(ItemAttributeID) +
+                     "AND p.ItemMatrixID=" + Database.HandleQuote(ItemMatrixID) +
                      "AND p.ItemAttributeValueID=" + Database.HandleQuote(ItemAttributeValueID);
 
             if (!string.IsNullOrEmpty(ItemMatrixValueID)) strSQL += "AND p.ItemMatrixValueID<>" + Database.HandleQuote(ItemMatrixValueID);

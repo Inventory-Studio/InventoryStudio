@@ -12,7 +12,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class AddressController : Controller
+    public class AddressController : BaseController
     {
         public IActionResult Index()
         {
@@ -31,7 +31,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             var viewModel = new AddressViewModel();
             viewModel.AddressID = address.AddressID;
-            if (string.IsNullOrEmpty(address.CompanyID))
+            if (!string.IsNullOrEmpty(address.CompanyID))
             {
                 var company = new Company(address.CompanyID);
                 if (company != null)
@@ -59,7 +59,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.Zone = address.Zone;
             viewModel.IsInvalidAddress = address.IsInvalidAddress;
             viewModel.IsAddressUpdated = address.IsAddressUpdated;
-            if (string.IsNullOrEmpty(address.UpdatedBy))
+            if (!string.IsNullOrEmpty(address.UpdatedBy))
             {
                 var user = new AspNetUsers(address.UpdatedBy);
                 if (user != null)
@@ -205,6 +205,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.IsAddressUpdated = input.IsAddressUpdated;
                 address.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 address.UpdatedOn = DateTime.Now;
+                address.Update();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -239,17 +240,17 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Insert([FromBody] CRUDModel<Address> value)
+        public IActionResult Insert([FromBody] CRUDModel<AddressViewModel> value)
         {
             return Json(value.Value);
         }
 
-        public IActionResult Update([FromBody] CRUDModel<Address> value)
+        public IActionResult Update([FromBody] CRUDModel<AddressViewModel> value)
         {
-            return Json(value.Value ?? new Address());
+            return Json(value.Value ?? new AddressViewModel());
         }
 
-        public IActionResult Remove([FromBody] CRUDModel<Address> value)
+        public IActionResult Remove([FromBody] CRUDModel<AddressViewModel> value)
         {
             if (value.Key != null)
             {

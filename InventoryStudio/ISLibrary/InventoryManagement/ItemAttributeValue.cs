@@ -187,6 +187,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -220,6 +221,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
@@ -247,7 +249,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -284,18 +287,21 @@ namespace ISLibrary
             base.Delete();
 
             Hashtable dicDParam = new Hashtable();
-            ItemAttributeValueLineFilter objFilter = null;
-            List<ItemAttributeValueLine> objItemAttributeValueLines = null;
+            ItemMatrixValueFilter objFilter = null;
+            List<ItemMatrixValue> objItemMatrixValues = null;
 
             try
             {
                 if (IsNew) throw new Exception("Delete cannot be performed, ItemAttributeValueID is missing");
 
-                objFilter = new ItemAttributeValueLineFilter();
+                objFilter = new ItemMatrixValueFilter();
                 objFilter.ItemAttributeValueID = new Database.Filter.StringSearch.SearchFilter();
                 objFilter.ItemAttributeValueID.SearchString = ItemAttributeValueID;
-                objItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
-                if (objItemAttributeValueLines != null && objItemAttributeValueLines.Count > 0) throw new Exception("More than one item is setup using this item attrivute value.");
+                objItemMatrixValues = ItemMatrixValue.GetItemMatrixValues(CompanyID, objFilter);
+                foreach (ItemMatrixValue objItemMatrixValue in objItemMatrixValues)
+                {
+                        objItemMatrixValue.Delete(objConn, objTran);                    
+                }
 
                 dicDParam["ItemAttributeValueID"] = ItemAttributeValueID;
                 Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ItemAttributeValue"), objConn, objTran);
@@ -308,6 +314,8 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

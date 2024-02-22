@@ -1,15 +1,17 @@
-﻿using InventoryStudio.Models.OrderManagement.SalesOrder;
+﻿using InventoryStudio.File;
+using InventoryStudio.Models.OrderManagement.SalesOrder;
 using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class SalesOrderController : Controller
+    public class SalesOrderController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 
@@ -151,7 +153,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = input.CompanyID;
-                salesOrder.CompanyID = input.CustomerID;
+                salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 salesOrder.LocationID = input.LocationID;
@@ -329,5 +331,50 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
+
+        [HttpPost("import")]
+        public async Task<IActionResult> import(IFormFile file)
+        {
+            try
+            {
+                var fileType = Path.GetExtension(file.FileName);
+                var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
+                var records = await _fileHandler.Import(file);
+                //【ToDo】Process import logic
+                return Ok(records);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> Export(string fileType, string id)
+        {
+            try
+            {
+                var salesOrder = new SalesOrder(CompanyID, id);
+                var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
+                var fileBytes = await _fileHandler.Export(new[] { salesOrder });
+                if (fileType.Contains("text/csv"))
+                {
+                    return File(fileBytes, "text/csv", "filename.csv");
+                }
+                else if (fileType.Contains("xlsx/xls"))
+                {
+                    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filename.xlsx");
+                }
+                else
+                {
+                    return BadRequest("Unsupported file type.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace InventoryStudio.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;

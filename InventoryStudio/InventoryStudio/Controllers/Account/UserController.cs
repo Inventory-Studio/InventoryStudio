@@ -18,7 +18,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.Account
 {
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;

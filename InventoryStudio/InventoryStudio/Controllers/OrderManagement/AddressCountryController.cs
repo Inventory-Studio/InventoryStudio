@@ -1,11 +1,12 @@
-﻿using InventoryStudio.Models.OrderManagement.AddressCountry;
+﻿using System.Text.Json;
+using InventoryStudio.Models.OrderManagement.AddressCountry;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class AddressCountryController : Controller
+    public class AddressCountryController : BaseController
     {
         public IActionResult Index()
         {
@@ -15,6 +16,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 list.Add(EntitieConvertViewModel(addressCountry));
             }
+
             return View("~/Views/OrderManagement/AddressCountry/Index.cshtml", list);
         }
 
@@ -48,7 +50,9 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CountryID,CountryName,USPSCountryName,IsEligibleForPLTFedEX,EEL_PFC")] CreateAddressCountryViewModel input)
+        public IActionResult Create(
+            [Bind("CountryID,CountryName,USPSCountryName,IsEligibleForPLTFedEX,EEL_PFC")]
+            CreateAddressCountryViewModel input)
         {
             if (ModelState.IsValid)
             {
@@ -61,6 +65,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 addressCountry.Create();
                 return RedirectToAction(nameof(Index));
             }
+
             return View("~/Views/OrderManagement/AddressCountry/Create.cshtml", input);
         }
 
@@ -83,7 +88,9 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("CountryID,CountryName,USPSCountryName,IsEligibleForPLTFedEX,EEL_PFC")] EditAddressCountryViewModel input)
+        public IActionResult Edit(string id,
+            [Bind("CountryID,CountryName,USPSCountryName,IsEligibleForPLTFedEX,EEL_PFC")]
+            EditAddressCountryViewModel input)
         {
             if (id != input.CountryID)
                 return NotFound();
@@ -97,6 +104,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 addressCountry.Update();
                 return RedirectToAction(nameof(Index));
             }
+
             return View("~/Views/OrderManagement/AddressCountry/Edit.cshtml", input);
         }
 
@@ -122,5 +130,96 @@ namespace InventoryStudio.Controllers.OrderManagement
             return RedirectToAction(nameof(Index));
         }
 
+
+        public IActionResult Insert([FromBody] CRUDModel value)
+        {
+            return Json(value.Value);
+        }
+
+        public IActionResult Update([FromBody] CRUDModel<AddressCountryViewModel> value)
+        {
+            return Json(value.Value ?? new AddressCountryViewModel());
+        }
+
+        public IActionResult Remove([FromBody] CRUDModel<AddressCountryViewModel> value)
+        {
+            if (value.Key != null)
+            {
+                DeleteConfirmed(value.Key.ToString() ?? "");
+            }
+
+            return Json(value);
+        }
+
+        public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
+        {
+            IEnumerable<AddressCountryViewModel> dataSource = new List<AddressCountryViewModel>().AsEnumerable();
+            DataOperations operation = new();
+            int totalRecord = 0;
+            if (dm.Skip != 0 || dm.Take != 0)
+            {
+                AddressCountryFilter addressCountryFilter = new();
+                dataSource = AddressCountry.GetAddressCountries(
+                    addressCountryFilter,
+                    dm.Take,
+                    (dm.Skip / dm.Take) + 1,
+                    out totalRecord
+                ).Select(EntitieConvertViewModel);
+            }
+
+            if (dm.Search != null && dm.Search.Count > 0)
+            {
+                dataSource = operation.PerformSearching(dataSource, dm.Search); //Search
+            }
+
+            if (dm.Sorted != null && dm.Sorted.Count > 0) //Sorting
+            {
+                dataSource = operation.PerformSorting(dataSource, dm.Sorted);
+            }
+
+            if (dm.Where != null && dm.Where.Count > 0) //Filtering
+            {
+                if (dm.Where != null && dm.Where.Any()) //Filtering
+                {
+                    foreach (WhereFilter whereFilter in dm.Where)
+                    {
+                        if (whereFilter.IsComplex)
+                        {
+                            foreach (WhereFilter whereFilterPredicate in whereFilter.predicates)
+                            {
+                                dataSource = operation.PerformFiltering(
+                                    dataSource,
+                                    dm.Where,
+                                    whereFilterPredicate.Operator
+                                );
+                            }
+                        }
+                        else
+                        {
+                            dataSource = operation.PerformFiltering(
+                                dataSource,
+                                dm.Where,
+                                dm.Where.First().Operator
+                            );
+                        }
+                    }
+                }
+            }
+
+            if (dm.Skip != 0)
+            {
+                dataSource = operation.PerformSkip(dataSource, dm.Skip); //Paging
+            }
+
+            if (dm.Take != 0)
+            {
+                dataSource = operation.PerformTake(dataSource, dm.Take);
+            }
+
+            JsonSerializerOptions jsonSerializerOptions = new() { PropertyNamingPolicy = null };
+            return dm.RequiresCounts
+                ? Json(new { result = dataSource, count = totalRecord }, jsonSerializerOptions)
+                : Json(dataSource, jsonSerializerOptions);
+        }
     }
 }

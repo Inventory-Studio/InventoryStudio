@@ -4,67 +4,67 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>PackageDimension</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CompanyID" class="control-label"></label>
-                <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
+<div class="container-fluid py-4">
+    <div class="card custom-card">
+        <div class="card-header hstack justify-content-between align-items-center">
+            <div class="card-title">Create Package Dimension</div>
+            <div>
+                <a class="btn btn-sm btn-light" asp-controller="PackageDimension" asp-action="Index">Back to List</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Length" class="control-label"></label>
-                <input asp-for="Length" class="form-control" />
-                <span asp-validation-for="Length" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Width" class="control-label"></label>
-                <input asp-for="Width" class="form-control" />
-                <span asp-validation-for="Width" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Height" class="control-label"></label>
-                <input asp-for="Height" class="form-control" />
-                <span asp-validation-for="Height" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Weight" class="control-label"></label>
-                <input asp-for="Weight" class="form-control" />
-                <span asp-validation-for="Weight" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WeightUnit" class="control-label"></label>
-                <input asp-for="WeightUnit" class="form-control" />
-                <span asp-validation-for="WeightUnit" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShippingPackage" class="control-label"></label>
-                <input asp-for="ShippingPackage" class="form-control" />
-                <span asp-validation-for="ShippingPackage" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Template" class="control-label"></label>
-                <input asp-for="Template" class="form-control" />
-                <span asp-validation-for="Template" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+        <div class="card-body">
+            <form class="row" asp-controller="PackageDimension" asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="CompanyID" class="form-label"></label>
+                    <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control"/>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Length" class="form-label"></label>
+                    <input asp-for="Length" class="form-control"/>
+                    <span asp-validation-for="Length" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Width" class="form-label"></label>
+                    <input asp-for="Width" class="form-control"/>
+                    <span asp-validation-for="Width" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Height" class="form-label"></label>
+                    <input asp-for="Height" class="form-control"/>
+                    <span asp-validation-for="Height" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Weight" class="form-label"></label>
+                    <input asp-for="Weight" class="form-control"/>
+                    <span asp-validation-for="Weight" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="WeightUnit" class="form-label"></label>
+                    <input asp-for="WeightUnit" class="form-control"/>
+                    <span asp-validation-for="WeightUnit" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="ShippingPackage" class="form-label"></label>
+                    <input asp-for="ShippingPackage" class="form-control"/>
+                    <span asp-validation-for="ShippingPackage" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <label asp-for="Template" class="form-label"></label>
+                    <input asp-for="Template" class="form-control"/>
+                    <span asp-validation-for="Template" class="text-danger"></span>
+                </div>
+                <div class="form-group col-12">
+                    <input type="submit" value="Create" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

@@ -51,7 +51,7 @@
                         <div class="row">
                         <div class="form-group col-md-6">
                             <label for="itemType">Item Type *</label>
-                            <select asp-for="@Model.Item.ItemType" asp-items="@enumItemTypeSelectList" class="form-control"></select>
+                                <select asp-for="@Model.Item.ItemType" asp-items="@enumItemTypeSelectList" class="form-control" onchange="changeItemType()"></select>
                         </div>
                             <div class="form-group col-md-6">
                                 <label asp-for="@Model.Item.ItemNumber">Item Number</label>
@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="form-check">
                                     <input asp-for="@Model.Item.IsShipReceiveIndividually" type="checkbox" class="form-check-input" />
-                                    <label class="form-check-label" for="receiveIndividually">
+                                    <label class="form-check-label" for="IsShipReceiveIndividually">
                                         Receive Individually
                                     </label>
                                 </div>
@@ -180,83 +180,159 @@
 
 
 
-<script>        
+<script>
+    function toggleMatrix() {
+        var isChecked = $('#createMatrixCheckbox').is(':checked');
+        if (isChecked) {
+            $('#component-tab').hide();
+            $('#barcode-tab').hide();
+            $('#kit-item-tab').hide();
+            $('#attribute-tab').show();
+            $('#matrix-tab').show();
+            $("#ItemType option[value='Kit']").prop('disabled', true);
+        } else {
+            changeItemType();
+        }
+    }
 
-        function toggleMatrix() {
-            var isChecked = $('#createMatrixCheckbox').is(':checked');
-            if (isChecked) {
-                $('#component-tab').hide();
-                $('#barcode-tab').hide();
-                $('#kit-item-tab').hide();
-                $('#attribute-tab').show();
-                $('#matrix-tab').show();
-                $("#ItemType option[value='Kit']").prop('disabled', true);
-            } else {
-                $('#component-tab').show();
-                $('#barcode-tab').show();
-                $('#kit-item-tab').hide();
-                $('#attribute-tab').hide();
-                $('#matrix-tab').hide();
-                $("#ItemType option[value='Kit']").prop('disabled', false);
+    function changeItemType() {
+        var selectedItemType = $('#Item_ItemType').val();
+        var isChecked = $('#createMatrixCheckbox').is(':checked');
+        if (!isChecked) {
+            switch (selectedItemType) {
+                case 'Inventory':
+                case 'LotNumbered':
+                case 'Serialized':
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
+                case 'Assembly':
+                    $('#component-tab').show();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
+                case 'Kit':
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').show();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').show();
+                    $('#createMatrixCheckbox').prop('disabled', true);
+                    break;
+                default:
+                    $('#component-tab').hide();
+                    $('#barcode-tab').show();
+                    $('#kit-item-tab').hide();
+                    $('#attribute-tab').hide();
+                    $('#matrix-tab').hide();
+                    $('#kit-options').hide();
+                    $('#createMatrixCheckbox').prop('disabled', false);
+                    break;
             }
         }
 
+    };
 
-   
+     function addItemBarcode() {
+            var itemNumber = $('#Item_ItemNumber').val();
+            var barcodeExists = false;
+            var $tableBody = $('#barcodeTable').find('tbody');
+
+            // Iterate through the rows of the table to check if an entry with the same item number already exists
+            $tableBody.find('tr').each(function () {
+                var $row = $(this);
+                var currentItemType = $row.find('input[name^="Item.ItemBarcodes["][name$="].Type"]').val();
+
+                if (currentItemType == 'Item Number') {
+                    barcodeExists = true;
+
+                    var barcodeInput = $row.find('input[name^="Item.ItemBarcodes["][name$="].Barcode"]');
+                    barcodeInput.val(itemNumber);
+
+                    var $td = $row.find('td:first');
+                    // Remove any text nodes in the td, preparing to insert updated text
+                    $td.contents().filter(function () {
+                        return this.nodeType == 3; // Node.TEXT_NODE
+                    }).remove();
+                    // Insert the new barcode text before the hidden input
+                    barcodeInput.before(document.createTextNode(itemNumber));
+                    return false; // Break the loop since we've found and updated the existing entry
+                }
+            });
+
+            // If no existing entry was found, add a new row to the table with the new barcode information
+            if (!barcodeExists && itemNumber) {
+                var index = $tableBody.find('tr').length; // Use the row count as the new index
+
+                // Create a new table row
+                var $newRow = $('<tr/>');
+                // Add a cell for displaying the barcode
+                $newRow.append($('<td/>').addClass('barcode-display').text(itemNumber));
+                // Add a cell for displaying the type
+                $newRow.append($('<td/>').text('Item Number'));
+
+                // Create a hidden input for the barcode value
+                var $hiddenBarcodeInput = $('<input/>', {
+                    type: 'hidden',
+                    name: 'Item.ItemBarcodes[' + index + '].Barcode',
+                    value: itemNumber
+                }).appendTo($newRow); // Add the hidden input to the new row
+
+                // Create a hidden input for the barcode type
+                var $hiddenTypeInput = $('<input/>', {
+                    type: 'hidden',
+                    name: 'Item.ItemBarcodes[' + index + '].Type',
+                    value: 'Item Number'
+                }).appendTo($newRow); // Add the hidden input to the new row
+
+                // Add the new row to the table body
+                $tableBody.append($newRow);
+            }
+        }
+
+        function reindexTableInputs(tableSelector) {
+            // Iterate through each row in the specified table
+            $(tableSelector + ' tbody tr').each(function (index) {
+                // Update the name attribute for each input element within the row to reflect the new index
+                $(this).find('input').each(function () {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        // Use a regular expression to find and replace the index within the name attribute
+                        var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                        $(this).attr('name', newName);
+                    }
+                });
+            });
+        }
 
     $(document).ready(function () {
 
-        $('#Item_ItemType').change(function () {
-            var selectedItemType = $(this).val();
-            var isChecked = $('#createMatrixCheckbox').is(':checked');
-            if (!isChecked) {
-                switch (selectedItemType) {
-                    case 'Inventory':
-                    case 'LotNumbered':
-                    case 'Serialized':
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                    case 'Assembly':
-                        $('#component-tab').show();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                    case 'Kit':
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').show();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').show();
-                        $('#createMatrixCheckbox').prop('disabled', true);
-                        break;
-                    default:
-                        $('#component-tab').hide();
-                        $('#barcode-tab').show();
-                        $('#kit-item-tab').hide();
-                        $('#attribute-tab').hide();
-                        $('#matrix-tab').hide();
-                        $('#kit-options').hide();
-                        $('#createMatrixCheckbox').prop('disabled', false);
-                        break;
-                }
-            }
+        changeItemType();
 
+        toggleMatrix();
+       
+
+        // Before form submission, call reindexTableInputs for each table
+        $('form').submit(function (e) {
+            reindexTableInputs('#barcodeTable');
+            reindexTableInputs('#itemComponentsTable');
+            reindexTableInputs('#itemKitTable');
+            reindexTableInputs('#attributesTable');
+            reindexTableInputs('#matrixTable');
+            // Allow the form to be submitted normally
         });
 
-        // Trigger change event on Item Type dropdown to initialize the form
-        $('#Item_ItemType').change();
 
     });
-    
+
 </script>

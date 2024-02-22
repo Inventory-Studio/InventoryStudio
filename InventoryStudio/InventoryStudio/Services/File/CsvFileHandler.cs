@@ -1,17 +1,18 @@
 ﻿using CsvHelper;
 using System.Globalization;
+using System.Text;
 
 namespace InventoryStudio.File
 {
-    public class CsvFileHandler<T> : IFileHandler<T>
+    public class CsvFileHandler<T> : IFileHandler<T> where T : class
     {
-        public async Task<byte[]> DownloadFileAsync(IEnumerable<T> records)
+        public async Task<byte[]> Export(params IEnumerable<T>[] records)
         {
             using (var writer = new StringWriter())
             {
                 var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
                 csvWriter.WriteHeader<T>();
-                await csvWriter.WriteRecordsAsync(records);
+                await csvWriter.WriteRecordsAsync(records[0]);
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var streamWriter = new StreamWriter(memoryStream))
@@ -24,7 +25,7 @@ namespace InventoryStudio.File
             }
         }
 
-        public async Task<List<T>> UploadFileAsync(IFormFile file)
+        public async Task<List<T>> Import(IFormFile file)
         {
             using (var stream = new MemoryStream())
             {
@@ -36,6 +37,44 @@ namespace InventoryStudio.File
                     return await csv.GetRecordsAsync<T>().ToListAsync();
                 }
             }
+        }
+
+        public async Task<string[]> GetHeader(IFormFile file)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+                using (var reader = new StreamReader(stream, Encoding.Default))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    if (await csv.ReadAsync())
+                    {
+                        csv.ReadHeader();
+                        return csv.HeaderRecord;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
+        {
+            var entityTypeProperties = typeof(T).GetProperties().Select(p => p.Name).ToList();
+            var mapping = new Dictionary<string, string?>();
+
+            foreach (var entityTypeProperty in entityTypeProperties)
+            {
+                if (headerFields.Contains(entityTypeProperty))
+                {
+                    mapping[entityTypeProperty] = entityTypeProperty;
+                }
+                else
+                {
+                    mapping[entityTypeProperty] = null;
+                }
+            }
+            return await Task.FromResult(mapping);
         }
     }
 
