@@ -86,39 +86,6 @@ namespace ISLibrary
         public string CountryOfOrigin { get; set; }
         public int? BinID { get; set; }
 
-        //private List<ItemAttributeValueLine> mItemAttributeValueLines = null;
-        //public List<ItemAttributeValueLine> ItemAttributeValueLines
-        //{
-        //    get
-        //    {
-        //        ItemAttributeValueLineFilter objFilter = null;
-
-        //        try
-        //        {
-        //            if (mItemAttributeValueLines == null && IsLoaded && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemID))
-        //            {
-        //                objFilter = new ItemAttributeValueLineFilter();
-        //                objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
-        //                objFilter.ItemID.SearchString = ItemID;
-        //                mItemAttributeValueLines = ItemAttributeValueLine.GetItemAttributeValueLines(CompanyID, objFilter);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw ex;
-        //        }
-        //        finally
-        //        {
-        //            objFilter = null;
-        //        }
-        //        return mItemAttributeValueLines;
-        //    }
-        //    set
-        //    {
-        //        mItemAttributeValueLines = value;
-        //    }
-        //}
-
         private List<ItemKit> mItemKits = null;
         public List<ItemKit> ItemKits
         {
@@ -271,8 +238,7 @@ namespace ISLibrary
             finally
             {
                 objData = null;
-            }
-            base.Load();
+            }           
         }
 
         private void Load(DataRow objRow)
@@ -327,6 +293,8 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+
+            base.Load();
         }
 
         public override bool Create()
@@ -403,26 +371,6 @@ namespace ISLibrary
                 dicParam["CreatedBy"] = CreatedBy;
                 ItemID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Item"), objConn, objTran).ToString();
 
-                //if (ItemAttributeValueLines != null)
-                //{
-
-                //    foreach (ItemAttributeValueLine objItemAttributeValueLine in ItemAttributeValueLines)
-                //    {
-                //        if (objItemAttributeValueLine.IsNew)
-                //        {
-                //            //objItemAttributeValueLine.IsLoaded = false;
-                //            objItemAttributeValueLine.CompanyID = CompanyID;
-                //            objItemAttributeValueLine.ItemID = ItemID;
-                //            objItemAttributeValueLine.CreatedBy = CreatedBy;
-                //            objItemAttributeValueLine.Create(objConn, objTran);
-                //        }
-                //        else
-                //        {
-                //            objItemAttributeValueLine.UpdatedBy = CreatedBy;
-                //            objItemAttributeValueLine.Update(objConn, objTran);
-                //        }
-                //    }
-                //}
 
                 if (ItemKits != null)
                 {
@@ -434,12 +382,9 @@ namespace ISLibrary
                             objItemKit.CompanyID = CompanyID;
                             objItemKit.ItemID = ItemID;
                             objItemKit.CreatedBy = CreatedBy;
+                            objItemKit.ParentKey = ItemID;
+                            objItemKit.ParentObject = "Item";
                             objItemKit.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemKit.UpdatedBy = CreatedBy;
-                            objItemKit.Update(objConn, objTran);
                         }
                     }
                 }
@@ -453,12 +398,9 @@ namespace ISLibrary
                             objItemComponent.CompanyID = CompanyID;
                             objItemComponent.ItemID = ItemID;
                             objItemComponent.CreatedBy = CreatedBy;
+                            objItemComponent.ParentKey = ItemID;
+                            objItemComponent.ParentObject = "Item";
                             objItemComponent.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemComponent.UpdatedBy = CreatedBy;
-                            objItemComponent.Update(objConn, objTran);
                         }
                     }
                 }
@@ -473,12 +415,9 @@ namespace ISLibrary
                             objItemBarcode.CompanyID = CompanyID;
                             objItemBarcode.ItemID = ItemID;
                             objItemBarcode.CreatedBy = CreatedBy;
+                            objItemBarcode.ParentKey = ItemID;
+                            objItemBarcode.ParentObject = "Item";
                             objItemBarcode.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemBarcode.UpdatedBy = CreatedBy;
-                            objItemBarcode.Update(objConn, objTran);
                         }
                     }
                 }
@@ -494,6 +433,8 @@ namespace ISLibrary
                 dicParam = null;
                 objItemParent = null;
             }
+
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -527,6 +468,8 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
+
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             ItemParent objItemParent = null;
@@ -576,6 +519,9 @@ namespace ISLibrary
                 {
                     if (!ItemComponents.Exists(x => x.ItemComponentID == _currentItemComponent.ItemComponentID))
                     {
+                        _currentItemComponent.UpdatedBy = UpdatedBy;
+                        _currentItemComponent.ParentKey = ItemID;
+                        _currentItemComponent.ParentObject = "Item";
                         _currentItemComponent.Delete(objConn, objTran);
                     }
                 }
@@ -589,12 +535,22 @@ namespace ISLibrary
                             objItemComponent.CompanyID = CompanyID;
                             objItemComponent.ItemID = ItemID;
                             objItemComponent.CreatedBy = CreatedBy;
+                            objItemComponent.ParentKey = ItemID;
+                            objItemComponent.ParentObject = "Item";
                             objItemComponent.Create(objConn, objTran);
                         }
                         else
                         {
-                            objItemComponent.UpdatedBy = UpdatedBy;
-                            objItemComponent.Update(objConn, objTran);
+                            var matchingComponent = currentItem.ItemComponents.FirstOrDefault(x => x.ItemComponentID == objItemComponent.ItemComponentID);
+                            if (matchingComponent != null)
+                            {
+                                matchingComponent.ChildItemID = objItemComponent.ChildItemID;
+                                matchingComponent.Quantity = objItemComponent.Quantity;
+                                matchingComponent.UpdatedBy = UpdatedBy;
+                                matchingComponent.ParentKey = ItemID;
+                                matchingComponent.ParentObject = "Item";                       
+                                matchingComponent.Update(objConn, objTran);
+                            }
                         }
                     }
                 }
@@ -604,6 +560,9 @@ namespace ISLibrary
                 {
                     if (!ItemKits.Exists(x => x.ItemKitID == _currentItemKit.ItemKitID))
                     {
+                        _currentItemKit.UpdatedBy = UpdatedBy;
+                        _currentItemKit.ParentKey = ItemID;
+                        _currentItemKit.ParentObject = "Item";
                         _currentItemKit.Delete(objConn, objTran);
                     }
                 }
@@ -617,12 +576,22 @@ namespace ISLibrary
                             objItemKit.CompanyID = CompanyID;
                             objItemKit.ItemID = ItemID;
                             objItemKit.CreatedBy = CreatedBy;
+                            objItemKit.ParentKey = ItemID;
+                            objItemKit.ParentObject = "Item";
                             objItemKit.Create(objConn, objTran);
                         }
                         else
                         {
-                            objItemKit.UpdatedBy = UpdatedBy;
-                            objItemKit.Update(objConn, objTran);
+                            var matchingItemKit = currentItem.ItemKits.FirstOrDefault(x => x.ItemKitID == objItemKit.ItemKitID);
+                            if (matchingItemKit != null)
+                            {
+                                matchingItemKit.ChildItemID = objItemKit.ChildItemID;
+                                matchingItemKit.Quantity = objItemKit.Quantity;
+                                matchingItemKit.UpdatedBy = UpdatedBy;
+                                matchingItemKit.ParentKey = ItemID;
+                                matchingItemKit.ParentObject = "Item";
+                                matchingItemKit.Update(objConn, objTran);
+                            }                            
                         }
                     }
                 }
@@ -631,6 +600,9 @@ namespace ISLibrary
                 {
                     if (!ItemBarcodes.Exists(x => x.ItemBarcodeID == _currentItemBarcode.ItemBarcodeID))
                     {
+                        _currentItemBarcode.UpdatedBy = UpdatedBy;
+                        _currentItemBarcode.ParentKey = ItemID;
+                        _currentItemBarcode.ParentObject = "Item";
                         _currentItemBarcode.Delete(objConn, objTran);
                     }
                 }
@@ -644,12 +616,22 @@ namespace ISLibrary
                             objItemBarcode.CompanyID = CompanyID;
                             objItemBarcode.ItemID = ItemID;
                             objItemBarcode.CreatedBy = CreatedBy;
+                            objItemBarcode.ParentKey = ItemID;
+                            objItemBarcode.ParentObject = "Item";
                             objItemBarcode.Create(objConn, objTran);
                         }
                         else
                         {
-                            objItemBarcode.UpdatedBy = UpdatedBy;
-                            objItemBarcode.Update(objConn, objTran);
+                            var matchingItemBarcode = currentItem.ItemBarcodes.FirstOrDefault(x => x.ItemBarcodeID == objItemBarcode.ItemBarcodeID);
+                            if (matchingItemBarcode != null)
+                            {
+                                matchingItemBarcode.Barcode = objItemBarcode.Barcode;
+                                matchingItemBarcode.Type = objItemBarcode.Type;
+                                matchingItemBarcode.UpdatedBy = UpdatedBy;
+                                matchingItemBarcode.ParentKey = ItemID;
+                                matchingItemBarcode.ParentObject = "Item";
+                                matchingItemBarcode.Update(objConn, objTran);
+                            }
                         }
                     }
                 }
@@ -665,7 +647,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -725,6 +708,8 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

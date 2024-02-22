@@ -192,17 +192,12 @@
             $('#matrix-tab').show();
             $("#ItemType option[value='Kit']").prop('disabled', true);
         } else {
-            $('#component-tab').show();
-            $('#barcode-tab').show();
-            $('#kit-item-tab').hide();
-            $('#attribute-tab').hide();
-            $('#matrix-tab').hide();
-            $("#ItemType option[value='Kit']").prop('disabled', false);
+            changeItemType();
         }
     }
 
     function changeItemType() {
-        var selectedItemType = $('#Item_ItemNumber').val();
+        var selectedItemType = $('#Item_ItemType').val();
         var isChecked = $('#createMatrixCheckbox').is(':checked');
         if (!isChecked) {
             switch (selectedItemType) {
@@ -323,13 +318,11 @@
 
     $(document).ready(function () {
        
-
+        
         // Trigger change event on Item Type dropdown to initialize the form
-        changeItemType();
-
-        toggleMatrix();    
-
-       
+        changeItemType();   
+        
+        toggleMatrix();       
 
         // Before form submission, call reindexTableInputs for each table
         $('form').submit(function (e) {

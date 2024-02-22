@@ -183,7 +183,6 @@
 <script>
     function toggleMatrix() {
         var isChecked = $('#createMatrixCheckbox').is(':checked');
-        console.log(isChecked);
         if (isChecked) {
             $('#component-tab').hide();
             $('#barcode-tab').hide();
@@ -192,17 +191,12 @@
             $('#matrix-tab').show();
             $("#ItemType option[value='Kit']").prop('disabled', true);
         } else {
-            $('#component-tab').show();
-            $('#barcode-tab').show();
-            $('#kit-item-tab').hide();
-            $('#attribute-tab').hide();
-            $('#matrix-tab').hide();
-            $("#ItemType option[value='Kit']").prop('disabled', false);
+            changeItemType();
         }
     }
 
     function changeItemType() {
-        var selectedItemType = $('#Item_ItemNumber').val();
+        var selectedItemType = $('#Item_ItemType').val();
         var isChecked = $('#createMatrixCheckbox').is(':checked');
         if (!isChecked) {
             switch (selectedItemType) {

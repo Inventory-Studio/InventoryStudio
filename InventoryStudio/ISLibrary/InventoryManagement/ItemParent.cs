@@ -264,12 +264,16 @@ namespace ISLibrary
                             objItemAttribute.ItemParentID = ItemParentID;
                             objItemAttribute.CompanyID = CompanyID;
                             objItemAttribute.CreatedBy = CreatedBy;
+                            objItemAttribute.ParentKey = ItemParentID;
+                            objItemAttribute.ParentObject = "ItemParent";
                             objItemAttribute.Create(objConn, objTran);
                         }
                         else
                         {
                             objItemAttribute.ItemParentID = ItemParentID;
                             objItemAttribute.UpdatedBy = CreatedBy;
+                            objItemAttribute.ParentKey = ItemParentID;
+                            objItemAttribute.ParentObject = "ItemParent";
                             objItemAttribute.Update(objConn, objTran);
                         }
                     }
@@ -318,11 +322,15 @@ namespace ISLibrary
                             objItemMatrix.CompanyID = CompanyID;
                             objItemMatrix.ItemParentID = ItemParentID;
                             objItemMatrix.CreatedBy = CreatedBy;
+                            objItemMatrix.ParentKey = ItemParentID;
+                            objItemMatrix.ParentObject = "ItemParent";
                             objItemMatrix.Create(objConn, objTran);
                         }
                         else
                         {
                             objItemMatrix.UpdatedBy = CreatedBy;
+                            objItemMatrix.ParentKey = ItemParentID;
+                            objItemMatrix.ParentObject = "ItemParent";
                             objItemMatrix.Update(objConn, objTran);
                         }
                     }
@@ -340,12 +348,16 @@ namespace ISLibrary
                             objItem.ItemParentID = ItemParentID;
                             objItem.CompanyID = CompanyID;
                             objItem.CreatedBy = CreatedBy;
+                            objItem.ParentKey = ItemParentID;
+                            objItem.ParentObject = "ItemParent";
                             objItem.Create(objConn, objTran);
                         }
                         else
                         {
                             objItem.ItemParentID = ItemParentID;
                             objItem.UpdatedBy = CreatedBy;
+                            objItem.ParentKey = ItemParentID;
+                            objItem.ParentObject = "ItemParent";
                             objItem.Update(objConn, objTran);
                         }
                     }
@@ -361,6 +373,8 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -393,7 +407,8 @@ namespace ISLibrary
         }
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
-        {           
+        {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
@@ -524,7 +539,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            //base.Update(); //itemMatrix死循环需要修复
+
+            LogAuditData(enumActionType.Update);
             return true;
         }
 

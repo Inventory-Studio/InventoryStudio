@@ -102,12 +102,10 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
         }
 
         private void Load(DataRow objRow)
         {
-            base.Load();
 
             DataColumnCollection objColumns = null;
 
@@ -135,6 +133,8 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+
+            base.Load();
         }
 
         public override bool Create()
@@ -191,6 +191,8 @@ namespace ISLibrary
                     objItemAttributeValue.ItemAttributeID = ItemAttributeID;
                     objItemAttributeValue.CompanyID = CompanyID;
                     objItemAttributeValue.CreatedBy = CreatedBy;
+                    objItemAttributeValue.ParentKey = ItemParentID;
+                    objItemAttributeValue.ParentObject = "ItemParent";
                     objItemAttributeValue.Create(objConn, objTran);
                 }
                 Load(objConn, objTran);
@@ -203,6 +205,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -236,6 +239,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
@@ -272,6 +276,8 @@ namespace ISLibrary
                         objItemAttributeValue.ItemAttributeID = ItemAttributeID;
                         objItemAttributeValue.CompanyID = CompanyID;
                         objItemAttributeValue.CreatedBy = UpdatedBy;
+                        objItemAttributeValue.ParentKey = ItemParentID;
+                        objItemAttributeValue.ParentObject = "ItemParent";
                         objItemAttributeValue.Create(objConn, objTran);
                     }
                 }
@@ -287,7 +293,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -344,6 +351,8 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

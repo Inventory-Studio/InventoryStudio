@@ -221,6 +221,8 @@ namespace ISLibrary
                         objItemMatrixValue.ItemMatrixID = ItemMatrixID;
                         objItemMatrixValue.CompanyID = CompanyID;
                         objItemMatrixValue.CreatedBy = CreatedBy;
+                        objItemMatrixValue.ParentKey = ItemParentID;
+                        objItemMatrixValue.ParentObject = "ItemParent";
                         objItemMatrixValue.Create(objConn, objTran);
                     }
                 }
@@ -234,6 +236,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -267,7 +270,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
-            //base.Update();
+            base.Update();
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
@@ -310,6 +313,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            LogAuditData(enumActionType.Update);
             return true;
         }
 

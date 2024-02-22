@@ -206,6 +206,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -272,6 +273,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
