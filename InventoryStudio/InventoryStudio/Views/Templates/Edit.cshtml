@@ -25,12 +25,21 @@
             </div>
             <div class="form-group">
                 <label asp-for="Type" class="control-label"></label>
-                <input asp-for="Type" class="form-control" />
+                <select asp-for="Type" class="form-control">
+                    <option value="Vendor">Vendor</option>
+                    <option value="Customer">Customer</option>
+                    <option value="PurchaseOrder">Purchase Order</option>
+                    <option value="SalesOrder">Sales Order</option>
+                </select>
                 <span asp-validation-for="Type" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ImportType" class="control-label"></label>
-                <input asp-for="ImportType" class="form-control" />
+                <select asp-for="ImportType" class="form-control">
+                    <option value="Add">Add</option>
+                    <option value="Update">Update</option>
+                    <option value="AddOrUpdate">Add Or Update</option>
+                </select>
                 <span asp-validation-for="ImportType" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -39,7 +48,6 @@
         </form>
     </div>
 </div>
-
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

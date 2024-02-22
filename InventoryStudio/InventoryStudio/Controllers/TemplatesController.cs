@@ -1,5 +1,7 @@
-﻿using InventoryStudio.Models.Templates;
+﻿using InventoryStudio.File;
+using InventoryStudio.Models.Templates;
 using ISLibrary;
+using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -89,22 +91,41 @@ namespace InventoryStudio.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,UpdatedBy,UpdatedOn,CreatedBy,CreatedOn")] CreateTemplateViewModel input)
+        public async Task<IActionResult> Create([Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,File")] CreateTemplateViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var template = new ImportTemplate();
                 template.CompanyID = input.CompanyID;
                 template.TemplateName = input.TemplateName;
-                template.Type = input.Type;
+                template.Type = input.Type.ToString();
+                template.ImportType = input.ImportType.ToString();
                 template.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 template.Create();
+
+                var fileType = Path.GetExtension(input.File.FileName);
+                var _fileHandler = FileHandlerFactory.CreateFileHandler<Customer>(fileType);
+                var headers = await _fileHandler.GetHeader(input.File);
+                var mappings = await _fileHandler.MapHeadersToEntityProperties(headers);
+                foreach (var mapping in mappings)
+                {
+                    var templateField = new ImportTemplateField();
+                    templateField.ImportTemplateID = template.ImportTemplateID;
+                    templateField.CompanyID = input.CompanyID;
+                    templateField.SourceField = mapping.Key;
+                    templateField.DestinationTable = nameof(Customer);
+                    templateField.DestinationField = mapping.Value;
+                    templateField.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    templateField.CreatedOn = DateTime.Now;
+                    templateField.Create();
+                }
+                return RedirectToAction(nameof(Index));
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
             ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
-            return View();
+            return View(input);
         }
 
         public IActionResult Edit(string id)
@@ -129,7 +150,7 @@ namespace InventoryStudio.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,UpdatedBy,UpdatedOn,CreatedBy,CreatedOn")] EditTemplateViewModel input)
+        public IActionResult Edit(string id, [Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType")] EditTemplateViewModel input)
         {
             if (id != input.ImportTemplateID)
                 return NotFound();

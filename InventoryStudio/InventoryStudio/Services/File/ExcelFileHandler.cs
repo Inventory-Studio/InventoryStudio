@@ -96,6 +96,45 @@ namespace InventoryStudio.File
                 return records;
             }
         }
+
+        public async Task<string[]> GetHeader(IFormFile file)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+                var workbook = new XSSFWorkbook(stream);
+                var sheet = workbook.GetSheetAt(0);
+                var headerRow = sheet.GetRow(0);
+                var headerValues = new List<string>();
+                for (int i = 0; i < headerRow.LastCellNum; i++)
+                {
+                    var cell = headerRow.GetCell(i);
+                    headerValues.Add(cell.ToString());
+                }
+                return headerValues.ToArray();
+            }
+        }
+
+        public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
+        {
+            var entityTypeProperties = typeof(T).GetProperties().Select(p => p.Name).ToList();
+            var mapping = new Dictionary<string, string?>();
+
+            foreach (var entityTypeProperty in entityTypeProperties)
+            {
+                if (headerFields.Contains(entityTypeProperty))
+                {
+                    mapping[entityTypeProperty] = entityTypeProperty;
+                }
+                else
+                {
+                    mapping[entityTypeProperty] = null;
+                }
+            }
+            return await Task.FromResult(mapping);
+        }
+
     }
 
 }

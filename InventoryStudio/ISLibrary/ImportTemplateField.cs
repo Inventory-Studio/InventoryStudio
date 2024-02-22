@@ -40,6 +40,10 @@ namespace ISLibrary
         [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; }
 
+        public ImportTemplateField()
+        {
+
+        }
         public ImportTemplateField(string CompanyID)
         {
             this.CompanyID = CompanyID;
