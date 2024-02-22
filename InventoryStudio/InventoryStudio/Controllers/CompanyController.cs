@@ -11,7 +11,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers
 {
-    public class CompanyController : Controller
+    public class CompanyController : BaseController
     {
         private readonly UserManager<User> _userManager;
         private readonly ApplicationDbContext _context;

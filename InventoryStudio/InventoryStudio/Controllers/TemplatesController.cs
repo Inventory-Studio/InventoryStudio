@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace InventoryStudio.Controllers
 {
-    public class TemplatesController : Controller
+    public class TemplatesController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

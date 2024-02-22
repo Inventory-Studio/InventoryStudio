@@ -6,7 +6,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class AddressCountryController : Controller
+    public class AddressCountryController : BaseController
     {
         public IActionResult Index()
         {

@@ -9,7 +9,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class ClientController : Controller
+    public class ClientController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

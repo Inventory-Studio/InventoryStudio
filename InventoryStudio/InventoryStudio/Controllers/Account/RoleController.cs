@@ -9,7 +9,7 @@ using Syncfusion.EJ2.Base;
 
 namespace InventoryStudio.Controllers.Account
 {
-    public class RoleController : Controller
+    public class RoleController : BaseController
     {
         private readonly UserManager<User> _userManager;
         private readonly IAuthorizationService _authorizationService;

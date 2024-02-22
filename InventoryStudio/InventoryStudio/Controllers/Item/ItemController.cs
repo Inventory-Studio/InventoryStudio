@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace InventoryStudio.Controllers
 {
-    public class ItemController : Controller
+    public class ItemController : BaseController
 
     { 
         private readonly UserManager<User> _userManager;

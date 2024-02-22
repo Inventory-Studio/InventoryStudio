@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
-    public class SalesOrderController : Controller
+    public class SalesOrderController : BaseController
     {
         private readonly string CompanyID = string.Empty;
 

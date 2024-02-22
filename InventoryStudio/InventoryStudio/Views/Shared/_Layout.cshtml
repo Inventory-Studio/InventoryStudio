@@ -1,5 +1,6 @@
-﻿@{
-    var viewModel = (InventoryStudio.Models.ViewModels.MainLayoutViewModel)ViewBag.MainLayoutViewModel;
+﻿@using InventoryStudio.Models.ViewModels
+@{
+    var viewModel = (InventoryStudio.Models.ViewModels.MainLayoutViewModel)ViewBag.MainLayoutViewModel ?? new MainLayoutViewModel();
 }
 
 <!DOCTYPE html>
