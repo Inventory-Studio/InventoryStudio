@@ -122,6 +122,10 @@ namespace InventoryStudio.Controllers
             return View();
         }
 
+        private string GetFullNamespace(string typeName)
+        {
+            return $"ISLibrary.Template.{typeName}Template";
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -138,7 +142,8 @@ namespace InventoryStudio.Controllers
                 template.Create();
 
                 var fileType = Path.GetExtension(input.File.FileName);
-                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(input.Type.ToString(), fileType);
+                var fullNamespace = GetFullNamespace(input.Type.ToString());
+                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(fullNamespace, fileType);
                 var headers = await _fileHandler.GetHeader(input.File);
                 var mappings = await _fileHandler.MapHeadersToEntityProperties(headers);
                 foreach (var mapping in mappings)
@@ -298,7 +303,8 @@ namespace InventoryStudio.Controllers
             var templateFields = ImportTemplateField.GetImportTemplateFields(CompanyID, fieldFilter);
             try
             {
-                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(template.Type, type);
+                var fullNamespace = GetFullNamespace(template.Type);
+                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(fullNamespace, type);
                 var fields = templateFields.Select(t => t.SourceField).ToArray();
                 var fileBytes = (byte[])await _fileHandler.ExportTemplate(fields);
                 var txt = Encoding.UTF8.GetString(fileBytes);
