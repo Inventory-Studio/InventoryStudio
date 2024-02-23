@@ -4,46 +4,92 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<div class="container">
+    <h1>Edit</h1>
+    <h4>ImportTemplate</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="ImportTemplateID" />
+                <div class="form-group">
+                    <label asp-for="CompanyID" class="control-label"></label>
+                    <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
+                    <span asp-validation-for="CompanyID" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TemplateName" class="control-label"></label>
+                    <input asp-for="TemplateName" class="form-control" />
+                    <span asp-validation-for="TemplateName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Type" class="control-label"></label>
+                    <select asp-for="Type" class="form-control">
+                        <option value="Vendor">Vendor</option>
+                        <option value="Customer">Customer</option>
+                        <option value="PurchaseOrder">Purchase Order</option>
+                        <option value="SalesOrder">Sales Order</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ImportType" class="control-label"></label>
+                    <select asp-for="ImportType" class="form-control">
+                        <option value="Add">Add</option>
+                        <option value="Update">Update</option>
+                        <option value="AddOrUpdate">Add Or Update</option>
+                    </select>
+                    <span asp-validation-for="ImportType" class="text-danger"></span>
+                </div>
+                <br />
 
-<h4>ImportTemplate</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ImportTemplateID" />
-            <div class="form-group">
-                <label asp-for="CompanyID" class="control-label"></label>
-                <select asp-for="CompanyID" class="form-control" asp-items="ViewBag.CompanyID"></select>
-                <span asp-validation-for="CompanyID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TemplateName" class="control-label"></label>
-                <input asp-for="TemplateName" class="form-control" />
-                <span asp-validation-for="TemplateName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <input asp-for="Type" class="form-control" />
-                <span asp-validation-for="Type" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImportType" class="control-label"></label>
-                <input asp-for="ImportType" class="form-control" />
-                <span asp-validation-for="ImportType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <h4>ImportTemplate Fields</h4>
+                <hr />
+                @if (Model.TemplateFields != null && Model.TemplateFields.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Source Field</th>
+                                <th>Destination Table</th>
+                                <th>Destination Field</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.TemplateFields.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="hidden" asp-for="TemplateFields[i].ImportTemplateFieldID" />
+                                        <input asp-for="TemplateFields[i].SourceField" class="form-control" />
+                                        <span asp-validation-for="TemplateFields[i].SourceField" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="TemplateFields[i].DestinationTable" class="form-control" />
+                                        <span asp-validation-for="TemplateFields[i].DestinationTable" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input asp-for="TemplateFields[i].DestinationField" class="form-control" />
+                                        <span asp-validation-for="TemplateFields[i].DestinationField" class="text-danger"></span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
