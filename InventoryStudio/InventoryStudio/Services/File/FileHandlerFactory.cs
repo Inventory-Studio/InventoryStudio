@@ -1,4 +1,6 @@
-﻿namespace InventoryStudio.File
+﻿using System.Reflection;
+
+namespace InventoryStudio.File
 {
     public class FileHandlerFactory
     {
@@ -16,6 +18,16 @@
             {
                 throw new NotSupportedException($"Unsupported file format: {fileType}");
             }
+        }
+
+        public static dynamic CreateFileHandlerInstance(string typeName, string fileType)
+        {
+            Type type = Type.GetType(typeName);
+            Type factoryType = typeof(FileHandlerFactory);
+            MethodInfo createFileHandlerMethod = factoryType.GetMethod(nameof(CreateFileHandler));
+            MethodInfo genericMethod = createFileHandlerMethod.MakeGenericMethod(type);
+            var fileHandlerInstance = genericMethod.Invoke(null, new object[] { fileType });
+            return fileHandlerInstance;
         }
     }
 

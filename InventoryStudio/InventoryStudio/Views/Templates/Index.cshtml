@@ -70,7 +70,9 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ImportTemplateID">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.ImportTemplateID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ImportTemplateID">Delete</a>
+                    <a asp-action="Delete" asp-route-id="@item.ImportTemplateID">Delete</a> |
+                    <a asp-action="DownLoad" asp-route-id="@item.ImportTemplateID" asp-route-type=".csv">Csv</a> |
+                    <a asp-action="DownLoad" asp-route-id="@item.ImportTemplateID" asp-route-type=".xlsx">Excel</a>
                 </td>
             </tr>
         }

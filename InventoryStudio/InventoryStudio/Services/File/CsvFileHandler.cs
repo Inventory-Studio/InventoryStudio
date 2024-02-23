@@ -76,6 +76,22 @@ namespace InventoryStudio.File
             }
             return await Task.FromResult(mapping);
         }
+
+        public async Task<byte[]> ExportTemplate(string[] headerFields)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var streamWriter = new StreamWriter(memoryStream, new UTF8Encoding(true)))
+                {
+                    var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
+                    csvWriter.WriteField(headerFields);
+                    await csvWriter.NextRecordAsync();
+                    streamWriter.Flush();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    return memoryStream.ToArray();
+                }
+            }
+        }
     }
 
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
 using System.Security.Claims;
+using System.Text;
 
 namespace InventoryStudio.Controllers
 {
@@ -137,7 +138,7 @@ namespace InventoryStudio.Controllers
                 template.Create();
 
                 var fileType = Path.GetExtension(input.File.FileName);
-                var _fileHandler = FileHandlerFactory.CreateFileHandler<Customer>(fileType);
+                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(input.Type.ToString(), fileType);
                 var headers = await _fileHandler.GetHeader(input.File);
                 var mappings = await _fileHandler.MapHeadersToEntityProperties(headers);
                 foreach (var mapping in mappings)
@@ -281,6 +282,44 @@ namespace InventoryStudio.Controllers
             if (template != null)
                 template.Delete();
             return RedirectToAction(nameof(Index));
+        }
+
+
+        public async Task<IActionResult> DownLoad(string? id, string type)
+        {
+            if (id == null)
+                return NotFound();
+            var template = new ImportTemplate(CompanyID, id);
+            if (template == null)
+                return NotFound();
+            var fieldFilter = new ImportTemplateFieldFilter();
+            fieldFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+            fieldFilter.ImportTemplateID.SearchString = id;
+            var templateFields = ImportTemplateField.GetImportTemplateFields(CompanyID, fieldFilter);
+            try
+            {
+                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(template.Type, type);
+                var fields = templateFields.Select(t => t.SourceField).ToArray();
+                var fileBytes = (byte[])await _fileHandler.ExportTemplate(fields);
+                var txt = Encoding.UTF8.GetString(fileBytes);
+                if (type.Contains(".csv"))
+                {
+                    return File(fileBytes, "text/csv", $"{template.TemplateName}.csv");
+                }
+                else if (type.Contains(".xlsx"))
+                {
+                    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{template.TemplateName}.xlsx");
+                }
+                else
+                {
+                    return BadRequest("Unsupported file type.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
 

@@ -135,6 +135,29 @@ namespace InventoryStudio.File
             return await Task.FromResult(mapping);
         }
 
+        public async Task<byte[]> ExportTemplate(string[] headerFields)
+        {
+            using (var fileStream = new MemoryStream())
+            {
+                var workbook = new XSSFWorkbook();
+
+                for (int i = 0; i < _entityTypes.Count; i++)
+                {
+                    var entityType = _entityTypes[i];
+                    var sheet = workbook.CreateSheet(entityType.Name);
+                    var headerRow = sheet.CreateRow(0);
+
+                    for (int j = 0; j < headerFields.Length; j++)
+                    {
+                        headerRow.CreateCell(j).SetCellValue(headerFields[j]);
+                    }
+                }
+
+                workbook.Write(fileStream);
+                return await Task.FromResult(fileStream.ToArray());
+            }
+        }
+
     }
 
 }
