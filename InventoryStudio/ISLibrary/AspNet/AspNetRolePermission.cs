@@ -60,7 +60,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
+            
         }
         private void Load(DataRow objRow)
         {
@@ -83,6 +83,7 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+            base.Load();
         }
 
         public override bool Create()
@@ -141,6 +142,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -174,6 +176,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
 
@@ -200,7 +203,8 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -253,6 +257,7 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

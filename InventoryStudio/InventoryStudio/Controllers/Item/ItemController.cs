@@ -112,11 +112,13 @@ namespace InventoryStudio.Controllers
                 }
 
                 var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
+                var auditDataList = AuditData.GetAuditDatas("Item", id);
 
                 itemViewModel.Item = item;
                 itemViewModel.ItemParent = itemParent;
                 itemViewModel.ItemAttributes = itemParent.ItemAttributes;
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
+                itemViewModel.AuditDataList = auditDataList;
             }
            
 

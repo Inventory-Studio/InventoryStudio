@@ -88,7 +88,6 @@ namespace ISLibrary
 
         protected override void Load()
         {
-            base.Load();
 
             DataSet objData = null;
             string strSQL = string.Empty;
@@ -144,6 +143,8 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+
+            base.Load();
         }
 
         public override bool Create()
@@ -326,6 +327,7 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

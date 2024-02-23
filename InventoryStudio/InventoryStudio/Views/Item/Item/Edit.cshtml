@@ -42,6 +42,10 @@
                     <li class="nav-item">
                         <a class="nav-link" id="matrix-tab" data-bs-toggle="tab" href="#matrix-content" role="tab" aria-controls="matrix-content" aria-selected="false" style="display: none;">Matrix</a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="system-tab" data-bs-toggle="tab" href="#audit-content" role="tab" aria-controls="audit-content" aria-selected="false" >System</a>
+                    </li>
                 </ul>
             </div>
             <div class="card-body">
@@ -167,6 +171,9 @@
 
                     @await Html.PartialAsync("~/Views/Item/Item/_Matrix.cshtml", Model)
                     
+                    <div class="tab-pane fade show active" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
+                        @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)
+                    </div>
                 </div>
             </div>
         </div>

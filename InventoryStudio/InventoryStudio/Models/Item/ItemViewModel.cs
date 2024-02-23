@@ -12,7 +12,9 @@ namespace InventoryStudio.Models
         [ValidateNever]
         public List<ItemAttribute> ItemAttributes { get; set; }
         [ValidateNever]
-        public List<ItemMatrix> ItemMatrices { get; set; }
+        public List<ItemMatrix> ItemMatrices { get; set; } 
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
 
 
     }

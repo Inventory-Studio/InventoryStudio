@@ -7,6 +7,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Collections;
 using CLRFramework;
+using Microsoft.VisualBasic;
 
 namespace ISLibrary
 {
@@ -60,10 +61,11 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
+           
         }
         private void Load(DataRow objRow)
         {
+            base.Load();
             DataColumnCollection objColumns = null;
 
             try
@@ -111,7 +113,7 @@ namespace ISLibrary
                 objTran = null;
                 if (objConn != null) objConn.Dispose();
                 objConn = null;
-            }
+            }            
             return true;
         }
 
@@ -144,6 +146,7 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
+            LogAuditData(enumActionType.Create);
             return true;
         }
 
@@ -177,6 +180,7 @@ namespace ISLibrary
 
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
+            base.Update();
 
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
@@ -205,7 +209,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-            base.Update();
+            LogAuditData(enumActionType.Update);
             return true;
         }
 
@@ -258,6 +262,7 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 

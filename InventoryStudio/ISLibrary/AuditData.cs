@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using CLRFramework;
+using System.ComponentModel.Design;
+using System.Security.AccessControl;
 
 namespace ISLibrary
 {
@@ -21,6 +23,7 @@ namespace ISLibrary
         public string ObjectName { get; set; }
         public string ChangedValue { get; set; }
         public string CreatedBy { get; set; }
+        public string UserName { get; set; }
         public DateTime CreatedOn { get; private set; }
 
         public AuditData()
@@ -76,10 +79,12 @@ namespace ISLibrary
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("AuditDataID")) ObjectID = Convert.ToString(objRow["AuditDataID"]);
+                if (objColumns.Contains("AuditDataID")) AuditDataID = Convert.ToString(objRow["AuditDataID"]);
                 if (objColumns.Contains("ObjectID")) ObjectID = Convert.ToString(objRow["ObjectID"]);
                 if (objColumns.Contains("ObjectName")) ObjectName = Convert.ToString(objRow["ObjectName"]);
                 if (objColumns.Contains("ChangedValue")) ChangedValue = Convert.ToString(objRow["ChangedValue"]);
+                if (objColumns.Contains("UserName")) UserName = Convert.ToString(objRow["UserName"]);
+                if (objColumns.Contains("Type")) Type = Convert.ToString(objRow["Type"]);
 
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
@@ -159,6 +164,47 @@ namespace ISLibrary
                 objItemParent = null;
             }
             return true;
+        }
+
+        public static List<AuditData> GetAuditDatas(string ObjectName, string ObjectID)
+        {
+            List<AuditData> objReturn = new List<AuditData>();
+            ;
+            AuditData objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
+
+            try
+            {
+                strSQL = "SELECT s.*,u.UserName " +
+                         "FROM AuditData s WITH (NOLOCK) " +
+                         "INNER JOIN  AspNetUsers u on u.Id = s.CreatedBy" +
+                         " where (s.ObjectName = " + Database.HandleQuote(ObjectName) +
+                         " AND s.ObjectID=" + Database.HandleQuote(ObjectID) +
+                         ") OR (s.ParentObject =" + Database.HandleQuote(ObjectName) +
+                         " AND s.ParentKey =" + Database.HandleQuote(ObjectID) + ")";
+
+                objData = Database.GetDataSet(strSQL);
+
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new AuditData(objData.Tables[0].Rows[i]);
+                        objReturn.Add(objNew);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
+
+            return objReturn;
         }
 
     }

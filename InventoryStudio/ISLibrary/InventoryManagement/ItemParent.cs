@@ -176,7 +176,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
-            base.Load();
+           
         }
 
         private void Load(DataRow objRow)
@@ -206,6 +206,7 @@ namespace ISLibrary
             {
                 objColumns = null;
             }
+            base.Load();
         }
 
         public override bool Create()
@@ -603,6 +604,7 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
+            LogAuditData(enumActionType.Delete);
             return true;
         }
 
