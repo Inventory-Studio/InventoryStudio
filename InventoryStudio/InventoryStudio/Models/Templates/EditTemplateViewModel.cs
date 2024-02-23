@@ -16,5 +16,6 @@ namespace InventoryStudio.Models.Templates
 
         [DisplayName("Import Type")]
         public string ImportType { get; set; }
+        public List<EditTemplateFieldViewModel> TemplateFields { get; set; }
     }
 }

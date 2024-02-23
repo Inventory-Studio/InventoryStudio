@@ -5,6 +5,7 @@ using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System.Security.Claims;
 
 namespace InventoryStudio.Controllers
@@ -67,7 +68,29 @@ namespace InventoryStudio.Controllers
             return viewModel;
         }
 
-
+        private TemplateFieldViewModel EntityConvertViewModel(ImportTemplateField templateField)
+        {
+            var viewModel = new TemplateFieldViewModel();
+            viewModel.ImportTemplateFieldID = templateField.ImportTemplateFieldID;
+            viewModel.SourceField = templateField.SourceField;
+            viewModel.DestinationTable = templateField.DestinationTable;
+            viewModel.DestinationField = templateField.DestinationField;
+            if (!string.IsNullOrEmpty(templateField.UpdatedBy))
+            {
+                var user = new AspNetUsers(templateField.UpdatedBy);
+                if (user != null)
+                    viewModel.UpdatedBy = user.UserName;
+            }
+            viewModel.UpdatedOn = templateField.UpdatedOn;
+            if (!string.IsNullOrEmpty(templateField.CreatedBy))
+            {
+                var user = new AspNetUsers(templateField.CreatedBy);
+                if (user != null)
+                    viewModel.CreatedBy = user.UserName;
+            }
+            viewModel.CreatedOn = templateField.CreatedOn;
+            return viewModel;
+        }
         public IActionResult Details(string id)
         {
             if (id == null)
@@ -76,6 +99,16 @@ namespace InventoryStudio.Controllers
             if (template == null)
                 return NotFound();
             var viewModel = EntityConvertViewModel(template);
+            ImportTemplateFieldFilter fieldFilter = new ImportTemplateFieldFilter();
+            fieldFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+            fieldFilter.ImportTemplateID.SearchString = id;
+            var templateFields = ImportTemplateField.GetImportTemplateFields(CompanyID, fieldFilter);
+            var templateFieldViewModels = new List<TemplateFieldViewModel>();
+            foreach (var templateField in templateFields)
+            {
+                templateFieldViewModels.Add(EntityConvertViewModel(templateField));
+            }
+            viewModel.TemplateFields = templateFieldViewModels;
             return View(viewModel);
         }
 
@@ -139,18 +172,34 @@ namespace InventoryStudio.Controllers
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
             ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
-            var viewModel = new EditTemplateViewModel();
-            viewModel.ImportTemplateID = template.ImportTemplateID;
-            viewModel.CompanyID = template.CompanyID;
-            viewModel.TemplateName = template.TemplateName;
-            viewModel.Type = template.Type;
-            viewModel.ImportType = template.ImportType;
-            return View(viewModel);
+            var editTemplateViewModel = new EditTemplateViewModel();
+            editTemplateViewModel.ImportTemplateID = template.ImportTemplateID;
+            editTemplateViewModel.CompanyID = template.CompanyID;
+            editTemplateViewModel.TemplateName = template.TemplateName;
+            editTemplateViewModel.Type = template.Type;
+            editTemplateViewModel.ImportType = template.ImportType;
+
+            ImportTemplateFieldFilter fieldFilter = new ImportTemplateFieldFilter();
+            fieldFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+            fieldFilter.ImportTemplateID.SearchString = id;
+            var templateFields = ImportTemplateField.GetImportTemplateFields(CompanyID, fieldFilter);
+            if (templateFields.Count != 0)
+                editTemplateViewModel.TemplateFields = new List<EditTemplateFieldViewModel>();
+            foreach (var templateField in templateFields)
+            {
+                var templateFieldViewModel = new EditTemplateFieldViewModel();
+                templateFieldViewModel.ImportTemplateFieldID = templateField.ImportTemplateFieldID;
+                templateFieldViewModel.SourceField = templateField.SourceField;
+                templateFieldViewModel.DestinationTable = templateField.DestinationTable;
+                templateFieldViewModel.DestinationField = templateField.DestinationField;
+                editTemplateViewModel.TemplateFields.Add(templateFieldViewModel);
+            }
+            return View(editTemplateViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType")] EditTemplateViewModel input)
+        public IActionResult Edit(string id, [Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,TemplateFields")] EditTemplateViewModel input)
         {
             if (id != input.ImportTemplateID)
                 return NotFound();
@@ -165,6 +214,35 @@ namespace InventoryStudio.Controllers
                 template.ImportType = template.ImportType;
                 template.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 template.Update();
+                foreach (var templateField in input.TemplateFields)
+                {
+                    var updated = false;
+                    var field = new ImportTemplateField(CompanyID, templateField.ImportTemplateFieldID);
+                    if (field != null)
+                    {
+                        if (!field.SourceField.Equals(templateField.SourceField))
+                        {
+                            updated = true;
+                            field.SourceField = templateField.SourceField;
+                        }
+                        if (!field.DestinationTable.Equals(templateField.DestinationTable))
+                        {
+                            updated = true;
+                            field.DestinationTable = templateField.DestinationTable;
+                        }
+                        if (string.IsNullOrEmpty(field.DestinationField) || !field.DestinationField.Equals(templateField.DestinationField))
+                        {
+                            updated = true;
+                            field.DestinationField = templateField.DestinationField;
+                        }
+                        if (updated)
+                        {
+                            field.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                            field.UpdatedOn = DateTime.Now;
+                            field.Update();
+                        }
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -182,6 +260,16 @@ namespace InventoryStudio.Controllers
             if (template == null)
                 return NotFound();
             var viewModel = EntityConvertViewModel(template);
+            ImportTemplateFieldFilter fieldFilter = new ImportTemplateFieldFilter();
+            fieldFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+            fieldFilter.ImportTemplateID.SearchString = id;
+            var templateFields = ImportTemplateField.GetImportTemplateFields(CompanyID, fieldFilter);
+            var templateFieldViewModels = new List<TemplateFieldViewModel>();
+            foreach (var templateField in templateFields)
+            {
+                templateFieldViewModels.Add(EntityConvertViewModel(templateField));
+            }
+            viewModel.TemplateFields = templateFieldViewModels;
             return View(viewModel);
         }
 

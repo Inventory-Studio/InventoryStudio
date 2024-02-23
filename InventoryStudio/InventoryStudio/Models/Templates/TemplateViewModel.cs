@@ -28,5 +28,7 @@ namespace InventoryStudio.Models.Templates
 
         [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; }
+
+        public List<TemplateFieldViewModel> TemplateFields { get; set; }
     }
 }
