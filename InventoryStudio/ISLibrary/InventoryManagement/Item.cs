@@ -46,6 +46,7 @@ namespace ISLibrary
         public string VendorID { get; set; }
         public string ItemParentID { get; set; }
         //public string ItemType { get; set; }
+        [DisplayName("Item Type")]
         public enumItemType? ItemType { get; set; }
         public string ItemNumber { get; set; }
         public string ItemName { get; set; }

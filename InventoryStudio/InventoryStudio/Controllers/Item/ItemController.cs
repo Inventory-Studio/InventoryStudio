@@ -156,6 +156,54 @@ namespace InventoryStudio.Controllers
         }
 
 
+        public IActionResult Details(string? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            var itemDetailsViewModel = new ItemDetailsViewModel();
+
+            if (TempData["FormData"] != null)
+            {
+                string formData = TempData["FormData"] as string;
+                itemDetailsViewModel = JsonConvert.DeserializeObject<ItemDetailsViewModel>(formData);
+
+                if (TempData["ErrorMessage"] != null)
+                {
+                    ModelState.AddModelError(string.Empty, TempData["ErrorMessage"].ToString());
+                }
+            }
+            else
+            {
+                var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+                var item = new Item(organizationClaim.Value, id);
+
+                if (item == null)
+                {
+                    return NotFound();
+                }
+
+                var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
+                var auditDataList = AuditData.GetAuditDatas("Item", id);
+
+                itemDetailsViewModel.Item = item;
+                itemDetailsViewModel.ItemParent = itemParent;
+                itemDetailsViewModel.ItemAttributes = itemParent.ItemAttributes;
+                itemDetailsViewModel.ItemMatrices = itemParent.ItemMatrices;
+                itemDetailsViewModel.AuditDataList = auditDataList;
+                itemDetailsViewModel.ProductStatus = "Active";
+                itemDetailsViewModel.OnHand = 100;
+                itemDetailsViewModel.Available = 98;
+                itemDetailsViewModel.ProductSku = item.ItemNumber;
+                itemDetailsViewModel.ProductImage =
+                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
+                itemDetailsViewModel.ShipMonkImage =
+                                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
+            }
+           
+            return View("~/Views/Item/Item/Details.cshtml", itemDetailsViewModel);
+        }
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
         {

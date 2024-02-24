@@ -1,4 +1,5 @@
-﻿using ISLibrary;
+﻿using System.ComponentModel;
+using ISLibrary;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace InventoryStudio.Models
@@ -15,7 +16,5 @@ namespace InventoryStudio.Models
         public List<ItemMatrix> ItemMatrices { get; set; } 
         [ValidateNever]
         public List<AuditData>? AuditDataList { get; set; }
-
-
     }
 }
