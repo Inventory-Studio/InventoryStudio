@@ -48,25 +48,42 @@ namespace ISLibrary
         //public string ItemType { get; set; }
         [DisplayName("Item Type")]
         public enumItemType? ItemType { get; set; }
+        [DisplayName("Item Number")]
         public string ItemNumber { get; set; }
+        [DisplayName("Item Name")]
         public string ItemName { get; set; }
+        [DisplayName("Sales Description")]
         public string SalesDescription { get; set; }
+        [DisplayName("Purchase Description")]
         public string PurchaseDescription { get; set; }
+        [DisplayName("Barcode")]
         public string Barcode { get; set; }
         public bool IsBarcoded { get; set; }
+        [DisplayName("Receive Individually")]
         public bool IsShipReceiveIndividually { get; set; }
         public bool DisplayComponents { get; set; }
+        [DisplayName("Unit of Measure")]
         public string UnitOfMeasure { get; set; }
+        [DisplayName("Package Weight")]
         public decimal? PackageWeight { get; set; }
+        [DisplayName("Package Weight Unit of Measure")]
         public string PackageWeightUOM { get; set; }
+        [DisplayName("Package Length")]
         public decimal? PackageLength { get; set; }
+        [DisplayName("Package Width")]
         public decimal? PackageWidth { get; set; }
+        [DisplayName("Package Height")]
         public decimal? PackageHeight { get; set; }
+        [DisplayName("Package Dimension Unit of Measure")]
         public string PackageDimensionUOM { get; set; }
         public string Memo { get; set; }
+        [DisplayName("Updated By")]
         public string UpdatedBy { get; set; }
+        [DisplayName("Updated On")]
         public DateTime? UpdatedOn { get; private set; }
+        [DisplayName("Created By")]
         public string CreatedBy { get; set; }
+        [DisplayName("Created On")]
         public DateTime CreatedOn { get; private set; }
 
         //view attribute
@@ -80,10 +97,15 @@ namespace ISLibrary
         public decimal? UnitCost { get; set; }
         public decimal? UnitPrice { get; set; }
         public bool? UseSingleBin { get; set; }
+        [DisplayName("Fulfill By Kit")]
         public bool FulfillByKit { get; set; }
+        [DisplayName("Receive By Kit")]
         public bool ReceiveByKit { get; set; }
+        [DisplayName("HS Code")]
         public string HSCode { get; set; }
+        [DisplayName("Good Description")]
         public string GoodDescription { get; set; }
+        [DisplayName("Country of Origin")]
         public string CountryOfOrigin { get; set; }
         public int? BinID { get; set; }
 
