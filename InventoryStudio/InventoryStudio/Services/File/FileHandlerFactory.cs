@@ -20,14 +20,26 @@ namespace InventoryStudio.File
             }
         }
 
-        public static dynamic CreateFileHandlerInstance(string typeName, string fileType)
+        public static dynamic CreateFileHandlerInstance(string typeName, string fileType, string assemblyName = "ISLibrary")
         {
-            Type type = Type.GetType(typeName);
-            Type factoryType = typeof(FileHandlerFactory);
-            MethodInfo createFileHandlerMethod = factoryType.GetMethod(nameof(CreateFileHandler));
-            MethodInfo genericMethod = createFileHandlerMethod.MakeGenericMethod(type);
-            var fileHandlerInstance = genericMethod.Invoke(null, new object[] { fileType });
-            return fileHandlerInstance;
+            try
+            {
+                Assembly assembly = Assembly.Load(assemblyName);
+                if (assembly == null)
+                    throw new ArgumentException($"Assembly not found: {assemblyName}");
+                Type type = assembly.GetType(typeName);
+                if (type == null)
+                    throw new ArgumentException($"Type not found: {typeName}");
+                Type factoryType = typeof(FileHandlerFactory);
+                MethodInfo createFileHandlerMethod = factoryType.GetMethod(nameof(CreateFileHandler));
+                MethodInfo genericMethod = createFileHandlerMethod.MakeGenericMethod(type);
+                var fileHandlerInstance = genericMethod.Invoke(null, new object[] { fileType });
+                return fileHandlerInstance;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error creating file handler instance: {ex.Message}");
+            }
         }
     }
 
