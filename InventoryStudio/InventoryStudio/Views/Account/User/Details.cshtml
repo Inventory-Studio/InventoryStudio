@@ -81,5 +81,12 @@
                 </div>
             </div>
         </div>
+
+        @*@{
+            List<AuditData>? auditDataList = ViewBag.AuditDataList as List<AuditData>;
+        }
+        <div class="row">
+            @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", auditDataList)
+        </div>*@
     </div>
 </div>

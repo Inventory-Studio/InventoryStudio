@@ -66,7 +66,11 @@ namespace InventoryStudio.Controllers.Account
                 return NotFound();
             }
 
+            
+
             AspNetUsers user = new(id);
+            //var auditDataList = AuditData.GetAuditDatas("AspNetUsers", id);
+            //ViewBag.AuditDataList = auditDataList;
             return View("~/Views/Account/User/Details.cshtml", user);
         }
 

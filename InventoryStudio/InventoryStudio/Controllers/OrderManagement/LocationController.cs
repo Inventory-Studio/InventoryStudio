@@ -103,6 +103,9 @@ namespace InventoryStudio.Controllers.OrderManagement
                     viewModel.CreatedBy = user.UserName;
             }
             viewModel.CreatedOn = location.CreatedOn;
+
+            var auditDataList = AuditData.GetAuditDatas("Location", viewModel.LocationID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

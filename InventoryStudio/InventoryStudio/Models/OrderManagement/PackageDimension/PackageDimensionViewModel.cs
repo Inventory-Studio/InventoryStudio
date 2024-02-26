@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel;
 
 namespace InventoryStudio.Models.OrderManagement.PackageDimension
 {
@@ -36,5 +38,8 @@ namespace InventoryStudio.Models.OrderManagement.PackageDimension
 
         [DisplayName("Template")]
         public string? Template { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
     }
 }

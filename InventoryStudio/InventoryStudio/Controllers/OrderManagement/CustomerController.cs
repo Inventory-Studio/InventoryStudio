@@ -80,6 +80,9 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
 
             viewModel.UpdatedOn = customer.UpdatedOn;
+
+            var auditDataList = AuditData.GetAuditDatas("Customer", viewModel.CustomerID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

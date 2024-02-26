@@ -62,6 +62,9 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.Cost = packageDimension.Cost;
             viewModel.ShippingPackage = packageDimension.ShippingPackage;
             viewModel.Template = packageDimension.Template;
+
+            var auditDataList = AuditData.GetAuditDatas("PackageDimension", viewModel.PackageDimensionID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

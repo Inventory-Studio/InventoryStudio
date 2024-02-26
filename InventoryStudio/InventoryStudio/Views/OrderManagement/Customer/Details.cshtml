@@ -62,6 +62,10 @@
                     <p>@Model.UpdatedOn</p>
                 </div>
             </div>
+
+            <div class="row">
+                @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)
+            </div>
         </div>
     </div>
 </div>

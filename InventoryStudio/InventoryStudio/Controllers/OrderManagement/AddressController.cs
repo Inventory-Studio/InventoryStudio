@@ -75,6 +75,9 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
 
             viewModel.CreatedOn = address.CreatedOn;
+
+            var auditDataList = AuditData.GetAuditDatas("Address", viewModel.AddressID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

@@ -143,6 +143,10 @@
             @Html.DisplayFor(model => model.UpdatedOn)
         </dd>
     </dl>
+
+    <div class="row">
+        @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)
+    </div>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.SalesOrderLineID">Edit</a> |

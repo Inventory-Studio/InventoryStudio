@@ -58,6 +58,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                 if (updatedUser != null)
                     viewModel.UpdatedBy = updatedUser.UserName;
             }
+            var auditDataList = AuditData.GetAuditDatas("Client", viewModel.ClientId);
+            viewModel.AuditDataList = auditDataList;
 
             return viewModel;
         }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.OrderManagement.Client
 {
@@ -21,5 +23,8 @@ namespace InventoryStudio.Models.OrderManagement.Client
         public DateTime? UpdatedOn { get; set; }
 
         public string? UpdatedBy { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
     }
 }

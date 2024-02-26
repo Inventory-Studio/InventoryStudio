@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.OrderManagement.AddressCountry
@@ -18,5 +20,8 @@ namespace InventoryStudio.Models.OrderManagement.AddressCountry
         public bool IsEligibleForPLTFedEX { get; set; }
 
         public string? EelPfc { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
     }
 }

@@ -182,7 +182,7 @@ namespace ISLibrary
                          " where (s.ObjectName = " + Database.HandleQuote(ObjectName) +
                          " AND s.ObjectID=" + Database.HandleQuote(ObjectID) +
                          ") OR (s.ParentObject =" + Database.HandleQuote(ObjectName) +
-                         " AND s.ParentKey =" + Database.HandleQuote(ObjectID) + ")";
+                         " AND s.ParentKey =" + Database.HandleQuote(ObjectID) + ") Order By CreatedOn DESC";
 
                 objData = Database.GetDataSet(strSQL);
 

@@ -94,6 +94,9 @@ namespace InventoryStudio.Controllers.OrderManagement
                     viewModel.UpdatedBy = user.UserName;
             }
             viewModel.UpdatedOn = salesOrderLine.UpdatedOn;
+
+            var auditDataList = AuditData.GetAuditDatas("SalesOrderLine", viewModel.SalesOrderLineID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

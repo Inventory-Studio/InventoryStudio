@@ -112,6 +112,7 @@ namespace InventoryStudio.Controllers.Account
 
             var allUsers = AspNetUsers.GetAspNetUserss(role.CompanyId);
             var permissions = AspNetPermission.GetAspNetPermissions();
+            var auditDataList = AuditData.GetAuditDatas("AspNetRoles", id);          
 
             var model = new RoleManagementViewModel
             {
@@ -129,7 +130,8 @@ namespace InventoryStudio.Controllers.Account
                     RoleName = role.Name,
                     Permissions = permissions,
                     AssignPermissions = role.AssignPermissionIds
-                }
+                },
+                AuditDataList = auditDataList
             };
 
             return View("~/Views/Account/Role/Edit.cshtml", model);
@@ -147,9 +149,32 @@ namespace InventoryStudio.Controllers.Account
                 return NotFound();
             }
 
+            if(roleManagementViewModel.AssignUsersViewModel == null)
+            {
+                var allUsers = AspNetUsers.GetAspNetUserss(role.CompanyId);
+                roleManagementViewModel.AssignUsersViewModel = new AssignUsersViewModel
+                {
+                    RoleId = formRole.Id,
+                    RoleName = role.Name,
+                    Users = allUsers,
+                    AssignedUserIds = role.AssignUserIds
+                };
+            }
+            if (roleManagementViewModel.AssignPermissionsViewModel == null)
+            {
+                var permissions = AspNetPermission.GetAspNetPermissions();
+                roleManagementViewModel.AssignPermissionsViewModel = new AssignPermissionsViewModel
+                {
+                    RoleId = formRole.Id,
+                    RoleName = role.Name,
+                    Permissions = permissions,
+                    AssignPermissions = role.AssignPermissionIds
+                };
+            }
+
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
 
-            if (role.CompanyId == organizationClaim.Value)
+            if (role.CompanyId != organizationClaim.Value)
             {
                 TempData["ErrorMessage"] = "You don't have permission to change other company's role.";
                 return View("~/Views/Account/Role/Edit.cshtml", roleManagementViewModel);
@@ -160,7 +185,7 @@ namespace InventoryStudio.Controllers.Account
             try
             {
                 role.Update();
-                return RedirectToAction("Index");
+                return RedirectToAction("Edit", new { id = role.Id });
             }
             catch (Exception ex)
             {

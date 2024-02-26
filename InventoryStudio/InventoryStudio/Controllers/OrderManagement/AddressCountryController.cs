@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using InventoryStudio.Models.OrderManagement.AddressCountry;
+using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Syncfusion.EJ2.Base;
@@ -28,6 +29,9 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.USPSCountryName = addressCountry.USPSCountryName;
             viewModel.EelPfc = addressCountry.EEL_PFC;
             viewModel.IsEligibleForPLTFedEX = addressCountry.IsEligibleForPLTFedEX;
+
+            var auditDataList = AuditData.GetAuditDatas("AddressCountry", viewModel.CountryID);
+            viewModel.AuditDataList = auditDataList;
             return viewModel;
         }
 

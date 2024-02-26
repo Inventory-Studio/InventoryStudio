@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel;
 
 namespace InventoryStudio.Models.OrderManagement.Location
 {
@@ -108,5 +110,8 @@ namespace InventoryStudio.Models.OrderManagement.Location
 
         [DisplayName("Created On")]
         public DateTime CreatedOn { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
     }
 }

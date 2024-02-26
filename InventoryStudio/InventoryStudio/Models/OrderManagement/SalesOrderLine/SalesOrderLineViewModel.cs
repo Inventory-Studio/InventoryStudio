@@ -1,4 +1,7 @@
-﻿namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 {
     public class SalesOrderLineViewModel
     {
@@ -47,5 +50,8 @@
         public string CreatedBy { get; set; }
 
         public DateTime CreatedOn { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
     }
 }
