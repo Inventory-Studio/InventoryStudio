@@ -11,6 +11,8 @@ namespace ISLibrary
     {
         public Database.Filter.StringSearch.SearchFilter CompanyID { get; set; }
         public Database.Filter.StringSearch.SearchFilter ParentCompanyID { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter CompanyName { get; set; }
         public Database.Filter.StringSearch.SearchFilter CreatedBy { get; set; }
     }
 }
