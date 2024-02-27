@@ -107,30 +107,40 @@
 
 <div class="card custom-card">
     <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs nav-style-1" id="itemFormTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="item-details-tab" data-bs-toggle="tab" href="#step1" role="tab" aria-controls="step1" aria-selected="true">Item Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="barcode-tab" data-bs-toggle="tab" href="#barcode-content" role="tab" aria-controls="barcode-content" aria-selected="false">Item Barcode</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="component-tab" data-bs-toggle="tab" href="#component-content" role="tab" aria-controls="component-content" aria-selected="false" style="display: none;">Item Component</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="kit-item-tab" data-bs-toggle="tab" href="#kit-item-content" role="tab" aria-controls="kit-item-content" aria-selected="false" style="display: none;">Kit Item</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="attribute-tab" data-bs-toggle="tab" href="#attribute-content" role="tab" aria-controls="attribute-content" aria-selected="false" style="display: none;">Attributes</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="matrix-tab" data-bs-toggle="tab" href="#matrix-content" role="tab" aria-controls="matrix-content" aria-selected="false" style="display: none;">Matrix</a>
-            </li>
+        <div class="d-flex flex-column flex-md-row justify-content-between w-100 gap-2">
+            <ul class="nav nav-tabs card-header-tabs nav-style-1" id="itemFormTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="item-details-tab" data-bs-toggle="tab" href="#step1" role="tab" aria-controls="step1" aria-selected="true">Item Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="barcode-tab" data-bs-toggle="tab" href="#barcode-content" role="tab" aria-controls="barcode-content" aria-selected="false">Item Barcode</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="component-tab" data-bs-toggle="tab" href="#component-content" role="tab" aria-controls="component-content" aria-selected="false" style="display: none;">Item Component</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="kit-item-tab" data-bs-toggle="tab" href="#kit-item-content" role="tab" aria-controls="kit-item-content" aria-selected="false" style="display: none;">Kit Item</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="attribute-tab" data-bs-toggle="tab" href="#attribute-content" role="tab" aria-controls="attribute-content" aria-selected="false" style="display: none;">Attributes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="matrix-tab" data-bs-toggle="tab" href="#matrix-content" role="tab" aria-controls="matrix-content" aria-selected="false" style="display: none;">Matrix</a>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link" id="system-tab" data-bs-toggle="tab" href="#audit-content" role="tab" aria-controls="audit-content" aria-selected="false">System</a>
-            </li>
-        </ul>
+                <li class="nav-item">
+                    <a class="nav-link" id="system-tab" data-bs-toggle="tab" href="#audit-content" role="tab" aria-controls="audit-content" aria-selected="false">System</a>
+                </li>
+            </ul>
+            <div class="hstack mt-4 mt-md-0 btn-list gap-2">
+                <a asp-controller="Item" asp-action="Edit" asp-route-id="@Model.Item.ItemID" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center mb-0" aria-label="Create item button">
+                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Edit Item 
+                </a>
+                <a asp-controller="Item" asp-action="Index" type="button" class="btn btn-sm btn-light btn-wave hstack align-items-center mb-0" aria-label="back to list button">
+                    Back to List
+                </a>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         <div class="tab-content m-0" id="itemFormTabContent">
@@ -272,7 +282,7 @@
 
             @await Html.PartialAsync("~/Views/Item/Item/_Matrix.cshtml", Model)
 
-            <div class="tab-pane fade" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
+            <div class="tab-pane border-0 p-0 m-0 bg-border-none fade" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
                 @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)
             </div>
         </div>
