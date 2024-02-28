@@ -96,7 +96,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Services\File\" />
 		<Folder Include="Views\OrderManagement\" />
 	</ItemGroup>
 

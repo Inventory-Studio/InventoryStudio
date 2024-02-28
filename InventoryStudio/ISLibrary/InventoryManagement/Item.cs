@@ -208,6 +208,7 @@ namespace ISLibrary
             }
         }
 
+        [DisplayName("Is Matrix")]
         public bool IsVariation
         { get; set; }
 
