@@ -6,12 +6,12 @@ namespace InventoryStudio.Services.File
 {
     public class CsvFileParser : IFileParser
     {
-        public async Task<List<Dictionary<string, string>>> Parse(Stream fileStream)
+        public async Task<List<Dictionary<string, string>>> Parse(IFormFile file)
         {
             var result = new List<Dictionary<string, string>>();
 
-            using (var reader = new StreamReader(fileStream))
-            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)))
+            using (var streamReader = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(streamReader, new CsvConfiguration(CultureInfo.InvariantCulture)))
             {
                 await csv.ReadAsync();
                 csv.ReadHeader();

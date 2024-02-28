@@ -1,9 +1,11 @@
 using InventoryStudio.Authorization;
 using InventoryStudio.Data;
 using InventoryStudio.File;
+using InventoryStudio.Importer;
 using InventoryStudio.Models;
 using InventoryStudio.Services;
 using InventoryStudio.Services.Authorization;
+using InventoryStudio.Services.File;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +22,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped(typeof(IFileHandler<>), typeof(CsvFileHandler<>));
 builder.Services.AddScoped(typeof(IFileHandler<>), typeof(ExcelFileHandler<>));
+builder.Services.AddTransient<IFileParser, ExcelFileParser>();
+builder.Services.AddTransient<IFileParser, CsvFileParser>();
+builder.Services.AddSingleton<IFileParserFactory, FileParserFactory>();
+builder.Services.AddScoped<CustomerImporter>();
+builder.Services.AddScoped<VendorImporter>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
