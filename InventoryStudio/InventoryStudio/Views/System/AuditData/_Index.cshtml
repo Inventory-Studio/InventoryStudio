@@ -21,19 +21,22 @@
                 </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @if (Model != null)
                     {
-                        <tr>
-                            <td>@item.CreatedOn.ToString("g")</td>
-                            <td>@item.Type</td>
-                            <td>@item.UserName</td> 
-                            <td>
-                                <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#details_@item.AuditDataID">Details</button>
-                                <div id="details_@item.AuditDataID" class="collapse">
-                                    <pre>@item.ChangedValue</pre>
-                                </div>
-                            </td>
-                        </tr>
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.CreatedOn.ToString("g")</td>
+                                <td>@item.Type</td>
+                                <td>@item.UserName</td> 
+                                <td>
+                                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#details_@item.AuditDataID">Details</button>
+                                    <div id="details_@item.AuditDataID" class="collapse">
+                                        <pre>@item.ChangedValue</pre>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
