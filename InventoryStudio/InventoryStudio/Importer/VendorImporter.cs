@@ -1,17 +1,14 @@
-﻿using InventoryStudio.Models;
-using InventoryStudio.Services.File;
+﻿using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.OrderManagement;
-using System.Security.Claims;
 
 namespace InventoryStudio.Importer
 {
-    public class CustomerImporter
+    public class VendorImporter
     {
         private readonly IFileParserFactory _fileParserFactory;
 
-
-        public CustomerImporter(IFileParserFactory fileParserFactory)
+        public VendorImporter(IFileParserFactory fileParserFactory)
         {
             _fileParserFactory = fileParserFactory;
         }
@@ -27,10 +24,9 @@ namespace InventoryStudio.Importer
             var importTemplateFields = ImportTemplateField.GetImportTemplateFields(companyId, importTemplateFilter);
             var fieldMappings = importTemplateFields
                 .ToDictionary(f => f.SourceField, f => f.DestinationField);
-            var customers = new List<Customer>();
             foreach (var data in datas)
             {
-                var customer = new Customer();
+                var vendor = new Vendor();
                 foreach (var field in data)
                 {
                     if (fieldMappings.ContainsKey(field.Key))
@@ -46,7 +42,7 @@ namespace InventoryStudio.Importer
                                 filter.CompanyName.SearchString = field.Value;
                                 var companies = Company.GetCompanies(filter);
                                 if (companies != null)
-                                    property.SetValue(customer, companies.FirstOrDefault());
+                                    property.SetValue(vendor, companies.FirstOrDefault());
                             }
                             else if (destinationField == "Client")
                             {
@@ -55,27 +51,18 @@ namespace InventoryStudio.Importer
                                 filter.EmailAddress.SearchString = field.Value;
                                 var client = Client.GetClient(companyId, filter);
                                 if (client != null)
-                                    property.SetValue(customer, client);
-                            }
-                            else if (destinationField == "DefaultBillingAddress" || destinationField == "DefaultShippingAddress")
-                            {
-                                AddressFilter filter = new AddressFilter();
-                                filter.FullName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.FullName.SearchString = field.Value;
-                                var address = Address.GetAddress(companyId, filter);
-                                if (address != null)
-                                    property.SetValue(customer, address);
+                                    property.SetValue(vendor, client);
                             }
                             else
                             {
                                 var value = Convert.ChangeType(field.Value, property.PropertyType);
-                                property.SetValue(customer, value);
+                                property.SetValue(vendor, value);
                             }
                         }
                     }
                 }
-                customer.CreatedBy = userId;
-                customer.Create();
+                vendor.CreatedBy = userId;
+                vendor.Create();
             }
         }
     }

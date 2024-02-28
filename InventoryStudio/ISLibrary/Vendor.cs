@@ -1,26 +1,30 @@
 ﻿using CLRFramework;
-using ISLibrary;
+using ISLibrary.OrderManagement;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISLibrary.OrderManagement
+namespace ISLibrary
 {
-    public class Customer : BaseClass
+    public class Vendor : BaseClass
     {
-        public string CustomerID { get; set; }
+        public string VendorID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(CustomerID); } }
+        public bool IsNew { get { return string.IsNullOrEmpty(VendorID); } }
 
         public string CompanyID { get; set; }
 
         public string? ClientID { get; set; }
+
+        public string? VendorNumber { get; set; }
+
+        public string? ExternalID { get; set; }
 
         public string? CompanyName { get; set; }
 
@@ -30,35 +34,37 @@ namespace ISLibrary.OrderManagement
 
         public string? EmailAddress { get; set; }
 
-        public string? ExternalID { get; set; }
-
+        [DisplayName("Updated By")]
         public string? UpdatedBy { get; set; }
 
+        [DisplayName("Updated On")]
         public DateTime? UpdatedOn { get; set; }
 
+        [DisplayName("Created By")]
         public string CreatedBy { get; set; }
 
+        [DisplayName("Created On")]
         public DateTime CreatedOn { get; set; }
 
-        public Customer()
+        public Vendor()
         {
 
         }
 
-        public Customer(string CompanyID)
+        public Vendor(string CompanyID)
         {
             this.CompanyID = CompanyID;
             Load();
         }
 
-        public Customer(string CompanyID, string CustomerID)
+        public Vendor(string CompanyID, string VendorID)
         {
             this.CompanyID = CompanyID;
-            this.CustomerID = CustomerID;
+            this.VendorID = VendorID;
             Load();
         }
 
-        public Customer(DataRow row)
+        public Vendor(DataRow row)
         {
             Load(row);
         }
@@ -69,14 +75,15 @@ namespace ISLibrary.OrderManagement
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("CustomerID")) CustomerID = Convert.ToString(objRow["CustomerID"]);
+                if (objColumns.Contains("VendorID")) VendorID = Convert.ToString(objRow["VendorID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                 if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
+                if (objColumns.Contains("VendorNumber")) VendorNumber = Convert.ToString(objRow["VendorNumber"]);
+                if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
                 if (objColumns.Contains("CompanyName")) CompanyName = Convert.ToString(objRow["CompanyName"]);
                 if (objColumns.Contains("FirstName")) FirstName = Convert.ToString(objRow["FirstName"]);
                 if (objColumns.Contains("LastName")) LastName = Convert.ToString(objRow["LastName"]);
                 if (objColumns.Contains("EmailAddress")) EmailAddress = Convert.ToString(objRow["EmailAddress"]);
-                if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
@@ -97,13 +104,12 @@ namespace ISLibrary.OrderManagement
         {
             DataSet objData = null;
             string strSQL = string.Empty;
-
             try
             {
-                strSQL = "SELECT c.* " +
-                         "FROM Customer c (NOLOCK) " +
-                         "WHERE c.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND c.CustomerID = " + Database.HandleQuote(CustomerID);
+                strSQL = "SELECT v.* " +
+                         "FROM Vendor v (NOLOCK) " +
+                         "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID) +
+                         "AND v.VendorID = " + Database.HandleQuote(VendorID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -123,7 +129,6 @@ namespace ISLibrary.OrderManagement
             {
                 objData = null;
             }
-
         }
 
         public bool Create()
@@ -161,24 +166,20 @@ namespace ISLibrary.OrderManagement
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(CompanyName)) throw new Exception("CompanyName is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, CustomerID already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
-
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ClientID"] = ClientID;
+                dicParam["VendorNumber"] = VendorNumber;
+                dicParam["ExternalID"] = ExternalID;
                 dicParam["CompanyName"] = CompanyName;
                 dicParam["FirstName"] = FirstName;
                 dicParam["LastName"] = LastName;
                 dicParam["EmailAddress"] = EmailAddress;
-                dicParam["ExternalID"] = ExternalID;
-                dicParam["UpdatedBy"] = UpdatedBy;
-                dicParam["UpdatedOn"] = UpdatedOn;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
-
-                CustomerID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Customer"), objConn, objTran).ToString();
+                VendorID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Vendor"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
             }
@@ -192,16 +193,6 @@ namespace ISLibrary.OrderManagement
             }
             LogAuditData(enumActionType.Create);
             return true;
-        }
-
-        private bool ObjectAlreadyExists()
-        {
-            string strSQL = string.Empty;
-            strSQL = "SELECT TOP 1 c.* " +
-                     "FROM Customer (NOLOCK) c " +
-                     "WHERE c.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND c.CustomerID=" + Database.HandleQuote(CustomerID);
-            return Database.HasRows(strSQL);
         }
 
         public bool Update()
@@ -240,24 +231,21 @@ namespace ISLibrary.OrderManagement
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(CompanyName)) throw new Exception("CompanyName is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Create cannot be performed, CustomerID already exists");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
-
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ClientID"] = ClientID;
+                dicParam["VendorNumber"] = VendorNumber;
+                dicParam["ExternalID"] = ExternalID;
                 dicParam["CompanyName"] = CompanyName;
                 dicParam["FirstName"] = FirstName;
                 dicParam["LastName"] = LastName;
                 dicParam["EmailAddress"] = EmailAddress;
-                dicParam["ExternalID"] = ExternalID;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
-
-                dicWParam["CustomerID"] = CustomerID;
-
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "Customer"), objConn, objTran);
+                dicWParam["VendorID"] = VendorID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "Vendor"), objConn, objTran);
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -308,9 +296,9 @@ namespace ISLibrary.OrderManagement
             Hashtable dicDParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(CustomerID)) throw new Exception("Delete cannot be performed, CustomerID is missing");
-                dicDParam["CustomerID"] = CustomerID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "Customer"), objConn, objTran);
+                if (string.IsNullOrEmpty(VendorID)) throw new Exception("Delete cannot be performed, CustomerID is missing");
+                dicDParam["VendorID"] = VendorID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "Vendor"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -324,76 +312,61 @@ namespace ISLibrary.OrderManagement
             return true;
         }
 
-
-        public static Customer GetCustomer(string CompanyID, CustomerFilter Filter)
+        private bool ObjectAlreadyExists()
         {
-            List<Customer> objSalesOrders = null;
-            Customer objReturn = null;
-
-            try
-            {
-                objSalesOrders = GetCustomers(CompanyID, Filter);
-                if (objSalesOrders != null && objSalesOrders.Count >= 1) objReturn = objSalesOrders[0];
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                objSalesOrders = null;
-            }
-            return objReturn;
+            string strSQL = string.Empty;
+            strSQL = "SELECT TOP 1 c.* " +
+                     "FROM Vendor (NOLOCK) v " +
+                     "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID) +
+                     "AND v.VendorID=" + Database.HandleQuote(VendorID);
+            return Database.HasRows(strSQL);
         }
 
-        public static List<Customer> GetCustomers(string CompanyID)
+
+        public static List<Vendor> GetCustomers(string CompanyID)
         {
             int intTotalCount = 0;
             return GetCustomers(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<Customer> GetCustomers(string CompanyID, CustomerFilter Filter)
+        public static List<Vendor> GetCustomers(string CompanyID, VendorFilter Filter)
         {
             int intTotalCount = 0;
             return GetCustomers(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<Customer> GetCustomers(string CompanyID, CustomerFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Vendor> GetCustomers(string CompanyID, VendorFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
             return GetCustomers(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<Customer> GetCustomers(string CompanyID, CustomerFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Vendor> GetCustomers(string CompanyID, VendorFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<Customer> objReturn = null;
-            Customer objNew = null;
+            List<Vendor> objReturn = null;
+            Vendor objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
-
             try
             {
                 TotalRecord = 0;
-
-                objReturn = new List<Customer>();
-
-                strSQL = "SELECT c.* " +
-                         "FROM Customer (NOLOCK) c " +
-                         "WHERE c.CompanyID=" + Database.HandleQuote(CompanyID);
-
+                objReturn = new List<Vendor>();
+                strSQL = "SELECT v.* " +
+                                         "FROM Vendor (NOLOCK) v " +
+                                         "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID);
                 if (Filter != null)
                 {
-                    if (Filter.CustomerID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CustomerID, "c.CustomerID");
-                    if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "c.CreatedBy");
+                    if (Filter.VendorID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.VendorID, "v.VendorID");
+                    if (Filter.VendorNumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.VendorNumber, "v.VendorNumber");
+                    if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "v.CreatedBy");
                 }
-
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "CustomerID" : Utility.CustomSorting.GetSortExpression(typeof(Customer), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "VendorID" : Utility.CustomSorting.GetSortExpression(typeof(Vendor), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new Customer(objData.Tables[0].Rows[i]);
+                        objNew = new Vendor(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }

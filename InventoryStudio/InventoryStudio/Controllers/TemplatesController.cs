@@ -1,4 +1,6 @@
 ﻿using InventoryStudio.File;
+using InventoryStudio.Importer;
+using InventoryStudio.Models;
 using InventoryStudio.Models.Templates;
 using ISLibrary;
 using ISLibrary.OrderManagement;
@@ -17,7 +19,10 @@ namespace InventoryStudio.Controllers
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TemplatesController(IHttpContextAccessor httpContextAccessor)
+        private readonly CustomerImporter _customerImporter;
+        private readonly VendorImporter _vendorImporter;
+
+        public TemplatesController(IHttpContextAccessor httpContextAccessor, CustomerImporter customerImporter, VendorImporter vendorImporter)
         {
             _httpContextAccessor = httpContextAccessor;
             var user = _httpContextAccessor.HttpContext?.User;
@@ -27,6 +32,8 @@ namespace InventoryStudio.Controllers
                 if (company != null)
                     CompanyID = company.Value;
             }
+            _customerImporter = customerImporter;
+            _vendorImporter = vendorImporter;
         }
         public IActionResult Index()
         {
@@ -328,6 +335,34 @@ namespace InventoryStudio.Controllers
             }
         }
 
+        [HttpPost("Import")]
+        public async Task<IActionResult> Import(IFormFile file, string templateId)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("File is empty");
+                var template = new ImportTemplate(CompanyID, templateId);
+                if (template == null)
+                    return NotFound();
 
+                var createdBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                switch (template.Type)
+                {
+                    case "Vendor":
+                        await _vendorImporter.ImportDataAsync(CompanyID, templateId, createdBy, file);
+                        break;
+                    case "Customer":
+                        await _customerImporter.ImportDataAsync(CompanyID, templateId, createdBy, file);
+                        break;
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return View("Error", new ErrorViewModel { Message = ex.Message });
+            }
+        }
     }
 }
