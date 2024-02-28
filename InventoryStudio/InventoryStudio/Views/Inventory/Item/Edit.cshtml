@@ -163,13 +163,13 @@
 
                     </div>
                     <!-- Step 2 -->
-                    @await Html.PartialAsync("~/Views/Item/Item/_BarCodes.cshtml", Model)
+                    @await Html.PartialAsync("~/Views/Inventory/Item/_BarCodes.cshtml", Model)
                     <!-- Step 3 -->
-                    @await Html.PartialAsync("~/Views/Item/Item/_Component.cshtml", Model)
+                    @await Html.PartialAsync("~/Views/Inventory/Item/_Component.cshtml", Model)
                    
-                    @await Html.PartialAsync("~/Views/Item/Item/_Kit.cshtml", Model)
+                    @await Html.PartialAsync("~/Views/Inventory/Item/_Kit.cshtml", Model)
 
-                    @await Html.PartialAsync("~/Views/Item/Item/_Matrix.cshtml", Model)
+                    @await Html.PartialAsync("~/Views/Inventory/Item/_Matrix.cshtml", Model)
                     
                     <div class="tab-pane fade " id="audit-content" role="tabpanel" aria-labelledby="system-tab">
                         @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)

@@ -22,7 +22,7 @@ namespace InventoryStudio.Controllers
             _authorizationService = authorizationService;
         }
 
-        [Authorize(Policy = "Item-Item-List")]
+        [Authorize(Policy = "Inventory-Item-List")]
         public async Task<IActionResult> IndexAsync()
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
@@ -40,7 +40,7 @@ namespace InventoryStudio.Controllers
                 ViewBag.Permissions = permissions;
 
 
-                return View("~/Views/Item/Item/Index.cshtml", items);
+                return View("~/Views/Inventory/Item/Index.cshtml", items);
             }
 
             ViewBag.ErrorMessage = "Please create or Choose Comapny";
@@ -50,13 +50,13 @@ namespace InventoryStudio.Controllers
         }
 
 
-        [Authorize(Policy = "Item-Item-Create")]
+        [Authorize(Policy = "Inventory-Item-Create")]
         public IActionResult Create()
         {
-            return View("~/Views/Item/Item/Create.cshtml");
+            return View("~/Views/Inventory/Item/Create.cshtml");
         }
 
-        [Authorize(Policy = "Item-Item-Create")]
+        [Authorize(Policy = "Inventory-Item-Create")]
         [HttpPost]
         public IActionResult Create(ItemViewModel itemViewModel)
         {
@@ -64,7 +64,7 @@ namespace InventoryStudio.Controllers
             if (organizationClaim == null)
             {
                 ModelState.AddModelError("", "Invalid organization information.");
-                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
+                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
             }
 
             itemViewModel.Item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
@@ -78,11 +78,11 @@ namespace InventoryStudio.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("created_error", ex.Message);
-                return View("~/Views/Item/Item/Create.cshtml", itemViewModel);
+                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
             }
         }
 
-        [Authorize(Policy = "Item-Item-Edit")]
+        [Authorize(Policy = "Inventory-Item-Edit")]
         public IActionResult Edit(string? id)
         {
             if (id == null)
@@ -123,10 +123,10 @@ namespace InventoryStudio.Controllers
            
 
            
-            return View("~/Views/Item/Item/Edit.cshtml", itemViewModel);
+            return View("~/Views/Inventory/Item/Edit.cshtml", itemViewModel);
         }
 
-        [Authorize(Policy = "Item-Item-Edit")]
+        [Authorize(Policy = "Inventory-Item-Edit")]
         [HttpPost]
         public IActionResult Edit(ItemViewModel itemViewModel)
         {
@@ -202,7 +202,7 @@ namespace InventoryStudio.Controllers
                                     "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
             }
            
-            return View("~/Views/Item/Item/Details.cshtml", itemDetailsViewModel);
+            return View("~/Views/Inventory/Item/Details.cshtml", itemDetailsViewModel);
         }
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
