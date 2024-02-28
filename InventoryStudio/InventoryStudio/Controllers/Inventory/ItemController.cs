@@ -33,9 +33,9 @@ namespace InventoryStudio.Controllers
                 //use ViewBag to control Button show/hide
                 var permissions = new Dictionary<string, bool>
                 {
-                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Create")).Succeeded,
-                    ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Edit")).Succeeded,
-                    ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Delete")).Succeeded,
+                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Create")).Succeeded,
+                    ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Edit")).Succeeded,
+                    ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Delete")).Succeeded,
                 };
                 ViewBag.Permissions = permissions;
 

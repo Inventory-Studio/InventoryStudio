@@ -10,19 +10,19 @@ using Newtonsoft.Json;
 
 namespace InventoryStudio.Controllers
 {
-    public class ItemController : BaseController
+    public class AdjustmentController : BaseController
 
     { 
         private readonly UserManager<User> _userManager;
         private readonly IAuthorizationService _authorizationService;
 
-        public ItemController(UserManager<User> userManager, IAuthorizationService authorizationService)
+        public AdjustmentController(UserManager<User> userManager, IAuthorizationService authorizationService)
         {
             _userManager = userManager;
             _authorizationService = authorizationService;
         }
 
-        [Authorize(Policy = "Inventory-Item-List")]
+        [Authorize(Policy = "Inventory-Adjustment-List")]
         public async Task<IActionResult> IndexAsync()
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
@@ -50,13 +50,13 @@ namespace InventoryStudio.Controllers
         }
 
 
-        [Authorize(Policy = "Inventory-Item-Create")]
+        [Authorize(Policy = "Inventory-Adjustment-Create")]
         public IActionResult Create()
         {
             return View("~/Views/Inventory/Item/Create.cshtml");
         }
 
-        [Authorize(Policy = "Inventory-Item-Create")]
+        [Authorize(Policy = "Inventory-Adjustment-Create")]
         [HttpPost]
         public IActionResult Create(ItemViewModel itemViewModel)
         {
@@ -80,80 +80,7 @@ namespace InventoryStudio.Controllers
                 ModelState.AddModelError("created_error", ex.Message);
                 return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
             }
-        }
-
-        [Authorize(Policy = "Inventory-Item-Edit")]
-        public IActionResult Edit(string? id)
-        {
-            if (id == null)
-            {
-                return RedirectToAction("Index");
-            }
-            var itemViewModel = new ItemViewModel();
-
-            if (TempData["FormData"] != null)
-            {
-                string formData = TempData["FormData"] as string;
-                itemViewModel = JsonConvert.DeserializeObject<ItemViewModel>(formData);
-
-                if (TempData["ErrorMessage"] != null)
-                {
-                    ModelState.AddModelError(string.Empty, TempData["ErrorMessage"].ToString());
-                }
-            }
-            else
-            {
-                var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-                var item = new Item(organizationClaim.Value, id);
-
-                if (item == null)
-                {
-                    return NotFound();
-                }
-
-                var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
-                var auditDataList = AuditData.GetAuditDatas("Item", id);
-
-                itemViewModel.Item = item;
-                itemViewModel.ItemParent = itemParent;
-                itemViewModel.ItemAttributes = itemParent.ItemAttributes;
-                itemViewModel.ItemMatrices = itemParent.ItemMatrices;
-                itemViewModel.AuditDataList = auditDataList;
-            }
-           
-
-           
-            return View("~/Views/Inventory/Item/Edit.cshtml", itemViewModel);
-        }
-
-        [Authorize(Policy = "Inventory-Item-Edit")]
-        [HttpPost]
-        public IActionResult Edit(ItemViewModel itemViewModel)
-        {
-          
-
-            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-
-            var item = new Item(organizationClaim.Value, itemViewModel.Item.ItemID);
-
-            itemViewModel.Item.CompanyID = item.CompanyID;
-            itemViewModel.Item.ItemParentID = item.ItemParentID;
-            itemViewModel.Item.UpdatedBy = Convert.ToString(_userManager.GetUserId(User));
-            try
-            {
-                ItemParent.UpdateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-                TempData["FormData"] = JsonConvert.SerializeObject(itemViewModel);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
-
-            }
-
-
-        }
+        }            
 
 
         public IActionResult Details(string? id)
@@ -283,39 +210,6 @@ namespace InventoryStudio.Controllers
         }
 
 
-        public IActionResult GetCompoentChildItems()
-        {
-            IEnumerable<Item> dataSource = new List<Item>().AsEnumerable();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company != null)
-            {
-                dataSource = Item.GetItems(company.Value).AsEnumerable();
-            }
-
-            var data = dataSource.Select(item => new {
-                ItemName = item.ItemName,
-                ItemID = item.ItemID
-            });
-
-            return Json(new { dataSource = data });
-        }
-
-
-        public IActionResult GetKitChildItems()
-        {
-            IEnumerable<Item> dataSource = new List<Item>().AsEnumerable();
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            if (company != null)
-            {
-                dataSource = Item.GetItems(company.Value).AsEnumerable();
-            }
-
-            var data = dataSource.Select(item => new {
-                ItemName = item.ItemNumber + '-' + item.ItemName,
-                ItemID = item.ItemID
-            });
-
-            return Json(new { dataSource = data });
-        }
+     
     }
 }
