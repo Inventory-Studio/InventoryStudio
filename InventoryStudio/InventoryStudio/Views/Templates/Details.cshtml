@@ -122,6 +122,16 @@
         </tbody>
     </table>
 </div>
+
+<div>
+    <h4>Import</h4>
+    <hr />
+    <form method="post" enctype="multipart/form-data" asp-action="Import">
+        <input type="hidden" name="templateId" value="@Model.ImportTemplateID" />
+        <input type="file" name="file" />
+        <input type="submit" value="Import" />
+    </form>
+</div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ImportTemplateID">Edit</a> |
     <a asp-action="Index">Back to List</a>
