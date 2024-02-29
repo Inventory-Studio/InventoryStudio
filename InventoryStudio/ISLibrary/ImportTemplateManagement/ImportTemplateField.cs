@@ -7,25 +7,26 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISLibrary
+namespace ISLibrary.ImportTemplateManagement
 {
-    public class ImportTemplate : BaseClass
+    public class ImportTemplateField : BaseClass
     {
-        public string ImportTemplateID { get; set; }
+        public string ImportTemplateFieldID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(ImportTemplateID); } }
+        public bool IsNew { get { return string.IsNullOrEmpty(ImportTemplateFieldID); } }
 
         public string CompanyID { get; set; }
 
-        public string TemplateName { get; set; }
+        public string ImportTemplateID { get; set; }
 
-        public string Type { get; set; }
+        public string SourceField { get; set; }
 
-        public string ImportType { get; set; }
+        public string DestinationTable { get; set; }
+
+        public string DestinationField { get; set; }
 
         [DisplayName("Updated By")]
         public string UpdatedBy { get; set; }
@@ -39,25 +40,24 @@ namespace ISLibrary
         [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; }
 
-        public ImportTemplate(string CompanyID)
+        public ImportTemplateField()
+        {
+
+        }
+        public ImportTemplateField(string CompanyID)
         {
             this.CompanyID = CompanyID;
             Load();
         }
 
-        public ImportTemplate(string CompanyID, string ImportTemplateID)
+        public ImportTemplateField(string CompanyID, string ImportTemplateFieldID)
         {
             this.CompanyID = CompanyID;
-            this.ImportTemplateID = ImportTemplateID;
+            this.ImportTemplateFieldID = ImportTemplateFieldID;
             Load();
         }
 
-        public ImportTemplate()
-        {
-
-        }
-
-        public ImportTemplate(DataRow row)
+        public ImportTemplateField(DataRow row)
         {
             Load(row);
         }
@@ -68,17 +68,17 @@ namespace ISLibrary
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("ImportTemplateID")) ImportTemplateID = Convert.ToString(objRow["ImportTemplateID"]);
+                if (objColumns.Contains("ImportTemplateFieldID")) ImportTemplateFieldID = Convert.ToString(objRow["ImportTemplateFieldID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("TemplateName")) TemplateName = Convert.ToString(objRow["TemplateName"]);
-                if (objColumns.Contains("Type")) Type = Convert.ToString(objRow["Type"]);
-                if (objColumns.Contains("ImportType")) ImportType = Convert.ToString(objRow["ImportType"]);
+                if (objColumns.Contains("ImportTemplateID")) ImportTemplateID = Convert.ToString(objRow["ImportTemplateID"]);
+                if (objColumns.Contains("SourceField")) SourceField = Convert.ToString(objRow["SourceField"]);
+                if (objColumns.Contains("DestinationTable")) DestinationTable = Convert.ToString(objRow["DestinationTable"]);
+                if (objColumns.Contains("DestinationField")) DestinationField = Convert.ToString(objRow["DestinationField"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
-
-                if (string.IsNullOrEmpty(ImportTemplateID)) throw new Exception("Missing ImportTemplateID in the datarow");
+                if (string.IsNullOrEmpty(ImportTemplateFieldID)) throw new Exception("Missing ImportTemplateFieldID in the datarow");
             }
 
             catch (Exception ex)
@@ -100,9 +100,9 @@ namespace ISLibrary
             try
             {
                 strSQL = "SELECT i.* " +
-                         "FROM ImportTemplate i (NOLOCK) " +
+                         "FROM ImportTemplateField i (NOLOCK) " +
                          "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND i.ImportTemplateID = " + Database.HandleQuote(ImportTemplateID);
+                         "AND i.ImportTemplateFieldID = " + Database.HandleQuote(ImportTemplateFieldID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -111,7 +111,7 @@ namespace ISLibrary
                 }
                 else
                 {
-                    throw new Exception("ImportTemplate is not found");
+                    throw new Exception("ImportTemplateField is not found");
                 }
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
-           
+
         }
 
         public override bool Create()
@@ -160,19 +160,19 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(TemplateName)) throw new Exception("TemplateName is required");
-                if (string.IsNullOrEmpty(Type)) throw new Exception("Type is required");
-                if (string.IsNullOrEmpty(ImportType)) throw new Exception("ImportType is required");
+                if (string.IsNullOrEmpty(ImportTemplateID)) throw new Exception("ImportTemplateID is required");
+                if (string.IsNullOrEmpty(SourceField)) throw new Exception("SourceField is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, ImportTemplate already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, Client already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["TemplateName"] = TemplateName;
-                dicParam["Type"] = Type;
-                dicParam["ImportType"] = ImportType;
+                dicParam["ImportTemplateID"] = ImportTemplateID;
+                dicParam["SourceField"] = SourceField;
+                dicParam["DestinationTable"] = DestinationTable;
+                dicParam["DestinationField"] = DestinationField;
                 dicParam["CreatedOn"] = DateTime.Now;
                 dicParam["CreatedBy"] = CreatedBy;
-                ImportTemplateID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportTemplate"), objConn, objTran).ToString();
+                ImportTemplateID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportTemplateField"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -183,7 +183,6 @@ namespace ISLibrary
             {
                 dicParam = null;
             }
-
             LogAuditData(enumActionType.Create);
             return true;
         }
@@ -219,25 +218,26 @@ namespace ISLibrary
         public override bool Update(SqlConnection objConn, SqlTransaction objTran)
         {
             base.Update();
+
             Hashtable dicParam = new Hashtable();
             Hashtable dicWParam = new Hashtable();
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(TemplateName)) throw new Exception("TemplateName is required");
-                if (string.IsNullOrEmpty(Type)) throw new Exception("Type is required");
-                if (string.IsNullOrEmpty(ImportType)) throw new Exception("ImportType is required");
+                if (string.IsNullOrEmpty(ImportTemplateID)) throw new Exception("ImportTemplateID is required");
+                if (string.IsNullOrEmpty(SourceField)) throw new Exception("SourceField is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, ClientID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["TemplateName"] = TemplateName;
-                dicParam["Type"] = Type;
-                dicParam["ImportType"] = ImportType;
+                dicParam["ImportTemplateID"] = ImportTemplateID;
+                dicParam["SourceField"] = SourceField;
+                dicParam["DestinationTable"] = DestinationTable;
+                dicParam["DestinationField"] = DestinationField;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
-                dicWParam["ImportTemplateID"] = ImportTemplateID;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ImportTemplate"), objConn, objTran);
+                dicWParam["ImportTemplateFieldID"] = ImportTemplateFieldID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ImportTemplateField"), objConn, objTran);
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -249,7 +249,7 @@ namespace ISLibrary
                 dicParam = null;
                 dicWParam = null;
             }
-          
+
             LogAuditData(enumActionType.Update);
             return true;
         }
@@ -288,9 +288,9 @@ namespace ISLibrary
             Hashtable dicDParam = new Hashtable();
             try
             {
-                if (IsNew) throw new Exception("Delete cannot be performed, ImportTemplateID is missing");
-                dicDParam["ImportTemplateID"] = ImportTemplateID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ImportTemplate"), objConn, objTran);
+                if (IsNew) throw new Exception("Delete cannot be performed, ImportTemplateFieldID is missing");
+                dicDParam["ImportTemplateFieldID"] = ImportTemplateFieldID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "ImportTemplateField"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -300,7 +300,6 @@ namespace ISLibrary
             {
                 dicDParam = null;
             }
-
             LogAuditData(enumActionType.Delete);
             return true;
         }
@@ -309,58 +308,59 @@ namespace ISLibrary
         {
             string strSQL = string.Empty;
             strSQL = "SELECT TOP 1 i.* " +
-                     "FROM ImportTemplate (NOLOCK) i " +
+                     "FROM ImportTemplateField (NOLOCK) i " +
                      "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND i.ImportTemplateID=" + Database.HandleQuote(ImportTemplateID);
+                     "AND i.ImportTemplateFieldID=" + Database.HandleQuote(ImportTemplateFieldID);
             return Database.HasRows(strSQL);
         }
 
-        public static List<ImportTemplate> GetImportTemplates(string CompanyID)
+        public static List<ImportTemplateField> GetImportTemplateFields(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetImportTemplates(CompanyID, null, null, null, out intTotalCount);
+            return GetImportTemplateFields(CompanyID, null, null, null, out intTotalCount);
         }
-        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter)
+
+        public static List<ImportTemplateField> GetImportTemplateFields(string CompanyID, ImportTemplateFieldFilter Filter)
         {
             int intTotalCount = 0;
-            return GetImportTemplates(CompanyID, Filter, null, null, out intTotalCount);
+            return GetImportTemplateFields(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ImportTemplateField> GetImportTemplateFields(string CompanyID, ImportTemplateFieldFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetImportTemplates(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetImportTemplateFields(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
-
-        public static List<ImportTemplate> GetImportTemplates(string CompanyID, ImportTemplateFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<ImportTemplateField> GetImportTemplateFields(string CompanyID, ImportTemplateFieldFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<ImportTemplate> objReturn = null;
-            ImportTemplate objNew = null;
+            List<ImportTemplateField> objReturn = null;
+            ImportTemplateField objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
             try
             {
                 TotalRecord = 0;
-                objReturn = new List<ImportTemplate>();
+                objReturn = new List<ImportTemplateField>();
                 strSQL = "SELECT i.* " +
-                         "FROM ImportTemplate (NOLOCK) i " +
+                         "FROM ImportTemplateField (NOLOCK) i " +
                          "WHERE i.CompanyID=" + Database.HandleQuote(CompanyID);
 
                 if (Filter != null)
                 {
-                    if (Filter.TemplateName != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.TemplateName, "i.CompanyName");
-                    if (Filter.Type != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Type, "i.Type");
-                    if (Filter.ImportType != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ImportType, "i.ImportType");
+                    if (Filter.ImportTemplateID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ImportTemplateID, "i.ImportTemplateID");
+                    if (Filter.SourceField != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.SourceField, "i.SourceField");
+                    if (Filter.DestinationTable != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.DestinationTable, "i.DestinationTable");
+                    if (Filter.DestinationField != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.DestinationField, "i.DestinationField");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "ImportTemplateID" : Utility.CustomSorting.GetSortExpression(typeof(ImportTemplate), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "ImportTemplateFieldID" : Utility.CustomSorting.GetSortExpression(typeof(ImportTemplateField), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new ImportTemplate(objData.Tables[0].Rows[i]);
+                        objNew = new ImportTemplateField(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
@@ -379,7 +379,5 @@ namespace ISLibrary
             }
             return objReturn;
         }
-
-
     }
 }

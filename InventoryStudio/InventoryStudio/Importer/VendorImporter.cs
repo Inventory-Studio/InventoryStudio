@@ -1,5 +1,6 @@
 ﻿using InventoryStudio.Services.File;
 using ISLibrary;
+using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
 
 namespace InventoryStudio.Importer
