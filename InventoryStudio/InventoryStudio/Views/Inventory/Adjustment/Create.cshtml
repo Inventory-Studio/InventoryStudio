@@ -1,0 +1,100 @@
+﻿@model AdjustmentViewModel
+
+@{
+    ViewData["Title"] = "Create Adjustment";
+
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Create" method="post" id="createItemForm">
+        <div class="card">       
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                                             
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="hsCode">Memo</label>
+                                <input asp-for="@Model.Memo" class="form-control" />
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label for="hsCode">Location</label>
+                                <input asp-for="@Model.LocationID" class="form-control" />
+                            </div>
+                        </div>
+
+                        lot number inventory
+                        ============ AdjustmentLinePart
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label >Item</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].ItemID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Location</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].LocationID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>ItemUnitID</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].ItemUnitID" type="text">
+                            </div>
+                        </div>
+                        ============ AdjustmentLineDetailPart
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label>Bin</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].AdjustmentLineDetails[0].BinID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].AdjustmentLineDetails[0].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>InventoryNumber</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].AdjustmentLineDetails[0].InventoryNumber" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>ItemUnitID</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[0].AdjustmentLineDetails[0].ItemUnitID" type="text">
+                            </div>
+                        </div>
+
+                         inventory item
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label>Item</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[1].ItemID" type="text">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Quantity</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[1].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Location</label>
+                                <input name="AdjustmentViewModel.AdjustmentLines[1].LocationID" type="text">
+                            </div>
+                        </div>
+                    </div>
+                  
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+

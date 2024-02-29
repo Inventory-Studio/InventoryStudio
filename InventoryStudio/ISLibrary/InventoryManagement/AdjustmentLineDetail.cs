@@ -28,8 +28,7 @@ namespace ISLibrary
         public string InventoryID { get; set; }
         //public string CartonNumber { get; set; }
         //public string VendorCartonNumber { get; set; }
-        //public string SerialNumber { get; set; }
-        //public string LotNumber { get; set; }
+        public string InventoryNumber { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
@@ -167,7 +166,7 @@ namespace ISLibrary
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
 
-                AdjustmentLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AdjustmentLineDetailID"), objConn, objTran)
+                AdjustmentLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AdjustmentLineDetail"), objConn, objTran)
                     .ToString();
 
 

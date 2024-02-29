@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Collections;
 using CLRFramework;
-using System.Security;
-using System.ComponentModel.Design;
+using ISLibrary.OrderManagement;
 
 namespace ISLibrary
 {
@@ -31,6 +25,59 @@ namespace ISLibrary
         public List<AdjustmentLineDetail> AdjustmentLineDetails { get; set; }
 
 
+        private Location mLocation = null;
+        public Location Location
+        {
+            get
+            {
+               
+
+                try
+                {
+                    if (mLocation == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(LocationID))
+                    {
+                        mLocation = new Location(CompanyID,LocationID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+               
+                return mLocation;
+            }
+            set
+            {
+                mLocation = value;
+            }
+        }
+
+        private ItemUnit mItemUnit = null;
+        public ItemUnit ItemUnit
+        {
+            get
+            {
+
+
+                try
+                {
+                    if (mItemUnit == null && !string.IsNullOrEmpty(ItemUnitID))
+                    {
+                        mItemUnit = new ItemUnit(ItemUnitID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                return mItemUnit;
+            }
+            set
+            {
+                mItemUnit = value;
+            }
+        }
         public AdjustmentLine()
         {
         }
@@ -162,6 +209,85 @@ namespace ISLibrary
 
                 AdjustmentLineID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AdjustmentLine"), objConn, objTran)
                     .ToString();
+
+                //Unit of Measure from Receipt Line
+                decimal decQtyPerUnit = 1;
+                if (ItemUnitID != null && ItemUnit != null)
+                {   
+                    decQtyPerUnit = ItemUnit.Quantity;                    
+                }
+
+                if (!Location.UseBins)
+                {
+                    decimal decBaseQuantity = Quantity * decQtyPerUnit;
+                    Inventory DefaultInventory = new Inventory();
+
+                    DefaultInventory.CompanyID = CompanyID;
+                    DefaultInventory.ItemID = ItemID;
+                    DefaultInventory.LocationID = LocationID;
+                    DefaultInventory.Available = Quantity;
+                    DefaultInventory.BinID = "3";//@todo set the default value 
+                    DefaultInventory.OnHand = Quantity;
+                    
+                    if (DefaultInventory.GetUnqiueInventory())
+                    {
+                        DefaultInventory.OnHand += decBaseQuantity;
+                        DefaultInventory.Available += decBaseQuantity;
+                        DefaultInventory.Update();
+                    }
+                    else
+                    {
+                        DefaultInventory.Create();
+                    }
+                }
+
+
+
+                if (AdjustmentLineDetails != null)
+                {
+                    foreach (AdjustmentLineDetail objAdjustmentLineDetail in AdjustmentLineDetails)
+                    {
+                        decimal decBaseQuantity = objAdjustmentLineDetail.Quantity * decQtyPerUnit;
+                        
+                        Inventory objInventory = new Inventory();
+
+                        objInventory.CompanyID = objAdjustmentLineDetail.CompanyID;
+                        objInventory.ItemID = ItemID;
+                        objInventory.LocationID = LocationID;
+                        objInventory.Available = decBaseQuantity;
+                        objInventory.OnHand = decBaseQuantity;
+                        objInventory.BinID = objAdjustmentLineDetail.BinID;
+                        objInventory.InventoryNumber = objAdjustmentLineDetail.InventoryNumber;
+
+                        if (objInventory.GetUnqiueInventory())
+                        {
+                            objInventory.OnHand += decBaseQuantity;
+                            objInventory.Available += decBaseQuantity;
+                            objInventory.UpdatedBy = CreatedBy;
+                            objInventory.ParentKey = AdjustmentLineID;
+                            objInventory.ParentObject = "AdjustmentLine";
+                            objInventory.Update();
+                        }
+                        else
+                        {
+                            objInventory.ParentKey = AdjustmentLineID;
+                            objInventory.ParentObject = "AdjustmentLine";
+                            objInventory.CreatedBy = CreatedBy;
+                            objInventory.Create();
+                        }
+
+                        if (objAdjustmentLineDetail.IsNew)
+                        {
+                            objAdjustmentLineDetail.CompanyID = CompanyID;
+                            objAdjustmentLineDetail.AdjustmentLineID = AdjustmentLineID;
+                            objAdjustmentLineDetail.CreatedBy = CreatedBy;
+                            objAdjustmentLineDetail.InventoryID = objInventory.InventoryID;
+                            objAdjustmentLineDetail.ParentKey = AdjustmentLineID;
+                            objAdjustmentLineDetail.ParentObject = "AdjustmentLine";
+                            objAdjustmentLineDetail.Create(objConn, objTran);
+                        }
+                    }
+                }
 
 
                 Load(objConn, objTran);

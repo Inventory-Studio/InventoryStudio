@@ -168,7 +168,7 @@ namespace ISLibrary.OrderManagement
 
             try
             {
-                strSQL = "SELECT s.* " +
+                strSQL = "SELECT l.* " +
                          "FROM Location l (NOLOCK) " +
                          "WHERE l.CompanyID=" + Database.HandleQuote(CompanyID) +
                          "AND l.LocationID = " + Database.HandleQuote(LocationID);

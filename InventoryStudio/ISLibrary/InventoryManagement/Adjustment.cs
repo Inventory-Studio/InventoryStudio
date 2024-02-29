@@ -148,7 +148,7 @@ namespace ISLibrary
                 if (!IsNew) throw new Exception("Create cannot be performed, AdjustmentID already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["TranDate"] = TranDate;
+                dicParam["TranDate"] = DateTime.UtcNow; 
                 dicParam["LocationID"] = LocationID;
                 dicParam["Memo"] = Memo;
                 dicParam["CreatedBy"] = CreatedBy;
@@ -158,6 +158,21 @@ namespace ISLibrary
                 AdjustmentID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Adjustment"), objConn, objTran)
                     .ToString();
 
+                if (AdjustmentLines != null)
+                {
+                    foreach (AdjustmentLine objAdjustmentLine in AdjustmentLines)
+                    {
+                        if (objAdjustmentLine.IsNew)
+                        {
+                            objAdjustmentLine.CompanyID = CompanyID;
+                            objAdjustmentLine.AdjustmentID = AdjustmentID;
+                            objAdjustmentLine.CreatedBy = CreatedBy;
+                            objAdjustmentLine.ParentKey = AdjustmentID;
+                            objAdjustmentLine.ParentObject = "Adjustment";
+                            objAdjustmentLine.Create(objConn, objTran);
+                        }
+                    }
+                }
 
                 Load(objConn, objTran);
             }

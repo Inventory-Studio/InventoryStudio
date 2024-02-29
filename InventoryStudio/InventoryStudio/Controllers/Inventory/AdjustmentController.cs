@@ -28,19 +28,17 @@ namespace InventoryStudio.Controllers
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim != null)
             {
-                var items = Item.GetItems(organizationClaim.Value);
-
                 //use ViewBag to control Button show/hide
                 var permissions = new Dictionary<string, bool>
                 {
-                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Create")).Succeeded,
-                    ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Edit")).Succeeded,
+                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Adjustment-Create")).Succeeded,
+                    ["CanView"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Adjustment-View")).Succeeded,
                     ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Item-Item-Delete")).Succeeded,
                 };
                 ViewBag.Permissions = permissions;
 
 
-                return View("~/Views/Inventory/Item/Index.cshtml", items);
+                return View("~/Views/Inventory/Adjustment/Index.cshtml");
             }
 
             ViewBag.ErrorMessage = "Please create or Choose Comapny";
@@ -53,32 +51,35 @@ namespace InventoryStudio.Controllers
         [Authorize(Policy = "Inventory-Adjustment-Create")]
         public IActionResult Create()
         {
-            return View("~/Views/Inventory/Item/Create.cshtml");
+            return View("~/Views/Inventory/Adjustment/Create.cshtml");
         }
 
         [Authorize(Policy = "Inventory-Adjustment-Create")]
         [HttpPost]
-        public IActionResult Create(ItemViewModel itemViewModel)
+        public IActionResult Create(AdjustmentViewModel adjustmentViewModel)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
                 ModelState.AddModelError("", "Invalid organization information.");
-                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
+                return View("~/Views/Inventory/Adjustment/Create.cshtml", adjustmentViewModel);
             }
 
-            itemViewModel.Item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
-            itemViewModel.Item.CompanyID = organizationClaim.Value;
-
+            Adjustment objAdjustment = new Adjustment();
+            objAdjustment.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
+            objAdjustment.CompanyID = organizationClaim.Value;
+            objAdjustment.Memo = adjustmentViewModel.Memo;
+            objAdjustment.LocationID = adjustmentViewModel.LocationID;
+            objAdjustment.AdjustmentLines = adjustmentViewModel.AdjustmentLines;
             try
             {
-                ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
+                objAdjustment.Create();
+                return RedirectToAction("Details", new { id = objAdjustment.AdjustmentID });
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("created_error", ex.Message);
-                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
+                return View("~/Views/Inventory/Adjustment/Create.cshtml", adjustmentViewModel);
             }
         }            
 
@@ -134,7 +135,7 @@ namespace InventoryStudio.Controllers
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
         {
-            IEnumerable<Item> dataSource = new List<Item>().AsEnumerable();
+            IEnumerable<Adjustment> dataSource = new List<Adjustment>().AsEnumerable();
             DataOperations operation = new();
             int totalRecord = 0;
             if (dm.Skip != 0 || dm.Take != 0)
@@ -142,11 +143,11 @@ namespace InventoryStudio.Controllers
                 Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
                 if (company != null)
                 {
-                    ItemFilter itemFilter = new ItemFilter();
+                    AdjustmentFilter AdjustmentFilter = new AdjustmentFilter();
 
-                    dataSource = Item.GetItems(
+                    dataSource = Adjustment.GetAdjustments(
                         company.Value,
-                        itemFilter,
+                        AdjustmentFilter,
                         dm.Take,
                         (dm.Skip / dm.Take) + 1,
                         out totalRecord
