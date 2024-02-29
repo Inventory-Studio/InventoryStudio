@@ -16,7 +16,7 @@ namespace InventoryStudio.Importer
             _fileParserFactory = fileParserFactory;
         }
 
-        public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, IFormFile file)
+        public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, IFormFile file, ProgressHandler progressHandler)
         {
             var fileType = Path.GetExtension(file.FileName);
             var parser = _fileParserFactory.CreateParser(fileType);
@@ -27,6 +27,8 @@ namespace InventoryStudio.Importer
             var importTemplateFields = ImportTemplateField.GetImportTemplateFields(companyId, importTemplateFilter);
             var fieldMappings = importTemplateFields
                 .ToDictionary(f => f.SourceField, f => f.DestinationField);
+            int totalDataCount = datas.Count;
+            int processedCount = 0;
             var customers = new List<Customer>();
             foreach (var data in datas)
             {
@@ -76,6 +78,9 @@ namespace InventoryStudio.Importer
                 }
                 customer.CreatedBy = userId;
                 customer.Create();
+                processedCount++;
+                int progress = (int)((processedCount / (double)totalDataCount) * 100);
+                progressHandler?.Invoke(progress, importTemplateID);
             }
         }
     }
