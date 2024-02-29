@@ -126,13 +126,84 @@
 <div>
     <h4>Import</h4>
     <hr />
-    <form method="post" enctype="multipart/form-data" asp-action="Import">
+    <form id="import-form" method="post" enctype="multipart/form-data" asp-action="Import">
         <input type="hidden" name="templateId" value="@Model.ImportTemplateID" />
-        <input type="file" name="file" />
-        <input type="submit" value="Import" />
+        <input id="file-input" type="file" name="file" />
+        <input id="import-button" type="submit" value="Import" />
     </form>
 </div>
+
+<div id="import-progress">
+    <h4>Import Progress</h4>
+    <hr />
+    <div class="progress">
+        <div id="import-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+    <div id="import-progress-message"></div>
+</div>
+
+<br />
+<br />
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ImportTemplateID">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to update progress
+            function updateProgress() {
+                // Get the importTemplateId from the hidden input field
+                var importTemplateId = $('#import-form input[name="templateId"]').val();
+
+                // Make the GET request with importTemplateId
+                $.get('/Templates/GetProgress?importTemplateId=' + importTemplateId, function (progress) {
+                    // Update progress bar
+                    $('#import-progress-bar').css('width', progress + '%').text(progress + '%');
+
+                    // If progress is less than 100%, continue updating
+                    if (progress < 100) {
+                        progressTimeout = setTimeout(updateProgress, 1000); // Update every 1 second
+                    } else {
+                        // Progress completed, hide progress bar or display completion message
+                        //$('#import-progress-bar').hide();
+                        $('#import-progress-message').text('Import completed!');
+
+                    }
+                });
+            }
+
+            // Attach event listener to form submission
+            $('#import-form').submit(function (event) {
+                // Prevent default form submission
+                event.preventDefault();
+
+                // Clear progress bar and message when file is re-selected
+                $('#import-progress-bar').css('width', '0%').text('0%').show();
+                $('#import-progress-message').text('');
+
+                // Submit form using AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: $(this).attr('method'),
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // Start updating progress when the form is submitted
+                        updateProgress();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+
+            // Initialize progress update when the page is loaded
+            updateProgress();
+        });
+    </script>
+}

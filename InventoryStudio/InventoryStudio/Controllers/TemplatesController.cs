@@ -2,6 +2,7 @@
 using InventoryStudio.Importer;
 using InventoryStudio.Models;
 using InventoryStudio.Models.Templates;
+using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +19,9 @@ namespace InventoryStudio.Controllers
         private readonly string CompanyID = string.Empty;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
-
         private readonly CustomerImporter _customerImporter;
         private readonly VendorImporter _vendorImporter;
+        private static Dictionary<string, int> importProgress = new Dictionary<string, int>();
 
         public TemplatesController(IHttpContextAccessor httpContextAccessor, CustomerImporter customerImporter, VendorImporter vendorImporter)
         {
@@ -347,13 +348,14 @@ namespace InventoryStudio.Controllers
                     return NotFound();
 
                 var createdBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ProgressHandler progressHandler = new ProgressHandler(ImportProgress);
                 switch (template.Type)
                 {
                     case "Vendor":
-                        await _vendorImporter.ImportDataAsync(CompanyID, templateId, createdBy, file);
+                        await _vendorImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
                         break;
                     case "Customer":
-                        await _customerImporter.ImportDataAsync(CompanyID, templateId, createdBy, file);
+                        await _customerImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
                         break;
                 }
 
@@ -363,6 +365,17 @@ namespace InventoryStudio.Controllers
             {
                 return View("Error", new ErrorViewModel { Message = ex.Message });
             }
+        }
+
+        private void ImportProgress(int progress, string importTemplateId)
+        {
+            importProgress[importTemplateId] = progress;
+        }
+
+        public IActionResult GetProgress(string importTemplateId)
+        {
+            var progress = importProgress.ContainsKey(importTemplateId) ? importProgress[importTemplateId] : 0;
+            return Ok(progress);
         }
     }
 }
