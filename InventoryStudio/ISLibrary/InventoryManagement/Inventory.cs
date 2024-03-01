@@ -153,6 +153,7 @@ namespace ISLibrary
             try
             {
                 if (!IsNew) throw new Exception("Create cannot be performed, InventoryID already exists");
+                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ParentInventoryID"] = ParentInventoryID;
@@ -228,7 +229,7 @@ namespace ISLibrary
             try
             {
                 if (IsNew) throw new Exception("Update cannot be performed, CompanyUserID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
+               
 
                 dicParam["ParentInventoryID"] = ParentInventoryID;
                 //dicParam["ItemConfigID"] = ItemConfigID;
@@ -269,21 +270,29 @@ namespace ISLibrary
 
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM Inventory (NOLOCK) p " +
-                     "WHERE 1=1 ";
+                     "WHERE (p.BinID=" + Database.HandleQuote(BinID);
 
+            if (!string.IsNullOrEmpty(CartonNumber))
+            {
+                strSQL += "AND p.CartonNumber<>" + Database.HandleQuote(CartonNumber);
+            }
+            if (!string.IsNullOrEmpty(VendorCartonNumber))
+            {
+                strSQL += "AND p.VendorCartonNumber<>" + Database.HandleQuote(VendorCartonNumber);
+            }
+            if (!string.IsNullOrEmpty(InventoryNumber))
+            {
+                strSQL += "AND p.InventoryNumber<>" + Database.HandleQuote(InventoryNumber);
+            }
+            if (!string.IsNullOrEmpty(ParentInventoryID))
+            {
+                strSQL += "AND p.ParentInventoryID<>" + Database.HandleQuote(ParentInventoryID);
+            }
+            strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID) + ")";
             if (!string.IsNullOrEmpty(InventoryID))
             {
                 strSQL += "AND p.InventoryID<>" + Database.HandleQuote(InventoryID);
-            }
-            else
-            {
-                strSQL += "Or (p.BinID=" + Database.HandleQuote(BinID);
-                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
-                strSQL += "AND p.CartonNumber=" + Database.HandleQuote(CartonNumber);
-                strSQL += "AND p.VendorCartonNumber=" + Database.HandleQuote(VendorCartonNumber);
-                strSQL += "AND p.InventoryNumber=" + Database.HandleQuote(InventoryNumber);
-                strSQL += "AND p.ParentInventoryID=" + Database.HandleQuote(ParentInventoryID) + ")";
-            }
+            }           
 
             return Database.HasRows(strSQL);
         }
@@ -298,11 +307,24 @@ namespace ISLibrary
                 strSQL = "SELECT TOP 1 p.* " +
                      "FROM Inventory (NOLOCK) p " +
                      "WHERE (p.BinID=" + Database.HandleQuote(BinID);
-                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
-                strSQL += "AND p.CartonNumber=" + Database.HandleQuote(CartonNumber);
-                strSQL += "AND p.VendorCartonNumber=" + Database.HandleQuote(VendorCartonNumber);
-                strSQL += "AND p.InventoryNumber=" + Database.HandleQuote(InventoryNumber);
-                strSQL += "AND p.ParentInventoryID=" + Database.HandleQuote(ParentInventoryID) + ")";
+                
+                if (!string.IsNullOrEmpty(CartonNumber))
+                {
+                    strSQL += "AND p.CartonNumber<>" + Database.HandleQuote(CartonNumber);
+                }
+                if (!string.IsNullOrEmpty(VendorCartonNumber))
+                {
+                    strSQL += "AND p.VendorCartonNumber<>" + Database.HandleQuote(VendorCartonNumber);
+                }
+                if (!string.IsNullOrEmpty(InventoryNumber))
+                {
+                    strSQL += "AND p.InventoryNumber<>" + Database.HandleQuote(InventoryNumber);
+                }
+                if (!string.IsNullOrEmpty(ParentInventoryID))
+                {
+                    strSQL += "AND p.ParentInventoryID<>" + Database.HandleQuote(ParentInventoryID);
+                }
+                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID) + ")";
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)

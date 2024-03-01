@@ -22,7 +22,38 @@ namespace ISLibrary
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
-        public List<AdjustmentLineDetail> AdjustmentLineDetails { get; set; }
+        private List<AdjustmentLineDetail> mAdjustmentLineDetail = null;
+        public List<AdjustmentLineDetail> AdjustmentLineDetails
+        {
+            get
+            {
+                AdjustmentLineDetailFilter objFilter = null;
+
+                try
+                {
+                    if (mAdjustmentLineDetail == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(AdjustmentLineID))
+                    {
+                        objFilter = new AdjustmentLineDetailFilter();
+                        objFilter.AdjustmentLineID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.AdjustmentLineID.SearchString = AdjustmentID;
+                        mAdjustmentLineDetail = AdjustmentLineDetail.GetAdjustmentLineDetails(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mAdjustmentLineDetail;
+            }
+            set
+            {
+                mAdjustmentLineDetail = value;
+            }
+        }
 
 
         private Location mLocation = null;
@@ -239,11 +270,7 @@ namespace ISLibrary
                     {
                         DefaultInventory.Create();
                     }
-                }
-
-
-
-                if (AdjustmentLineDetails != null)
+                }else if (AdjustmentLineDetails != null)
                 {
                     foreach (AdjustmentLineDetail objAdjustmentLineDetail in AdjustmentLineDetails)
                     {
@@ -251,7 +278,7 @@ namespace ISLibrary
                         
                         Inventory objInventory = new Inventory();
 
-                        objInventory.CompanyID = objAdjustmentLineDetail.CompanyID;
+                        objInventory.CompanyID = CompanyID;
                         objInventory.ItemID = ItemID;
                         objInventory.LocationID = LocationID;
                         objInventory.Available = decBaseQuantity;

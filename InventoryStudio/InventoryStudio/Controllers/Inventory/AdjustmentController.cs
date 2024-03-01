@@ -90,47 +90,28 @@ namespace InventoryStudio.Controllers
             {
                 return RedirectToAction("Index");
             }
-            var itemDetailsViewModel = new ItemDetailsViewModel();
 
-            if (TempData["FormData"] != null)
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            var objAdjustment = new Adjustment(id);
+
+            if (objAdjustment == null)
             {
-                string formData = TempData["FormData"] as string;
-                itemDetailsViewModel = JsonConvert.DeserializeObject<ItemDetailsViewModel>(formData);
-
-                if (TempData["ErrorMessage"] != null)
-                {
-                    ModelState.AddModelError(string.Empty, TempData["ErrorMessage"].ToString());
-                }
+                return NotFound();
             }
-            else
+
+            if (objAdjustment.CompanyID != organizationClaim.Value)
             {
-                var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
-                var item = new Item(organizationClaim.Value, id);
-
-                if (item == null)
-                {
-                    return NotFound();
-                }
-
-                var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
-                var auditDataList = AuditData.GetAuditDatas("Item", id);
-
-                itemDetailsViewModel.Item = item;
-                itemDetailsViewModel.ItemParent = itemParent;
-                itemDetailsViewModel.ItemAttributes = itemParent.ItemAttributes;
-                itemDetailsViewModel.ItemMatrices = itemParent.ItemMatrices;
-                itemDetailsViewModel.AuditDataList = auditDataList;
-                itemDetailsViewModel.ProductStatus = "Active";
-                itemDetailsViewModel.OnHand = 100;
-                itemDetailsViewModel.Available = 98;
-                itemDetailsViewModel.ProductSku = item.ItemNumber;
-                itemDetailsViewModel.ProductImage =
-                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
-                itemDetailsViewModel.ShipMonkImage =
-                                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
+                TempData["ErrorMessage"] = "You don't have permission to change other company's data.";
+                return RedirectToAction("Index");
             }
-           
-            return View("~/Views/Inventory/Item/Details.cshtml", itemDetailsViewModel);
+
+            var itemDetailsViewModel = new AdjustmentViewModel();
+
+            itemDetailsViewModel.Memo = objAdjustment.Memo;
+            itemDetailsViewModel.LocationID = objAdjustment.LocationID;
+            itemDetailsViewModel.AdjustmentLines = objAdjustment.AdjustmentLines;
+
+            return View("~/Views/Inventory/Adjustment/Details.cshtml", itemDetailsViewModel);
         }
 
         public IActionResult UrlDataSource([FromBody] DataManagerRequest dm)
