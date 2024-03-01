@@ -5,6 +5,7 @@ using ISLibrary.OrderManagement;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
 using System.Reflection;
+using System.Text.Json;
 
 namespace InventoryStudio.Importer
 {
@@ -51,11 +52,12 @@ namespace InventoryStudio.Importer
                             }
                             catch (Exception ex)
                             {
+                                var failedDataJson = JsonSerializer.Serialize(data);
                                 var failedRecord = new ImportFailedRecord
                                 {
                                     ImportResultID = importResult.ImportResultID,
                                     ErrorMessage = ex.Message,
-                                    FailedData = string.Join(",", data.Values)
+                                    FailedData = failedDataJson
                                 };
                                 failedRecord.Create();
                                 importResult.FailedRecords++;
