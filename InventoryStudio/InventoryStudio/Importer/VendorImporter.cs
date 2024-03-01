@@ -2,6 +2,9 @@
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
+using System.Reflection;
 
 namespace InventoryStudio.Importer
 {
@@ -23,43 +26,39 @@ namespace InventoryStudio.Importer
             importTemplateFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
             importTemplateFilter.ImportTemplateID.SearchString = importTemplateID;
             var importTemplateFields = ImportTemplateField.GetImportTemplateFields(companyId, importTemplateFilter);
-            var fieldMappings = importTemplateFields
-                .ToDictionary(f => f.SourceField, f => f.DestinationField);
-            int totalDataCount = datas.Count;
             int processedCount = 0;
+            var importResult = new ImportResult
+            {
+                ImportTemplateID = importTemplateID,
+                UploadBy = userId,
+                UploadTime = DateTime.Now,
+                TotalRecords = datas.Count,
+            };
+            importResult.Create();
             foreach (var data in datas)
             {
                 var vendor = new Vendor();
                 foreach (var field in data)
                 {
-                    if (fieldMappings.ContainsKey(field.Key))
+                    if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
-                        var destinationField = fieldMappings[field.Key];
-                        var property = typeof(Customer).GetProperty(destinationField);
+                        var property = typeof(Vendor).GetProperty(destinationField);
                         if (property != null)
                         {
-                            if (destinationField == "Company")
+                            try
                             {
-                                CompanyFilter filter = new CompanyFilter();
-                                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.CompanyName.SearchString = field.Value;
-                                var companies = Company.GetCompanies(filter);
-                                if (companies != null)
-                                    property.SetValue(vendor, companies.FirstOrDefault());
+                                await SetPropertyAsync(companyId, vendor, field.Value, property);
                             }
-                            else if (destinationField == "Client")
+                            catch (Exception ex)
                             {
-                                ClientFilter filter = new ClientFilter();
-                                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.EmailAddress.SearchString = field.Value;
-                                var client = Client.GetClient(companyId, filter);
-                                if (client != null)
-                                    property.SetValue(vendor, client);
-                            }
-                            else
-                            {
-                                var value = Convert.ChangeType(field.Value, property.PropertyType);
-                                property.SetValue(vendor, value);
+                                var failedRecord = new ImportFailedRecord
+                                {
+                                    ImportResultID = importResult.ImportResultID,
+                                    ErrorMessage = ex.Message,
+                                    FailedData = string.Join(",", data.Values)
+                                };
+                                failedRecord.Create();
+                                importResult.FailedRecords++;
                             }
                         }
                     }
@@ -67,8 +66,44 @@ namespace InventoryStudio.Importer
                 vendor.CreatedBy = userId;
                 vendor.Create();
                 processedCount++;
-                int progress = (int)((processedCount / (double)totalDataCount) * 100);
+                importResult.SuccessfulRecords++;
+                int progress = (int)((processedCount / (double)importResult.TotalRecords) * 100);
                 progressHandler?.Invoke(progress, importTemplateID);
+            }
+            importResult.Update();
+        }
+
+        private bool TryGetDestinationField(string sourceField, List<ImportTemplateField> importTemplateFields, out string destinationField)
+        {
+            var field = importTemplateFields.FirstOrDefault(f => f.SourceField == sourceField);
+            destinationField = field?.DestinationField;
+            return field != null;
+        }
+
+        private async System.Threading.Tasks.Task SetPropertyAsync(string companyId, Vendor vendor, string value, PropertyInfo property)
+        {
+            if (property.PropertyType == typeof(Company))
+            {
+                CompanyFilter filter = new CompanyFilter();
+                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.CompanyName.SearchString = value;
+                var companies = Company.GetCompanies(filter);
+                if (companies != null)
+                    property.SetValue(vendor, companies.FirstOrDefault());
+            }
+            else if (property.PropertyType == typeof(Client))
+            {
+                ClientFilter filter = new ClientFilter();
+                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.EmailAddress.SearchString = value;
+                var client = Client.GetClient(companyId, filter);
+                if (client != null)
+                    property.SetValue(vendor, client);
+            }
+            else
+            {
+                var convertedValue = Convert.ChangeType(value, property.PropertyType);
+                property.SetValue(vendor, convertedValue);
             }
         }
     }
