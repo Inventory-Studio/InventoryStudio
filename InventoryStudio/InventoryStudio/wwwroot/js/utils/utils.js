@@ -13,7 +13,6 @@ function customExportToolbarClick(gridId, fileName) {
         const gridExcelExport = gridId + "_excelexport";
         if (args.item.id === gridPdfExport) {
             var pdfdata = gridObj.getSelectedRecords();
-            console.log(pdfdata)
             if (pdfdata?.length > 0) {
                 var exportProperties = {
                     dataSource: pdfdata,
@@ -23,6 +22,7 @@ function customExportToolbarClick(gridId, fileName) {
                 gridObj.pdfExport(exportProperties);
             } else {
                 gridObj.pdfExport({
+                    dataSource: gridObj.dataSource,
                     fileName: fileName + ".pdf"
                 });
             }
@@ -38,6 +38,7 @@ function customExportToolbarClick(gridId, fileName) {
                 gridObj.excelExport(exportProperties);
             } else {
                 gridObj.excelExport({
+                    dataSource: gridObj.dataSource,
                     fileName: fileName + ".xlsx"
                 });
 

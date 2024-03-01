@@ -1,4 +1,8 @@
-﻿@model ItemViewModel
+﻿@using Newtonsoft.Json
+@model ItemViewModel
+@{
+    var itemBarcodes = JsonConvert.SerializeObject(Model.Item.ItemBarcodes);
+}
 
 <div class="tab-pane border-0 bg-border-none p-0 m-0 fade" id="barcode-content" role="tabpanel" aria-labelledby="barcode-tab">
     <div class="bg-gray-200 py-2 px-3 rounded mb-4">
@@ -6,7 +10,7 @@
     </div>
     @if (Model.IsDetails)
     {
-        <ejs-grid id="GridBarcodes" class="h-100" dataSource="@Model.Item.ItemBarcodes" toolbarClick="barcodesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+        <ejs-grid id="GridBarcodes" class="h-100" dataSource="@itemBarcodes" toolbarClick="barcodesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
                   allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "PdfExport", "ExcelExport" })">
 
         
