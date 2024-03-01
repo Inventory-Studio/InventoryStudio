@@ -9,8 +9,11 @@
 function customExportToolbarClick(gridId, fileName) {
     return (args) => {
         var gridObj = document.getElementById(gridId).ej2_instances[0];
-        if (args.item.id === 'Grid_pdfexport') {
+        const gridPdfExport = gridId + "_pdfexport";
+        const gridExcelExport = gridId + "_excelexport";
+        if (args.item.id === gridPdfExport) {
             var pdfdata = gridObj.getSelectedRecords();
+            console.log(pdfdata)
             if (pdfdata?.length > 0) {
                 var exportProperties = {
                     dataSource: pdfdata,
@@ -24,7 +27,7 @@ function customExportToolbarClick(gridId, fileName) {
                 });
             }
         }
-        if (args.item.id === 'Grid_excelexport') {
+        if (args.item.id === gridExcelExport) {
             var exceldata = gridObj.getSelectedRecords();
             if (exceldata?.length > 0) {
                 var exportProperties = {
