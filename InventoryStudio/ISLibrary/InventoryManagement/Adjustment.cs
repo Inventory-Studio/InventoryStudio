@@ -26,9 +26,39 @@ namespace ISLibrary
         public string Memo { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
+        private List<AdjustmentLine> mAdjustmentLine = null;
+        public List<AdjustmentLine> AdjustmentLines
+        {
+            get
+            {
+                AdjustmentLineFilter objFilter = null;
 
-        public List<AdjustmentLine> AdjustmentLines { get; set; }
-
+                try
+                {
+                    if (mAdjustmentLine == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(AdjustmentID))
+                    {
+                        objFilter = new AdjustmentLineFilter();
+                        objFilter.AdjustmentID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.AdjustmentID.SearchString = AdjustmentID;
+                        mAdjustmentLine = AdjustmentLine.GetAdjustmentLines(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mAdjustmentLine;
+            }
+            set
+            {
+                mAdjustmentLine = value;
+            }
+        }
+    
         public Adjustment()
         {
         }

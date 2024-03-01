@@ -162,6 +162,7 @@ namespace ISLibrary
                 dicParam["ItemUnitID"] = ItemUnitID;
                 dicParam["BaseQuantity"] = BaseQuantity;
                 dicParam["InventoryID"] = InventoryID;
+                dicParam["InventoryNumber"] = InventoryNumber;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedOn"] = DateTime.UtcNow;

@@ -23,11 +23,12 @@
                 <e-grid-editSettings showDeleteConfirmDialog="true" allowDeleting="true">
                 </e-grid-editSettings>
                 <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
-                <e-data-manager url="/Adjustment/UrlDatasource" >
+                <e-data-manager url="/Adjustment/UrlDatasource" adaptor="UrlAdaptor" insertUrl="/Adjustment/Insert"
+                                updateUrl="/Adjustment/Edit" removeUrl="/Adjustment/Remove">
                 </e-data-manager>
                 @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
                 <e-grid-columns>
-                    <e-grid-column visible="false" field="Id" headerText="ID" type="int" isPrimaryKey="true"
+                    <e-grid-column visible="false" field="AdjustmentID" headerText="AdjustmentID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
                     <e-grid-column field="Memo" headerText="Memo"></e-grid-column>
@@ -43,7 +44,7 @@
 <!-- Actions template -->
 <script id="actions" type="text/x-template">
     <div class="hstack gap-2">
-         <a href="/Adjustment/Details?id=${Id}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View Adjustment" aria-label="View Adjustment Button">
+         <a href="/Adjustment/Details?id=${AdjustmentID}" class="btn btn-icon btn-info-light" data-bs-toggle="tooltip" title="View Adjustment" aria-label="View Adjustment Button">
             <i class="bi-eye-fill"></i>
         </a>
     </div>
