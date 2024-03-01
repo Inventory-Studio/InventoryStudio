@@ -127,11 +127,11 @@ namespace ISLibrary.ImportTemplateManagement
                 if (string.IsNullOrEmpty(ImportResultID)) throw new Exception("ImportResultID is required");
                 if (string.IsNullOrEmpty(ErrorMessage)) throw new Exception("ErrorMessage is required");
                 if (string.IsNullOrEmpty(FailedData)) throw new Exception("FailedData is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, ImportResult already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, ImportFailedRecord already exists");
                 dicParam["ImportResultID"] = ImportResultID;
                 dicParam["ErrorMessage"] = ErrorMessage;
                 dicParam["FailedData"] = FailedData;
-                ImportFailedRecordID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Vendor"), objConn, objTran).ToString();
+                ImportFailedRecordID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportFailedRecord"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)

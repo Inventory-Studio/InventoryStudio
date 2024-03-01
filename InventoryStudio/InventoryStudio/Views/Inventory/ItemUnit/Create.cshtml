@@ -1,0 +1,79 @@
+﻿@model ItemUnitViewModel
+
+@{
+    ViewData["Title"] = "Unit of Measure";
+
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Create" method="post" id="createItemForm">
+        <div class="card">       
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                                             
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label asp-for="Name">Name</label>
+                                <input asp-for="Name" class="form-control" />
+                            </div>
+
+                        </div>
+
+                       
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label >Name</label>
+                                <input name="ItemUnits[0].Name" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="ItemUnits[0].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>IsBaseUnit</label>
+                                <input name="ItemUnits[0].IsBaseUnit" type="checkbox">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>IsActive</label>
+                                <input name="ItemUnits[0].IsActive" type="checkbox">
+                            </div>
+                        </div>
+                      
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label>Name</label>
+                                <input name="ItemUnits[1].Name" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="ItemUnits[1].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>IsBaseUnit</label>
+                                <input name="ItemUnits[1].IsBaseUnit" type="checkbox">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>IsActive</label>
+                                <input name="ItemUnits[1].IsActive" type="checkbox">
+                            </div>
+                        </div>
+                    </div>
+                  
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+

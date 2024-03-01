@@ -12,34 +12,64 @@ using System.ComponentModel.Design;
 
 namespace ISLibrary
 {
-    public class ItemUnit : BaseClass
+    public class ItemUnitType : BaseClass
     {
-        public string ItemUnitID { get; set; }
+        public string ItemUnitTypeID { get; set; }
         public bool IsNew
         {
-            get { return string.IsNullOrEmpty(ItemUnitID); }
+            get { return string.IsNullOrEmpty(ItemUnitTypeID); }
         }
         public string CompanyID { get; set; }
         public string ExternalID { get; set; }
-        public string ItemUnitTypeID { get; set; }
+        public string ItemID { get; set; }
         public string Name { get; set; }
-        public bool IsBaseUnit { get; set; }
-        public bool IsActive { get; set; }
-        public decimal Quantity { get; set; }
+        public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
+        private List<ItemUnit> mItemUnit = null;
+        public List<ItemUnit> ItemUnits
+        {
+            get
+            {
+                ItemUnitFilter objFilter = null;
 
-        public ItemUnit()
+                try
+                {
+                    if (mItemUnit == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ItemUnitTypeID))
+                    {
+                        objFilter = new ItemUnitFilter();
+                        objFilter.ItemUnitTypeID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.ItemUnitTypeID.SearchString = ItemUnitTypeID;
+                        mItemUnit = ItemUnit.GetItemUnits(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mItemUnit;
+            }
+            set
+            {
+                mItemUnit = value;
+            }
+        }
+
+        public ItemUnitType()
         {
         }
 
-        public ItemUnit( string Id)
+        public ItemUnitType( string Id)
         {
-            this.ItemUnitID = Id;
+            this.ItemUnitTypeID = Id;
             this.Load();
         }
 
-        public ItemUnit(DataRow objRow)
+        public ItemUnitType(DataRow objRow)
         {
             Load(objRow);
         }
@@ -52,8 +82,8 @@ namespace ISLibrary
             try
             {
                 strSQL = "SELECT * " +
-                         "FROM ItemUnit (NOLOCK) " +
-                         "WHERE ItemUnitID=" + Database.HandleQuote(ItemUnitID);
+                         "FROM ItemUnitType (NOLOCK) " +
+                         "WHERE ItemUnitTypeID=" + Database.HandleQuote(ItemUnitTypeID);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -61,7 +91,7 @@ namespace ISLibrary
                 }
                 else
                 {
-                    throw new Exception("ItemUnitID=" + ItemUnitID + " is not found");
+                    throw new Exception("ItemUnitTypeID=" + ItemUnitTypeID + " is not found");
                 }
             }
             catch (Exception ex)
@@ -83,19 +113,16 @@ namespace ISLibrary
             {
                 objColumns = objRow.Table.Columns;
 
-                if (objColumns.Contains("ItemUnitID")) ItemUnitID = Convert.ToString(objRow["ItemUnitID"]);
+                if (objColumns.Contains("ItemUnitTypeID")) ItemUnitTypeID = Convert.ToString(objRow["ItemUnitTypeID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
                 if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
-                if (objColumns.Contains("ItemUnitTypeID")) ItemUnitTypeID = Convert.ToString(objRow["ItemUnitTypeID"]);
+                if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
                 if (objColumns.Contains("Name")) Name = Convert.ToString(objRow["Name"]);
-                if (objColumns.Contains("IsBaseUnit")) IsBaseUnit = Convert.ToBoolean(objRow["IsBaseUnit"]);
-                if (objColumns.Contains("IsActive")) IsActive = Convert.ToBoolean(objRow["IsActive"]);
-                if (objColumns.Contains("Quantity")) Quantity = Convert.ToDecimal(objRow["Quantity"]);
-              
-
+                if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
+                    UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
-                if (string.IsNullOrEmpty(ItemUnitID)) throw new Exception("Missing AdjustmentID in the datarow");
+                if (string.IsNullOrEmpty(ItemUnitTypeID)) throw new Exception("Missing ItemUnitTypeID in the datarow");
             }
             catch (Exception ex)
             {
@@ -150,16 +177,31 @@ namespace ISLibrary
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ExternalID"] = ExternalID;
-                dicParam["ItemUnitTypeID"] = ItemUnitTypeID;
+                dicParam["ItemID"] = ItemID;
                 dicParam["Name"] = Name;
-                dicParam["IsBaseUnit"] = IsBaseUnit;
-                dicParam["IsActive"] = IsActive;
-                dicParam["Quantity"] = Quantity;
                 dicParam["CreatedBy"] = CreatedBy;
+                dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
 
-                ItemUnitID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemUnit"), objConn, objTran)
+                ItemUnitTypeID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ItemUnitType"), objConn, objTran)
                     .ToString();
+
+                if (ItemUnits != null)
+                {
+                    foreach (ItemUnit objItemUnit in ItemUnits)
+                    {
+                        if (objItemUnit.IsNew)
+                        {
+                            objItemUnit.ItemUnitTypeID = ItemUnitTypeID;
+                            objItemUnit.CompanyID = CompanyID;
+                            objItemUnit.CreatedBy = CreatedBy;
+                            objItemUnit.ParentKey = ItemUnitTypeID;
+                            objItemUnit.ParentObject = "ItemUnitType";
+                            objItemUnit.Create(objConn, objTran);
+                        }
+                    }
+                }
+
 
 
                 Load(objConn, objTran);
@@ -177,14 +219,14 @@ namespace ISLibrary
         }
 
 
-        public static ItemUnit GetItemUnit(string CompanyID, ItemUnitFilter Filter)
+        public static ItemUnitType GetItemUnitType(string CompanyID, ItemUnitTypeFilter Filter)
         {
-            List<ItemUnit> objAdjustments = null;
-            ItemUnit objReturn = null;
+            List<ItemUnitType> objAdjustments = null;
+            ItemUnitType objReturn = null;
 
             try
             {
-                objAdjustments = GetItemUnits(CompanyID, Filter);
+                objAdjustments = GetItemUnitTypes(CompanyID, Filter);
                 if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
             }
             catch (Exception ex)
@@ -199,29 +241,29 @@ namespace ISLibrary
             return objReturn;
         }
 
-        public static List<ItemUnit> GetItemUnits(string CompanyID)
+        public static List<ItemUnitType> GetItemUnitTypes(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetItemUnits(CompanyID, null, null, null, out intTotalCount);
+            return GetItemUnitTypes(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<ItemUnit> GetItemUnits(string CompanyID, ItemUnitFilter Filter)
+        public static List<ItemUnitType> GetItemUnitTypes(string CompanyID, ItemUnitTypeFilter Filter)
         {
             int intTotalCount = 0;
-            return GetItemUnits(CompanyID, Filter, null, null, out intTotalCount);
+            return GetItemUnitTypes(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<ItemUnit> GetItemUnits(string CompanyID, ItemUnitFilter Filter, int? PageSize,
+        public static List<ItemUnitType> GetItemUnitTypes(string CompanyID, ItemUnitTypeFilter Filter, int? PageSize,
             int? PageNumber, out int TotalRecord)
         {
-            return GetItemUnits(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetItemUnitTypes(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<ItemUnit> GetItemUnits(string CompanyID, ItemUnitFilter Filter,
+        public static List<ItemUnitType> GetItemUnitTypes(string CompanyID, ItemUnitTypeFilter Filter,
             string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<ItemUnit> objReturn = null;
-            ItemUnit objNew = null;
+            List<ItemUnitType> objReturn = null;
+            ItemUnitType objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -229,21 +271,21 @@ namespace ISLibrary
             {
                 TotalRecord = 0;
 
-                objReturn = new List<ItemUnit>();
+                objReturn = new List<ItemUnitType>();
 
                 strSQL = "SELECT * " +
-                         "FROM ItemUnit (NOLOCK) " +
+                         "FROM ItemUnitType (NOLOCK) " +
                          "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
                 if (Filter != null)
                 {
-                    if (Filter.ItemUnitTypeID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemUnitTypeID, "ItemUnitTypeID");
+                    if (Filter.ExternalID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ExternalID, "ExternalID");
                 }
 
                 if (PageSize != null && PageNumber != null)
                     strSQL = Database.GetPagingSQL(strSQL,
                         string.IsNullOrEmpty(SortExpression)
-                            ? "ItemUnitID"
-                            : Utility.CustomSorting.GetSortExpression(typeof(ItemUnit), SortExpression),
+                            ? "ItemUnitTypeID"
+                            : Utility.CustomSorting.GetSortExpression(typeof(ItemUnitType), SortExpression),
                         string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
@@ -251,7 +293,7 @@ namespace ISLibrary
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new ItemUnit(objData.Tables[0].Rows[i]);
+                        objNew = new ItemUnitType(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
@@ -270,7 +312,6 @@ namespace ISLibrary
 
             return objReturn;
         }
-
 
     }
 }
