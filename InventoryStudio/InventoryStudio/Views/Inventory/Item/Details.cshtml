@@ -127,7 +127,6 @@
                 <li class="nav-item">
                     <a class="nav-link" id="matrix-tab" data-bs-toggle="tab" href="#matrix-content" role="tab" aria-controls="matrix-content" aria-selected="false" style="display: none;">Matrix</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" id="system-tab" data-bs-toggle="tab" href="#audit-content" role="tab" aria-controls="audit-content" aria-selected="false">System</a>
                 </li>
@@ -282,7 +281,7 @@
 
             @await Html.PartialAsync("~/Views/Inventory/Item/_Matrix.cshtml", Model)
 
-            <div class="tab-pane border-0 p-0 m-0 bg-border-none fade" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
+            <div class="tab-pane border-0 p-0 m-0 bg-border-none fade w-100" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
                 @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)
             </div>
         </div>

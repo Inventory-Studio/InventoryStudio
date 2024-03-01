@@ -16,7 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
-    "Mgo+DSMBMAY9C3t2VlhhQlJCfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hSn9RdkRiXX9fcHVXQmZa");
+    "Mgo+DSMBMAY9C3t2UVhhQlVFfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hTX5QdkRjWnpdc3BRRGVV");
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -8,47 +8,27 @@
 <div class="bg-gray-200 py-2 px-3 rounded mb-4">
     <h6 class="mb-0">System Log</h6>
 </div>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Created On</th>
-                    <th>Type</th>
-                    <th>Username</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null)
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.CreatedOn.ToString("g")</td>
-                                <td>@item.Type</td>
-                                <td>@item.UserName</td> 
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#details_@item.AuditDataID">Details</button>
-                                    <div id="details_@item.AuditDataID" class="collapse">
-                                        <pre>@item.ChangedValue</pre>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
-<script>
-    $(document).ready(function () {
-        $('button[data-toggle="collapse"]').click(function () {
-            var targetId = $(this).attr('data-target');
-            $(targetId).collapse('toggle');
-        });
-    });
+<ejs-grid id="GridSystemAudit" dataSource="@Model" toolbarClick="systemAuditToolbarClick" detailTemplate="#detailTemplate" allowPaging="true" allowSorting="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+          allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "PdfExport", "ExcelExport" })">
+
+    <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
+    @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
+    <e-grid-columns>
+        <e-grid-column field="ChangedValue" visible="false" headerText="Changed Value" width="120"></e-grid-column>
+        <e-grid-column field="UserName" headerText="Username" width="120"></e-grid-column>
+        <e-grid-column field="Type" headerText="Type" width="120"></e-grid-column>
+        <e-grid-column field="CreatedOn" headerText="Created On" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
+    </e-grid-columns>
+</ejs-grid>
+
+
+<script type="text/x-template" id="detailTemplate">
+        <p class="my-4 mx-6">"${ChangedValue}"</p>
+</script>
+
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
+<!-- Javascript logic for datagrid -->
+<script lang="js">
+    const systemAuditToolbarClick = customExportToolbarClick("GridSystemAudit", `IS_Item_SystemAudit`);
 </script>
