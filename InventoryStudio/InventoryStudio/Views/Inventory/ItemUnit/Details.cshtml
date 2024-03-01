@@ -1,0 +1,74 @@
+﻿@model ItemUnitViewModel
+
+@{
+    ViewData["Title"] = "Unit of Measure";
+
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Create" method="post" id="createItemForm">
+        <div class="card">       
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                                             
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label asp-for="Name">Name</label>
+                                <input asp-for="Name" class="form-control" />
+                            </div>
+
+                        </div>
+
+                        <table class="table" id="itemKitTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
+                                    <th>
+                                        Base Unit
+                                    </th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ItemUnit in Model.ItemUnits)
+                                    {                                        
+                                        <tr>
+                                            <td>
+                                            @ItemUnit.Name
+                                                
+                                            </td>
+                                            <td>
+                                            @ItemUnit.Quantity
+                                            </td>
+                                        <td>@ItemUnit.IsBaseUnit</td>
+                                            <td>
+                                            @ItemUnit.IsActive
+                                            </td>
+                                        </tr>                                   
+                                    }
+                                
+                               
+                            </tbody>
+                        </table>
+                       
+                    </div>
+                  
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+
