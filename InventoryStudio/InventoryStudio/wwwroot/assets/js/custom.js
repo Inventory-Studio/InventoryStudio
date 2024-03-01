@@ -442,12 +442,12 @@ window.openFullscreen = function() {
 /* full screen */
 
 /* toggle switches */
-let customSwitch = document.querySelectorAll(".toggle");
-customSwitch.forEach((e) =>
-  e.addEventListener("click", () => {
-    e.classList.toggle("on");
-  })
-);
+// let customSwitch = document.querySelectorAll(".toggle");
+// customSwitch.forEach((e) =>
+//   e.addEventListener("click", () => {
+//     e.classList.toggle("on");
+//   })
+// );
 /* toggle switches */
 
 /* header dropdown close button */
