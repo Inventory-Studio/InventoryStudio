@@ -3,6 +3,8 @@ using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace InventoryStudio.Importer
@@ -26,53 +28,39 @@ namespace InventoryStudio.Importer
             importTemplateFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
             importTemplateFilter.ImportTemplateID.SearchString = importTemplateID;
             var importTemplateFields = ImportTemplateField.GetImportTemplateFields(companyId, importTemplateFilter);
-            var fieldMappings = importTemplateFields
-                .ToDictionary(f => f.SourceField, f => f.DestinationField);
-            int totalDataCount = datas.Count;
             int processedCount = 0;
-            var customers = new List<Customer>();
+            var importResult = new ImportResult
+            {
+                ImportTemplateID = importTemplateID,
+                UploadBy = userId,
+                UploadTime = DateTime.Now,
+                TotalRecords = datas.Count,
+            };
+            importResult.Create();
             foreach (var data in datas)
             {
                 var customer = new Customer();
                 foreach (var field in data)
                 {
-                    if (fieldMappings.ContainsKey(field.Key))
+                    if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
-                        var destinationField = fieldMappings[field.Key];
                         var property = typeof(Customer).GetProperty(destinationField);
                         if (property != null)
                         {
-                            if (destinationField == "Company")
+                            try
                             {
-                                CompanyFilter filter = new CompanyFilter();
-                                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.CompanyName.SearchString = field.Value;
-                                var companies = Company.GetCompanies(filter);
-                                if (companies != null)
-                                    property.SetValue(customer, companies.FirstOrDefault());
+                                await SetPropertyAsync(companyId, customer, field.Value, property);
                             }
-                            else if (destinationField == "Client")
+                            catch (Exception ex)
                             {
-                                ClientFilter filter = new ClientFilter();
-                                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.EmailAddress.SearchString = field.Value;
-                                var client = Client.GetClient(companyId, filter);
-                                if (client != null)
-                                    property.SetValue(customer, client);
-                            }
-                            else if (destinationField == "DefaultBillingAddress" || destinationField == "DefaultShippingAddress")
-                            {
-                                AddressFilter filter = new AddressFilter();
-                                filter.FullName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                                filter.FullName.SearchString = field.Value;
-                                var address = Address.GetAddress(companyId, filter);
-                                if (address != null)
-                                    property.SetValue(customer, address);
-                            }
-                            else
-                            {
-                                var value = Convert.ChangeType(field.Value, property.PropertyType);
-                                property.SetValue(customer, value);
+                                var failedRecord = new ImportFailedRecord
+                                {
+                                    ImportResultID = importResult.ImportResultID,
+                                    ErrorMessage = ex.Message,
+                                    FailedData = string.Join(",", data.Values)
+                                };
+                                failedRecord.Create();
+                                importResult.FailedRecords++;
                             }
                         }
                     }
@@ -80,8 +68,53 @@ namespace InventoryStudio.Importer
                 customer.CreatedBy = userId;
                 customer.Create();
                 processedCount++;
-                int progress = (int)((processedCount / (double)totalDataCount) * 100);
+                importResult.SuccessfulRecords++;
+                int progress = (int)((processedCount / (double)importResult.TotalRecords) * 100);
                 progressHandler?.Invoke(progress, importTemplateID);
+            }
+            importResult.Update();
+        }
+
+        private bool TryGetDestinationField(string sourceField, List<ImportTemplateField> importTemplateFields, out string destinationField)
+        {
+            var field = importTemplateFields.FirstOrDefault(f => f.SourceField == sourceField);
+            destinationField = field?.DestinationField;
+            return field != null;
+        }
+
+        private async System.Threading.Tasks.Task SetPropertyAsync(string companyId, Customer customer, string value, PropertyInfo property)
+        {
+            if (property.PropertyType == typeof(Company))
+            {
+                CompanyFilter filter = new CompanyFilter();
+                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.CompanyName.SearchString = value;
+                var companies = Company.GetCompanies(filter);
+                if (companies != null)
+                    property.SetValue(customer, companies.FirstOrDefault());
+            }
+            else if (property.PropertyType == typeof(Client))
+            {
+                ClientFilter filter = new ClientFilter();
+                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.EmailAddress.SearchString = value;
+                var client = Client.GetClient(companyId, filter);
+                if (client != null)
+                    property.SetValue(customer, client);
+            }
+            else if (property.PropertyType == typeof(Address) && (property.Name == "DefaultBillingAddress" || property.Name == "DefaultShippingAddress"))
+            {
+                AddressFilter filter = new AddressFilter();
+                filter.FullName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.FullName.SearchString = value;
+                var address = Address.GetAddress(companyId, filter);
+                if (address != null)
+                    property.SetValue(customer, address);
+            }
+            else
+            {
+                var convertedValue = Convert.ChangeType(value, property.PropertyType);
+                property.SetValue(customer, convertedValue);
             }
         }
     }

@@ -32,8 +32,11 @@ namespace ISLibrary.ImportTemplateManagement
         [DisplayName("Upload By")]
         public string UploadBy { get; set; }
 
-        [DisplayName("Upload On")]
-        public DateTime UploadOn { get; set; }
+        [DisplayName("Upload Time")]
+        public DateTime UploadTime { get; set; }
+
+        [DisplayName("Completion Time")]
+        public DateTime? CompletionTime { get; set; }
 
         public ImportResult()
         {
@@ -63,7 +66,9 @@ namespace ISLibrary.ImportTemplateManagement
                 if (objColumns.Contains("SuccessfulRecords")) SuccessfulRecords = Convert.ToInt32(objRow["SuccessfulRecords"]);
                 if (objColumns.Contains("FailedRecords")) FailedRecords = Convert.ToInt32(objRow["FailedRecords"]);
                 if (objColumns.Contains("UpdatedBy")) UploadBy = Convert.ToString(objRow["UpdatedBy"]);
-                if (objColumns.Contains("UpdatedOn")) UploadOn = Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("UploadTime")) UploadTime = Convert.ToDateTime(objRow["UploadTime"]);
+                if (objColumns.Contains("CompletionTime") && objRow["CompletionTime"] != DBNull.Value)
+                    CompletionTime = Convert.ToDateTime(objRow["CompletionTime"]);
             }
             catch (Exception ex)
             {
@@ -146,10 +151,9 @@ namespace ISLibrary.ImportTemplateManagement
                 dicParam["TotalRecords"] = TotalRecords;
                 dicParam["SuccessfulRecords"] = SuccessfulRecords;
                 dicParam["FailedRecords"] = FailedRecords;
-                dicParam["FailedRecords"] = FailedRecords;
                 dicParam["UploadBy"] = UploadBy;
-                dicParam["UploadOn"] = DateTime.Now;
-                ImportResultID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Vendor"), objConn, objTran).ToString();
+                dicParam["UploadTime"] = DateTime.Now;
+                ImportResultID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportResult"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -161,6 +165,69 @@ namespace ISLibrary.ImportTemplateManagement
                 dicParam = null;
             }
             LogAuditData(enumActionType.Create);
+            return true;
+        }
+
+        public override bool Update()
+        {
+            SqlConnection objConn = null;
+            SqlTransaction objTran = null;
+
+            try
+            {
+                objConn = new SqlConnection(Database.DefaultConnectionString);
+                objConn.Open();
+                objTran = objConn.BeginTransaction();
+                Update(objConn, objTran);
+                objTran.Commit();
+            }
+            catch (Exception ex)
+            {
+                if (objTran != null && objTran.Connection != null) objTran.Rollback();
+                throw ex;
+            }
+            finally
+            {
+                if (objTran != null) objTran.Dispose();
+                objTran = null;
+                if (objConn != null) objConn.Dispose();
+                objConn = null;
+            }
+
+            return true;
+        }
+
+        public override bool Update(SqlConnection objConn, SqlTransaction objTran)
+        {
+            base.Update();
+
+            Hashtable dicParam = new Hashtable();
+            Hashtable dicWParam = new Hashtable();
+            try
+            {
+
+                if (string.IsNullOrEmpty(ImportResultID)) throw new Exception("ImportResultID is required");
+                if (IsNew) throw new Exception("Update cannot be performed on a new record.");
+                dicParam["TotalRecords"] = TotalRecords;
+                dicParam["SuccessfulRecords"] = SuccessfulRecords;
+                dicParam["FailedRecords"] = FailedRecords;
+                dicParam["CompletionTime"] = DateTime.Now;
+                dicWParam["ImportResultID"] = ImportResultID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "ImportResult"), objConn, objTran);
+                Load(objConn, objTran);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                dicParam = null;
+                dicWParam = null;
+            }
+
+
+            LogAuditData(enumActionType.Update);
             return true;
         }
 

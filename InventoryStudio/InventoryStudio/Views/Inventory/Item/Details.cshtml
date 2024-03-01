@@ -134,7 +134,7 @@
             </ul>
             <div class="hstack mt-4 mt-md-0 btn-list gap-2">
                 <a asp-controller="Item" asp-action="Edit" asp-route-id="@Model.Item.ItemID" type="button" class="btn btn-sm btn-primary btn-wave hstack align-items-center mb-0" aria-label="Create item button">
-                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Edit Item 
+                    <i class="bi-person-plus-fill me-2 align-middle d-inline-block fs-16"></i>Edit Item
                 </a>
                 <a asp-controller="Item" asp-action="Index" type="button" class="btn btn-sm btn-light btn-wave hstack align-items-center mb-0" aria-label="back to list button">
                     Back to List
@@ -149,7 +149,7 @@
                 <div class="bg-gray-200 py-2 px-3 rounded mb-4">
                     <h6 class="mb-0">Details</h6>
                 </div>
-                <div class="row">
+                <div class="row px-4">
                     <div class="d-flex flex-column col-md-4">
                         <label class="form-label">@Html.DisplayNameFor(model => model.Item.ItemType)</label>
                         @if (Model.Item.ItemType != null)
@@ -187,7 +187,7 @@
                         <div class="d-flex flex-column col-md-4">
                             <label class="form-label">@Html.DisplayNameFor(model => model.Item.FulfillByKit)</label>
                             <p>@Model.Item.FulfillByKit</p>
-                        </div>
+                       </div>
 
                         <div class="d-flex flex-column col-md-4">
                             <label class="form-label">@Html.DisplayNameFor(model => model.Item.ReceiveByKit)</label>
@@ -199,7 +199,7 @@
                 <div class="bg-gray-200 py-2 px-3 rounded my-4">
                     <h6 class="mb-0">International Details</h6>
                 </div>
-                <div class="row">
+                <div class="row px-4">
                     <div class="d-flex flex-column col-md-4">
                         <label class="form-label">@Html.DisplayNameFor(model => model.Item.HSCode)</label>
                         <p>@Model.Item.HSCode</p>
@@ -219,7 +219,7 @@
                 <div class="bg-gray-200 py-2 px-3 rounded my-4">
                     <h6 class="mb-0">Dimensions</h6>
                 </div>
-                <div class="row">
+                <div class="row px-4">
                     <div class="d-flex flex-column col-md-4">
                         <label class="form-label">@Html.DisplayNameFor(model => model.Item.PackageLength)</label>
                         <p>@Model.Item.PackageLength</p>
@@ -253,7 +253,7 @@
                 <div class="bg-gray-200 py-2 px-3 rounded my-4">
                     <h6 class="mb-0">Description</h6>
                 </div>
-                <div class="row">
+                <div class="row px-4">
                     <div class="d-flex flex-column col-md-4">
                         <label class="form-label">@Html.DisplayNameFor(model => model.Item.SalesDescription)</label>
                         <p>@Model.Item.SalesDescription</p>
@@ -280,7 +280,7 @@
 
             @await Html.PartialAsync("~/Views/Inventory/Item/_Kit.cshtml", Model)
 
-                @await Html.PartialAsync("~/Views/Inventory/Item/_Matrix.cshtml", Model)
+            @await Html.PartialAsync("~/Views/Inventory/Item/_Matrix.cshtml", Model)
 
             <div class="tab-pane border-0 p-0 m-0 bg-border-none fade" id="audit-content" role="tabpanel" aria-labelledby="system-tab">
                 @await Html.PartialAsync("~/Views/System/AuditData/_Index.cshtml", Model.AuditDataList)

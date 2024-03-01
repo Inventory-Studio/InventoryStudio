@@ -187,6 +187,7 @@ namespace InventoryStudio.Controllers
                 var itemParent = new ItemParent(organizationClaim.Value, item.ItemParentID);
                 var auditDataList = AuditData.GetAuditDatas("Item", id);
 
+                itemDetailsViewModel.IsDetails = true;
                 itemDetailsViewModel.Item = item;
                 itemDetailsViewModel.ItemParent = itemParent;
                 itemDetailsViewModel.ItemAttributes = itemParent.ItemAttributes;

@@ -16,5 +16,7 @@ namespace InventoryStudio.Models
         public List<ItemMatrix> ItemMatrices { get; set; } 
         [ValidateNever]
         public List<AuditData>? AuditDataList { get; set; }
+        
+        public bool IsDetails { get; set; }
     }
 }
