@@ -121,7 +121,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("ShippingTaxAmount") && objRow["ShippingTaxAmount"] != DBNull.Value) ShippingTaxAmount = Convert.ToDecimal(objRow["ShippingTaxAmount"]);
                 if (objColumns.Contains("ItemTaxAmount") && objRow["ItemTaxAmount"] != DBNull.Value) ItemTaxAmount = Convert.ToDecimal(objRow["ItemTaxAmount"]);
                 if (objColumns.Contains("DiscountAmount") && objRow["DiscountAmount"] != DBNull.Value) DiscountAmount = Convert.ToDecimal(objRow["DiscountAmount"]);
-                if (objColumns.Contains("SalesSource")) PONumber = Convert.ToString(objRow["SalesSource"]);
+                if (objColumns.Contains("SalesSource")) SalesSource = Convert.ToString(objRow["SalesSource"]);
                 if (objColumns.Contains("ShippingMethod")) ShippingMethod = Convert.ToString(objRow["ShippingMethod"]);
                 if (objColumns.Contains("ShippingCarrier")) ShippingCarrier = Convert.ToString(objRow["ShippingCarrier"]);
                 if (objColumns.Contains("ShippingPackage")) ShippingPackage = Convert.ToString(objRow["ShippingPackage"]);
@@ -187,7 +187,7 @@ namespace ISLibrary.OrderManagement
             {
                 objData = null;
             }
-           
+
         }
 
 
@@ -374,7 +374,7 @@ namespace ISLibrary.OrderManagement
                 dicParam = null;
                 dicWParam = null;
             }
-           
+
             LogAuditData(enumActionType.Update);
             return true;
         }
