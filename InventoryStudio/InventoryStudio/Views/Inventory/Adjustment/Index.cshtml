@@ -31,9 +31,9 @@
                     <e-grid-column visible="false" field="AdjustmentID" headerText="AdjustmentID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
-                    <e-grid-column field="Memo" headerText="Memo"></e-grid-column>
-                    <e-grid-column field="TranDate" headerText="TranDate"></e-grid-column>
-                    <e-grid-column field="CreatedOn" headerText="CreatedOn"></e-grid-column>
+                    <e-grid-column field="Memo" headerText="Memo" width="120"></e-grid-column>
+                    <e-grid-column field="TranDate" headerText="TranDate" width="120"></e-grid-column>
+                    <e-grid-column field="CreatedOn" headerText="CreatedOn" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
                     <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
