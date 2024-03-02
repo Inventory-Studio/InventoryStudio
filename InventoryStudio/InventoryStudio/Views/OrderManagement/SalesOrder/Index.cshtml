@@ -32,6 +32,7 @@
                     <e-grid-column visible="false" field="SalesOrderID" headerText="ID" type="int" isPrimaryKey="true"
                                    validationRules="@(new { number = true })" width="80">
                     </e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                     <e-grid-column field="PONumber" headerText="PO Number" width="120"></e-grid-column>
                     <e-grid-column field="TranDate" headerText="Transaction Date" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
                     <e-grid-column field="ShippingAmount" headerText="Shipping Amount" width="120"></e-grid-column>
@@ -53,7 +54,6 @@
                     <e-grid-column field="GiftMessage" headerText="Gift Message" width="120"></e-grid-column>
                     <e-grid-column field="LabelMessage" headerText="Label Message" width="120"></e-grid-column>
                     <e-grid-column field="ReferenceNumber" headerText="Reference Number" width="120"></e-grid-column>
-                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
         </div>
