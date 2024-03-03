@@ -1,0 +1,70 @@
+﻿@model IEnumerable<InventoryStudio.Models.ImportResults.ImportResultViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ImportTemplate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalRecords)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SuccessfulRecords)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FailedRecords)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompletionTime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ImportTemplate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalRecords)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SuccessfulRecords)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FailedRecords)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UploadBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UploadTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompletionTime)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ImportResultID">Details</a> |
+                    <a asp-action="DownLoad" asp-route-id="@item.ImportResultID" asp-route-type=".csv">Csv</a> |
+                    <a asp-action="DownLoad" asp-route-id="@item.ImportResultID" asp-route-type=".xlsx">Excel</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

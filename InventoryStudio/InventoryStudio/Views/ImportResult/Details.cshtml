@@ -1,0 +1,91 @@
+﻿@model InventoryStudio.Models.ImportResults.ImportResultViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>ImportResult</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ImportTemplate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ImportTemplate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalRecords)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TotalRecords)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SuccessfulRecords)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SuccessfulRecords)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FailedRecords)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FailedRecords)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UploadBy)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UploadBy)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UploadTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UploadTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CompletionTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CompletionTime)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <h4>ImportFailedRecords</h4>
+    <hr />
+    <div style="overflow-x: auto;">
+        <table class="table table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th style="max-width: 200px;">
+                        @Html.DisplayNameFor(model => model.ImportFailedRecords[0].ErrorMessage)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ImportFailedRecords[0].FailedData)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var importFailedRecord in Model.ImportFailedRecords)
+                {
+                    <tr>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                            @Html.DisplayFor(model => importFailedRecord.ErrorMessage)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => importFailedRecord.FailedData)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

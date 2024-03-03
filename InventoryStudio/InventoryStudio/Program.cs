@@ -27,6 +27,7 @@ builder.Services.AddTransient<IFileParser, CsvFileParser>();
 builder.Services.AddSingleton<IFileParserFactory, FileParserFactory>();
 builder.Services.AddScoped<CustomerImporter>();
 builder.Services.AddScoped<VendorImporter>();
+builder.Services.AddScoped<ExportService>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
