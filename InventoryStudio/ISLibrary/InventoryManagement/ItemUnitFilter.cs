@@ -7,8 +7,10 @@ using CLRFramework;
 
 namespace ISLibrary
 {
-    public  class ItemUnitFilter
+    public class ItemUnitFilter
     {
         public Database.Filter.StringSearch.SearchFilter ItemUnitTypeID { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter Name { get; set; }
     }
 }

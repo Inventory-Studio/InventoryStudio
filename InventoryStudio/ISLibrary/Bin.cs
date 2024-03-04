@@ -7,32 +7,27 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ISLibrary
 {
-    public class Vendor : BaseClass
+    public class Bin : BaseClass
     {
-        public string VendorID { get; set; }
+        public string BinID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(VendorID); } }
+        public bool IsNew { get { return string.IsNullOrEmpty(BinID); } }
 
         public string CompanyID { get; set; }
 
-        public string? ClientID { get; set; }
+        public string LocationID { get; set; }
 
-        public string? VendorNumber { get; set; }
+        public string BinNumber { get; set; } = null!;
 
-        public string? ExternalID { get; set; }
+        public bool IsLocked { get; set; }
 
-        public string? CompanyName { get; set; }
-
-        public string? FirstName { get; set; }
-
-        public string? LastName { get; set; }
-
-        public string? EmailAddress { get; set; }
+        public bool AllowNegativeInventory { get; set; }
 
         [DisplayName("Updated By")]
         public string? UpdatedBy { get; set; }
@@ -46,25 +41,25 @@ namespace ISLibrary
         [DisplayName("Created On")]
         public DateTime CreatedOn { get; set; }
 
-        public Vendor()
+        public Bin()
         {
 
         }
 
-        public Vendor(string CompanyID)
+        public Bin(string CompanyID)
         {
             this.CompanyID = CompanyID;
             Load();
         }
 
-        public Vendor(string CompanyID, string VendorID)
+        public Bin(string CompanyID, string BinID)
         {
             this.CompanyID = CompanyID;
-            this.VendorID = VendorID;
+            this.BinID = BinID;
             Load();
         }
 
-        public Vendor(DataRow row)
+        public Bin(DataRow row)
         {
             Load(row);
         }
@@ -75,15 +70,12 @@ namespace ISLibrary
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("VendorID")) VendorID = Convert.ToString(objRow["VendorID"]);
+                if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ClientID")) ClientID = Convert.ToString(objRow["ClientID"]);
-                if (objColumns.Contains("VendorNumber")) VendorNumber = Convert.ToString(objRow["VendorNumber"]);
-                if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
-                if (objColumns.Contains("CompanyName")) CompanyName = Convert.ToString(objRow["CompanyName"]);
-                if (objColumns.Contains("FirstName")) FirstName = Convert.ToString(objRow["FirstName"]);
-                if (objColumns.Contains("LastName")) LastName = Convert.ToString(objRow["LastName"]);
-                if (objColumns.Contains("EmailAddress")) EmailAddress = Convert.ToString(objRow["EmailAddress"]);
+                if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
+                if (objColumns.Contains("BinNumber")) BinNumber = Convert.ToString(objRow["BinNumber"]);
+                if (objColumns.Contains("IsLocked")) IsLocked = Convert.ToBoolean(objRow["IsLocked"]);
+                if (objColumns.Contains("AllowNegativeInventory")) AllowNegativeInventory = Convert.ToBoolean(objRow["AllowNegativeInventory"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
@@ -100,16 +92,17 @@ namespace ISLibrary
             base.Load();
         }
 
+
         protected override void Load()
         {
             DataSet objData = null;
             string strSQL = string.Empty;
             try
             {
-                strSQL = "SELECT v.* " +
-                         "FROM Vendor v (NOLOCK) " +
-                         "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND v.VendorID = " + Database.HandleQuote(VendorID);
+                strSQL = "SELECT b.* " +
+                         "FROM Bin b (NOLOCK) " +
+                         "WHERE b.CompanyID=" + Database.HandleQuote(CompanyID) +
+                         "AND b.BinID = " + Database.HandleQuote(BinID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -118,7 +111,7 @@ namespace ISLibrary
                 }
                 else
                 {
-                    throw new Exception("Vendor is not found");
+                    throw new Exception("Bin is not found");
                 }
             }
             catch (Exception ex)
@@ -166,20 +159,19 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
+                if (string.IsNullOrEmpty(LocationID)) throw new Exception("LocationID is required");
+                if (string.IsNullOrEmpty(BinNumber)) throw new Exception("BinNumber is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, CustomerID already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, BinID already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
-                dicParam["VendorNumber"] = VendorNumber;
-                dicParam["ExternalID"] = ExternalID;
-                dicParam["CompanyName"] = CompanyName;
-                dicParam["FirstName"] = FirstName;
-                dicParam["LastName"] = LastName;
-                dicParam["EmailAddress"] = EmailAddress;
+                dicParam["LocationID"] = LocationID;
+                dicParam["BinNumber"] = BinNumber;
+                dicParam["IsLocked"] = IsLocked;
+                dicParam["AllowNegativeInventory"] = AllowNegativeInventory;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
-                VendorID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Vendor"), objConn, objTran).ToString();
+                BinID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "Bin"), objConn, objTran).ToString();
 
                 Load(objConn, objTran);
             }
@@ -231,21 +223,20 @@ namespace ISLibrary
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
+                if (string.IsNullOrEmpty(LocationID)) throw new Exception("LocationID is required");
+                if (string.IsNullOrEmpty(BinNumber)) throw new Exception("BinNumber is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
-                if (IsNew) throw new Exception("Create cannot be performed, CustomerID already exists");
+                if (IsNew) throw new Exception("Create cannot be performed, BinID already exists");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["ClientID"] = ClientID;
-                dicParam["VendorNumber"] = VendorNumber;
-                dicParam["ExternalID"] = ExternalID;
-                dicParam["CompanyName"] = CompanyName;
-                dicParam["FirstName"] = FirstName;
-                dicParam["LastName"] = LastName;
-                dicParam["EmailAddress"] = EmailAddress;
+                dicParam["LocationID"] = LocationID;
+                dicParam["BinNumber"] = BinNumber;
+                dicParam["IsLocked"] = IsLocked;
+                dicParam["AllowNegativeInventory"] = AllowNegativeInventory;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
-                dicWParam["VendorID"] = VendorID;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "Vendor"), objConn, objTran);
+                dicWParam["BinID"] = BinID;
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "Bin"), objConn, objTran);
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -296,9 +287,9 @@ namespace ISLibrary
             Hashtable dicDParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(VendorID)) throw new Exception("Delete cannot be performed, CustomerID is missing");
-                dicDParam["VendorID"] = VendorID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "Vendor"), objConn, objTran);
+                if (string.IsNullOrEmpty(BinID)) throw new Exception("Delete cannot be performed, CustomerID is missing");
+                dicDParam["BinID"] = BinID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "Bin"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -315,58 +306,56 @@ namespace ISLibrary
         private bool ObjectAlreadyExists()
         {
             string strSQL = string.Empty;
-            strSQL = "SELECT TOP 1 c.* " +
-                     "FROM Vendor (NOLOCK) v " +
-                     "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND v.VendorID=" + Database.HandleQuote(VendorID);
+            strSQL = "SELECT TOP 1 b.* " +
+                     "FROM Bin (NOLOCK) b " +
+                     "WHERE b.CompanyID=" + Database.HandleQuote(CompanyID) +
+                     "AND b.BinNumber=" + Database.HandleQuote(BinNumber);
             return Database.HasRows(strSQL);
         }
 
-
-        public static List<Vendor> GetVendors(string CompanyID)
+        public static List<Bin> GetBins(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetVendors(CompanyID, null, null, null, out intTotalCount);
+            return GetBins(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<Vendor> GetVendors(string CompanyID, VendorFilter Filter)
+        public static List<Bin> GetBins(string CompanyID, BinFilter Filter)
         {
             int intTotalCount = 0;
-            return GetVendors(CompanyID, Filter, null, null, out intTotalCount);
+            return GetBins(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<Vendor> GetVendors(string CompanyID, VendorFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Bin> GetBins(string CompanyID, BinFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetVendors(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetBins(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<Vendor> GetVendors(string CompanyID, VendorFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<Bin> GetBins(string CompanyID, BinFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<Vendor> objReturn = null;
-            Vendor objNew = null;
+            List<Bin> objReturn = null;
+            Bin objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
             try
             {
                 TotalRecord = 0;
-                objReturn = new List<Vendor>();
-                strSQL = "SELECT v.* " +
-                                         "FROM Vendor (NOLOCK) v " +
-                                         "WHERE v.CompanyID=" + Database.HandleQuote(CompanyID);
+                objReturn = new List<Bin>();
+                strSQL = "SELECT b.* " +
+                                         "FROM Bin (NOLOCK) b " +
+                                         "WHERE b.CompanyID=" + Database.HandleQuote(CompanyID);
                 if (Filter != null)
                 {
-                    if (Filter.VendorID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.VendorID, "v.VendorID");
-                    if (Filter.VendorNumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.VendorNumber, "v.VendorNumber");
-                    if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "v.CreatedBy");
+                    if (Filter.BinID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinID, "b.BinID");
+                    if (Filter.BinNumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinNumber, "b.BinNumber");
                 }
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "VendorID" : Utility.CustomSorting.GetSortExpression(typeof(Vendor), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "BinID" : Utility.CustomSorting.GetSortExpression(typeof(Bin), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new Vendor(objData.Tables[0].Rows[i]);
+                        objNew = new Bin(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
