@@ -33,7 +33,7 @@ namespace ISLibrary
         {
         }
 
-        public ItemUnit( string Id)
+        public ItemUnit(string Id)
         {
             this.ItemUnitID = Id;
             this.Load();
@@ -72,7 +72,7 @@ namespace ISLibrary
             {
                 objData = null;
             }
-           
+
         }
 
         private void Load(DataRow objRow)
@@ -91,7 +91,7 @@ namespace ISLibrary
                 if (objColumns.Contains("IsBaseUnit")) IsBaseUnit = Convert.ToBoolean(objRow["IsBaseUnit"]);
                 if (objColumns.Contains("IsActive")) IsActive = Convert.ToBoolean(objRow["IsActive"]);
                 if (objColumns.Contains("Quantity")) Quantity = Convert.ToDecimal(objRow["Quantity"]);
-              
+
 
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
@@ -237,6 +237,7 @@ namespace ISLibrary
                 if (Filter != null)
                 {
                     if (Filter.ItemUnitTypeID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemUnitTypeID, "ItemUnitTypeID");
+                    if (Filter.Name != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Name, "Name");
                 }
 
                 if (PageSize != null && PageNumber != null)
