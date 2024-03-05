@@ -12,39 +12,38 @@ using System.ComponentModel.Design;
 
 namespace ISLibrary
 {
-    public class AdjustmentLineDetail : BaseClass
+    public class TransferLineDetail : BaseClass
     {
-        public string AdjustmentLineDetailID { get; set; }
+        public string TransferLineDetailID { get; set; }
         public bool IsNew
         {
-            get { return string.IsNullOrEmpty(AdjustmentLineDetailID); }
+            get { return string.IsNullOrEmpty(TransferLineDetailID); }
         }
         public string CompanyID { get; set; }
-        public string AdjustmentLineID { get; set; }
-        public string BinID { get; set; }
+        public string TransferLineID { get; set; }
+        public string FromBinID { get; set; }
+        public string ToBinID { get; set; }
         public int Quantity { get; set; }
         public int? ItemUnitID { get; set; }
-        public decimal BaseQuantity { get; set; }
-        public string InventoryID { get; set; }
-        //public string CartonNumber { get; set; }
-        //public string VendorCartonNumber { get; set; }
+        public decimal BaseQuantity { get; set; }   
         public string InventoryNumber { get; set; }
+        public string Type { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
-
-        public AdjustmentLineDetail()
+ 
+        public TransferLineDetail()
         {
         }
 
-        public AdjustmentLineDetail( /*string CompanyID,*/ string Id)
+        public TransferLineDetail( /*string CompanyID,*/ string Id)
         {
             //this.CompanyID = CompanyID;
-            this.AdjustmentLineDetailID = AdjustmentLineDetailID;
+            this.TransferLineDetailID = TransferLineDetailID;
             this.Load();
         }
 
-        public AdjustmentLineDetail(DataRow objRow)
+        public TransferLineDetail(DataRow objRow)
         {
             Load(objRow);
         }
@@ -57,8 +56,8 @@ namespace ISLibrary
             try
             {
                 strSQL = "SELECT * " +
-                         "FROM AdjustmentLineDetail (NOLOCK) " +
-                         "WHERE AdjustmentLineDetailID=" + Database.HandleQuote(AdjustmentLineDetailID);
+                         "FROM TransferLineDetail (NOLOCK) " +
+                         "WHERE TransferLineDetailID=" + Database.HandleQuote(TransferLineDetailID);
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
@@ -66,7 +65,7 @@ namespace ISLibrary
                 }
                 else
                 {
-                    throw new Exception("AdjustmentLineDetailID=" + AdjustmentLineDetailID + " is not found");
+                    throw new Exception("TransferLineDetailID=" + TransferLineDetailID + " is not found");
                 }
             }
             catch (Exception ex)
@@ -88,19 +87,19 @@ namespace ISLibrary
             {
                 objColumns = objRow.Table.Columns;
 
-                if (objColumns.Contains("AdjustmentLineDetailID")) AdjustmentLineDetailID = Convert.ToString(objRow["AdjustmentLineDetailID"]);
+                if (objColumns.Contains("TransferLineDetailID")) TransferLineDetailID = Convert.ToString(objRow["TransferLineDetailID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("AdjustmentLineID")) AdjustmentLineID = Convert.ToString(objRow["AdjustmentLineID"]);
-                if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
+                if (objColumns.Contains("TransferLineID")) TransferLineID = Convert.ToString(objRow["TransferLineID"]);
+                if (objColumns.Contains("FromBinID")) FromBinID = Convert.ToString(objRow["FromBinID"]);
+                if (objColumns.Contains("ToBinID")) ToBinID = Convert.ToString(objRow["ToBinID"]);
                 if (objColumns.Contains("Quantity")) Quantity = Convert.ToInt16(objRow["Quantity"]);
                 if (objColumns.Contains("BaseQuantity")) BaseQuantity = Convert.ToDecimal(objRow["BaseQuantity"]);
-                if (objColumns.Contains("InventoryID")) InventoryID = Convert.ToString(objRow["InventoryID"]);
                 if (objColumns.Contains("InventoryNumber")) InventoryNumber = Convert.ToString(objRow["InventoryNumber"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
                     UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
-                if (string.IsNullOrEmpty(AdjustmentLineDetailID)) throw new Exception("Missing AdjustmentLineDetailID in the datarow");
+                if (string.IsNullOrEmpty(TransferLineDetailID)) throw new Exception("Missing TransferLineDetailID in the datarow");
             }
             catch (Exception ex)
             {
@@ -151,22 +150,22 @@ namespace ISLibrary
 
             try
             {
-                if (!IsNew) throw new Exception("Create cannot be performed, AdjustmentLineDetailID already exists");
+                if (!IsNew) throw new Exception("Create cannot be performed, TransferLineDetailID already exists");
 
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["AdjustmentLineID"] = AdjustmentLineID;
-                dicParam["BinID"] = BinID;
+                dicParam["TransferLineID"] = TransferLineID;
+                dicParam["FromBinID"] = FromBinID;
+                dicParam["ToBinID"] = ToBinID;
                 dicParam["Quantity"] = Quantity;
                 dicParam["ItemUnitID"] = ItemUnitID;
                 dicParam["BaseQuantity"] = BaseQuantity;
-                dicParam["InventoryID"] = InventoryID;
                 dicParam["InventoryNumber"] = InventoryNumber;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
 
-                AdjustmentLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "AdjustmentLineDetail"), objConn, objTran)
+                TransferLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "TransferLineDetail"), objConn, objTran)
                     .ToString();
 
 
@@ -185,14 +184,14 @@ namespace ISLibrary
         }
 
 
-        public static AdjustmentLineDetail GetAdjustmentLineDetail(string CompanyID, AdjustmentLineDetailFilter Filter)
+        public static TransferLineDetail GetTransferLineDetail(string CompanyID, TransferLineDetailFilter Filter)
         {
-            List<AdjustmentLineDetail> objAdjustments = null;
-            AdjustmentLineDetail objReturn = null;
+            List<TransferLineDetail> objAdjustments = null;
+            TransferLineDetail objReturn = null;
 
             try
             {
-                objAdjustments = GetAdjustmentLineDetails(CompanyID, Filter);
+                objAdjustments = GetTransferLineDetails(CompanyID, Filter);
                 if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
             }
             catch (Exception ex)
@@ -207,29 +206,29 @@ namespace ISLibrary
             return objReturn;
         }
 
-        public static List<AdjustmentLineDetail> GetAdjustmentLineDetails(string CompanyID)
+        public static List<TransferLineDetail> GetTransferLineDetails(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetAdjustmentLineDetails(CompanyID, null, null, null, out intTotalCount);
+            return GetTransferLineDetails(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<AdjustmentLineDetail> GetAdjustmentLineDetails(string CompanyID, AdjustmentLineDetailFilter Filter)
+        public static List<TransferLineDetail> GetTransferLineDetails(string CompanyID, TransferLineDetailFilter Filter)
         {
             int intTotalCount = 0;
-            return GetAdjustmentLineDetails(CompanyID, Filter, null, null, out intTotalCount);
+            return GetTransferLineDetails(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<AdjustmentLineDetail> GetAdjustmentLineDetails(string CompanyID, AdjustmentLineDetailFilter Filter, int? PageSize,
+        public static List<TransferLineDetail> GetTransferLineDetails(string CompanyID, TransferLineDetailFilter Filter, int? PageSize,
             int? PageNumber, out int TotalRecord)
         {
-            return GetAdjustmentLineDetails(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetTransferLineDetails(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<AdjustmentLineDetail> GetAdjustmentLineDetails(string CompanyID, AdjustmentLineDetailFilter Filter,
+        public static List<TransferLineDetail> GetTransferLineDetails(string CompanyID, TransferLineDetailFilter Filter,
             string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<AdjustmentLineDetail> objReturn = null;
-            AdjustmentLineDetail objNew = null;
+            List<TransferLineDetail> objReturn = null;
+            TransferLineDetail objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -237,21 +236,21 @@ namespace ISLibrary
             {
                 TotalRecord = 0;
 
-                objReturn = new List<AdjustmentLineDetail>();
+                objReturn = new List<TransferLineDetail>();
 
                 strSQL = "SELECT * " +
-                         "FROM AdjustmentLineDetail (NOLOCK) " +
+                         "FROM TransferLineDetail (NOLOCK) " +
                          "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
                 if (Filter != null)
                 {
-                    if (Filter.AdjustmentLineID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.AdjustmentLineID, "AdjustmentLineID");
+                    if (Filter.TransferLineID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.TransferLineID, "TransferLineID");
                 }
 
                 if (PageSize != null && PageNumber != null)
                     strSQL = Database.GetPagingSQL(strSQL,
                         string.IsNullOrEmpty(SortExpression)
-                            ? "AdjustmentLineDetailID"
-                            : Utility.CustomSorting.GetSortExpression(typeof(AdjustmentLineDetail), SortExpression),
+                            ? "TransferLineDetailID"
+                            : Utility.CustomSorting.GetSortExpression(typeof(TransferLineDetail), SortExpression),
                         string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
@@ -259,7 +258,7 @@ namespace ISLibrary
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new AdjustmentLineDetail(objData.Tables[0].Rows[i]);
+                        objNew = new TransferLineDetail(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }

@@ -256,9 +256,9 @@ namespace ISLibrary
                     DefaultInventory.CompanyID = CompanyID;
                     DefaultInventory.ItemID = ItemID;
                     DefaultInventory.LocationID = LocationID;
-                    DefaultInventory.Available = Quantity;
+                    DefaultInventory.Available = decBaseQuantity;
                     DefaultInventory.BinID = "3";//@todo set the default value 
-                    DefaultInventory.OnHand = Quantity;
+                    DefaultInventory.OnHand = decBaseQuantity;
                     
                     if (DefaultInventory.GetUnqiueInventory())
                     {

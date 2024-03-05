@@ -1,0 +1,88 @@
+﻿@model TransferViewModel
+
+@{
+    ViewData["Title"] = "Create Adjustment";
+
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Create" method="post" id="createItemForm">
+        <div class="card">       
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                                             
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label asp-for="Memo">Memo</label>
+                                <input asp-for="Memo" class="form-control" />
+                            </div>
+                           
+                        </div>
+
+
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label >Item</label>
+                                <input name="TransferLines[0].ItemID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="TransferLines[0].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>From Location</label>
+                                <input name="TransferLines[0].FromLocationID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>To Location</label>
+                                <input name="TransferLines[0].ToLocationID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>ItemUnitID</label>
+                                <input name="TransferLines[0].ItemUnitID" type="text">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label>Bin</label>
+                                <input name="TransferLines[0].TransferLineDetails[0].FromBinID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Bin</label>
+                                <input name="TransferLines[0].TransferLineDetails[0].ToBinID" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Quantity</label>
+                                <input name="TransferLines[0].TransferLineDetails[0].Quantity" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>InventoryNumber</label>
+                                <input name="TransferLines[0].TransferLineDetails[0].InventoryNumber" type="text">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>ItemUnitID</label>
+                                <input name="TransferLines[0].TransferLineDetails[0].ItemUnitID" type="text">
+                            </div>
+                        </div>                      
+
+                         
+                    </div>
+                  
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+

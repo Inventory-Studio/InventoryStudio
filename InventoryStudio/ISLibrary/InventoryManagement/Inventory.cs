@@ -22,21 +22,17 @@ namespace ISLibrary
         public string CompanyID { get; set; }
         public string? ParentInventoryID { get; set; }
         public string ItemID { get; set; }
-        public string ItemNumber { get; set; }
-        public string ItemName { get; set; }
+        public string ItemConfigID { get; set; }
+        public string ItemInventoryStatusID { get; set; }
         public decimal OnHand { get; set; }
         public decimal Available { get; set; }
-        public decimal Committed { get; set; }
+        //public decimal Committed { get; set; }
         public string CartonNumber { get; set; }
         public string VendorCartonNumber { get; set; }
         public string InventoryNumber { get; set; }
         public DateTime? LotNumberDate { get; set; }
         public string LocationID { get; set; }
-        public string LocationName { get; set; }
-        public string LocationNumber { get; set; }
         public string BinID { get; set; }
-        public string BinNumber { get; set; }
-        public string Label { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
@@ -96,6 +92,19 @@ namespace ISLibrary
                 objColumns = objRow.Table.Columns;
 
                 if (objColumns.Contains("InventoryID")) InventoryID = Convert.ToString(objRow["InventoryID"]);
+                if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
+                if (objColumns.Contains("ParentInventoryID")) ParentInventoryID = Convert.ToString(objRow["ParentInventoryID"]);
+                if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
+                if (objColumns.Contains("ItemConfigID")) ItemConfigID = Convert.ToString(objRow["ItemConfigID"]);
+                if (objColumns.Contains("ItemInventoryStatusID")) ItemInventoryStatusID = Convert.ToString(objRow["ItemInventoryStatusID"]);
+                if (objColumns.Contains("OnHand")) OnHand = Convert.ToDecimal(objRow["OnHand"]);
+                if (objColumns.Contains("Available")) Available = Convert.ToDecimal(objRow["Available"]);
+                if (objColumns.Contains("CartonNumber")) CartonNumber = Convert.ToString(objRow["CartonNumber"]);
+                if (objColumns.Contains("VendorCartonNumber")) VendorCartonNumber = Convert.ToString(objRow["VendorCartonNumber"]);
+                if (objColumns.Contains("InventoryNumber")) InventoryNumber = Convert.ToString(objRow["InventoryNumber"]);
+                if (objColumns.Contains("LotNumberDate") && objRow["LotNumberDate"] != DBNull.Value) LotNumberDate = Convert.ToDateTime(objRow["LotNumberDate"]);
+                if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
+                if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
                 //if (objColumns.Contains("LocationName")) LocationName = Convert.ToString(objRow["LocationName"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
                     UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
@@ -324,7 +333,8 @@ namespace ISLibrary
                 {
                     strSQL += "AND p.ParentInventoryID<>" + Database.HandleQuote(ParentInventoryID);
                 }
-                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID) + ")";
+                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
+                strSQL += "AND p.LocationID=" + Database.HandleQuote(LocationID) + ")";
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)

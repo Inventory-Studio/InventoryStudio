@@ -508,7 +508,7 @@ namespace ISLibrary.OrderManagement
 
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "PackageDimensionID" : Utility.CustomSorting.GetSortExpression(typeof(Location), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "LocationID" : Utility.CustomSorting.GetSortExpression(typeof(Location), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
