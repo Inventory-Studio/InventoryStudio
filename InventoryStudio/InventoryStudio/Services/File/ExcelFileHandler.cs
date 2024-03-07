@@ -1,122 +1,15 @@
-﻿using NPOI.HSSF.Record;
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using NPOI.HSSF.Record;
+using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using System.Dynamic;
 
 namespace InventoryStudio.File
 {
-    public class ExcelFileHandler<T> : IFileHandler<T> where T : class
+    public class ExcelFileHandler : IFileHandler
     {
-        private readonly List<Type> _entityTypes;
-
-        public ExcelFileHandler(params Type[] entityTypes)
-        {
-            _entityTypes = entityTypes.ToList();
-        }
-        public async Task<byte[]> Export(params IEnumerable<T>[] recordLists)
-        {
-            using (var fileStream = new MemoryStream())
-            {
-                var workbook = new XSSFWorkbook();
-
-                for (int i = 0; i < _entityTypes.Count; i++)
-                {
-                    var entityType = _entityTypes[i];
-                    var sheet = workbook.CreateSheet(entityType.Name);
-                    var headerRow = sheet.CreateRow(0);
-                    var properties = entityType.GetProperties();
-
-                    for (int j = 0; j < properties.Length; j++)
-                    {
-                        headerRow.CreateCell(j).SetCellValue(properties[j].Name);
-                    }
-
-                    var recordList = recordLists[i].Cast<object>();
-                    int rowIndex = 1;
-
-                    foreach (var record in recordList)
-                    {
-                        var row = sheet.CreateRow(rowIndex);
-
-                        for (int j = 0; j < properties.Length; j++)
-                        {
-                            var cell = row.CreateCell(j);
-                            var value = properties[j].GetValue(record);
-
-                            if (value != null)
-                            {
-                                cell.SetCellValue(value.ToString());
-                            }
-                        }
-
-                        rowIndex++;
-                    }
-                }
-
-                workbook.Write(fileStream);
-                return await Task.FromResult(fileStream.ToArray());
-            }
-        }
-
-        public async Task<List<T>> Import(IFormFile file)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-                var workbook = new XSSFWorkbook(stream);
-                var records = new List<T>();
-                for (int i = 0; i < _entityTypes.Count; i++)
-                {
-                    var entityType = _entityTypes[i];
-                    var sheet = workbook.GetSheet(entityType.Name);
-                    if (sheet == null)
-                    {
-                        sheet = workbook.GetSheetAt(i);
-                    }
-                    var properties = entityType.GetProperties();
-                    var recordList = new List<T>();
-                    for (int j = 1; j <= sheet.LastRowNum; j++)
-                    {
-                        var row = sheet.GetRow(j);
-                        var record = (T)Activator.CreateInstance(entityType);
-
-                        for (int k = 0; k < properties.Length; k++)
-                        {
-                            var cell = row.GetCell(k);
-                            if (cell != null)
-                            {
-                                var value = Convert.ChangeType(cell.ToString(), properties[k].PropertyType);
-                                properties[k].SetValue(record, value);
-                            }
-                        }
-                        recordList.Add(record);
-                    }
-                    records.AddRange(recordList);
-                }
-
-                return records;
-            }
-        }
-
-        public async Task<string[]> GetHeader(IFormFile file)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-                var workbook = new XSSFWorkbook(stream);
-                var sheet = workbook.GetSheetAt(0);
-                var headerRow = sheet.GetRow(0);
-                var headerValues = new List<string>();
-                for (int i = 0; i < headerRow.LastCellNum; i++)
-                {
-                    var cell = headerRow.GetCell(i);
-                    headerValues.Add(cell.ToString());
-                }
-                return headerValues.ToArray();
-            }
-        }
-
-        public async Task<List<string[]>> GetHeaders(IFormFile file)
+        public async Task<List<string[]>> ImportTemplate(IFormFile file)
         {
             var list = new List<string[]>();
             using (var stream = new MemoryStream())
@@ -140,51 +33,128 @@ namespace InventoryStudio.File
             return list;
         }
 
-        public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
-        {
-            var entityTypeProperties = typeof(T).GetProperties()
-                 .Where(p => (!p.PropertyType.IsGenericType || p.PropertyType.GetGenericTypeDefinition() != typeof(List<>)) && p.PropertyType.Namespace.StartsWith(nameof(System)))
-                 .Select(p => p.Name).ToList();
-            var mapping = new Dictionary<string, string?>();
-
-            foreach (var entityTypeProperty in entityTypeProperties)
-            {
-                if (headerFields.Contains(entityTypeProperty))
-                {
-                    mapping[entityTypeProperty] = entityTypeProperty;
-                }
-                else
-                {
-                    mapping[entityTypeProperty] = null;
-                }
-            }
-            return await Task.FromResult(mapping);
-        }
-
         public async Task<byte[]> ExportTemplate(string[] headerFields)
         {
             using (var fileStream = new MemoryStream())
             {
                 var workbook = new XSSFWorkbook();
-
-                for (int i = 0; i < _entityTypes.Count; i++)
+                var sheet = workbook.CreateSheet();
+                var headerRow = sheet.CreateRow(0);
+                for (int i = 0; i < headerFields.Length; i++)
                 {
-                    var entityType = _entityTypes[i];
-                    var sheet = workbook.CreateSheet(entityType.Name);
-                    var headerRow = sheet.CreateRow(0);
-
-                    for (int j = 0; j < headerFields.Length; j++)
-                    {
-                        headerRow.CreateCell(j).SetCellValue(headerFields[j]);
-                    }
+                    headerRow.CreateCell(i).SetCellValue(headerFields[i]);
                 }
-
                 workbook.Write(fileStream);
                 return await Task.FromResult(fileStream.ToArray());
             }
         }
 
+        public async Task<byte[]> ExportImportResult(List<string> datas)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                IWorkbook workbook = new XSSFWorkbook();
+                ISheet sheet = workbook.CreateSheet("Sheet1");
 
+                if (datas.Any())
+                {
+                    dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(datas[0], new ExpandoObjectConverter());
+                    var properties = ((IDictionary<string, object>)jsonData).Keys;
+
+                    IRow headerRow = sheet.CreateRow(0);
+                    int cellIndex = 0;
+                    foreach (var property in properties)
+                    {
+                        headerRow.CreateCell(cellIndex).SetCellValue(property);
+                        cellIndex++;
+                    }
+                }
+
+                int rowIndex = 1;
+                foreach (var data in datas)
+                {
+                    dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(data, new ExpandoObjectConverter());
+                    IRow dataRow = sheet.CreateRow(rowIndex);
+                    int cellIndex = 0;
+                    foreach (var value in jsonData)
+                    {
+                        dataRow.CreateCell(cellIndex).SetCellValue(value.Value.ToString());
+                        cellIndex++;
+                    }
+                    rowIndex++;
+                }
+
+                workbook.Write(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
+        public Task<List<Dictionary<string, string>>> ImportData(IFormFile file)
+        {
+            var result = new List<Dictionary<string, string>>();
+            using (var stream = file.OpenReadStream())
+            {
+                var workbook = new XSSFWorkbook(stream);
+                var sheet = workbook.GetSheetAt(0);
+
+                var headerRow = sheet.GetRow(0);
+                var columnCount = headerRow.LastCellNum;
+                for (int i = 1; i <= sheet.LastRowNum; i++)
+                {
+                    var dataRow = sheet.GetRow(i);
+                    if (dataRow != null)
+                    {
+                        var rowData = new Dictionary<string, string>();
+
+                        for (int j = 0; j < columnCount; j++)
+                        {
+                            var cell = dataRow.GetCell(j);
+                            if (cell != null)
+                            {
+                                rowData[headerRow.GetCell(j).StringCellValue] = cell.ToString();
+                            }
+                        }
+
+                        result.Add(rowData);
+                    }
+                }
+            }
+            return Task.FromResult(result);
+        }
+
+        public Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file)
+        {
+            var result = new List<Dictionary<string, string>>();
+            using (var stream = file.OpenReadStream())
+            {
+                var workbook = new XSSFWorkbook(stream);
+                for (int sheetIndex = 0; sheetIndex < workbook.NumberOfSheets; sheetIndex++)
+                {
+                    ISheet sheet = workbook.GetSheetAt(sheetIndex);
+                    string[] headers = null;
+                    for (int rowIndex = 0; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
+                    {
+                        IRow row = sheet.GetRow(rowIndex);
+                        if (row == null || row.Cells.All(cell => string.IsNullOrEmpty(cell.ToString()))) continue;
+                        headers = row.Cells.Select(cell => cell.ToString()).ToArray();
+                        if (headers != null)
+                        {
+                            for (int i = rowIndex + 1; i < sheet.PhysicalNumberOfRows; i++)
+                            {
+                                IRow dataRow = sheet.GetRow(i);
+                                if (dataRow == null || dataRow.Cells.All(cell => string.IsNullOrEmpty(cell.ToString()))) continue;
+                                var rowData = new Dictionary<string, string>();
+                                for (int j = 0; j < headers.Length; j++)
+                                {
+                                    rowData[headers[j]] = dataRow.GetCell(j)?.ToString();
+                                }
+                                result.Add(rowData);
+                            }
+                        }
+                    }
+                }
+            }
+            return Task.FromResult(result);
+        }
     }
-
 }

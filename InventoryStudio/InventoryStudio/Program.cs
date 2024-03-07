@@ -20,14 +20,11 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped(typeof(IFileHandler<>), typeof(CsvFileHandler<>));
-builder.Services.AddScoped(typeof(IFileHandler<>), typeof(ExcelFileHandler<>));
-builder.Services.AddTransient<IFileParser, ExcelFileParser>();
-builder.Services.AddTransient<IFileParser, CsvFileParser>();
-builder.Services.AddSingleton<IFileParserFactory, FileParserFactory>();
+builder.Services.AddScoped(typeof(IFileHandler), typeof(CsvFileHandler));
+builder.Services.AddScoped(typeof(IFileHandler), typeof(ExcelFileHandler));
 builder.Services.AddScoped<CustomerImporter>();
 builder.Services.AddScoped<VendorImporter>();
-builder.Services.AddScoped<ExportService>();
+builder.Services.AddScoped<ItemImporter>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

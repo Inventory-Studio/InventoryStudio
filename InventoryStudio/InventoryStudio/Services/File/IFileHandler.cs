@@ -1,17 +1,16 @@
 ﻿namespace InventoryStudio.File
 {
-    public interface IFileHandler<T> where T : class
+    public interface IFileHandler
     {
-        Task<byte[]> Export(params IEnumerable<T>[] recordLists);
+        Task<List<string[]>> ImportTemplate(IFormFile file);
 
-        Task<List<T>> Import(IFormFile file);
-
-        Task<string[]> GetHeader(IFormFile file);
-
-        Task<List<string[]>> GetHeaders(IFormFile file);
-
-        Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields);
-
+        //【Todo】Need to adjust support for creating multiple objects
         Task<byte[]> ExportTemplate(string[] headerFields);
+
+        Task<byte[]> ExportImportResult(List<string> datas);
+
+        Task<List<Dictionary<string, string>>> ImportData(IFormFile file);
+
+        Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file);
     }
 }

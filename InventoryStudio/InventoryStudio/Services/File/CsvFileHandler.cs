@@ -1,65 +1,16 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System.Dynamic;
 using System.Globalization;
 using System.Text;
 
 namespace InventoryStudio.File
 {
-    public class CsvFileHandler<T> : IFileHandler<T> where T : class
+    public class CsvFileHandler : IFileHandler
     {
-        public async Task<byte[]> Export(params IEnumerable<T>[] records)
-        {
-            using (var writer = new StringWriter())
-            {
-                var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
-                csvWriter.WriteHeader<T>();
-                await csvWriter.WriteRecordsAsync(records[0]);
-                using (var memoryStream = new MemoryStream())
-                {
-                    using (var streamWriter = new StreamWriter(memoryStream))
-                    {
-                        streamWriter.Write(writer.ToString());
-                        streamWriter.Flush();
-                        return memoryStream.ToArray();
-                    }
-                }
-            }
-        }
-
-        public async Task<List<T>> Import(IFormFile file)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-                using (var reader = new StreamReader(stream))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    return await csv.GetRecordsAsync<T>().ToListAsync();
-                }
-            }
-        }
-
-        public async Task<string[]> GetHeader(IFormFile file)
-        {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-                using (var reader = new StreamReader(stream, Encoding.Default))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    if (await csv.ReadAsync())
-                    {
-                        csv.ReadHeader();
-                        return csv.HeaderRecord;
-                    }
-                }
-            }
-            return null;
-        }
-
-        public async Task<List<string[]>> GetHeaders(IFormFile file)
+        public async Task<List<string[]>> ImportTemplate(IFormFile file)
         {
             var list = new List<string[]>();
             using (var stream = new MemoryStream())
@@ -87,27 +38,6 @@ namespace InventoryStudio.File
             return list;
         }
 
-        public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
-        {
-            var entityTypeProperties = typeof(T).GetProperties()
-                .Where(p => (!p.PropertyType.IsGenericType || p.PropertyType.GetGenericTypeDefinition() != typeof(List<>)) && p.PropertyType.Namespace.StartsWith(nameof(System)))
-                .Select(p => p.Name).ToList();
-            var mapping = new Dictionary<string, string?>();
-
-            foreach (var entityTypeProperty in entityTypeProperties)
-            {
-                if (headerFields.Contains(entityTypeProperty))
-                {
-                    mapping[entityTypeProperty] = entityTypeProperty;
-                }
-                else
-                {
-                    mapping[entityTypeProperty] = null;
-                }
-            }
-            return await Task.FromResult(mapping);
-        }
-
         public async Task<byte[]> ExportTemplate(string[] headerFields)
         {
             using (var memoryStream = new MemoryStream())
@@ -124,7 +54,87 @@ namespace InventoryStudio.File
             }
         }
 
+        public async Task<byte[]> ExportImportResult(List<string> datas)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new StreamWriter(memoryStream))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                if (datas.Any())
+                {
+                    dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(datas[0], new ExpandoObjectConverter());
+                    var properties = ((IDictionary<string, object>)jsonData).Keys;
 
+                    foreach (var property in properties)
+                    {
+                        csv.WriteField(property);
+                    }
+                    await csv.NextRecordAsync();
+                }
+
+                foreach (var data in datas)
+                {
+                    dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(data, new ExpandoObjectConverter());
+                    csv.WriteRecord(jsonData);
+                    await csv.NextRecordAsync();
+                }
+
+                writer.Flush();
+                return memoryStream.ToArray();
+            }
+        }
+
+        public async Task<List<Dictionary<string, string>>> ImportData(IFormFile file)
+        {
+            var result = new List<Dictionary<string, string>>();
+
+            using (var streamReader = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(streamReader, new CsvConfiguration(CultureInfo.InvariantCulture)))
+            {
+                await csv.ReadAsync();
+                csv.ReadHeader();
+                var headers = csv.HeaderRecord;
+
+                while (await csv.ReadAsync())
+                {
+                    var rowData = new Dictionary<string, string>();
+                    foreach (var header in headers)
+                    {
+                        rowData[header] = csv.GetField(header);
+                    }
+                    result.Add(rowData);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file)
+        {
+            var result = new List<Dictionary<string, string>>();
+            using (var streamReader = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(streamReader, new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = false }))
+            {
+                string[] headers = null;
+                while (await csv.ReadAsync())
+                {
+                    var currentLine = csv.Parser.RawRecord;
+                    if (currentLine.StartsWith("---"))
+                        continue;
+                    headers = csv.Parser.Record;
+                    if (headers != null)
+                    {
+                        var rowData = new Dictionary<string, string>();
+                        for (int i = 0; i < headers.Length; i++)
+                        {
+                            rowData[headers[i]] = csv.Parser.Record[i];
+                        }
+                        result.Add(rowData);
+                    }
+                }
+            }
+            return result;
+        }
     }
 
 }

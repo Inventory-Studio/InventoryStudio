@@ -6,6 +6,7 @@ using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
+using ISLibrary.Template;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,9 +23,10 @@ namespace InventoryStudio.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CustomerImporter _customerImporter;
         private readonly VendorImporter _vendorImporter;
+        private readonly ItemImporter _itemImporter;
         private static Dictionary<string, int> importProgress = new Dictionary<string, int>();
 
-        public TemplatesController(IHttpContextAccessor httpContextAccessor, CustomerImporter customerImporter, VendorImporter vendorImporter)
+        public TemplatesController(IHttpContextAccessor httpContextAccessor, CustomerImporter customerImporter, VendorImporter vendorImporter, ItemImporter itemImporter)
         {
             _httpContextAccessor = httpContextAccessor;
             var user = _httpContextAccessor.HttpContext?.User;
@@ -36,6 +38,7 @@ namespace InventoryStudio.Controllers
             }
             _customerImporter = customerImporter;
             _vendorImporter = vendorImporter;
+            _itemImporter = itemImporter;
         }
         public IActionResult Index()
         {
@@ -152,9 +155,10 @@ namespace InventoryStudio.Controllers
 
                 var fileType = Path.GetExtension(input.File.FileName);
                 var fullNamespace = GetFullNamespace(input.Type.ToString());
-                var _fileHandler = FileHandlerFactory.CreateFileHandlerInstance(fullNamespace, fileType);
-                var headers = await _fileHandler.GetHeader(input.File);
-                var mappings = await _fileHandler.MapHeadersToEntityProperties(headers);
+                var _fileHandler = FileHandlerFactory.CreateFileHandler(fileType);
+                var headers = await _fileHandler.ImportTemplate(input.File);
+                //【Todo】
+                var mappings = MapHeadersToEntityProperties<ItemTemplate>(headers[0]);
                 foreach (var mapping in mappings)
                 {
                     var templateField = new ImportTemplateField();
@@ -176,6 +180,25 @@ namespace InventoryStudio.Controllers
             return View(input);
         }
 
+        private Dictionary<string, string> MapHeadersToEntityProperties<T>(string[] headerFields)
+        {
+            var entityTypeProperties = typeof(T).GetProperties()
+                .Where(p => (!p.PropertyType.IsGenericType || p.PropertyType.GetGenericTypeDefinition() != typeof(List<>)) && p.PropertyType.Namespace.StartsWith(nameof(System)))
+                .Select(p => p.Name).ToList();
+            var mapping = new Dictionary<string, string?>();
+            foreach (var entityTypeProperty in entityTypeProperties)
+            {
+                if (headerFields.Contains(entityTypeProperty))
+                {
+                    mapping[entityTypeProperty] = entityTypeProperty;
+                }
+                else
+                {
+                    mapping[entityTypeProperty] = null;
+                }
+            }
+            return mapping;
+        }
         public IActionResult Edit(string id)
         {
             if (id == null)
@@ -357,6 +380,9 @@ namespace InventoryStudio.Controllers
                         break;
                     case "Customer":
                         await _customerImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
+                        break;
+                    case "Item":
+                        await _itemImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
                         break;
                 }
 

@@ -3,6 +3,10 @@ using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System.Dynamic;
+using InventoryStudio.File;
 
 namespace InventoryStudio.Controllers
 {
@@ -10,11 +14,10 @@ namespace InventoryStudio.Controllers
     {
         private readonly string CompanyID = string.Empty;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ExportService _exportService;
-        public ImportResultController(IHttpContextAccessor httpContextAccessor, ExportService exportService)
+
+        public ImportResultController(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _exportService = exportService;
         }
 
         public IActionResult Index()
@@ -82,6 +85,17 @@ namespace InventoryStudio.Controllers
             return View(viewModel);
         }
 
+        private string InsertErrorMessage(string jsonString, string errorMessage)
+        {
+            dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(jsonString, new ExpandoObjectConverter());
+            var newJsonData = new ExpandoObject() as IDictionary<string, Object>;
+            newJsonData["ErrorMessage"] = errorMessage;
+            foreach (var property in jsonData)
+            {
+                newJsonData[property.Key] = property.Value;
+            }
+            return JsonConvert.SerializeObject(newJsonData);
+        }
 
         public async Task<IActionResult> DownLoad(string id, string type)
         {
@@ -97,18 +111,17 @@ namespace InventoryStudio.Controllers
                 var jsons = new List<string>();
                 foreach (var json in list)
                 {
-                    string jsonStringWithErrorMessage = _exportService.InsertErrorMessage(json.FailedData, json.ErrorMessage);
+                    string jsonStringWithErrorMessage = InsertErrorMessage(json.FailedData, json.ErrorMessage);
                     jsons.Add(jsonStringWithErrorMessage);
                 }
-                byte[] fileBytes;
+                var _fileHandler = FileHandlerFactory.CreateFileHandler(type);
+                byte[] fileBytes = await _fileHandler.ExportImportResult(jsons);
                 if (type.Contains(".csv"))
                 {
-                    fileBytes = await _exportService.ExportJsonToCsv(jsons);
                     return File(fileBytes, "text/csv", "data.csv");
                 }
                 else if (type.Contains(".xlsx"))
                 {
-                    fileBytes = await _exportService.ExportJsonToExcel(jsons);
                     return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filename.xlsx");
                 }
                 else

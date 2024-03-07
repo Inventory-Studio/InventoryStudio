@@ -343,10 +343,11 @@ namespace InventoryStudio.Controllers.OrderManagement
             try
             {
                 var fileType = Path.GetExtension(file.FileName);
-                var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
-                var records = await _fileHandler.Import(file);
+                //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
+                //var records = await _fileHandler.Import(file);
                 //【ToDo】Process import logic
-                return Ok(records);
+                //return Ok(records);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -360,29 +361,31 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             try
             {
-                var salesOrder = new SalesOrder(CompanyID, id);
-                var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
-                var fileBytes = await _fileHandler.Export(new[] { salesOrder });
-                if (fileType.Contains("text/csv"))
-                {
-                    return File(fileBytes, "text/csv", "filename.csv");
-                }
-                else if (fileType.Contains("xlsx/xls"))
-                {
-                    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filename.xlsx");
-                }
-                else
-                {
-                    return BadRequest("Unsupported file type.");
-                }
+                //【Todo】
+                //var salesOrder = new SalesOrder(CompanyID, id);
+                //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
+                //var fileBytes = await _fileHandler.Export(new[] { salesOrder });
+                //if (fileType.Contains("text/csv"))
+                //{
+                //    return File(fileBytes, "text/csv", "filename.csv");
+                //}
+                //else if (fileType.Contains("xlsx/xls"))
+                //{
+                //    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filename.xlsx");
+                //}
+                //else
+                //{
+                //    return BadRequest("Unsupported file type.");
+                //}
+                return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-        
-        
+
+
         public IActionResult Insert([FromBody] CRUDModel value)
         {
             return Json(value.Value);

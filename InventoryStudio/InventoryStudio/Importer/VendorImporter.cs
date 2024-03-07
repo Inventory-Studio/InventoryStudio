@@ -1,4 +1,5 @@
-﻿using InventoryStudio.Services.File;
+﻿using InventoryStudio.File;
+using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
@@ -11,18 +12,11 @@ namespace InventoryStudio.Importer
 {
     public class VendorImporter
     {
-        private readonly IFileParserFactory _fileParserFactory;
-
-        public VendorImporter(IFileParserFactory fileParserFactory)
-        {
-            _fileParserFactory = fileParserFactory;
-        }
-
         public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, IFormFile file, ProgressHandler progressHandler)
         {
             var fileType = Path.GetExtension(file.FileName);
-            var parser = _fileParserFactory.CreateParser(fileType);
-            var datas = await parser.Parse(file);
+            var fileHandler = FileHandlerFactory.CreateFileHandler(fileType);
+            var datas = await fileHandler.ImportData(file);
             var importTemplateFilter = new ImportTemplateFieldFilter();
             importTemplateFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
             importTemplateFilter.ImportTemplateID.SearchString = importTemplateID;

@@ -4,23 +4,18 @@ using ISLibrary;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text.Json;
+using InventoryStudio.File;
 
 namespace InventoryStudio.Importer
 {
     public class ItemImporter
     {
-        private readonly IFileParserFactory _fileParserFactory;
-
-        public ItemImporter(IFileParserFactory fileParserFactory)
-        {
-            _fileParserFactory = fileParserFactory;
-        }
 
         public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, IFormFile file, ProgressHandler progressHandler)
         {
             var fileType = Path.GetExtension(file.FileName);
-            var parser = _fileParserFactory.CreateParser(fileType);
-            var datas = await parser.Parse(file);
+            var fileHandler = FileHandlerFactory.CreateFileHandler(fileType);
+            var datas = await fileHandler.ImportData(file);
             var importTemplateFilter = new ImportTemplateFieldFilter();
             importTemplateFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
             importTemplateFilter.ImportTemplateID.SearchString = importTemplateID;
