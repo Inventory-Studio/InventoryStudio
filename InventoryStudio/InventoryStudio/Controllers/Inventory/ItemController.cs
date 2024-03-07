@@ -12,7 +12,7 @@ namespace InventoryStudio.Controllers
 {
     public class ItemController : BaseController
 
-    { 
+    {
         private readonly UserManager<User> _userManager;
         private readonly IAuthorizationService _authorizationService;
 
@@ -33,9 +33,11 @@ namespace InventoryStudio.Controllers
                 //use ViewBag to control Button show/hide
                 var permissions = new Dictionary<string, bool>
                 {
-                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Create")).Succeeded,
+                    ["CanCreate"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Create"))
+                        .Succeeded,
                     ["CanEdit"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Edit")).Succeeded,
-                    ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Delete")).Succeeded,
+                    ["CanDelete"] = (await _authorizationService.AuthorizeAsync(User, "Inventory-Item-Delete"))
+                        .Succeeded,
                 };
                 ViewBag.Permissions = permissions;
 
@@ -65,27 +67,57 @@ namespace InventoryStudio.Controllers
 
         [Authorize(Policy = "Inventory-Item-Create")]
         [HttpPost]
-        public IActionResult Create(ItemViewModel itemViewModel)
+        public IActionResult Create([FromForm] ItemViewModel itemViewModel)
         {
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
                 ModelState.AddModelError("", "Invalid organization information.");
-                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
+                return Json(new { status = "error", message = "Invalid organization information." });
             }
 
             itemViewModel.Item.CreatedBy = Convert.ToString(_userManager.GetUserId(User));
             itemViewModel.Item.CompanyID = organizationClaim.Value;
+            if (itemViewModel?.Item != null && itemViewModel?.Item?.ItemBarcodes != null)
+            {
+                var hasDefaultBarcode = itemViewModel.Item.ItemBarcodes?.Select(x =>
+                    x.Barcode.Trim().ToLower().Equals(itemViewModel.Item.ItemNumber.Trim().ToLower())).First() ?? false;
+                if (!hasDefaultBarcode)
+                {
+                    itemViewModel?.Item?.ItemBarcodes?.Add(new ItemBarcode
+                        { Barcode = itemViewModel.Item.ItemNumber, Type = "UPC" });
+                }
+            }
+            else
+            {
+                if (itemViewModel != null && itemViewModel.Item != null)
+                {
+                        itemViewModel.Item.ItemBarcodes = new List<ItemBarcode>
+                        {
+                            new() { Barcode = itemViewModel.Item.ItemNumber, Type = "UPC" }
+                        };
+                }
+            }
 
             try
+
             {
                 ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
+                return Json(new
+                    {
+                        status = "success", redirect = Url.Action("Edit", "Item", new
+                        {
+                            id = itemViewModel.Item.ItemID
+                        })
+                    }
+                );
             }
-            catch (Exception ex)
+            catch
+                (Exception ex)
             {
                 ModelState.AddModelError("created_error", ex.Message);
-                return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
+                return Json(new { status = "error", message = "Error creating item. " + ex.Message }
+                );
             }
         }
 
@@ -96,6 +128,7 @@ namespace InventoryStudio.Controllers
             {
                 return RedirectToAction("Index");
             }
+
             var itemViewModel = new ItemViewModel();
 
             if (TempData["FormData"] != null)
@@ -127,18 +160,15 @@ namespace InventoryStudio.Controllers
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
                 itemViewModel.AuditDataList = auditDataList;
             }
-           
 
-           
+
             return View("~/Views/Inventory/Item/Edit.cshtml", itemViewModel);
         }
 
         [Authorize(Policy = "Inventory-Item-Edit")]
         [HttpPost]
-        public IActionResult Edit(ItemViewModel itemViewModel)
+        public IActionResult Edit([FromForm] ItemViewModel itemViewModel)
         {
-          
-
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
 
             var item = new Item(organizationClaim.Value, itemViewModel.Item.ItemID);
@@ -149,17 +179,25 @@ namespace InventoryStudio.Controllers
             try
             {
                 ItemParent.UpdateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
+                return Json(new
+                    {
+                        status = "success", redirect = Url.Action("Edit", "Item", new
+                        {
+                            id = itemViewModel.Item.ItemID
+                        })
+                    }
+                );
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
                 TempData["FormData"] = JsonConvert.SerializeObject(itemViewModel);
-                return RedirectToAction("Edit", new { id = itemViewModel.Item.ItemID });
-
+                return Json(new
+                    {
+                        status = "error", message = "An error occured. " + ex.Message
+                    }
+                );
             }
-
-
         }
 
 
@@ -169,6 +207,7 @@ namespace InventoryStudio.Controllers
             {
                 return RedirectToAction("Index");
             }
+
             var itemDetailsViewModel = new ItemDetailsViewModel();
 
             if (TempData["FormData"] != null)
@@ -207,9 +246,9 @@ namespace InventoryStudio.Controllers
                 // itemDetailsViewModel.ProductImage =
                 //     "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
                 itemDetailsViewModel.ShipMonkImage =
-                                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
+                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
             }
-           
+
             return View("~/Views/Inventory/Item/Details.cshtml", itemDetailsViewModel);
         }
 
@@ -300,7 +339,8 @@ namespace InventoryStudio.Controllers
                 dataSource = Item.GetItems(company.Value).AsEnumerable();
             }
 
-            var data = dataSource.Select(item => new {
+            var data = dataSource.Select(item => new
+            {
                 ItemName = item.ItemName,
                 ItemID = item.ItemID
             });
@@ -318,7 +358,8 @@ namespace InventoryStudio.Controllers
                 dataSource = Item.GetItems(company.Value).AsEnumerable();
             }
 
-            var data = dataSource.Select(item => new {
+            var data = dataSource.Select(item => new
+            {
                 ItemName = item.ItemNumber + '-' + item.ItemName,
                 ItemID = item.ItemID
             });

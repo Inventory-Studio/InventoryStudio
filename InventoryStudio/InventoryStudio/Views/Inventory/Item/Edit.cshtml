@@ -20,7 +20,7 @@
 
 <div class="container mt-5">
     <h2>@ViewData["Title"]</h2>
-    <form asp-controller="Item" asp-action="Edit" method="post" id="EditItemForm">
+    <form id="EditItemForm">
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="itemFormTab" role="tablist">
@@ -187,8 +187,38 @@
 
 
 
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
 
 <script>
+    function onSubmit() {
+        event.preventDefault();
+        $(":submit").attr("disabled", true);
+        let formData = $("#EditItemForm");
+        const data = getFormData(formData)
+        const barcodeGrid = $("#GridBarcodes");
+        if (barcodeGrid != null && barcodeGrid?.length) {
+              data["Item.ItemBarcodes"] = barcodeGrid[0]?.ej2_instances[0]?.dataSource;
+        }
+        $.ajax({
+            url: "/Item/Edit",
+            headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+            type: "POST",
+            data: data, 
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (result) {
+                if (result.status === "success") {
+                    location.href = result.redirect;
+                } else {
+                    alert(result.message);
+                    $(":submit").attr("disabled", false);
+                }
+            },
+            error: function (e) {
+                $(":submit").attr("disabled", false);
+            } 
+        });
+    }
+    
     function toggleMatrix() {
         var isChecked = $('#createMatrixCheckbox').is(':checked');
         if (isChecked) {
@@ -333,7 +363,8 @@
 
         // Before form submission, call reindexTableInputs for each table
         $('form').submit(function (e) {
-            reindexTableInputs('#barcodeTable');
+            onSubmit();
+            // reindexTableInputs('#barcodeTable');
             reindexTableInputs('#itemComponentsTable');
             reindexTableInputs('#itemKitTable');
             reindexTableInputs('#attributesTable');
