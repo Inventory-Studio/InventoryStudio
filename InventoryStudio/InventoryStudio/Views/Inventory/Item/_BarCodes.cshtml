@@ -20,7 +20,7 @@
             </e-grid-column>
             <e-grid-column field="Barcode" headerText="Barcode" width="120"></e-grid-column>
             <e-grid-column field="Type" headerText="Type" width="120"></e-grid-column>
-            @if (Model.IsDetails)
+            @if (Model.Item != null && Model.Item.ItemID != null)
             {
                 <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
                 <e-grid-column field="CreatedOn" headerText="Created On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>

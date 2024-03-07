@@ -46,6 +46,7 @@ function customExportToolbarClick(gridId, fileName) {
         }
     }
 }
+
 function customBarcodeExportToolbarClick(gridId, fileName) {
     return (args) => {
         var gridObj = document.getElementById(gridId).ej2_instances[0];
@@ -87,11 +88,11 @@ function customBarcodeExportToolbarClick(gridId, fileName) {
     }
 }
 
-function getFormData($form){
+function getFormData($form) {
     var unindexed_array = $form.serializeArray();
     var indexed_array = {};
 
-    $.map(unindexed_array, function(n, i){
+    $.map(unindexed_array, function (n, i) {
         indexed_array[n['name']] = n['value'];
     });
 

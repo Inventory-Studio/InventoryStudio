@@ -1,0 +1,131 @@
+﻿@using System.Reflection
+@model ItemViewModel 
+@{
+    var enumItemTypeSelectList = Enum.GetValues(typeof(Item.enumItemType))
+        .Cast<Item.enumItemType>()
+        .Select(e => new SelectListItem
+        {
+            Value = e.ToString(),
+            Text = e.GetType()
+                .GetMember(e.ToString())
+                .FirstOrDefault()?
+                .GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?
+                .Description ?? e.ToString()
+        })
+        .ToList();
+}
+
+<div class="bg-gray-200 py-2 px-3 rounded mb-4">
+    <h6 class="mb-0">Details</h6>
+</div>
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label class="form-label" for="itemType">Item Type *</label>
+        <select asp-for="@Model.Item.ItemType" asp-items="@enumItemTypeSelectList" class="form-select" onchange="changeItemType()"></select>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label class="form-label" asp-for="@Model.Item.ItemNumber">Item Number</label>
+        <input asp-for="@Model.Item.ItemNumber" class="form-control" onchange="addItemBarcode()"/>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <div class="form-check mb-2">
+            <input asp-for="@Model.Item.IsVariation" type="checkbox" class="form-check-input" id="createMatrixCheckbox" onchange="toggleMatrix()"/>
+            <label class="form-check-label" for="createMatrix">
+                Create Matrix
+            </label>
+        </div>
+        <div class="form-check mb-2">
+            <input asp-for="@Model.Item.IsShipReceiveIndividually" type="checkbox" class="form-check-input"/>
+            <label class="form-check-label" for="IsShipReceiveIndividually">
+                Receive Individually
+            </label>
+        </div>
+        <div id="kit-options" style="display:none">
+            <div class="form-check mb-2">
+                <input asp-for="@Model.Item.FulfillByKit" type="checkbox" class="form-check-input"/>
+                <label class="form-check-label" for="FulfillByKit">
+                    Fulfill By Kit
+                </label>
+            </div>
+            <div class="form-check">
+                <input asp-for="@Model.Item.ReceiveByKit" type="checkbox" class="form-check-input"/>
+                <label class="form-check-label" for="ReceiveByKit">
+                    Receive By Kit
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label class="form-label" asp-for="@Model.Item.ItemName">Item Name</label>
+        <input asp-for="@Model.Item.ItemName" class="form-control"/>
+    </div>
+</div>
+
+<div class="bg-gray-200 py-2 px-3 rounded mb-4">
+    <h6 class="mb-0">International Details</h6>
+</div>
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="hsCode" class="form-label">HS Code</label>
+        <input asp-for="@Model.Item.HSCode" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="goodDescription" class="form-label">Good Description</label>
+        <input asp-for="@Model.Item.GoodDescription" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="countryOfOrigin" class="form-label">Country of Origin</label>
+        <input asp-for="@Model.Item.CountryOfOrigin" class="form-control"/>
+    </div>
+</div>
+
+<div class="bg-gray-200 py-2 px-3 rounded mb-4">
+    <h6 class="mb-0">Dimensions</h6>
+</div>
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="hsCode" class="form-label">Package Length</label>
+        <input asp-for="@Model.Item.PackageLength" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="goodDescription" class="form-label">Package Width</label>
+        <input asp-for="@Model.Item.PackageWidth" class="form-control"/>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="hsCode" class="form-label">Package Height</label>
+        <input asp-for="@Model.Item.PackageHeight" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="goodDescription" class="form-label">Package Dimension Unit of Measure</label>
+        <input asp-for="@Model.Item.PackageDimensionUOM" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="countryOfOrigin" class="form-label">Package Weight</label>
+        <input asp-for="@Model.Item.PackageWeight" class="form-control"/>
+    </div>
+</div>
+
+
+<div class="bg-gray-200 py-2 px-3 rounded mb-4">
+    <h6 class="mb-0">Description</h6>
+</div>
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="SalesDescription" class="form-label">Sales Description</label>
+        <input asp-for="@Model.Item.SalesDescription" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="PurchaseDescription" class="form-label">Purchase Description</label>
+        <input asp-for="@Model.Item.PurchaseDescription" class="form-control"/>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="Memo" class="form-label">Shipping Memo</label>
+        <input asp-for="@Model.Item.Memo" class="form-control"/>
+    </div>
+</div>
