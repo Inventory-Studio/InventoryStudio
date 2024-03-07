@@ -10,10 +10,10 @@
     </div>
     @if (Model.IsDetails)
     {
-        <ejs-grid id="GridBarcodes" class="h-100" dataSource="@itemBarcodes" toolbarClick="barcodesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
-                  allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "PdfExport", "ExcelExport" })">
+        <ejs-grid id="GridBarcodes" class="h-100" dataSource="@Model.Item.ItemBarcodes" toolbarClick="barcodesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+                  allowExcelExport="true" allowPdfExport="true" toolbar="@(new List<string>() { "Add", "Edit", "Update", "Delete", "PdfExport", "ExcelExport" })">
 
-        
+            <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true"  mode="Normal"></e-grid-editSettings>
             <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
             @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
             <e-grid-columns>
@@ -22,9 +22,12 @@
                 </e-grid-column>
                 <e-grid-column field="Barcode" headerText="Barcode" width="120"></e-grid-column>
                 <e-grid-column field="Type" headerText="Type" width="120"></e-grid-column>
-                <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
-                <e-grid-column field="CreatedOn" headerText="Created On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
-                <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
+                @if (Model.IsDetails)
+                {
+                    <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
+                    <e-grid-column field="CreatedOn" headerText="Created On" type="datetime" format="M/d/yyyy h:mm a" width="120"></e-grid-column>
+                    <e-grid-column headerText="Actions" template="#actions" width="100" maxWidth="100"></e-grid-column>
+                }
             </e-grid-columns>
         </ejs-grid>
     }
@@ -90,7 +93,7 @@
 <script src="@Url.Content("~/js/utils/utils.js")"></script>
 <!-- Javascript logic for datagrid -->
 <script lang="js">
-    const barcodesToolbarClick = customExportToolbarClick("GridBarcodes", "IS_Barcodes");
+const barcodesToolbarClick = customBarcodeExportToolbarClick("GridBarcodes", "IS_Barcodes");
 </script>
 
 <script>
@@ -168,5 +171,3 @@
 
     });
 </script>
-
-

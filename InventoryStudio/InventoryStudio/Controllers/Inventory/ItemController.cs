@@ -53,7 +53,14 @@ namespace InventoryStudio.Controllers
         [Authorize(Policy = "Inventory-Item-Create")]
         public IActionResult Create()
         {
-            return View("~/Views/Inventory/Item/Create.cshtml");
+            var itemViewModel = new ItemViewModel
+            {
+                Item = new Item
+                {
+                    ItemBarcodes = new List<ItemBarcode>()
+                }
+            };
+            return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
         }
 
         [Authorize(Policy = "Inventory-Item-Create")]
@@ -197,8 +204,8 @@ namespace InventoryStudio.Controllers
                 itemDetailsViewModel.OnHand = 100;
                 itemDetailsViewModel.Available = 98;
                 itemDetailsViewModel.ProductSku = item.ItemNumber;
-                itemDetailsViewModel.ProductImage =
-                    "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
+                // itemDetailsViewModel.ProductImage =
+                //     "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
                 itemDetailsViewModel.ShipMonkImage =
                                     "https://as1.ftcdn.net/v2/jpg/01/81/20/94/1000_F_181209420_P2Pa9vacolr2uIOwSJdCq4w5ydtPCAsS.jpg";
             }

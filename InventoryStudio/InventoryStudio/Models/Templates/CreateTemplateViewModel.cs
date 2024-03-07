@@ -23,6 +23,7 @@ namespace InventoryStudio.Models.Templates
 
     public enum TemplateType
     {
+        Item,
         Vendor,
         Customer,
         PurchaseOrder,

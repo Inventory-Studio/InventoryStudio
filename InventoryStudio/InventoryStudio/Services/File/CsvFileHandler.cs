@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using System.Globalization;
 using System.Text;
 
@@ -58,9 +59,39 @@ namespace InventoryStudio.File
             return null;
         }
 
+        public async Task<List<string[]>> GetHeaders(IFormFile file)
+        {
+            var list = new List<string[]>();
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+                using (var reader = new StreamReader(stream, Encoding.Default))
+                using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = false }))
+                {
+                    string[] headers = null;
+                    while (await csv.ReadAsync())
+                    {
+                        var currentLine = csv.Parser.RawRecord;
+                        await Console.Out.WriteLineAsync(currentLine);
+                        if (currentLine.StartsWith("---"))
+                            continue;
+                        headers = csv.Parser.Record;
+                        if (headers != null)
+                        {
+                            list.Add(headers);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
         public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
         {
-            var entityTypeProperties = typeof(T).GetProperties().Select(p => p.Name).ToList();
+            var entityTypeProperties = typeof(T).GetProperties()
+                .Where(p => (!p.PropertyType.IsGenericType || p.PropertyType.GetGenericTypeDefinition() != typeof(List<>)) && p.PropertyType.Namespace.StartsWith(nameof(System)))
+                .Select(p => p.Name).ToList();
             var mapping = new Dictionary<string, string?>();
 
             foreach (var entityTypeProperty in entityTypeProperties)
@@ -92,6 +123,8 @@ namespace InventoryStudio.File
                 }
             }
         }
+
+
     }
 
 }

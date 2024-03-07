@@ -116,9 +116,35 @@ namespace InventoryStudio.File
             }
         }
 
+        public async Task<List<string[]>> GetHeaders(IFormFile file)
+        {
+            var list = new List<string[]>();
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+                var workbook = new XSSFWorkbook(stream);
+                for (int sheetIndex = 0; sheetIndex < workbook.NumberOfSheets; sheetIndex++)
+                {
+                    var sheet = workbook.GetSheetAt(sheetIndex);
+                    var headerRow = sheet.GetRow(0);
+                    var headerValues = new List<string>();
+                    for (int i = 0; i < headerRow.LastCellNum; i++)
+                    {
+                        var cell = headerRow.GetCell(i);
+                        headerValues.Add(cell.ToString());
+                    }
+                    list.Add(headerValues.ToArray());
+                }
+            }
+            return list;
+        }
+
         public async Task<Dictionary<string, string>> MapHeadersToEntityProperties(string[] headerFields)
         {
-            var entityTypeProperties = typeof(T).GetProperties().Select(p => p.Name).ToList();
+            var entityTypeProperties = typeof(T).GetProperties()
+                 .Where(p => (!p.PropertyType.IsGenericType || p.PropertyType.GetGenericTypeDefinition() != typeof(List<>)) && p.PropertyType.Namespace.StartsWith(nameof(System)))
+                 .Select(p => p.Name).ToList();
             var mapping = new Dictionary<string, string?>();
 
             foreach (var entityTypeProperty in entityTypeProperties)
@@ -157,6 +183,7 @@ namespace InventoryStudio.File
                 return await Task.FromResult(fileStream.ToArray());
             }
         }
+
 
     }
 
