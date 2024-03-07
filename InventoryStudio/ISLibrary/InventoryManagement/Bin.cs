@@ -347,6 +347,7 @@ namespace ISLibrary
                 {
                     if (Filter.BinID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinID, "b.BinID");
                     if (Filter.BinNumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinNumber, "b.BinNumber");
+                    if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "b.LocationID");
                 }
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "BinID" : Utility.CustomSorting.GetSortExpression(typeof(Bin), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);

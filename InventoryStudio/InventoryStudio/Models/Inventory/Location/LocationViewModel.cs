@@ -1,11 +1,16 @@
-﻿using System.ComponentModel;
+﻿using ISLibrary;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel;
 
-namespace InventoryStudio.Models.OrderManagement.Location
+namespace InventoryStudio.Models
 {
-    public class CreateLocationViewModel
+    public class LocationViewModel
     {
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
+        [DisplayName("Location ID")]
+        public string LocationID { get; set; }
+
+        [DisplayName("Company")]
+        public string Company { get; set; }
 
         [DisplayName("Parent Location ID")]
         public string? ParentLocationID { get; set; }
@@ -55,8 +60,8 @@ namespace InventoryStudio.Models.OrderManagement.Location
         [DisplayName("Default Country of Origin")]
         public string? DefaultCountryOfOrigin { get; set; }
 
-        [DisplayName("Default HS Code")] 
-        public string? DefaultHscode { get; set; }
+        [DisplayName("Display HS Code")]
+        public string? DefaultHSCode { get; set; }
 
         [DisplayName("Default Lowest Shipping Rate")]
         public bool DefaultLowestShippingRate { get; set; }
@@ -73,8 +78,8 @@ namespace InventoryStudio.Models.OrderManagement.Location
         [DisplayName("Fulfillment Combine Status")]
         public string? FulfillmentCombineStatus { get; set; }
 
-        [DisplayName("Default Package Dimension ID")]
-        public string? DefaultPackageDimensionID { get; set; }
+        [DisplayName("Default Package Dimension")]
+        public string? DefaultPackageDimension { get; set; }
 
         [DisplayName("Enable Simple Mode")]
         public bool EnableSimpleMode { get; set; }
@@ -88,10 +93,28 @@ namespace InventoryStudio.Models.OrderManagement.Location
         [DisplayName("Validate Source")]
         public bool ValidateSource { get; set; }
 
-        [DisplayName("Address ID")]
-        public string? AddressID { get; set; }
+        [DisplayName("Address")]
+        public string? Address { get; set; }
 
         [DisplayName("Variance Bin ID")]
         public string? VarianceBinID { get; set; }
+
+        [DisplayName("Updated By")]
+        public string? UpdatedBy { get; set; }
+
+        [DisplayName("Updated On")]
+        public DateTime? UpdatedOn { get; set; }
+
+        [DisplayName("Created By")]
+        public string CreatedBy { get; set; }
+
+        [DisplayName("Created On")]
+        public DateTime CreatedOn { get; set; }
+
+        [ValidateNever]
+        public List<AuditData>? AuditDataList { get; set; }
+
+        [ValidateNever]
+        public List<Bin>? BinList { get; set; }
     }
 }

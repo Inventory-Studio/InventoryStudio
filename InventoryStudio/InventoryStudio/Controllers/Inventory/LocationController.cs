@@ -1,5 +1,4 @@
-﻿using InventoryStudio.Models.OrderManagement.Location;
-using ISLibrary;
+﻿using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,8 +7,10 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using Syncfusion.EJ2.Base;
+using InventoryStudio.Models;
+using Microsoft.AspNetCore.Authorization;
 
-namespace InventoryStudio.Controllers.OrderManagement
+namespace InventoryStudio.Controllers
 {
     public class LocationController : BaseController
     {
@@ -28,6 +29,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                     CompanyID = company.Value;
             }
         }
+
+        [Authorize(Policy = "Inventory-Location-List")]
         public IActionResult Index()
         {
             var locations = Location.GetLocations(CompanyID);
@@ -36,7 +39,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 list.Add(EntityConvertViewModel(locaion));
             }
-            return View("~/Views/OrderManagement/Location/Index.cshtml", list);
+            return View("~/Views/Inventory/Location/Index.cshtml", list);
         }
 
         private LocationViewModel EntityConvertViewModel(Location location)
@@ -109,17 +112,20 @@ namespace InventoryStudio.Controllers.OrderManagement
             return viewModel;
         }
 
+        [Authorize(Policy = "Inventory-Location-View")]
         public IActionResult Details(string id)
         {
             if (id == null)
                 return NotFound();
-            var location = new Location(id);
+            var location = new Location(CompanyID, id);
             if (location == null)
                 return NotFound();
             var detailViewModel = EntityConvertViewModel(location);
-            return View("~/Views/OrderManagement/Location/Details.cshtml", detailViewModel);
+            detailViewModel.BinList = location.Bins;
+            return View("~/Views/Inventory/Location/Details.cshtml", detailViewModel);
         }
 
+        [Authorize(Policy = "Inventory-Location-Create")]
         public IActionResult Create()
         {
             var addresses = Address.GetAddresses(CompanyID);
@@ -130,18 +136,18 @@ namespace InventoryStudio.Controllers.OrderManagement
             ViewData["AddressID"] = new SelectList(addresses, "AddressID", "FullName");
             ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             ViewData["DefaultPackageDimensionID"] = new SelectList(packageDimensions, "PackageDimensionID", "Name");
-            return View("~/Views/OrderManagement/Location/Create.cshtml");
+            return View("~/Views/Inventory/Location/Create.cshtml");
         }
 
-
+        [Authorize(Policy = "Inventory-Location-Create")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CompanyID,ParentLocationID,LocationNumber,LocationName,UseBins,UseLotNumber,UseCartonNumber,UseVendorCartonNumber,UseSerialNumber,AllowMultiplePackagePerFulfillment,AllowAutoPick,AllowAutoPickApproval,AllowNegativeInventory,DefaultAddressValidation,DefaultSignatureRequirement,DefaultSignatureRequirementAmount,DefaultCountryOfOrigin,DefaultHSCode,DefaultLowestShippingRate,MaximumPickScanRequirement,MaximumPackScanRequirement,DisplayWeightMode,FulfillmentCombineStatus,DefaultPackageDimensionID,EnableSimpleMode,EnableSimpleModePick,EnableSimpleModePack,ValidateSource,AddressID,VarianceBinID")] CreateLocationViewModel input)
+        public IActionResult Create(CreateLocationViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var location = new Location();
-                location.CompanyID = input.CompanyID;
+                location.CompanyID = CompanyID;
                 location.ParentLocationID = input.ParentLocationID;
                 location.LocationNumber = input.LocationNumber;
                 location.LocationName = input.LocationName;
@@ -183,10 +189,10 @@ namespace InventoryStudio.Controllers.OrderManagement
             ViewData["AddressID"] = new SelectList(addresses, "AddressID", "FullName", input.AddressID);
             ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             ViewData["DefaultPackageDimensionID"] = new SelectList(packageDimensions, "PackageDimensionID", "Name", input.DefaultPackageDimensionID);
-            return View("~/Views/OrderManagement/Location/Create.cshtml", input);
+            return View("~/Views/Inventory/Location/Create.cshtml", input);
         }
 
-
+        [Authorize(Policy = "Inventory-Location-Edit")]
         public IActionResult Edit(string id)
         {
             if (id == null)
@@ -206,7 +212,6 @@ namespace InventoryStudio.Controllers.OrderManagement
 
             var viewModel = new EditLocationViewModel();
             viewModel.LocationID = location.LocationID;
-            viewModel.CompanyID = location.CompanyID;
             viewModel.ParentLocationID = location.ParentLocationID;
             viewModel.LocationNumber = location.LocationNumber;
             viewModel.LocationName = location.LocationName;
@@ -236,22 +241,20 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ValidateSource = location.ValidateSource;
             viewModel.AddressID = location.AddressID;
             viewModel.VarianceBinID = location.VarianceBinID;
-            return View("~/Views/OrderManagement/Location/Edit.cshtml", viewModel);
+            return View("~/Views/Inventory/Location/Edit.cshtml", viewModel);
         }
 
-
+        [Authorize(Policy = "Inventory-Location-Edit")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("LocationID,CompanyID,ParentLocationID,LocationNumber,LocationName,UseBins,UseLotNumber,UseCartonNumber,UseVendorCartonNumber,UseSerialNumber,AllowMultiplePackagePerFulfillment,AllowAutoPick,AllowAutoPickApproval,AllowNegativeInventory,DefaultAddressValidation,DefaultSignatureRequirement,DefaultSignatureRequirementAmount,DefaultCountryOfOrigin,DefaultHSCode,DefaultLowestShippingRate,MaximumPickScanRequirement,MaximumPackScanRequirement,DisplayWeightMode,FulfillmentCombineStatus,DefaultPackageDimensionID,EnableSimpleMode,EnableSimpleModePick,EnableSimpleModePack,ValidateSource,AddressID,VarianceBinID")] EditLocationViewModel input)
+        public IActionResult Edit(EditLocationViewModel input)
         {
-            if (id != input.LocationID)
-                return NotFound();
+           
             if (ModelState.IsValid)
             {
                 var location = new Location(CompanyID, input.LocationID);
                 if (location == null)
                     return NotFound();
-                location.CompanyID = input.CompanyID;
                 location.ParentLocationID = input.ParentLocationID;
                 location.LocationNumber = input.LocationNumber;
                 location.LocationName = input.LocationName;
@@ -292,11 +295,12 @@ namespace InventoryStudio.Controllers.OrderManagement
             var companies = user.Companies;
             var packageDimensions = PackageDimension.GetPackageDimensions(CompanyID);
             ViewData["AddressID"] = new SelectList(addresses, "AddressID", "FullName", input.AddressID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
+            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", CompanyID);
             ViewData["DefaultPackageDimensionID"] = new SelectList(packageDimensions, "PackageDimensionID", "Name", input.DefaultPackageDimensionID);
-            return View("~/Views/OrderManagement/Location/Edit.cshtml", input);
+            return View("~/Views/Inventory/Location/Edit.cshtml", input);
         }
 
+        [Authorize(Policy = "Inventory-Location-Delete")]
         public IActionResult Delete(string id)
         {
             if (id == null)
@@ -305,7 +309,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (location == null)
                 return NotFound();
             var viewModel = EntityConvertViewModel(location);
-            return View("~/Views/OrderManagement/Location/Delete.cshtml", viewModel);
+            return View("~/Views/Inventory/Location/Delete.cshtml", viewModel);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -317,7 +321,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 location.Delete();
             return RedirectToAction(nameof(Index));
         }
-        
+
         public IActionResult Insert([FromBody] CRUDModel value)
         {
             return Json(value.Value);
@@ -357,7 +361,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                         CompanyID,
                         locationFilter,
                         dm.Take,
-                        (dm.Skip / dm.Take) + 1,
+                        dm.Skip / dm.Take + 1,
                         out totalRecord
                     ).Select(EntityConvertViewModel);
                 }

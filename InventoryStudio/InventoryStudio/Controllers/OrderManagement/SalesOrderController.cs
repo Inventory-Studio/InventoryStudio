@@ -63,7 +63,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.TranDate = salesOrder.TranDate;
             if (!string.IsNullOrEmpty(salesOrder.LocationID))
             {
-                var location = new ISLibrary.OrderManagement.Location(CompanyID, salesOrder.LocationID);
+                var location = new ISLibrary.Location(CompanyID, salesOrder.LocationID);
                 if (location != null)
                     viewModel.Location = location.LocationName;
             }
@@ -138,7 +138,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
-            var locations = ISLibrary.OrderManagement.Location.GetLocations(CompanyID);
+            var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -192,7 +192,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
-            var locations = ISLibrary.OrderManagement.Location.GetLocations(CompanyID);
+            var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -215,7 +215,7 @@ namespace InventoryStudio.Controllers.OrderManagement
 
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
-            var locations = ISLibrary.OrderManagement.Location.GetLocations(CompanyID);
+            var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
@@ -303,7 +303,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
-            var locations = ISLibrary.OrderManagement.Location.GetLocations(CompanyID);
+            var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
             var companies = user.Companies;

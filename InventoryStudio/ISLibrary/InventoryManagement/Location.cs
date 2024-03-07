@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISLibrary.OrderManagement
+namespace ISLibrary
 {
     public class Location : BaseClass
     {
@@ -84,6 +84,39 @@ namespace ISLibrary.OrderManagement
 
         public DateTime CreatedOn { get; set; }
 
+        private List<Bin> mBin = null;
+        public List<Bin> Bins
+        {
+            get
+            {
+                BinFilter objFilter = null;
+
+                try
+                {
+                    if (mBin == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(LocationID))
+                    {
+                        objFilter = new BinFilter();
+                        objFilter.LocationID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.LocationID.SearchString = LocationID;
+                        mBin = Bin.GetBins(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mBin;
+            }
+            set
+            {
+                mBin = value;
+            }
+        }
+
         public Location()
         {
 
@@ -145,7 +178,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("AddressID")) AddressID = Convert.ToString(objRow["AddressID"]);
                 if (objColumns.Contains("VarianceBinID")) VarianceBinID = Convert.ToString(objRow["VarianceBinID"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
-                if (objColumns.Contains("UpdatedOn")) UpdatedOn = objRow["UpdatedOn"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(objRow["UpdatedOn"]);
+                if (objColumns.Contains("UpdatedOn")) UpdatedOn = objRow["UpdatedOn"] == DBNull.Value ? null : Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
             }
@@ -191,7 +224,7 @@ namespace ISLibrary.OrderManagement
             {
                 objData = null;
             }
-           
+
         }
 
 
@@ -235,7 +268,7 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(LocationName)) throw new Exception("LocationName is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
-                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
+                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ParentLocationID"] = ParentLocationID;
@@ -327,7 +360,6 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(LocationName)) throw new Exception("LocationName is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, ItemID is missing");
-                if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["ParentLocationID"] = ParentLocationID;
@@ -376,7 +408,7 @@ namespace ISLibrary.OrderManagement
                 dicParam = null;
                 dicWParam = null;
             }
-            
+
             LogAuditData(enumActionType.Update);
             return true;
         }
@@ -442,7 +474,7 @@ namespace ISLibrary.OrderManagement
             strSQL = "SELECT TOP 1 l.* " +
                      "FROM Location (NOLOCK) l " +
                      "WHERE l.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND l.LocationID=" + Database.HandleQuote(LocationID);
+                     "AND l.LocationName=" + Database.HandleQuote(LocationName);
             return Database.HasRows(strSQL);
         }
 

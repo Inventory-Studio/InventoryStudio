@@ -1,14 +1,11 @@
 ﻿using System.ComponentModel;
 
-namespace InventoryStudio.Models.OrderManagement.Location
+namespace InventoryStudio.Models
 {
     public class EditLocationViewModel
     {
         [DisplayName("Location ID")]
         public string LocationID { get; set; }
-
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
 
         [DisplayName("Parent Location ID")]
         public string? ParentLocationID { get; set; }

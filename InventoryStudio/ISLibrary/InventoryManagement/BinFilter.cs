@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ISLibrary.OrderManagement
+namespace ISLibrary
 {
-    public class LocationFilter
+    public class BinFilter
     {
+        public Database.Filter.StringSearch.SearchFilter BinID { get; set; }
         public Database.Filter.StringSearch.SearchFilter LocationID { get; set; }
-
-        public Database.Filter.StringSearch.SearchFilter ParentLocationID { get; set; }
+        public Database.Filter.StringSearch.SearchFilter BinNumber { get; set; }
     }
 }
