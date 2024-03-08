@@ -122,9 +122,9 @@ namespace InventoryStudio.FileHandlers
             return Task.FromResult(result);
         }
 
-        public Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file)
+        public async Task<List<List<Dictionary<string, string>>>> ImportDatas(IFormFile file)
         {
-            var result = new List<Dictionary<string, string>>();
+            var result = new List<List<Dictionary<string, string>>>();
             using (var stream = file.OpenReadStream())
             {
                 var workbook = new XSSFWorkbook(stream);
@@ -132,6 +132,7 @@ namespace InventoryStudio.FileHandlers
                 {
                     ISheet sheet = workbook.GetSheetAt(sheetIndex);
                     string[] headers = null;
+                    var currentDataList = new List<Dictionary<string, string>>();
                     for (int rowIndex = 0; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
                     {
                         IRow row = sheet.GetRow(rowIndex);
@@ -148,13 +149,14 @@ namespace InventoryStudio.FileHandlers
                                 {
                                     rowData[headers[j]] = dataRow.GetCell(j)?.ToString();
                                 }
-                                result.Add(rowData);
+                                currentDataList.Add(rowData);
                             }
                         }
                     }
+                    result.Add(currentDataList);
                 }
             }
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

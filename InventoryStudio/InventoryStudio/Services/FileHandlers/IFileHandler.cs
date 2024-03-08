@@ -11,6 +11,6 @@
 
         Task<List<Dictionary<string, string>>> ImportData(IFormFile file);
 
-        Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file);
+        Task<List<List<Dictionary<string, string>>>> ImportDatas(IFormFile file);
     }
 }

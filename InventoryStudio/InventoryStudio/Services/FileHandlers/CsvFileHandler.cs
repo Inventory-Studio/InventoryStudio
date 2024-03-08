@@ -109,29 +109,46 @@ namespace InventoryStudio.FileHandlers
             return result;
         }
 
-        public async Task<List<Dictionary<string, string>>> ImportDatas(IFormFile file)
+        public async Task<List<List<Dictionary<string, string>>>> ImportDatas(IFormFile file)
         {
-            var result = new List<Dictionary<string, string>>();
+            var result = new List<List<Dictionary<string, string>>>();
             using (var streamReader = new StreamReader(file.OpenReadStream()))
             using (var csv = new CsvReader(streamReader, new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = false }))
             {
                 string[] headers = null;
+                var currentDataList = new List<Dictionary<string, string>>();
                 while (await csv.ReadAsync())
                 {
                     var currentLine = csv.Parser.RawRecord;
                     if (currentLine.StartsWith("---"))
+                    {
+                        if (headers != null)
+                        {
+                            result.Add(currentDataList);
+                            currentDataList = new List<Dictionary<string, string>>();
+                        }
+                        headers = null;
                         continue;
-                    headers = csv.Parser.Record;
+                    }
+                    if (headers == null)
+                        headers = csv.Parser.Record;
                     if (headers != null)
                     {
                         var rowData = new Dictionary<string, string>();
                         for (int i = 0; i < headers.Length; i++)
                         {
+                            var header = headers[i];
+                            var value = csv.Parser.Record[i];
+                            if (header.Equals(value))
+                                continue;
                             rowData[headers[i]] = csv.Parser.Record[i];
                         }
-                        result.Add(rowData);
+                        if (rowData.Count > 0)
+                            currentDataList.Add(rowData);
                     }
                 }
+                if (headers != null)
+                    result.Add(currentDataList);
             }
             return result;
         }
