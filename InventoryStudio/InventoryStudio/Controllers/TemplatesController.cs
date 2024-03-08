@@ -1,8 +1,8 @@
-﻿using InventoryStudio.File;
-using InventoryStudio.Importer;
+﻿using InventoryStudio.FileHandlers;
 using InventoryStudio.Models;
 using InventoryStudio.Models.Templates;
-using InventoryStudio.Services.File;
+using InventoryStudio.Services.FileHandlers;
+using InventoryStudio.Services.Importers;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using ISLibrary.OrderManagement;
@@ -21,12 +21,13 @@ namespace InventoryStudio.Controllers
         private readonly string CompanyID = string.Empty;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly CustomerImporter _customerImporter;
-        private readonly VendorImporter _vendorImporter;
-        private readonly ItemImporter _itemImporter;
+
         private static Dictionary<string, int> importProgress = new Dictionary<string, int>();
 
-        public TemplatesController(IHttpContextAccessor httpContextAccessor, CustomerImporter customerImporter, VendorImporter vendorImporter, ItemImporter itemImporter)
+        private readonly ImporterFactory _importerFactory;
+        private readonly FileHandlerFactory _fileHandlerFactory;
+
+        public TemplatesController(IHttpContextAccessor httpContextAccessor, ImporterFactory importerFactory, FileHandlerFactory fileHandlerFactory)
         {
             _httpContextAccessor = httpContextAccessor;
             var user = _httpContextAccessor.HttpContext?.User;
@@ -36,9 +37,8 @@ namespace InventoryStudio.Controllers
                 if (company != null)
                     CompanyID = company.Value;
             }
-            _customerImporter = customerImporter;
-            _vendorImporter = vendorImporter;
-            _itemImporter = itemImporter;
+            _importerFactory = importerFactory;
+            _fileHandlerFactory = fileHandlerFactory;
         }
         public IActionResult Index()
         {
@@ -154,9 +154,10 @@ namespace InventoryStudio.Controllers
                 template.Create();
 
                 var fileType = Path.GetExtension(input.File.FileName);
-                var fullNamespace = GetFullNamespace(input.Type.ToString());
-                var _fileHandler = FileHandlerFactory.CreateFileHandler(fileType);
+                var _fileHandler = _fileHandlerFactory.CreateFileHandler(fileType);
                 var headers = await _fileHandler.ImportTemplate(input.File);
+                if (headers.Count == 0)
+                    throw new Exception();
                 //【Todo】
                 var mappings = MapHeadersToEntityProperties<ItemTemplate>(headers[0]);
                 foreach (var mapping in mappings)
@@ -373,19 +374,11 @@ namespace InventoryStudio.Controllers
 
                 var createdBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 ProgressHandler progressHandler = new ProgressHandler(ImportProgress);
-                switch (template.Type)
-                {
-                    case "Vendor":
-                        await _vendorImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
-                        break;
-                    case "Customer":
-                        await _customerImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
-                        break;
-                    case "Item":
-                        await _itemImporter.ImportDataAsync(CompanyID, templateId, createdBy, file, progressHandler);
-                        break;
-                }
-
+                var fileType = Path.GetExtension(file.FileName);
+                var filehanlder = _fileHandlerFactory.CreateFileHandler(fileType);
+                var datas = await filehanlder.ImportData(file);
+                var importer = _importerFactory.CreateImporter(template.Type);
+                await importer.ImportDataAsync(CompanyID, templateId, createdBy, progressHandler, datas);
                 return Ok();
             }
             catch (Exception ex)

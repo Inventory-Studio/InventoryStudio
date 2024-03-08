@@ -1,21 +1,18 @@
-﻿using InventoryStudio.Services.File;
-using ISLibrary.ImportTemplateManagement;
+﻿using ISLibrary.ImportTemplateManagement;
 using ISLibrary;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text.Json;
-using InventoryStudio.File;
+using InventoryStudio.Services.FileHandlers;
 
-namespace InventoryStudio.Importer
+
+namespace InventoryStudio.Services.Importers
 {
-    public class ItemImporter
+    public class ItemImporter : BaseImporter, IImporter
     {
 
-        public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, IFormFile file, ProgressHandler progressHandler)
+        public async Task ImportDataAsync(string companyId, string importTemplateID, string userId, ProgressHandler progressHandler, List<Dictionary<string, string>> datas)
         {
-            var fileType = Path.GetExtension(file.FileName);
-            var fileHandler = FileHandlerFactory.CreateFileHandler(fileType);
-            var datas = await fileHandler.ImportData(file);
             var importTemplateFilter = new ImportTemplateFieldFilter();
             importTemplateFilter.ImportTemplateID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
             importTemplateFilter.ImportTemplateID.SearchString = importTemplateID;
@@ -62,20 +59,13 @@ namespace InventoryStudio.Importer
                 item.Create();
                 processedCount++;
                 importResult.SuccessfulRecords++;
-                int progress = (int)((processedCount / (double)importResult.TotalRecords) * 100);
+                int progress = (int)(processedCount / (double)importResult.TotalRecords * 100);
                 progressHandler?.Invoke(progress, importTemplateID);
             }
             importResult.Update();
         }
 
-        private bool TryGetDestinationField(string sourceField, List<ImportTemplateField> importTemplateFields, out string destinationField)
-        {
-            var field = importTemplateFields.FirstOrDefault(f => f.SourceField == sourceField);
-            destinationField = field?.DestinationField;
-            return field != null;
-        }
-
-        private async System.Threading.Tasks.Task SetPropertyAsync(string companyId, Item item, string value, PropertyInfo property)
+        private async Task SetPropertyAsync(string companyId, Item item, string value, PropertyInfo property)
         {
             if (property.PropertyType == typeof(Item))
             {

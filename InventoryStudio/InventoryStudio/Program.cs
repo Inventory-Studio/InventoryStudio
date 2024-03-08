@@ -1,11 +1,10 @@
 using InventoryStudio.Authorization;
 using InventoryStudio.Data;
-using InventoryStudio.File;
-using InventoryStudio.Importer;
+using InventoryStudio.FileHandlers;
 using InventoryStudio.Models;
 using InventoryStudio.Services;
 using InventoryStudio.Services.Authorization;
-using InventoryStudio.Services.File;
+using InventoryStudio.Services.Importers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,11 +19,14 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped(typeof(IFileHandler), typeof(CsvFileHandler));
-builder.Services.AddScoped(typeof(IFileHandler), typeof(ExcelFileHandler));
+builder.Services.AddScoped<ExcelFileHandler>();
+builder.Services.AddScoped<CsvFileHandler>();
+builder.Services.AddScoped<FileHandlerFactory>();
+
 builder.Services.AddScoped<CustomerImporter>();
 builder.Services.AddScoped<VendorImporter>();
 builder.Services.AddScoped<ItemImporter>();
+builder.Services.AddScoped<ImporterFactory>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

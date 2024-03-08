@@ -1,4 +1,4 @@
-﻿namespace InventoryStudio.File
+﻿namespace InventoryStudio.FileHandlers
 {
     public interface IFileHandler
     {

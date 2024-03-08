@@ -1,25 +1,33 @@
 ﻿using System.Reflection;
 
-namespace InventoryStudio.File
+namespace InventoryStudio.FileHandlers
 {
     public class FileHandlerFactory
     {
-        public static IFileHandler CreateFileHandler(string fileType)
+        private readonly IServiceProvider _serviceProvider;
+
+        public FileHandlerFactory(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
+        }
+
+        public IFileHandler CreateFileHandler(string fileType)
+        {
+            IFileHandler fileHandler;
             if (fileType == ".xls" || fileType == ".xlsx")
             {
-                return new ExcelFileHandler();
+                fileHandler = _serviceProvider.GetRequiredService<ExcelFileHandler>();
             }
             else if (fileType == ".csv")
             {
-                return new CsvFileHandler();
+                fileHandler = _serviceProvider.GetRequiredService<CsvFileHandler>();
             }
             else
             {
                 throw new NotSupportedException($"Unsupported file format: {fileType}");
             }
+            return fileHandler;
         }
-
         public static dynamic CreateFileHandlerInstance(string typeName, string fileType, string assemblyName = "ISLibrary")
         {
             try

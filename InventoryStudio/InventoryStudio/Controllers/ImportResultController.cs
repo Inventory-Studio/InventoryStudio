@@ -1,12 +1,12 @@
 ﻿using InventoryStudio.Models.ImportResults;
-using InventoryStudio.Services.File;
 using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using System.Dynamic;
-using InventoryStudio.File;
+using InventoryStudio.FileHandlers;
+
 
 namespace InventoryStudio.Controllers
 {
@@ -15,9 +15,11 @@ namespace InventoryStudio.Controllers
         private readonly string CompanyID = string.Empty;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ImportResultController(IHttpContextAccessor httpContextAccessor)
+        private readonly FileHandlerFactory _fileHandlerFactory;
+        public ImportResultController(IHttpContextAccessor httpContextAccessor, FileHandlerFactory fileHandlerFactory)
         {
             _httpContextAccessor = httpContextAccessor;
+            _fileHandlerFactory = fileHandlerFactory;
         }
 
         public IActionResult Index()
@@ -114,7 +116,7 @@ namespace InventoryStudio.Controllers
                     string jsonStringWithErrorMessage = InsertErrorMessage(json.FailedData, json.ErrorMessage);
                     jsons.Add(jsonStringWithErrorMessage);
                 }
-                var _fileHandler = FileHandlerFactory.CreateFileHandler(type);
+                var _fileHandler = _fileHandlerFactory.CreateFileHandler(type);
                 byte[] fileBytes = await _fileHandler.ExportImportResult(jsons);
                 if (type.Contains(".csv"))
                 {

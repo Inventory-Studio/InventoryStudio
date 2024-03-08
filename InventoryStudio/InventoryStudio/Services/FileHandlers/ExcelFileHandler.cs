@@ -5,7 +5,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Dynamic;
 
-namespace InventoryStudio.File
+namespace InventoryStudio.FileHandlers
 {
     public class ExcelFileHandler : IFileHandler
     {

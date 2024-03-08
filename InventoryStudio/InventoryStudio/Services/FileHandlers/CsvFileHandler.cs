@@ -6,7 +6,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Text;
 
-namespace InventoryStudio.File
+namespace InventoryStudio.FileHandlers
 {
     public class CsvFileHandler : IFileHandler
     {
