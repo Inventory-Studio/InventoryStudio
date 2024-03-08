@@ -302,7 +302,18 @@ namespace ISLibrary
                     {
                         throw new Exception("Can't find this item(" + ItemID + ")'s  bin Data.");
                     }
-                    
+
+                    //Inventory Log
+                    InventoryLog objInventoryLog = new InventoryLog();
+                    objInventoryLog.ItemID = ItemID;
+                    objInventoryLog.CompanyID = CompanyID;
+                    objInventoryLog.ChangeType = "Transfer";
+                    objInventoryLog.ChangeQuantity = -decBaseQuantity;
+                    objInventoryLog.ParentObjectID = TransferID;
+                    objInventoryLog.BinID = DefaultInventory.BinID;
+                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.CreatedBy = CreatedBy;
+                    objInventoryLog.Create();
                 }
 
                 if (!ToLocation.UseBins)
@@ -327,6 +338,18 @@ namespace ISLibrary
                     {
                         DefaultInventory.Create();
                     }
+
+                    //Inventory Log
+                    InventoryLog objInventoryLog = new InventoryLog();
+                    objInventoryLog.ItemID = ItemID;
+                    objInventoryLog.CompanyID = CompanyID;
+                    objInventoryLog.ChangeType = "Transfer";
+                    objInventoryLog.ChangeQuantity = decBaseQuantity;
+                    objInventoryLog.ParentObjectID = TransferID;
+                    objInventoryLog.BinID = DefaultInventory.BinID;
+                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.CreatedBy = CreatedBy;
+                    objInventoryLog.Create();
                 }
 
                 if (TransferLineDetails != null)
@@ -357,6 +380,20 @@ namespace ISLibrary
                                     throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
                                 }
                                 objInventory.Update();
+
+
+                                //Inventory Log
+                                InventoryLog objInventoryLog = new InventoryLog();
+                                objInventoryLog.ItemID = ItemID;
+                                objInventoryLog.CompanyID = CompanyID;
+                                objInventoryLog.ChangeType = "Transfer";
+                                objInventoryLog.ChangeQuantity = -decBaseQuantity;
+                                objInventoryLog.ParentObjectID = TransferID;
+                                objInventoryLog.BinID = objInventory.BinID;
+                                objInventoryLog.InventoryID = objInventory.InventoryID;
+                                objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
+                                objInventoryLog.CreatedBy = CreatedBy;
+                                objInventoryLog.Create();
                             }
                             else
                             {
@@ -388,6 +425,19 @@ namespace ISLibrary
                                 objInventory.CreatedBy = CreatedBy;
                                 objInventory.Create();
                             }
+
+                            //Inventory Log
+                            InventoryLog objInventoryLog = new InventoryLog();
+                            objInventoryLog.ItemID = ItemID;
+                            objInventoryLog.CompanyID = CompanyID;
+                            objInventoryLog.ChangeType = "Transfer";
+                            objInventoryLog.ChangeQuantity = decBaseQuantity;
+                            objInventoryLog.ParentObjectID = TransferID;
+                            objInventoryLog.BinID = objInventory.BinID;
+                            objInventoryLog.InventoryID = objInventory.InventoryID;
+                            objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
+                            objInventoryLog.CreatedBy = CreatedBy;
+                            objInventoryLog.Create();
                         }
 
 

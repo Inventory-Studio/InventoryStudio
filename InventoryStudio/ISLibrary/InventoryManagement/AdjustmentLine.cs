@@ -270,7 +270,20 @@ namespace ISLibrary
                     {
                         DefaultInventory.Create();
                     }
-                }else if (AdjustmentLineDetails != null)
+
+                    //Inventory Log
+                    InventoryLog objInventoryLog = new InventoryLog();
+                    objInventoryLog.ItemID = ItemID;
+                    objInventoryLog.CompanyID = CompanyID;
+                    objInventoryLog.ChangeType = "Adjustment";
+                    objInventoryLog.ChangeQuantity = decBaseQuantity;
+                    objInventoryLog.ParentObjectID = AdjustmentID;
+                    objInventoryLog.BinID = DefaultInventory.BinID;
+                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.CreatedBy = CreatedBy;
+                    objInventoryLog.Create();
+                }
+                else if (AdjustmentLineDetails != null)
                 {
                     foreach (AdjustmentLineDetail objAdjustmentLineDetail in AdjustmentLineDetails)
                     {
@@ -313,6 +326,19 @@ namespace ISLibrary
                             objAdjustmentLineDetail.ParentObject = "AdjustmentLine";
                             objAdjustmentLineDetail.Create(objConn, objTran);
                         }
+
+                        //Inventory Log
+                        InventoryLog objInventoryLog = new InventoryLog();
+                        objInventoryLog.ItemID = ItemID;
+                        objInventoryLog.CompanyID = CompanyID;
+                        objInventoryLog.ChangeType = "Adjustment";
+                        objInventoryLog.ChangeQuantity = decBaseQuantity;
+                        objInventoryLog.ParentObjectID = AdjustmentID;
+                        objInventoryLog.BinID = objInventory.BinID;
+                        objInventoryLog.InventoryID = objInventory.InventoryID;
+                        objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
+                        objInventoryLog.CreatedBy = CreatedBy;
+                        objInventoryLog.Create();
                     }
                 }
 
