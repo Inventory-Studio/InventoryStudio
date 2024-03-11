@@ -23,6 +23,9 @@
                 case "Item":
                     importer = _serviceProvider.GetRequiredService<ItemImporter>();
                     break;
+                case "SalesOrder":
+                    importer = _serviceProvider.GetRequiredService<SalesOrderImporter>();
+                    break;
                 default:
                     throw new ArgumentException($"Invalid importer type: {type}");
             }

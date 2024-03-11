@@ -1,58 +1,33 @@
 ﻿using CLRFramework;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ISLibrary.OrderManagement
 {
-    public class SalesOrderLine : BaseClass
+    public class SalesOrderLineDetail : BaseClass
     {
-        public string SalesOrderLineID { get; set; }
+        public string SalesOrderLineDetailID { get; set; }
 
-        public bool IsNew { get { return string.IsNullOrEmpty(SalesOrderLineID); } }
-
+        public bool IsNew { get { return string.IsNullOrEmpty(SalesOrderLineDetailID); } }
 
         public string CompanyID { get; set; }
 
-        public string SalesOrderID { get; set; }
+        public string SalesOrderLineID { get; set; }
 
-        public string? LocationID { get; set; }
-
-        public string? ItemID { get; set; }
-
-        public string? ParentSalesOrderLineID { get; set; }
-
-        public string? ItemSKU { get; set; }
-
-        public string? ItemName { get; set; }
-
-        public string? ItemImageURL { get; set; }
-
-        public string? ItemUPC { get; set; }
-
-        public string? Description { get; set; }
+        public string? BinID { get; set; }
 
         public decimal Quantity { get; set; }
 
-        public decimal? QuantityCommitted { get; set; }
+        public string? SerialLotNumber { get; set; }
 
-        public decimal? QuantityShipped { get; set; }
-
-        public string? ItemUnitID { get; set; }
-
-        public decimal? UnitPrice { get; set; }
-
-        public decimal? TaxRate { get; set; }
-
-        public string? Status { get; set; }
-
-        public string? ExternalID { get; set; }
+        public string InventoryID { get; set; }
 
         public string? UpdatedBy { get; set; }
 
@@ -62,25 +37,25 @@ namespace ISLibrary.OrderManagement
 
         public DateTime CreatedOn { get; set; }
 
-        public SalesOrderLine()
+        public SalesOrderLineDetail()
         {
 
         }
 
-        public SalesOrderLine(string CompanyID)
+        public SalesOrderLineDetail(string CompanyID)
         {
             this.CompanyID = CompanyID;
             Load();
         }
 
-        public SalesOrderLine(string CompanyID, string SalesOrderLineID)
+        public SalesOrderLineDetail(string CompanyID, string SalesOrderLineDetailID)
         {
             this.CompanyID = CompanyID;
-            this.SalesOrderLineID = SalesOrderLineID;
+            this.SalesOrderLineID = SalesOrderLineDetailID;
             Load();
         }
 
-        public SalesOrderLine(DataRow row)
+        public SalesOrderLineDetail(DataRow row)
         {
             Load(row);
         }
@@ -91,29 +66,18 @@ namespace ISLibrary.OrderManagement
             try
             {
                 objColumns = objRow.Table.Columns;
-                if (objColumns.Contains("SalesOrderLineID")) SalesOrderLineID = Convert.ToString(objRow["SalesOrderLineID"]);
+                if (objColumns.Contains("SalesOrderLineDetailID")) SalesOrderLineDetailID = Convert.ToString(objRow["SalesOrderLineDetailID"]);
                 if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("SalesOrderID")) SalesOrderID = Convert.ToString(objRow["SalesOrderID"]);
-                if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
-                if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
-                if (objColumns.Contains("ParentSalesOrderLineID")) ParentSalesOrderLineID = Convert.ToString(objRow["ParentSalesOrderLineID"]);
-                if (objColumns.Contains("ItemSKU")) ItemSKU = Convert.ToString(objRow["ItemSKU"]);
-                if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
-                if (objColumns.Contains("ItemImageURL")) ItemImageURL = Convert.ToString(objRow["ItemImageURL"]);
-                if (objColumns.Contains("ItemUPC")) ItemUPC = Convert.ToString(objRow["ItemUPC"]);
-                if (objColumns.Contains("Description")) Description = Convert.ToString(objRow["Description"]);
-                if (objColumns.Contains("Quantity") && objRow["Quantity"] != DBNull.Value) Quantity = Convert.ToDecimal(objRow["Quantity"]);
-                if (objColumns.Contains("Quantity") && objRow["QuantityCommitted"] != DBNull.Value) QuantityCommitted = Convert.ToDecimal(objRow["QuantityCommitted"]);
-                if (objColumns.Contains("Quantity") && objRow["QuantityShipped"] != DBNull.Value) QuantityShipped = Convert.ToDecimal(objRow["QuantityShipped"]);
-                if (objColumns.Contains("ItemUnitID")) ItemUnitID = Convert.ToString(objRow["ItemUnitID"]);
-                if (objColumns.Contains("Quantity") && objRow["UnitPrice"] != DBNull.Value) UnitPrice = Convert.ToDecimal(objRow["UnitPrice"]);
-                if (objColumns.Contains("Quantity") && objRow["TaxRate"] != DBNull.Value) TaxRate = Convert.ToDecimal(objRow["TaxRate"]);
-                if (objColumns.Contains("Status")) Status = Convert.ToString(objRow["Status"]);
-                if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
+                if (objColumns.Contains("SalesOrderLineID")) SalesOrderLineID = Convert.ToString(objRow["SalesOrderLineID"]);
+                if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
+                if (objColumns.Contains("Quantity")) Quantity = Convert.ToDecimal(objRow["Quantity"]);
+                if (objColumns.Contains("SerialLotNumber")) SerialLotNumber = Convert.ToString(objRow["SerialLotNumber"]);
+                if (objColumns.Contains("InventoryID")) InventoryID = Convert.ToString(objRow["InventoryID"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
+
             }
             catch (Exception ex)
             {
@@ -126,7 +90,6 @@ namespace ISLibrary.OrderManagement
             base.Load();
         }
 
-
         protected override void Load()
         {
             DataSet objData = null;
@@ -135,9 +98,9 @@ namespace ISLibrary.OrderManagement
             try
             {
                 strSQL = "SELECT s.* " +
-                         "FROM SalesOrderLine s (NOLOCK) " +
+                         "FROM SalesOrderLineDetail s (NOLOCK) " +
                          "WHERE s.CompanyID=" + Database.HandleQuote(CompanyID) +
-                         "AND s.SalesOrderLineID = " + Database.HandleQuote(SalesOrderLineID);
+                         "AND s.SalesOrderLineDetailID = " + Database.HandleQuote(SalesOrderLineDetailID);
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
@@ -146,7 +109,7 @@ namespace ISLibrary.OrderManagement
                 }
                 else
                 {
-                    throw new Exception("SalesOrderLine is not found");
+                    throw new Exception("SalesOrderLineDetail is not found");
                 }
             }
             catch (Exception ex)
@@ -159,6 +122,7 @@ namespace ISLibrary.OrderManagement
             }
 
         }
+
         public override bool Create()
         {
             SqlConnection objConn = null;
@@ -194,37 +158,21 @@ namespace ISLibrary.OrderManagement
             try
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(SalesOrderID)) throw new Exception("SalesOrderID is required");
+                if (string.IsNullOrEmpty(SalesOrderLineID)) throw new Exception("SalesOrderLineID is required");
                 if (Quantity == 0) throw new Exception("Quantity is required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, SalesOrderLineID already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["SalesOrderID"] = SalesOrderID;
-                dicParam["LocationID"] = LocationID;
-                dicParam["ItemID"] = ItemID;
-                dicParam["ParentSalesOrderLineID"] = ParentSalesOrderLineID;
-                dicParam["ItemSKU"] = ItemSKU;
-                dicParam["ItemName"] = ItemName;
-                dicParam["ItemImageURL"] = ItemImageURL;
-                dicParam["ItemUPC"] = ItemUPC;
-                dicParam["Description"] = Description;
+                dicParam["SalesOrderLineID"] = SalesOrderLineID;
+                dicParam["BinID"] = BinID;
                 dicParam["Quantity"] = Quantity;
-                dicParam["QuantityCommitted"] = QuantityCommitted;
-                dicParam["QuantityShipped"] = QuantityShipped;
-                dicParam["ItemUnitID"] = ItemUnitID;
-                dicParam["UnitPrice"] = UnitPrice;
-                dicParam["TaxRate"] = TaxRate;
-                dicParam["Status"] = Status;
-                dicParam["ExternalID"] = ExternalID;
-                dicParam["TaxRate"] = TaxRate;
-                dicParam["TaxRate"] = TaxRate;
+                dicParam["SerialLotNumber"] = SerialLotNumber;
+                dicParam["InventoryID"] = InventoryID;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
-
-                SalesOrderLineID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrderLine"), objConn, objTran).ToString();
-
+                SalesOrderLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrderLineDetail"), objConn, objTran).ToString();
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -242,11 +190,11 @@ namespace ISLibrary.OrderManagement
         private bool ObjectAlreadyExists()
         {
             string strSQL = string.Empty;
-            strSQL = "SELECT TOP 1 c.* " +
-                     "FROM SalesOrderLine (NOLOCK) c " +
-                     "WHERE c.CompanyID=" + Database.HandleQuote(CompanyID) +
-                     "AND c.SalesOrderLineID=" + Database.HandleQuote(SalesOrderLineID) +
-                     "AND c.SalesOrderID=" + Database.HandleQuote(SalesOrderID);
+            strSQL = "SELECT TOP 1 s.* " +
+                     "FROM SalesOrderLineDetail (NOLOCK) s " +
+                     "WHERE s.CompanyID=" + Database.HandleQuote(CompanyID) +
+                     "AND s.SalesOrderLineID=" + Database.HandleQuote(SalesOrderLineID) +
+                     "AND s.SalesOrderLineDetailID=" + Database.HandleQuote(SalesOrderLineDetailID);
             return Database.HasRows(strSQL);
         }
 
@@ -285,38 +233,25 @@ namespace ISLibrary.OrderManagement
             Hashtable dicWParam = new Hashtable();
             try
             {
+                if (string.IsNullOrEmpty(SalesOrderLineDetailID)) throw new Exception("SalesOrderLineDetailID is required");
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
-                if (string.IsNullOrEmpty(SalesOrderID)) throw new Exception("SalesOrderID is required");
+                if (string.IsNullOrEmpty(SalesOrderLineID)) throw new Exception("SalesOrderLineID is required");
                 if (Quantity == 0) throw new Exception("Quantity is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, SalesOrderLineID already exists");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
-                dicParam["SalesOrderID"] = SalesOrderID;
-                dicParam["LocationID"] = LocationID;
-                dicParam["ItemID"] = ItemID;
-                dicParam["ParentSalesOrderLineID"] = ParentSalesOrderLineID;
-                dicParam["ItemSKU"] = ItemSKU;
-                dicParam["ItemName"] = ItemName;
-                dicParam["ItemImageURL"] = ItemImageURL;
-                dicParam["ItemUPC"] = ItemUPC;
-                dicParam["Description"] = Description;
+                dicParam["SalesOrderLineID"] = SalesOrderLineID;
+                dicParam["BinID"] = BinID;
                 dicParam["Quantity"] = Quantity;
-                dicParam["QuantityCommitted"] = QuantityCommitted;
-                dicParam["QuantityShipped"] = QuantityShipped;
-                dicParam["ItemUnitID"] = ItemUnitID;
-                dicParam["UnitPrice"] = UnitPrice;
-                dicParam["TaxRate"] = TaxRate;
-                dicParam["Status"] = Status;
-                dicParam["ExternalID"] = ExternalID;
-                dicParam["TaxRate"] = TaxRate;
-                dicParam["TaxRate"] = TaxRate;
+                dicParam["SerialLotNumber"] = SerialLotNumber;
+                dicParam["InventoryID"] = InventoryID;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
+                dicWParam["SalesOrderLineDetailID"] = SalesOrderLineDetailID;
 
-                dicWParam["SalesOrderLineID"] = SalesOrderLineID;
-                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrderLine"), objConn, objTran);
+                Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrderLineDetail"), objConn, objTran);
 
             }
             catch (Exception ex)
@@ -337,6 +272,7 @@ namespace ISLibrary.OrderManagement
         {
             SqlConnection objConn = null;
             SqlTransaction objTran = null;
+
             try
             {
                 objConn = new SqlConnection(Database.DefaultConnectionString);
@@ -363,13 +299,15 @@ namespace ISLibrary.OrderManagement
         public override bool Delete(SqlConnection objConn, SqlTransaction objTran)
         {
             if (!IsLoaded) Load();
+
             base.Delete();
+
             Hashtable dicDParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(SalesOrderLineID)) throw new Exception("Delete cannot be performed, SalesOrderLineID is missing");
-                dicDParam["SalesOrderLineID"] = SalesOrderLineID;
-                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "SalesOrderLine"), objConn, objTran);
+                if (IsNew) throw new Exception("Delete cannot be performed, SalesOrderLineDetailID is missing");
+                dicDParam["SalesOrderLineDetailID"] = SalesOrderLineDetailID;
+                Database.ExecuteSQL(Database.GetDeleteSQL(dicDParam, "SalesOrderLineDetail"), objConn, objTran);
             }
             catch (Exception ex)
             {
@@ -383,15 +321,14 @@ namespace ISLibrary.OrderManagement
             return true;
         }
 
-
-        public static SalesOrderLine GetSalesOrderLine(string CompanyID, SalesOrderLineFilter Filter)
+        public static SalesOrderLineDetail GetSalesOrderLineDetail(string CompanyID, SalesOrderLineDetailFilter Filter)
         {
-            List<SalesOrderLine> objSalesOrders = null;
-            SalesOrderLine objReturn = null;
+            List<SalesOrderLineDetail> objSalesOrders = null;
+            SalesOrderLineDetail objReturn = null;
 
             try
             {
-                objSalesOrders = GetSalesOrderLines(CompanyID, Filter);
+                objSalesOrders = GetSalesOrderLineDetails(CompanyID, Filter);
                 if (objSalesOrders != null && objSalesOrders.Count >= 1) objReturn = objSalesOrders[0];
             }
             catch (Exception ex)
@@ -405,27 +342,27 @@ namespace ISLibrary.OrderManagement
             return objReturn;
         }
 
-        public static List<SalesOrderLine> GetSalesOrderLines(string CompanyID)
+        public static List<SalesOrderLineDetail> GetSalesOrderLineDetails(string CompanyID)
         {
             int intTotalCount = 0;
-            return GetSalesOrderLines(CompanyID, null, null, null, out intTotalCount);
+            return GetSalesOrderLineDetails(CompanyID, null, null, null, out intTotalCount);
         }
 
-        public static List<SalesOrderLine> GetSalesOrderLines(string CompanyID, SalesOrderLineFilter Filter)
+        public static List<SalesOrderLineDetail> GetSalesOrderLineDetails(string CompanyID, SalesOrderLineDetailFilter Filter)
         {
             int intTotalCount = 0;
-            return GetSalesOrderLines(CompanyID, Filter, null, null, out intTotalCount);
+            return GetSalesOrderLineDetails(CompanyID, Filter, null, null, out intTotalCount);
         }
 
-        public static List<SalesOrderLine> GetSalesOrderLines(string CompanyID, SalesOrderLineFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<SalesOrderLineDetail> GetSalesOrderLineDetails(string CompanyID, SalesOrderLineDetailFilter Filter, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            return GetSalesOrderLines(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+            return GetSalesOrderLineDetails(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
         }
 
-        public static List<SalesOrderLine> GetSalesOrderLines(string CompanyID, SalesOrderLineFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        public static List<SalesOrderLineDetail> GetSalesOrderLineDetails(string CompanyID, SalesOrderLineDetailFilter Filter, string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
         {
-            List<SalesOrderLine> objReturn = null;
-            SalesOrderLine objNew = null;
+            List<SalesOrderLineDetail> objReturn = null;
+            SalesOrderLineDetail objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
 
@@ -433,30 +370,31 @@ namespace ISLibrary.OrderManagement
             {
                 TotalRecord = 0;
 
-                objReturn = new List<SalesOrderLine>();
+                objReturn = new List<SalesOrderLineDetail>();
 
                 strSQL = "SELECT s.* " +
-                         "FROM SalesOrderLine (NOLOCK) s " +
+                         "FROM SalesOrderLineDetail (NOLOCK) s " +
                          "WHERE s.CompanyID=" + Database.HandleQuote(CompanyID);
 
                 if (Filter != null)
                 {
                     if (Filter.SalesOrderLineID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.SalesOrderLineID, "s.SalesOrderLineID");
-                    if (Filter.SalesOrderID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.SalesOrderID, "s.SalesOrderID");
                 }
 
-                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "SalesOrderLineID" : Utility.CustomSorting.GetSortExpression(typeof(SalesOrderLine), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "SalesOrderLineDetailID" : CLRFramework.Utility.CustomSorting.GetSortExpression(typeof(SalesOrderLineDetail), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
                 objData = Database.GetDataSet(strSQL);
 
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
                     {
-                        objNew = new SalesOrderLine(objData.Tables[0].Rows[i]);
+                        objNew = new SalesOrderLineDetail(objData.Tables[0].Rows[i]);
                         objNew.IsLoaded = true;
                         objReturn.Add(objNew);
                     }
                 }
+
+                TotalRecord = objReturn.Count;
             }
             catch (Exception ex)
             {

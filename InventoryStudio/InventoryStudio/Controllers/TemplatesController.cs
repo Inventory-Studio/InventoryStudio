@@ -371,14 +371,24 @@ namespace InventoryStudio.Controllers
                 var template = new ImportTemplate(CompanyID, templateId);
                 if (template == null)
                     return NotFound();
-
+                importProgress[templateId] = 0;
                 var createdBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 ProgressHandler progressHandler = new ProgressHandler(ImportProgress);
                 var fileType = Path.GetExtension(file.FileName);
                 var filehanlder = _fileHandlerFactory.CreateFileHandler(fileType);
-                var datas = await filehanlder.ImportData(file);
                 var importer = _importerFactory.CreateImporter(template.Type);
-                await importer.ImportDataAsync(CompanyID, templateId, createdBy, progressHandler, datas);
+                if (template.Type == "SalesOrder")
+                {
+                    var datas = await filehanlder.ImportDatas(file);
+                    SalesOrderImporter salesOrderImporter = (SalesOrderImporter)importer;
+                    await salesOrderImporter.ImportDatasAsync(CompanyID,templateId,createdBy, progressHandler, datas);
+                }
+                else
+                {
+                    var datas = await filehanlder.ImportData(file);
+                    await importer.ImportDataAsync(CompanyID, templateId, createdBy, progressHandler, datas);
+                }
+
                 return Ok();
             }
             catch (Exception ex)
