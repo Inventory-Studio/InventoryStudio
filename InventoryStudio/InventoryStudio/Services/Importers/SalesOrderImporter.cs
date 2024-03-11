@@ -22,6 +22,10 @@ namespace InventoryStudio.Services.Importers
 
         private List<ImportFailedRecord> failedRecords = new List<ImportFailedRecord>();
 
+        private Dictionary<string, string> salesOrderIndexToIdMapping = new Dictionary<string, string>();
+
+        private Dictionary<string, string> salesOrderLineIndexToIdMapping = new Dictionary<string, string>();
+
         public async Task ImportDatasAsync(string companyId, string importTemplateID, string userId, FileHandlers.ProgressHandler progressHandler, List<List<Dictionary<string, string>>> datas)
         {
             var importTemplateFilter = new ImportTemplateFieldFilter();
@@ -93,8 +97,14 @@ namespace InventoryStudio.Services.Importers
 
             salesOrderLineDetail.CreatedBy = userId;
             salesOrderLineDetail.CreatedOn = DateTime.Now;
-            importResult.SuccessfulRecords++;
+            data.TryGetValue("SalesOrderLineIndex", out var salesOrderLineIndexStr);
+            if (salesOrderLineIndexStr != null)
+            {
+                var salesOrderLineId = salesOrderLineIndexToIdMapping[salesOrderLineIndexStr];
+                salesOrderLineDetail.SalesOrderLineID = salesOrderLineId;
+            }
             salesOrderLineDetail.Create();
+            importResult.SuccessfulRecords++;
             int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
             progressHandler?.Invoke(progress, importTemplateID);
         }
@@ -128,10 +138,17 @@ namespace InventoryStudio.Services.Importers
                     }
                 }
             }
+            data.TryGetValue("SalesOrderIndex", out var salesOrderIndexStr);
+            if (salesOrderIndexStr != null)
+            {
+                var salesOrderId = salesOrderIndexToIdMapping[salesOrderIndexStr];
+                salesOrderLine.SalesOrderID = salesOrderId;
+            }
             salesOrderLine.CreatedBy = userId;
             salesOrderLine.CreatedOn = DateTime.Now;
             salesOrderLine.Create();
             importResult.SuccessfulRecords++;
+
 
             int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
             progressHandler?.Invoke(progress, importTemplateID);
@@ -172,6 +189,9 @@ namespace InventoryStudio.Services.Importers
             salesOrder.CreatedOn = DateTime.Now;
             salesOrder.Create();
             importResult.SuccessfulRecords++;
+            data.TryGetValue("SalesOrderIndex", out var salesOrderIndexStr);
+            if (salesOrderIndexStr != null)
+                salesOrderIndexToIdMapping.Add(salesOrderIndexStr, salesOrder.SalesOrderID.ToString());
 
             int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
             progressHandler?.Invoke(progress, importTemplateID);
