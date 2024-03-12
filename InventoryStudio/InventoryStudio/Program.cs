@@ -26,6 +26,7 @@ builder.Services.AddScoped<FileHandlerFactory>();
 builder.Services.AddScoped<CustomerImporter>();
 builder.Services.AddScoped<VendorImporter>();
 builder.Services.AddScoped<ItemImporter>();
+builder.Services.AddScoped<SalesOrderImporter>();
 builder.Services.AddScoped<ImporterFactory>();
 
 // Add services to the container.
