@@ -29,6 +29,8 @@ namespace ISLibrary
 
         public bool AllowNegativeInventory { get; set; }
 
+        public static string DefalutBinID = "3"; //@TODO hardcode here
+
         [DisplayName("Updated By")]
         public string? UpdatedBy { get; set; }
 

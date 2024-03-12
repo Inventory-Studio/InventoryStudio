@@ -26,7 +26,7 @@ namespace ISLibrary
         public string ParentObjectID { get; set; }
         public string BinID { get; set; }
         public string InventoryNumber { get; set; }
-        public string InventoryID { get; set; }
+        public string InventoryDetailID { get; set; }
         public string Memo { get; set; }
         public DateTime CreatedOn { get; set; }
 
@@ -151,7 +151,7 @@ namespace ISLibrary
                 dicParam["ParentObjectID"] = ParentObjectID;
                 dicParam["BinID"] = BinID;
                 dicParam["InventoryNumber"] = InventoryNumber;
-                dicParam["InventoryID"] = InventoryID;
+                dicParam["InventoryDetailID"] = InventoryDetailID;
                 dicParam["Memo"] = Memo;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.UtcNow;

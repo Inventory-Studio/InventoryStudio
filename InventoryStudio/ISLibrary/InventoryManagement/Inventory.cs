@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Collections;
 using CLRFramework;
-using System.Security;
-using System.ComponentModel.Design;
 
 namespace ISLibrary
 {
@@ -19,20 +12,13 @@ namespace ISLibrary
         {
             get { return string.IsNullOrEmpty(InventoryID); }
         }
-        public string CompanyID { get; set; }
-        public string? ParentInventoryID { get; set; }
         public string ItemID { get; set; }
-        public string ItemConfigID { get; set; }
-        public string ItemInventoryStatusID { get; set; }
-        public decimal OnHand { get; set; }
-        public decimal Available { get; set; }
-        //public decimal Committed { get; set; }
-        public string CartonNumber { get; set; }
-        public string VendorCartonNumber { get; set; }
-        public string InventoryNumber { get; set; }
-        public DateTime? LotNumberDate { get; set; }
         public string LocationID { get; set; }
-        public string BinID { get; set; }
+        public decimal QtyOnHand { get; set; }
+        public decimal QtyOnOrder { get; set; }
+        public decimal QtyCommitted { get; set; }
+        public decimal QtyAvailable { get; set; }
+        public decimal QtyBackOrdered { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public DateTime CreatedOn { get; set; }
 
@@ -92,20 +78,16 @@ namespace ISLibrary
                 objColumns = objRow.Table.Columns;
 
                 if (objColumns.Contains("InventoryID")) InventoryID = Convert.ToString(objRow["InventoryID"]);
-                if (objColumns.Contains("CompanyID")) CompanyID = Convert.ToString(objRow["CompanyID"]);
-                if (objColumns.Contains("ParentInventoryID")) ParentInventoryID = Convert.ToString(objRow["ParentInventoryID"]);
+              
                 if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
-                if (objColumns.Contains("ItemConfigID")) ItemConfigID = Convert.ToString(objRow["ItemConfigID"]);
-                if (objColumns.Contains("ItemInventoryStatusID")) ItemInventoryStatusID = Convert.ToString(objRow["ItemInventoryStatusID"]);
-                if (objColumns.Contains("OnHand")) OnHand = Convert.ToDecimal(objRow["OnHand"]);
-                if (objColumns.Contains("Available")) Available = Convert.ToDecimal(objRow["Available"]);
-                if (objColumns.Contains("CartonNumber")) CartonNumber = Convert.ToString(objRow["CartonNumber"]);
-                if (objColumns.Contains("VendorCartonNumber")) VendorCartonNumber = Convert.ToString(objRow["VendorCartonNumber"]);
-                if (objColumns.Contains("InventoryNumber")) InventoryNumber = Convert.ToString(objRow["InventoryNumber"]);
-                if (objColumns.Contains("LotNumberDate") && objRow["LotNumberDate"] != DBNull.Value) LotNumberDate = Convert.ToDateTime(objRow["LotNumberDate"]);
                 if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
-                if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
-                //if (objColumns.Contains("LocationName")) LocationName = Convert.ToString(objRow["LocationName"]);
+                if (objColumns.Contains("QtyOnHand")) QtyOnHand = Convert.ToDecimal(objRow["QtyOnHand"]);
+                if (objColumns.Contains("QtyOnOrder")) QtyOnOrder = Convert.ToDecimal(objRow["QtyOnOrder"]);
+                if (objColumns.Contains("QtyCommitted")) QtyCommitted = Convert.ToDecimal(objRow["QtyCommitted"]);
+                if (objColumns.Contains("QtyAvailable")) QtyAvailable = Convert.ToDecimal(objRow["QtyAvailable"]);
+                if (objColumns.Contains("QtyBackOrdered")) QtyBackOrdered = Convert.ToDecimal(objRow["QtyBackOrdered"]);
+      
+
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value)
                     UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
@@ -164,20 +146,14 @@ namespace ISLibrary
                 if (!IsNew) throw new Exception("Create cannot be performed, InventoryID already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
-                dicParam["CompanyID"] = CompanyID;
-                dicParam["ParentInventoryID"] = ParentInventoryID;
                 dicParam["ItemID"] = ItemID;
-                //dicParam["ItemConfigID"] = ItemConfigID;
-                //dicParam["ItemInventoryStatusID"] = ItemInventoryStatusID;
-                dicParam["OnHand"] = OnHand;
-                dicParam["Available"] = Available;
-                dicParam["CartonNumber"] = CartonNumber;
-                dicParam["VendorCartonNumber"] = VendorCartonNumber;
-                dicParam["InventoryNumber"] = InventoryNumber;
-                dicParam["LotNumberDate"] = LotNumberDate;
                 dicParam["LocationID"] = LocationID;
-                dicParam["BinID"] = BinID;
-                dicParam["CreatedBy"] = CreatedBy;
+                dicParam["QtyOnHand"] = QtyOnHand;
+                dicParam["QtyOnOrder"] = QtyOnOrder;
+                dicParam["QtyCommitted"] = QtyCommitted;
+                dicParam["QtyAvailable"] = QtyAvailable;
+                dicParam["QtyBackOrdered"] = QtyBackOrdered;
+
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
                 dicParam["CreatedOn"] = DateTime.UtcNow;
 
@@ -238,20 +214,14 @@ namespace ISLibrary
             try
             {
                 if (IsNew) throw new Exception("Update cannot be performed, CompanyUserID is missing");
-               
 
-                dicParam["ParentInventoryID"] = ParentInventoryID;
-                //dicParam["ItemConfigID"] = ItemConfigID;
-                //dicParam["ItemInventoryStatusID"] = ItemInventoryStatusID;
-                dicParam["OnHand"] = OnHand;
-                dicParam["Available"] = Available;
-                dicParam["CartonNumber"] = CartonNumber;
-                dicParam["VendorCartonNumber"] = VendorCartonNumber;
-                dicParam["InventoryNumber"] = InventoryNumber;
-                dicParam["LotNumberDate"] = LotNumberDate;
-                dicParam["LocationID"] = LocationID;
-                dicParam["BinID"] = BinID;
-                dicParam["UpdatedBy"] = UpdatedBy;
+
+                dicParam["QtyOnHand"] = QtyOnHand;
+                dicParam["QtyOnOrder"] = QtyOnOrder;
+                dicParam["QtyCommitted"] = QtyCommitted;
+                dicParam["QtyAvailable"] = QtyAvailable;
+                dicParam["QtyBackOrdered"] = QtyBackOrdered;
+
                 dicParam["UpdatedOn"] = DateTime.UtcNow;
 
                 dicWParam["InventoryID"] = InventoryID;
@@ -273,75 +243,55 @@ namespace ISLibrary
             return true;
         }
 
+  
         private bool ObjectAlreadyExists()
         {
             string strSQL = string.Empty;
 
             strSQL = "SELECT TOP 1 p.* " +
                      "FROM Inventory (NOLOCK) p " +
-                     "WHERE (p.BinID=" + Database.HandleQuote(BinID);
-
-            if (!string.IsNullOrEmpty(CartonNumber))
-            {
-                strSQL += "AND p.CartonNumber<>" + Database.HandleQuote(CartonNumber);
-            }
-            if (!string.IsNullOrEmpty(VendorCartonNumber))
-            {
-                strSQL += "AND p.VendorCartonNumber<>" + Database.HandleQuote(VendorCartonNumber);
-            }
-            if (!string.IsNullOrEmpty(InventoryNumber))
-            {
-                strSQL += "AND p.InventoryNumber<>" + Database.HandleQuote(InventoryNumber);
-            }
-            if (!string.IsNullOrEmpty(ParentInventoryID))
-            {
-                strSQL += "AND p.ParentInventoryID<>" + Database.HandleQuote(ParentInventoryID);
-            }
+                     "WHERE (p.LocationID=" + Database.HandleQuote(LocationID);
+        
             strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID) + ")";
-            if (!string.IsNullOrEmpty(InventoryID))
-            {
-                strSQL += "AND p.InventoryID<>" + Database.HandleQuote(InventoryID);
-            }           
+           
 
             return Database.HasRows(strSQL);
         }
 
-        public bool GetUnqiueInventory()
+
+
+        /** used for InventoryDetail to get the unique Inventory **/
+        public static Inventory GetInventory( InventoryFilter Filter)
         {
+            Inventory objReturn = null;
+            Inventory objNew = null;
             DataSet objData = null;
             string strSQL = string.Empty;
-            bool result = false;
+
             try
             {
-                strSQL = "SELECT TOP 1 p.* " +
-                     "FROM Inventory (NOLOCK) p " +
-                     "WHERE (p.BinID=" + Database.HandleQuote(BinID);
-                
-                if (!string.IsNullOrEmpty(CartonNumber))
-                {
-                    strSQL += "AND p.CartonNumber<>" + Database.HandleQuote(CartonNumber);
-                }
-                if (!string.IsNullOrEmpty(VendorCartonNumber))
-                {
-                    strSQL += "AND p.VendorCartonNumber<>" + Database.HandleQuote(VendorCartonNumber);
-                }
-                if (!string.IsNullOrEmpty(InventoryNumber))
-                {
-                    strSQL += "AND p.InventoryNumber<>" + Database.HandleQuote(InventoryNumber);
-                }
-                if (!string.IsNullOrEmpty(ParentInventoryID))
-                {
-                    strSQL += "AND p.ParentInventoryID<>" + Database.HandleQuote(ParentInventoryID);
-                }
-                strSQL += "AND p.ItemID=" + Database.HandleQuote(ItemID);
-                strSQL += "AND p.LocationID=" + Database.HandleQuote(LocationID) + ")";
+
+
+                strSQL = "SELECT  TOP 1 * " +
+                         "FROM Inventory (NOLOCK) " +
+                         "WHERE 1=1 " ;
+                strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "LocationID");
+                strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemID, "ItemID");
+
+
 
                 objData = Database.GetDataSet(strSQL);
+
                 if (objData != null && objData.Tables[0].Rows.Count > 0)
                 {
-                    Load(objData.Tables[0].Rows[0]);
-                    result = true;
-                }                
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new Inventory(objData.Tables[0].Rows[i]);
+                        objNew.IsLoaded = true;
+                        objReturn = objNew;
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -349,105 +299,12 @@ namespace ISLibrary
             }
             finally
             {
-                objData = null;               
+                objData = null;
             }
 
-            return result;
+            return objReturn;
         }
 
-        //public static Adjustment GetAdjustment(string CompanyID, AdjustmentFilter Filter)
-        //{
-        //    List<Adjustment> objAdjustments = null;
-        //    Adjustment objReturn = null;
-
-        //    try
-        //    {
-        //        objAdjustments = GetAdjustments(CompanyID, Filter);
-        //        if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objAdjustments = null;
-        //    }
-
-        //    return objReturn;
-        //}
-
-        //public static List<Adjustment> GetAdjustments(string CompanyID)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetAdjustments(CompanyID, null, null, null, out intTotalCount);
-        //}
-
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetAdjustments(CompanyID, Filter, null, null, out intTotalCount);
-        //}
-
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter, int? PageSize,
-        //    int? PageNumber, out int TotalRecord)
-        //{
-        //    return GetAdjustments(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
-        //}
-
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter,
-        //    string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
-        //{
-        //    List<Adjustment> objReturn = null;
-        //    Adjustment objNew = null;
-        //    DataSet objData = null;
-        //    string strSQL = string.Empty;
-
-        //    try
-        //    {
-        //        TotalRecord = 0;
-
-        //        objReturn = new List<Adjustment>();
-
-        //        strSQL = "SELECT * " +
-        //                 "FROM Adjustment (NOLOCK) " +
-        //                 "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
-        //        if (Filter != null)
-        //        {
-        //            if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "LocationID");
-        //        }
-
-        //        if (PageSize != null && PageNumber != null)
-        //            strSQL = Database.GetPagingSQL(strSQL,
-        //                string.IsNullOrEmpty(SortExpression)
-        //                    ? "AdjustmentID"
-        //                    : Utility.CustomSorting.GetSortExpression(typeof(Adjustment), SortExpression),
-        //                string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
-        //        objData = Database.GetDataSet(strSQL);
-
-        //        if (objData != null && objData.Tables[0].Rows.Count > 0)
-        //        {
-        //            for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
-        //            {
-        //                objNew = new Adjustment(objData.Tables[0].Rows[i]);
-        //                objNew.IsLoaded = true;
-        //                objReturn.Add(objNew);
-        //            }
-        //        }
-
-        //        TotalRecord = objReturn.Count();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objData = null;
-        //    }
-
-        //    return objReturn;
-        //}
 
 
     }

@@ -281,17 +281,18 @@ namespace ISLibrary
                 if (!FromLocation.UseBins)
                 {
                     decimal decBaseQuantity = Quantity * decQtyPerUnit;
-                    Inventory DefaultInventory = new Inventory();
+                    InventoryDetail DefaultInventory = new InventoryDetail();
 
                     DefaultInventory.CompanyID = CompanyID;
                     DefaultInventory.ItemID = ItemID;
                     DefaultInventory.LocationID = FromLocationID;
-                    DefaultInventory.BinID = "3";//@todo set the default value 
+                    DefaultInventory.BinID = Bin.DefalutBinID;
 
                     if (DefaultInventory.GetUnqiueInventory())
                     {
                         DefaultInventory.OnHand -= decBaseQuantity;
                         DefaultInventory.Available -= decBaseQuantity;
+                        DefaultInventory.ChangedQty = -decBaseQuantity;
                         if (DefaultInventory.OnHand < 0 || DefaultInventory.Available < 0)
                         {
                             throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
@@ -311,7 +312,7 @@ namespace ISLibrary
                     objInventoryLog.ChangeQuantity = -decBaseQuantity;
                     objInventoryLog.ParentObjectID = TransferID;
                     objInventoryLog.BinID = DefaultInventory.BinID;
-                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.InventoryDetailID = DefaultInventory.InventoryDetailID;
                     objInventoryLog.CreatedBy = CreatedBy;
                     objInventoryLog.Create();
                 }
@@ -319,19 +320,20 @@ namespace ISLibrary
                 if (!ToLocation.UseBins)
                 {
                     decimal decBaseQuantity = Quantity * decQtyPerUnit;
-                    Inventory DefaultInventory = new Inventory();
+                    InventoryDetail DefaultInventory = new InventoryDetail();
 
                     DefaultInventory.CompanyID = CompanyID;
                     DefaultInventory.ItemID = ItemID;
                     DefaultInventory.LocationID = ToLocationID;
                     DefaultInventory.Available = decBaseQuantity;
-                    DefaultInventory.BinID = "3";//@todo set the default value 
+                    DefaultInventory.BinID = Bin.DefalutBinID;
                     DefaultInventory.OnHand = decBaseQuantity;
 
                     if (DefaultInventory.GetUnqiueInventory())
                     {
                         DefaultInventory.OnHand += decBaseQuantity;
                         DefaultInventory.Available += decBaseQuantity;
+                        DefaultInventory.ChangedQty = decBaseQuantity;
                         DefaultInventory.Update();
                     }
                     else
@@ -347,7 +349,7 @@ namespace ISLibrary
                     objInventoryLog.ChangeQuantity = decBaseQuantity;
                     objInventoryLog.ParentObjectID = TransferID;
                     objInventoryLog.BinID = DefaultInventory.BinID;
-                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.InventoryDetailID = DefaultInventory.InventoryDetailID;
                     objInventoryLog.CreatedBy = CreatedBy;
                     objInventoryLog.Create();
                 }
@@ -360,7 +362,7 @@ namespace ISLibrary
 
                         if (FromLocation.UseBins)
                         {
-                            Inventory objInventory = new Inventory();
+                            InventoryDetail objInventory = new InventoryDetail();
 
                             objInventory.CompanyID = CompanyID;
                             objInventory.ItemID = ItemID;
@@ -372,6 +374,7 @@ namespace ISLibrary
                             {
                                 objInventory.OnHand -= decBaseQuantity;
                                 objInventory.Available -= decBaseQuantity;
+                                objInventory.ChangedQty = -decBaseQuantity;
                                 objInventory.UpdatedBy = CreatedBy;
                                 objInventory.ParentKey = TransferLineID;
                                 objInventory.ParentObject = "TransferLine";
@@ -379,7 +382,14 @@ namespace ISLibrary
                                 {
                                     throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
                                 }
+                                //update and create action could change the qty in inventory table,so we need to update at first
                                 objInventory.Update();
+
+                                if (objInventory.OnHand == 0 && objInventory.Available == 0 && objInventory.BinID != Bin.DefalutBinID)
+                                {
+                                    objInventory.Delete();
+                                }
+
 
 
                                 //Inventory Log
@@ -390,7 +400,7 @@ namespace ISLibrary
                                 objInventoryLog.ChangeQuantity = -decBaseQuantity;
                                 objInventoryLog.ParentObjectID = TransferID;
                                 objInventoryLog.BinID = objInventory.BinID;
-                                objInventoryLog.InventoryID = objInventory.InventoryID;
+                                objInventoryLog.InventoryDetailID = objInventory.InventoryDetailID;
                                 objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
                                 objInventoryLog.CreatedBy = CreatedBy;
                                 objInventoryLog.Create();
@@ -403,12 +413,12 @@ namespace ISLibrary
 
                         if (ToLocation.UseBins)
                         {
-                            Inventory objInventory = new Inventory();
+                            InventoryDetail objInventory = new InventoryDetail();
 
                             objInventory.CompanyID = CompanyID;
                             objInventory.ItemID = ItemID;
                             objInventory.LocationID = ToLocationID;
-                            objInventory.BinID = objTransferLineDetail.FromBinID;
+                            objInventory.BinID = objTransferLineDetail.ToBinID;
                             objInventory.InventoryNumber = objTransferLineDetail.InventoryNumber;
                             objInventory.ParentKey = TransferLineID;
                             objInventory.ParentObject = "TransferLine";
@@ -417,11 +427,14 @@ namespace ISLibrary
                             {
                                 objInventory.OnHand += decBaseQuantity;
                                 objInventory.Available += decBaseQuantity;
+                                objInventory.ChangedQty = decBaseQuantity;
                                 objInventory.UpdatedBy = CreatedBy;                       
                                 objInventory.Update();
                             }
                             else
                             {
+                                objInventory.OnHand = decBaseQuantity;
+                                objInventory.Available = decBaseQuantity;
                                 objInventory.CreatedBy = CreatedBy;
                                 objInventory.Create();
                             }
@@ -434,7 +447,7 @@ namespace ISLibrary
                             objInventoryLog.ChangeQuantity = decBaseQuantity;
                             objInventoryLog.ParentObjectID = TransferID;
                             objInventoryLog.BinID = objInventory.BinID;
-                            objInventoryLog.InventoryID = objInventory.InventoryID;
+                            objInventoryLog.InventoryDetailID = objInventory.InventoryDetailID;
                             objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
                             objInventoryLog.CreatedBy = CreatedBy;
                             objInventoryLog.Create();

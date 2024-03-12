@@ -251,19 +251,24 @@ namespace ISLibrary
                 if (!Location.UseBins)
                 {
                     decimal decBaseQuantity = Quantity * decQtyPerUnit;
-                    Inventory DefaultInventory = new Inventory();
+                    InventoryDetail DefaultInventory = new InventoryDetail();
 
                     DefaultInventory.CompanyID = CompanyID;
                     DefaultInventory.ItemID = ItemID;
                     DefaultInventory.LocationID = LocationID;
                     DefaultInventory.Available = decBaseQuantity;
-                    DefaultInventory.BinID = "3";//@todo set the default value 
+                    DefaultInventory.BinID = Bin.DefalutBinID;
                     DefaultInventory.OnHand = decBaseQuantity;
                     
                     if (DefaultInventory.GetUnqiueInventory())
                     {
                         DefaultInventory.OnHand += decBaseQuantity;
                         DefaultInventory.Available += decBaseQuantity;
+                        DefaultInventory.ChangedQty = decBaseQuantity;
+                        if (DefaultInventory.OnHand < 0 || DefaultInventory.Available < 0)
+                        {
+                            throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
+                        }
                         DefaultInventory.Update();
                     }
                     else
@@ -279,7 +284,7 @@ namespace ISLibrary
                     objInventoryLog.ChangeQuantity = decBaseQuantity;
                     objInventoryLog.ParentObjectID = AdjustmentID;
                     objInventoryLog.BinID = DefaultInventory.BinID;
-                    objInventoryLog.InventoryID = DefaultInventory.InventoryID;
+                    objInventoryLog.InventoryDetailID = DefaultInventory.InventoryDetailID;
                     objInventoryLog.CreatedBy = CreatedBy;
                     objInventoryLog.Create();
                 }
@@ -288,8 +293,8 @@ namespace ISLibrary
                     foreach (AdjustmentLineDetail objAdjustmentLineDetail in AdjustmentLineDetails)
                     {
                         decimal decBaseQuantity = objAdjustmentLineDetail.Quantity * decQtyPerUnit;
-                        
-                        Inventory objInventory = new Inventory();
+
+                        InventoryDetail objInventory = new InventoryDetail();
 
                         objInventory.CompanyID = CompanyID;
                         objInventory.ItemID = ItemID;
@@ -303,10 +308,21 @@ namespace ISLibrary
                         {
                             objInventory.OnHand += decBaseQuantity;
                             objInventory.Available += decBaseQuantity;
+                            objInventory.ChangedQty = decBaseQuantity;
                             objInventory.UpdatedBy = CreatedBy;
                             objInventory.ParentKey = AdjustmentLineID;
                             objInventory.ParentObject = "AdjustmentLine";
+                            if (objInventory.OnHand < 0 || objInventory.Available < 0)
+                            {
+                                throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
+                            }
+                            //update and create action could change the qty in inventory table,so we need to update at first
                             objInventory.Update();
+
+                            if (objInventory.OnHand == 0 && objInventory.Available == 0 && objInventory.BinID != Bin.DefalutBinID)
+                            {
+                                objInventory.Delete();
+                            }
                         }
                         else
                         {
@@ -321,7 +337,7 @@ namespace ISLibrary
                             objAdjustmentLineDetail.CompanyID = CompanyID;
                             objAdjustmentLineDetail.AdjustmentLineID = AdjustmentLineID;
                             objAdjustmentLineDetail.CreatedBy = CreatedBy;
-                            objAdjustmentLineDetail.InventoryID = objInventory.InventoryID;
+                            objAdjustmentLineDetail.InventoryID = objInventory.InventoryDetailID;
                             objAdjustmentLineDetail.ParentKey = AdjustmentLineID;
                             objAdjustmentLineDetail.ParentObject = "AdjustmentLine";
                             objAdjustmentLineDetail.Create(objConn, objTran);
@@ -335,7 +351,7 @@ namespace ISLibrary
                         objInventoryLog.ChangeQuantity = decBaseQuantity;
                         objInventoryLog.ParentObjectID = AdjustmentID;
                         objInventoryLog.BinID = objInventory.BinID;
-                        objInventoryLog.InventoryID = objInventory.InventoryID;
+                        objInventoryLog.InventoryDetailID = objInventory.InventoryDetailID;
                         objInventoryLog.InventoryNumber = objInventory.InventoryNumber;
                         objInventoryLog.CreatedBy = CreatedBy;
                         objInventoryLog.Create();
