@@ -85,7 +85,7 @@ namespace InventoryStudio.Controllers
                 if (!hasDefaultBarcode)
                 {
                     itemViewModel?.Item?.ItemBarcodes?.Add(new ItemBarcode
-                        { Barcode = itemViewModel.Item.ItemNumber, Type = "UPC" });
+                        { Barcode = itemViewModel.Item.ItemNumber, Type = "Item Number" });
                 }
             }
             else
@@ -94,7 +94,7 @@ namespace InventoryStudio.Controllers
                 {
                         itemViewModel.Item.ItemBarcodes = new List<ItemBarcode>
                         {
-                            new() { Barcode = itemViewModel.Item.ItemNumber, Type = "UPC" }
+                            new() { Barcode = itemViewModel.Item.ItemNumber, Type = "Item Number" }
                         };
                 }
             }
