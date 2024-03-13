@@ -4,6 +4,9 @@ namespace ISLibrary.Template
 {
     public class SalesOrderTemplate
     {
+        [Required]
+        public string SaelsOrderIndex { get; set; } = null!;
+
         /// <summary>
         /// references Company Table CompanyID
         /// </summary>
@@ -12,6 +15,7 @@ namespace ISLibrary.Template
 
         /// <summary>
         /// references Customer Table CustomerID
+        /// filter using emailAddress
         /// </summary>
         public string? Customer { get; set; }
 
@@ -23,16 +27,19 @@ namespace ISLibrary.Template
 
         /// <summary>
         /// references Location Table LocationID
+        /// filter using locationName
         /// </summary>
         public string? Location { get; set; }
 
         /// <summary>
         /// references Address Table AddressID
+        /// filter using email
         /// </summary>
         public string? BillToAddress { get; set; }
 
         /// <summary>
         /// references Address Table AddressID
+        /// filter using email
         /// </summary>
         [Required]
         public string ShipToAddress { get; set; } = null!;

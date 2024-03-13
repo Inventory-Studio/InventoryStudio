@@ -50,22 +50,22 @@ namespace InventoryStudio.Services.Importers
                 {
                     if (dataSet.IndexOf(data) == 0) // Importing SalesOrder
                     {
-                        await ImportSalesOrder(companyId, data, salesOrderFields, userId, importResult, progressHandler, importTemplateID);
+                        ImportSalesOrder(companyId, data, salesOrderFields, userId, importResult, progressHandler, importTemplateID);
                     }
                     else if (dataSet.IndexOf(data) == 1) // Importing SalesOrderLine
                     {
-                        await ImportSalesOrderLine(companyId, data, salesOrderLineFields, userId, importResult, progressHandler, importTemplateID);
+                        ImportSalesOrderLine(companyId, data, salesOrderLineFields, userId, importResult, progressHandler, importTemplateID);
                     }
                     else if (dataSet.IndexOf(data) == 2) // Importing SalesOrderLineDetail
                     {
-                        await ImportSalesOrderLineDetail(companyId, data, salesOrderLineDetailFields, userId, importResult, progressHandler, importTemplateID);
+                        ImportSalesOrderLineDetail(companyId, data, salesOrderLineDetailFields, userId, importResult, progressHandler, importTemplateID);
                     }
                 }
             }
             importResult.Update();
         }
 
-        private async Task ImportSalesOrderLineDetail(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
+        private void ImportSalesOrderLineDetail(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
         {
             var salesOrderLineDetail = new SalesOrderLineDetail();
             foreach (var field in data)
@@ -77,7 +77,7 @@ namespace InventoryStudio.Services.Importers
                     {
                         try
                         {
-                            await SetPropertyAsync(companyId, salesOrderLineDetail, field.Value, property);
+                            SetPropertyAsync(companyId, salesOrderLineDetail, field.Value, property);
                         }
                         catch (Exception ex)
                         {
@@ -109,7 +109,7 @@ namespace InventoryStudio.Services.Importers
             progressHandler?.Invoke(progress, importTemplateID);
         }
 
-        private async Task ImportSalesOrderLine(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
+        private void ImportSalesOrderLine(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
         {
             var salesOrderLine = new SalesOrderLine();
             foreach (var field in data)
@@ -121,7 +121,7 @@ namespace InventoryStudio.Services.Importers
                     {
                         try
                         {
-                            await SetPropertyAsync(companyId, salesOrderLine, field.Value, property);
+                            SetPropertyAsync(companyId, salesOrderLine, field.Value, property);
                         }
                         catch (Exception ex)
                         {
@@ -154,7 +154,7 @@ namespace InventoryStudio.Services.Importers
             progressHandler?.Invoke(progress, importTemplateID);
         }
 
-        private async Task ImportSalesOrder(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
+        private void ImportSalesOrder(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
         {
             var salesOrder = new SalesOrder();
 
@@ -167,7 +167,7 @@ namespace InventoryStudio.Services.Importers
                     {
                         try
                         {
-                            await SetPropertyAsync(companyId, salesOrder, field.Value, property);
+                            SetPropertyAsync(companyId, salesOrder, field.Value, property);
                         }
                         catch (Exception ex)
                         {
@@ -197,7 +197,7 @@ namespace InventoryStudio.Services.Importers
             progressHandler?.Invoke(progress, importTemplateID);
         }
 
-        private async Task SetPropertyAsync(string companyId, SalesOrder salesOrder, string value, PropertyInfo property)
+        private void SetPropertyAsync(string companyId, SalesOrder salesOrder, string value, PropertyInfo property)
         {
             if (property.PropertyType == typeof(Company))
             {
@@ -208,23 +208,42 @@ namespace InventoryStudio.Services.Importers
                 if (companies != null)
                     property.SetValue(salesOrder, companies.FirstOrDefault());
             }
-            else if (property.PropertyType == typeof(Client))
+            else if (property.PropertyType == typeof(Customer))
             {
-                ClientFilter filter = new ClientFilter();
+                CustomerFilter filter = new CustomerFilter();
                 filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.EmailAddress.SearchString = value;
-                var client = Client.GetClient(companyId, filter);
-                if (client != null)
-                    property.SetValue(salesOrder, client);
+                var customer = Customer.GetCustomer(companyId, filter);
+                if (customer != null)
+                    property.SetValue(salesOrder, customer);
+            }
+            else if (property.PropertyType == typeof(Location))
+            {
+                LocationFilter filter = new LocationFilter();
+                filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.LocationName.SearchString = value;
+                var location = Location.GetLocation(companyId, filter);
+                if (location != null)
+                    property.SetValue(salesOrder, location);
+            }
+            else if (property.PropertyType == typeof(Address) && (property.Name == "BillToAddress") || property.Name == "ShipToAddress")
+            {
+                AddressFilter filter = new AddressFilter();
+                filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Email.SearchString = value;
+                var address = Address.GetAddress(companyId, filter);
+                if (address != null)
+                    property.SetValue(salesOrder, address);
             }
             else
             {
                 var convertedValue = Convert.ChangeType(value, property.PropertyType);
                 property.SetValue(salesOrder, convertedValue);
             }
+
         }
 
-        private async System.Threading.Tasks.Task SetPropertyAsync(string companyId, SalesOrderLine salesOrderLine, string value, PropertyInfo property)
+        private void SetPropertyAsync(string companyId, SalesOrderLine salesOrderLine, string value, PropertyInfo property)
         {
             if (property.PropertyType == typeof(Company))
             {
@@ -235,23 +254,39 @@ namespace InventoryStudio.Services.Importers
                 if (companies != null)
                     property.SetValue(salesOrderLine, companies.FirstOrDefault());
             }
-            else if (property.PropertyType == typeof(Client))
+            else if (property.PropertyType == typeof(Location))
             {
-                ClientFilter filter = new ClientFilter();
-                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.EmailAddress.SearchString = value;
-                var client = Client.GetClient(companyId, filter);
-                if (client != null)
-                    property.SetValue(salesOrderLine, client);
+                LocationFilter filter = new LocationFilter();
+                filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.LocationName.SearchString = value;
+                var location = Location.GetLocation(companyId, filter);
+                if (location != null)
+                    property.SetValue(salesOrderLine, location);
+            }
+            else if (property.PropertyType == typeof(Item))
+            {
+                var item = new Item(companyId, value);
+                if (item != null)
+                    property.SetValue(salesOrderLine, item);
+            }
+            else if (property.PropertyType == typeof(ItemUnit))
+            {
+                var filter = new ItemUnitFilter();
+                filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Name.SearchString = value;
+                var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
+                if (itemUnits != null)
+                    property.SetValue(salesOrderLine, itemUnits.FirstOrDefault());
             }
             else
             {
                 var convertedValue = Convert.ChangeType(value, property.PropertyType);
                 property.SetValue(salesOrderLine, convertedValue);
             }
+
         }
 
-        private async System.Threading.Tasks.Task SetPropertyAsync(string companyId, SalesOrderLineDetail salesOrderLineDetail, string value, PropertyInfo property)
+        private void SetPropertyAsync(string companyId, SalesOrderLineDetail salesOrderLineDetail, string value, PropertyInfo property)
         {
             if (property.PropertyType == typeof(Company))
             {
@@ -262,14 +297,23 @@ namespace InventoryStudio.Services.Importers
                 if (companies != null)
                     property.SetValue(salesOrderLineDetail, companies.FirstOrDefault());
             }
-            else if (property.PropertyType == typeof(Client))
+            else if (property.PropertyType == typeof(Bin))
             {
-                ClientFilter filter = new ClientFilter();
-                filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.EmailAddress.SearchString = value;
-                var client = Client.GetClient(companyId, filter);
-                if (client != null)
-                    property.SetValue(salesOrderLineDetail, client);
+                BinFilter filter = new BinFilter();
+                filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.BinNumber.SearchString = value;
+                var bins = Bin.GetBins(companyId, filter);
+                if (bins != null)
+                    property.SetValue(salesOrderLineDetail, bins.FirstOrDefault());
+            }
+            else if (property.PropertyType == typeof(Inventory))
+            {
+                InventoryFilter filter = new InventoryFilter();
+                filter.ItemID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.ItemID.SearchString = value;
+                var inventory = Inventory.GetInventory(filter);
+                if (inventory != null)
+                    property.SetValue(salesOrderLineDetail, inventory);
             }
             else
             {
@@ -277,5 +321,7 @@ namespace InventoryStudio.Services.Importers
                 property.SetValue(salesOrderLineDetail, convertedValue);
             }
         }
+
+
     }
 }

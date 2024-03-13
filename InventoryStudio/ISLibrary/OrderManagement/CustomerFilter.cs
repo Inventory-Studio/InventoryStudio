@@ -12,5 +12,7 @@ namespace ISLibrary.OrderManagement
         public Database.Filter.StringSearch.SearchFilter CustomerID { get; set; }
 
         public Database.Filter.StringSearch.SearchFilter CreatedBy { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter EmailAddress { get; set; }
     }
 }

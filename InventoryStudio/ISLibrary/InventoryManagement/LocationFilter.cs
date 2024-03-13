@@ -12,5 +12,7 @@ namespace ISLibrary
         public Database.Filter.StringSearch.SearchFilter LocationID { get; set; }
 
         public Database.Filter.StringSearch.SearchFilter ParentLocationID { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter LocationName { get; set; }
     }
 }

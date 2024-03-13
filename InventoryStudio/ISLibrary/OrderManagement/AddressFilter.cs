@@ -18,6 +18,8 @@ namespace ISLibrary.OrderManagement
 
         public Database.Filter.StringSearch.SearchFilter FullName { get; set; }
 
+        public Database.Filter.StringSearch.SearchFilter Email { get; set; }
+
         public Database.Filter.StringSearch.SearchFilter CreatedBy { get; set; }
 
     }

@@ -535,9 +535,9 @@ namespace ISLibrary
 
                 if (Filter != null)
                 {
-                    if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "p.LocationID");
-                    if (Filter.ParentLocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ParentLocationID, "p.ParentLocationID");
-
+                    if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "l.LocationID");
+                    if (Filter.ParentLocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ParentLocationID, "l.ParentLocationID");
+                    if (Filter.LocationName != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationName, "l.LocationName");
                 }
 
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "LocationID" : Utility.CustomSorting.GetSortExpression(typeof(Location), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);

@@ -384,6 +384,7 @@ namespace ISLibrary.OrderManagement
                 {
                     if (Filter.CustomerID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CustomerID, "c.CustomerID");
                     if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "c.CreatedBy");
+                    if (Filter.EmailAddress != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.EmailAddress, "c.EmailAddress");
                 }
 
                 if (PageSize != null && PageNumber != null) strSQL = Database.GetPagingSQL(strSQL, string.IsNullOrEmpty(SortExpression) ? "CustomerID" : Utility.CustomSorting.GetSortExpression(typeof(Customer), SortExpression), string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);

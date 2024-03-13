@@ -29,6 +29,7 @@ namespace InventoryStudio.Services.Importers
             foreach (var data in datas)
             {
                 var vendor = new Vendor();
+                var error = false;
                 foreach (var field in data)
                 {
                     if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
@@ -38,7 +39,7 @@ namespace InventoryStudio.Services.Importers
                         {
                             try
                             {
-                                await SetPropertyAsync(companyId, vendor, field.Value, property);
+                                SetPropertyAsync(companyId, vendor, field.Value, property);
                             }
                             catch (Exception ex)
                             {
@@ -51,14 +52,19 @@ namespace InventoryStudio.Services.Importers
                                 };
                                 failedRecord.Create();
                                 importResult.FailedRecords++;
+                                error = true;
                             }
                         }
                     }
                 }
                 vendor.CreatedBy = userId;
-                vendor.Create();
+                if (!error)
+                {
+                    vendor.Create();
+                    importResult.SuccessfulRecords++;
+
+                }
                 processedCount++;
-                importResult.SuccessfulRecords++;
                 int progress = (int)(processedCount / (double)importResult.TotalRecords * 100);
                 progressHandler?.Invoke(progress, importTemplateID);
             }
@@ -66,7 +72,7 @@ namespace InventoryStudio.Services.Importers
         }
 
 
-        private async Task SetPropertyAsync(string companyId, Vendor vendor, string value, PropertyInfo property)
+        private void SetPropertyAsync(string companyId, Vendor vendor, string value, PropertyInfo property)
         {
             if (property.PropertyType == typeof(Company))
             {

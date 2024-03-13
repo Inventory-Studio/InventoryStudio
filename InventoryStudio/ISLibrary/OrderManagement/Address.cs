@@ -144,7 +144,7 @@ namespace ISLibrary.OrderManagement
             {
                 objData = null;
             }
-            
+
         }
 
         public override bool Create()
@@ -307,7 +307,7 @@ namespace ISLibrary.OrderManagement
                 dicParam = null;
                 dicWParam = null;
             }
-            
+
             LogAuditData(enumActionType.Update);
             return true;
         }
@@ -423,6 +423,7 @@ namespace ISLibrary.OrderManagement
                     if (Filter.AddressID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.AddressID, "a.AddressID");
                     if (Filter.IsInvalidAddress != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.IsInvalidAddress, "a.IsInvalidAddress");
                     if (Filter.IsAddressUpdated != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.IsAddressUpdated, "a.IsAddressUpdated");
+                    if (Filter.Email != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Email, "a.Email");
                     if (Filter.CreatedBy != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CreatedBy, "a.CreatedBy");
                 }
 
