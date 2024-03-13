@@ -79,9 +79,13 @@
         let formData = $("#createItemForm");
         const data = getFormData(formData)
         const barcodeGrid = $("#GridBarcodes");
+        const attributesGrid = $("#GridAttributes");
         if (barcodeGrid != null && barcodeGrid?.length) {
               data["Item.ItemBarcodes"] = barcodeGrid[0]?.ej2_instances[0]?.dataSource;
         }
+         if (attributesGrid != null && attributesGrid?.length) {
+               data["ItemAttributes"] = attributesGrid[0]?.ej2_instances[0]?.dataSource;
+         }
         $.ajax({
             url: "/Item/Create",
             headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
@@ -168,6 +172,7 @@
             var itemNumber = $('#Item_ItemNumber').val();
             var barcodeExists = false;
             var $tableBody = $('#barcodeTable').find('tbody');
+          
 
             // Iterate through the rows of the table to check if an entry with the same item number already exists
             $tableBody.find('tr').each(function () {

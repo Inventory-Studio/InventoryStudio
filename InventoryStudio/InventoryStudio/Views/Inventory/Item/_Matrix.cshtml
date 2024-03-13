@@ -23,7 +23,7 @@
                 </e-grid-column>
             }
             <e-grid-column field="AttributeName" headerText="Attribute" width="120"></e-grid-column>
-            <e-grid-column field="Type" headerText="Type" edit="@(new { create = "create", read = "read", destroy = "destroy", write = "write" })" width="120"></e-grid-column>
+            <e-grid-column field="ItemAttributeValues" headerText="Values" template="#attributes" edit="@(new { create = "create", read = "read", destroy = "destroy", write = "write" })" width="120"></e-grid-column>
             @if (Model.Item != null && Model.Item.ItemID != null)
             {
                 <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" allowEditing="false" width="120"></e-grid-column>
@@ -141,6 +141,13 @@
 <script lang="js">
 const attributesToolbarClick = customBarcodeExportToolbarClick("GridAttributes", "IS_Attributes");
 </script>
+<script id="attributes" type="text/x-template">
+    <div class="hstack gap-2">
+ ${for(Value of ItemAttributeValues)}
+ <span class="badge bg-primary">${Value.AttributeValueName}</span>
+${/for} 
+    </div>
+</script>
 <script>
 
     var multiSelectObj;
@@ -150,19 +157,22 @@ const attributesToolbarClick = customBarcodeExportToolbarClick("GridAttributes",
         return element;
     }
     function read(e) {
-        return multiSelectObj.value.join(',');
+        console.log(multiSelectObj.value)
+        return multiSelectObj.value?.filter(x => x && x != "")?.map(x => { return { AttributeValueName: x }});
     }
     function destroy() {
         multiSelectObj.destroy();
     }
     function write(args) {
+        console.log(args)
         let multiSelectVal = args.rowData[args.column.field]
-                    ? args.rowData[args.column.field].split(',')
+                    ? args.rowData[args.column.field]?.map(x => x.AttributeValueName) 
                     : [];
+        
         multiSelectObj = new ej.dropdowns.MultiSelect({
             dataSource: multiSelectVal,
             value: multiSelectVal,
-            fields: { text: 'Type', value: 'Type' },
+            fields: { text: 'AttributeValueName', value: 'AttributeValueName' },
             floatLabelType: 'Never',
             mode: "Box",
             allowCustomValue: true
