@@ -1,81 +1,110 @@
 ﻿@model ItemViewModel
 
-<div class="tab-pane fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
+@{
+    var toolbarItems = Model.Item?.ItemID != null ? new List<string>() { "Add", "Edit", "Update", "Delete", "PdfExport", "ExcelExport" } : new List<string>() { "Add", "Edit", "Update", "Delete" };
+}
+
+<div class="tab-pane border-0 bg-border-none p-0 m-0 fade" id="attribute-content" role="tabpanel" aria-labelledby="attribute-tab">
+    <div class="bg-gray-200 py-2 px-3 rounded mb-4">
+        <h6 class="mb-0">Attributes</h6>
+    </div>
+    <ejs-grid id="GridAttributes" class="h-100" dataSource="@Model.ItemAttributes" toolbarClick="attributesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
+              allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
+
+        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" mode="Normal"></e-grid-editSettings>
+        <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
+        @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
+        <e-grid-columns>
+            @if (Model.Item != null && Model.Item.ItemID != null)
+            {
+                <e-grid-column visible="false" field="ItemBarcodeID" headerText="ID" allowEditing="false" type="int" isPrimaryKey="true"
+                               validationRules="@(new { number = true })" width="80">
+
+                </e-grid-column>
+            }
+            <e-grid-column field="AttributeName" headerText="Attribute" width="120"></e-grid-column>
+            <e-grid-column field="Type" headerText="Type" edit="@(new { create = "create", read = "read", destroy = "destroy", write = "write" })" width="120"></e-grid-column>
+            @if (Model.Item != null && Model.Item.ItemID != null)
+            {
+                <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" allowEditing="false" width="120"></e-grid-column>
+                <e-grid-column field="CreatedOn" headerText="Created On" type="datetime" format="M/d/yyyy h:mm a" allowEditing="false" width="120"></e-grid-column>
+                <e-grid-column headerText="Actions" template="#actions" allowEditing="false" width="100" maxWidth="100"></e-grid-column>
+            }
+        </e-grid-columns>
+    </ejs-grid>
     <div class="row">
-            <div class="col-12">
-                <h2>Attributes</h2>
+        <div class="col-12">
+            <h2>Attributes</h2>
             <button type="button" id="addAttributes" class="btn btn-primary mb-2">Add</button>
             <table class="table" id="attributesTable">
-                    <thead>
+                <thead>
+                <tr>
+                    <th>Attribute Name</th>
+                    <th>Attribute Value</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (Model != null && Model.ItemAttributes != null)
+                {
+                    int index = 0;
+                    foreach (var ItemAttribute in Model.ItemAttributes)
+                    {
+                        int valueIndex = 0;
                         <tr>
-                            <th>Attribute Name</th>
-                            <th>Attribute Value</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @if (Model != null && Model.ItemAttributes != null )
-                        {
-                        int index = 0;                        
-                        foreach (var ItemAttribute in Model.ItemAttributes)                            
-                            {
-                            int valueIndex = 0;
-                            <tr>
-                                <td>
-                                    <span class="attribute-name-display">@ItemAttribute.AttributeName</span>
-                                    <input type="text" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName" class="attribute-name-input" style="display:none;">
-                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
-                                </td>
-                                <td>
-                                    @{
-                                        var allAttributeValues = string.Join(",", ItemAttribute.ItemAttributeValues.Select(v => v.AttributeValueName));
-                                    }
-                                    <span class="attribute-value-display">@allAttributeValues</span>
-                                    @foreach (var itemAttributeValue in ItemAttribute.ItemAttributeValues)
-                                    {
-                                        
-                                       
-                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID" value="@itemAttributeValue.ItemAttributeValueID">
-                                        <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName" value="@itemAttributeValue.AttributeValueName">
-                                        valueIndex++;
-                                    }
+                            <td>
+                                <span class="attribute-name-display">@ItemAttribute.AttributeName</span>
+                                <input type="text" name="ItemAttributes[@index].AttributeName" value="@ItemAttribute.AttributeName" class="attribute-name-input" style="display:none;">
+                                <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
+                            </td>
+                            <td>
+                                @{
+                                    var allAttributeValues = string.Join(",", ItemAttribute.ItemAttributeValues.Select(v => v.AttributeValueName));
+                                }
+                                <span class="attribute-value-display">@allAttributeValues</span>
+                                @foreach (var itemAttributeValue in ItemAttribute.ItemAttributeValues)
+                                {
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].ItemAttributeValueID" value="@itemAttributeValue.ItemAttributeValueID">
+                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeValues[@valueIndex].AttributeValueName" value="@itemAttributeValue.AttributeValueName">
+                                    valueIndex++;
+                                }
 
-                                    <input type="hidden" class="form-control attribute-value-input"  value="@allAttributeValues">
-                                </td>
-                                <td>
-                                    <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
-                                    <button type="button" class="btn btn-info btn-sm editItemAttributeBtn">Edit</button>
-                                    <button type="button" class="btn btn-danger btn-sm deleteAttributeBtn">Delete</button>
-                                </td>
-                              
-                            </tr>
-                            index++;
-                            }
-                        }
-                    </tbody>
-                </table>
-                <button class="btn btn-secondary">Back</button>
-            </div>
-        
+                                <input type="hidden" class="form-control attribute-value-input" value="@allAttributeValues">
+                            </td>
+                            <td>
+                                <input type="hidden" name="ItemAttributes[@index].ItemAttributeID" value="@ItemAttribute.ItemAttributeID">
+                                <button type="button" class="btn btn-info btn-sm editItemAttributeBtn">Edit</button>
+                                <button type="button" class="btn btn-danger btn-sm deleteAttributeBtn">Delete</button>
+                            </td>
+
+                        </tr>
+                        index++;
+                    }
+                }
+                </tbody>
+            </table>
+            <button class="btn btn-secondary">Back</button>
+        </div>
+
     </div>
 </div>
 
-<div class="tab-pane fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
+<div class="tab-pane border-0 bg-border-none p-0 m-0 fade" id="matrix-content" role="tabpanel" aria-labelledby="matrix-tab">
     <div class="row">
         <div class="col-12">
             <h2>Matrix Attribute(s)</h2>
             @*<button type="button" id="addAttributes" class="btn btn-primary mb-2">Batch Update</button>*@
             <table class="table" id="matrixTable">
                 <thead>
-                    <tr>
-                        <th>Item Number</th>
-                        <th>Item Name</th>
-                        <th>Attributes</th>
-                        <th>Action</th>
-                    </tr>
+                <tr>
+                    <th>Item Number</th>
+                    <th>Item Name</th>
+                    <th>Attributes</th>
+                    <th>Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                  
+
                 </tbody>
             </table>
             <button class="btn btn-secondary">Back</button>
@@ -107,6 +136,36 @@
     </div>
 </div>
 
+<script src="@Url.Content("~/js/utils/utils.js")"></script>
+<!-- Javascript logic for datagrid -->
+<script lang="js">
+const attributesToolbarClick = customBarcodeExportToolbarClick("GridAttributes", "IS_Attributes");
+</script>
+<script>
+var multiselectDatasource = [
+        { ShipCity: 'Berlin', Id: '1' },
+        { ShipCity: 'Madrid', Id: '2' },
+        { ShipCity: 'Cholchester', Id: '3' },
+        { ShipCity: 'Marseille', Id: '4' },
+        { ShipCity: 'Tsawassen', Id: '5' },
+    ];
+    var multiSelectObj;
+    var element
+    function create(args) {
+        element = document.createElement('select');
+        element.classList.add("form-control");
+        element.classList.add("choices__input");
+        return element;
+    }
+    function read(e) {
+    }
+    function destroy() {
+        multiSelectObj.destroy();
+    }
+    function write(args) {
+      
+    }
+    </script>
 @{
     // Build a JSON string for the attributes object, ensuring Model.ItemAttributes is not null
     var attributesJson = "[]";
@@ -117,14 +176,16 @@
             .Where(attr => attr != null) // Ensure each attribute is not null
             .ToDictionary(
                 attr => attr.AttributeName,
-                attr => attr.ItemAttributeValues != null ? attr.ItemAttributeValues
-                    .Where(val => val != null) // Ensure each attribute value is not null
-                    .Select(v => v.AttributeValueName)
-                    .ToList() : new List<string>()
+                attr => attr.ItemAttributeValues != null
+                    ? attr.ItemAttributeValues
+                        .Where(val => val != null) // Ensure each attribute value is not null
+                        .Select(v => v.AttributeValueName)
+                        .ToList()
+                    : new List<string>()
             );
 
         attributesJson = Newtonsoft.Json.JsonConvert.SerializeObject(attributesDictionary);
-    }// Provide an empty array as a fallback
+    } // Provide an empty array as a fallback
 
     // Build a JSON string for the ItemMatrices, ensuring Model.ItemMatrices is not null
     var itemMatricesJson = "[]";
@@ -144,8 +205,6 @@
         // Provide an empty array as a fallback
     }
 }
-
-
 
 
 <script>
@@ -547,4 +606,3 @@
 
     });
 </script>
-
