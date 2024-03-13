@@ -142,28 +142,32 @@
 const attributesToolbarClick = customBarcodeExportToolbarClick("GridAttributes", "IS_Attributes");
 </script>
 <script>
-var multiselectDatasource = [
-        { ShipCity: 'Berlin', Id: '1' },
-        { ShipCity: 'Madrid', Id: '2' },
-        { ShipCity: 'Cholchester', Id: '3' },
-        { ShipCity: 'Marseille', Id: '4' },
-        { ShipCity: 'Tsawassen', Id: '5' },
-    ];
+
     var multiSelectObj;
     var element
     function create(args) {
-        element = document.createElement('select');
-        element.classList.add("form-control");
-        element.classList.add("choices__input");
+        element = document.createElement('input');
         return element;
     }
     function read(e) {
+        return multiSelectObj.value.join(',');
     }
     function destroy() {
         multiSelectObj.destroy();
     }
     function write(args) {
-      
+        let multiSelectVal = args.rowData[args.column.field]
+                    ? args.rowData[args.column.field].split(',')
+                    : [];
+        multiSelectObj = new ej.dropdowns.MultiSelect({
+            dataSource: multiSelectVal,
+            value: multiSelectVal,
+            fields: { text: 'Type', value: 'Type' },
+            floatLabelType: 'Never',
+            mode: "Box",
+            allowCustomValue: true
+        });
+        multiSelectObj.appendTo(element);
     }
     </script>
 @{
