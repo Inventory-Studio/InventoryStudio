@@ -225,7 +225,6 @@ namespace ISLibrary.OrderManagement
 
         }
 
-
         public override bool Create()
         {
             SqlConnection objConn = null;
@@ -311,7 +310,6 @@ namespace ISLibrary.OrderManagement
                             objSalesOrderLine.SalesOrderID = SalesOrderID;
                             objSalesOrderLine.CompanyID = CompanyID;
                             objSalesOrderLine.CreatedBy = CreatedBy;
-                            objSalesOrderLine.CreatedOn = DateTime.Now;
                             objSalesOrderLine.Create();
                         }
                     }
@@ -329,7 +327,6 @@ namespace ISLibrary.OrderManagement
             LogAuditData(enumActionType.Create);
             return true;
         }
-
 
         public override bool Update()
         {
@@ -369,7 +366,6 @@ namespace ISLibrary.OrderManagement
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(PONumber)) throw new Exception("PONumber is required");
-                if (TranDate == null) throw new Exception("TranDate is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, SalesOrderID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
@@ -408,6 +404,40 @@ namespace ISLibrary.OrderManagement
                 dicWParam["SalesOrderID"] = SalesOrderID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrder"), objConn, objTran);
 
+                if (SalesOrderLines != null)
+                {
+                    // Get the current SalesOrderLines from the database
+                    var filter = new SalesOrderLineFilter();
+                    filter.SalesOrderID = new Database.Filter.StringSearch.SearchFilter();
+                    filter.SalesOrderID.SearchString = SalesOrderID;
+                    List<SalesOrderLine> currentSalesOrderLines = SalesOrderLine.GetSalesOrderLines(CompanyID, filter);
+
+                    // Update or create SalesOrderLines
+                    foreach (var objSalesOrderLine in SalesOrderLines)
+                    {
+                        if (objSalesOrderLine.IsNew)
+                        {
+                            objSalesOrderLine.SalesOrderID = SalesOrderID;
+                            objSalesOrderLine.CompanyID = CompanyID;
+                            objSalesOrderLine.CreatedBy = UpdatedBy;
+                            objSalesOrderLine.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objSalesOrderLine.UpdatedBy = UpdatedBy;
+                            objSalesOrderLine.Update(objConn, objTran);
+                        }
+                    }
+
+                    // Delete SalesOrderLines that are not in the current SalesOrderLines
+                    foreach (var currentSalesOrderLine in currentSalesOrderLines)
+                    {
+                        if (!SalesOrderLines.Exists(t => t.SalesOrderLineID == currentSalesOrderLine.SalesOrderLineID))
+                        {
+                            currentSalesOrderLine.Delete(objConn, objTran);
+                        }
+                    }
+                }
 
 
                 Load(objConn, objTran);
@@ -425,7 +455,6 @@ namespace ISLibrary.OrderManagement
             LogAuditData(enumActionType.Update);
             return true;
         }
-
 
         public override bool Delete()
         {

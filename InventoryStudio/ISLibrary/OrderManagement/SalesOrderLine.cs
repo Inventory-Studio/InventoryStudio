@@ -264,7 +264,6 @@ namespace ISLibrary.OrderManagement
                     {
                         objSalesOrderLineDetail.CompanyID = CompanyID;
                         objSalesOrderLineDetail.SalesOrderLineID = SalesOrderLineID;
-                        objSalesOrderLineDetail.UpdatedOn = DateTime.Now;
                         objSalesOrderLineDetail.UpdatedBy = UpdatedBy;
                         objSalesOrderLineDetail.Create();
                     }
@@ -362,6 +361,39 @@ namespace ISLibrary.OrderManagement
 
                 dicWParam["SalesOrderLineID"] = SalesOrderLineID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrderLine"), objConn, objTran);
+
+
+                if (SalesOrderLineDetails != null)
+                {
+                    var filter = new SalesOrderLineDetailFilter();
+                    filter.SalesOrderLineID = new Database.Filter.StringSearch.SearchFilter();
+                    filter.SalesOrderLineID.SearchString = SalesOrderLineID;
+                    List<SalesOrderLineDetail> currentSalesOrderLineDetails = SalesOrderLineDetail.GetSalesOrderLineDetails(CompanyID, filter);
+                    foreach (var objSalesOrderLineDetail in SalesOrderLineDetails)
+                    {
+                        if (objSalesOrderLineDetail.IsNew)
+                        {
+                            objSalesOrderLineDetail.SalesOrderLineID = SalesOrderLineID;
+                            objSalesOrderLineDetail.CompanyID = CompanyID;
+                            objSalesOrderLineDetail.CreatedBy = UpdatedBy;
+                            objSalesOrderLineDetail.Create(objConn, objTran);
+                        }
+                        else
+                        {
+                            objSalesOrderLineDetail.UpdatedBy = UpdatedBy;
+                            objSalesOrderLineDetail.Update(objConn, objTran);
+                        }
+                    }
+                    foreach (var currentSalesOrderLineDetail in currentSalesOrderLineDetails)
+                    {
+                        if (!SalesOrderLineDetails.Exists(t => t.SalesOrderLineDetailID == currentSalesOrderLineDetail.SalesOrderLineDetailID))
+                        {
+                            currentSalesOrderLineDetail.Delete(objConn, objTran);
+                        }
+                    }
+                }
+
+                Load(objConn, objTran);
 
             }
             catch (Exception ex)
