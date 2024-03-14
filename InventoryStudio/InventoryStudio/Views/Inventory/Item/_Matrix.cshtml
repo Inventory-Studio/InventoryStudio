@@ -11,7 +11,7 @@
     <ejs-grid id="GridAttributes" class="h-100" dataSource="@Model.ItemAttributes" toolbarClick="attributesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
               allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
 
-        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" mode="Normal"></e-grid-editSettings>
+        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true"  mode="Dialog"></e-grid-editSettings>
         <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
         @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
         <e-grid-columns>
@@ -22,7 +22,7 @@
 
                 </e-grid-column>
             }
-            <e-grid-column field="AttributeName" headerText="Attribute" width="120"></e-grid-column>
+            <e-grid-column field="AttributeName" headerText="Attribute" validationRules="@(new { required = true })" width="120"></e-grid-column>
             <e-grid-column field="ItemAttributeValues" headerText="Values" template="#attributes" edit="@(new { create = "create", read = "read", destroy = "destroy", write = "write" })" width="120"></e-grid-column>
             @if (Model.Item != null && Model.Item.ItemID != null)
             {
@@ -173,7 +173,8 @@ ${/for}
             dataSource: multiSelectVal,
             value: multiSelectVal,
             fields: { text: 'AttributeValueName', value: 'AttributeValueName' },
-            floatLabelType: 'Never',
+            floatLabelType: 'Always',
+            placeholder:"Value",
             mode: "Box",
             allowCustomValue: true
         });
