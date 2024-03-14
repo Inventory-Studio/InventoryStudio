@@ -1,4 +1,6 @@
-﻿namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
+﻿using InventoryStudio.Models.OrderManagement.SalesOrderLineDetail;
+
+namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 {
     public class CreateSalesOrderLineViewModel
     {
@@ -38,6 +40,8 @@
         public string? Status { get; set; }
 
         public string? ExternalID { get; set; }
+
+        public List<CreateSalesOrderLineDetailViewModel> SalesOrderLineDetails { get; set; } = new List<CreateSalesOrderLineDetailViewModel>();
 
     }
 }

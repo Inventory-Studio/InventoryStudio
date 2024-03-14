@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using InventoryStudio.Models.OrderManagement.SalesOrderLine;
+using System.ComponentModel;
 
 namespace InventoryStudio.Models.OrderManagement.SalesOrder
 {
@@ -55,7 +56,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
         [DisplayName("Shipping From")]
         public DateTime? ShipFrom { get; set; }
 
-        [DisplayName("Shipping To")] 
+        [DisplayName("Shipping To")]
         public DateTime? ShipTo { get; set; }
 
         [DisplayName("Status")]
@@ -87,5 +88,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
 
         [DisplayName("Shopify Order ID")]
         public string? ShopifyOrderID { get; set; }
+
+        public List<CreateSalesOrderLineViewModel> SalesOrderLines { get; set; } = new List<CreateSalesOrderLineViewModel>();
     }
 }

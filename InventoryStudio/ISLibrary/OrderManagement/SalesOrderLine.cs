@@ -17,7 +17,6 @@ namespace ISLibrary.OrderManagement
 
         public bool IsNew { get { return string.IsNullOrEmpty(SalesOrderLineID); } }
 
-
         public string CompanyID { get; set; }
 
         public string SalesOrderID { get; set; }
