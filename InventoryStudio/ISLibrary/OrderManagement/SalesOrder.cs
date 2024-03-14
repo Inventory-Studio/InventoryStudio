@@ -80,6 +80,41 @@ namespace ISLibrary.OrderManagement
 
         public DateTime CreatedOn { get; set; }
 
+        private List<SalesOrderLine> mSalesOrderLine = null;
+
+        public List<SalesOrderLine> SalesOrderLines
+        {
+            get
+            {
+                SalesOrderLineFilter objFilter = null;
+                {
+                    try
+                    {
+                        if (mSalesOrderLine == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(SalesOrderID))
+                        {
+                            objFilter = new SalesOrderLineFilter();
+                            objFilter.SalesOrderID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.SalesOrderID.SearchString = SalesOrderID;
+                            mSalesOrderLine = SalesOrderLine.GetSalesOrderLines(CompanyID, objFilter);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        objFilter = null;
+                    }
+                    return mSalesOrderLine;
+                }
+            }
+            set
+            {
+                mSalesOrderLine = value;
+            }
+        }
+
         public SalesOrder()
         {
 
@@ -230,9 +265,6 @@ namespace ISLibrary.OrderManagement
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(PONumber)) throw new Exception("PONumber is required");
-                if (TranDate == null) throw new Exception("TranDate is required");
-                if (IsClosed == null) throw new Exception("IsClosed is required");
-                if (SignatureRequired == null) throw new Exception("SignatureRequired is  required");
                 if (string.IsNullOrEmpty(CreatedBy)) throw new Exception("CreatedBy is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, SalesOrder already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
@@ -269,6 +301,21 @@ namespace ISLibrary.OrderManagement
                 dicParam["CreatedBy"] = CreatedBy;
                 SalesOrderID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrder"), objConn, objTran).ToString();
 
+
+                if (SalesOrderLines != null)
+                {
+                    foreach (var objSalesOrderLine in SalesOrderLines)
+                    {
+                        if (objSalesOrderLine.IsNew)
+                        {
+                            objSalesOrderLine.SalesOrderID = SalesOrderID;
+                            objSalesOrderLine.CompanyID = CompanyID;
+                            objSalesOrderLine.CreatedBy = CreatedBy;
+                            objSalesOrderLine.CreatedOn = DateTime.Now;
+                            objSalesOrderLine.Create();
+                        }
+                    }
+                }
                 Load(objConn, objTran);
             }
             catch (Exception ex)

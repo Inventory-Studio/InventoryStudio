@@ -4,24 +4,29 @@ namespace ISLibrary.Template
 {
     public class SalesOrderLineTemplate
     {
-        /// <summary>
-        /// references Company Table CompanyID
-        /// </summary>
         [Required]
-        public string Company { get; set; } = null!;
+        public string SaelsOrderIndex { get; set; } = null!;
+        ///// <summary>
+        ///// references Company Table CompanyID
+        ///// </summary>
+        //[Required]
+        //public string Company { get; set; } = null!;
 
         /// <summary>
         ///  references Location Table LocationID
+        ///  filter using locationName
         /// </summary>
         public string? Location { get; set; }
 
         /// <summary>
         ///  references Item Table ItemID
+        ///  filter using ItemId
         /// </summary>
         public string? Item { get; set; }
 
         /// <summary>
         ///references  SalesOrderLine Table ParentSalesOrderLineID
+        ///【Todo】
         /// </summary>
         public string? ParentSalesOrderLine { get; set; }
 
@@ -44,6 +49,7 @@ namespace ISLibrary.Template
 
         /// <summary>
         /// references ItemUnit Table ItemUnitID
+        /// filter using Name
         /// </summary>
         public string? ItemUnit { get; set; }
 
