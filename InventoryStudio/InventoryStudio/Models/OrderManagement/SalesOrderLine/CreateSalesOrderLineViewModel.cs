@@ -5,10 +5,6 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
     public class CreateSalesOrderLineViewModel
     {
 
-        public string CompanyID { get; set; }
-
-        public string SalesOrderID { get; set; }
-
         public string? LocationID { get; set; }
 
         public string? ItemID { get; set; }

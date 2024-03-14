@@ -5,8 +5,6 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
 {
     public class CreateSalesOrderViewModel
     {
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
 
         [DisplayName("Customer ID")]
         public string? CustomerID { get; set; }

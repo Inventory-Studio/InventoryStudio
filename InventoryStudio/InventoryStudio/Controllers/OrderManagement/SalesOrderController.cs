@@ -138,11 +138,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName");
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress");
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName");
             ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName");
@@ -151,12 +147,12 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("CompanyID,CustomerID,PONumber,TranDate,LocationID,BillToAddressID,ShipToAddressID,ShippingAmount,ShippingTaxAmount,ItemTaxAmount,DiscountAmount,SalesSource,ShippingMethod,ShippingCarrier,ShippingPackage,ShippingServiceCode,ShipFrom,ShipTo,Status,IsClosed,ExternalID,InternalNote,CustomerNote,GiftMessage,LabelMessage,ReferenceNumber,SignatureRequired,ShopifyOrderID")] CreateSalesOrderViewModel input)
+        public IActionResult Create(CreateSalesOrderViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var salesOrder = new SalesOrder();
-                salesOrder.CompanyID = input.CompanyID;
+                salesOrder.CompanyID = CompanyID;
                 salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
@@ -196,7 +192,6 @@ namespace InventoryStudio.Controllers.OrderManagement
             var user = new AspNetUsers(userId);
             var companies = user.Companies;
             ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
             ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
@@ -259,10 +254,8 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("SalesOrderID,CompanyID,CustomerID,PONumber,TranDate,LocationID,BillToAddressID,ShipToAddressID,ShippingAmount,ShippingTaxAmount,ItemTaxAmount,DiscountAmount,SalesSource,ShippingMethod,ShippingCarrier,ShippingPackage,ShippingServiceCode,ShipFrom,ShipTo,Status,IsClosed,ExternalID,InternalNote,CustomerNote,GiftMessage,LabelMessage,ReferenceNumber,SignatureRequired,ShopifyOrderID")] EditSalesOrderViewModel input)
+        public IActionResult Edit([FromForm] EditSalesOrderViewModel input)
         {
-            if (id != input.SalesOrderID)
-                return NotFound();
             if (ModelState.IsValid)
             {
                 var salesOrder = new SalesOrder(CompanyID, input.SalesOrderID);
