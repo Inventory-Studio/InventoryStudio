@@ -62,6 +62,39 @@ namespace ISLibrary.OrderManagement
 
         public DateTime CreatedOn { get; set; }
 
+        private List<SalesOrderLineDetail> mSalesOrderLineDetail = null;
+
+        public List<SalesOrderLineDetail> SalesOrderLineDetails
+        {
+            get
+            {
+                SalesOrderLineDetailFilter objFilter = null;
+                try
+                {
+                    if (mSalesOrderLineDetail == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(SalesOrderLineID))
+                    {
+                        objFilter = new SalesOrderLineDetailFilter();
+                        objFilter.SalesOrderLineID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.SalesOrderLineID.SearchString = SalesOrderLineID;
+                        mSalesOrderLineDetail = SalesOrderLineDetail.GetSalesOrderLineDetails(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mSalesOrderLineDetail;
+            }
+            set
+            {
+                mSalesOrderLineDetail = value;
+            }
+        }
+
         public SalesOrderLine()
         {
 
@@ -224,6 +257,18 @@ namespace ISLibrary.OrderManagement
                 dicParam["CreatedOn"] = DateTime.Now;
 
                 SalesOrderLineID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrderLine"), objConn, objTran).ToString();
+
+                if (SalesOrderLineDetails != null)
+                {
+                    foreach (var objSalesOrderLineDetail in SalesOrderLineDetails)
+                    {
+                        objSalesOrderLineDetail.CompanyID = CompanyID;
+                        objSalesOrderLineDetail.SalesOrderLineID = SalesOrderLineID;
+                        objSalesOrderLineDetail.UpdatedOn = DateTime.Now;
+                        objSalesOrderLineDetail.UpdatedBy = UpdatedBy;
+                        objSalesOrderLineDetail.Create();
+                    }
+                }
 
                 Load(objConn, objTran);
             }

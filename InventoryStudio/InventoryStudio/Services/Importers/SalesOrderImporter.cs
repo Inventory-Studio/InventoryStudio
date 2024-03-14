@@ -245,16 +245,7 @@ namespace InventoryStudio.Services.Importers
 
         private void SetPropertyAsync(string companyId, SalesOrderLine salesOrderLine, string value, PropertyInfo property)
         {
-            if (property.PropertyType == typeof(Company))
-            {
-                CompanyFilter filter = new CompanyFilter();
-                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.CompanyName.SearchString = value;
-                var companies = Company.GetCompanies(filter);
-                if (companies != null)
-                    property.SetValue(salesOrderLine, companies.FirstOrDefault());
-            }
-            else if (property.PropertyType == typeof(Location))
+            if (property.PropertyType == typeof(Location))
             {
                 LocationFilter filter = new LocationFilter();
                 filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -288,16 +279,7 @@ namespace InventoryStudio.Services.Importers
 
         private void SetPropertyAsync(string companyId, SalesOrderLineDetail salesOrderLineDetail, string value, PropertyInfo property)
         {
-            if (property.PropertyType == typeof(Company))
-            {
-                CompanyFilter filter = new CompanyFilter();
-                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.CompanyName.SearchString = value;
-                var companies = Company.GetCompanies(filter);
-                if (companies != null)
-                    property.SetValue(salesOrderLineDetail, companies.FirstOrDefault());
-            }
-            else if (property.PropertyType == typeof(Bin))
+            if (property.PropertyType == typeof(Bin))
             {
                 BinFilter filter = new BinFilter();
                 filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();

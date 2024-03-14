@@ -6,11 +6,11 @@ namespace ISLibrary.Template
     {
         [Required]
         public string SaelsOrderIndex { get; set; } = null!;
-        /// <summary>
-        /// references Company Table CompanyID
-        /// </summary>
-        [Required]
-        public string Company { get; set; } = null!;
+        ///// <summary>
+        ///// references Company Table CompanyID
+        ///// </summary>
+        //[Required]
+        //public string Company { get; set; } = null!;
 
         /// <summary>
         ///  references Location Table LocationID
@@ -49,6 +49,7 @@ namespace ISLibrary.Template
 
         /// <summary>
         /// references ItemUnit Table ItemUnitID
+        /// filter using Name
         /// </summary>
         public string? ItemUnit { get; set; }
 

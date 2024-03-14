@@ -11,8 +11,8 @@ namespace ISLibrary.Template
         /// references Company Table CompanyID
         /// filter using CompanyName
         /// </summary>
-        [Required]
-        public string Company { get; set; } = null!;
+        //[Required]
+        //public string Company { get; set; } = null!;
 
         [Required]
         public decimal Quantity { get; set; }
