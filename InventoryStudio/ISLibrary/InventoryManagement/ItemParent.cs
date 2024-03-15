@@ -6,6 +6,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Collections;
 using CLRFramework;
+using System.ComponentModel.DataAnnotations;
 
 namespace ISLibrary
 {
@@ -60,7 +61,7 @@ namespace ISLibrary
                 mItems = value;
             }
         }
-
+        public Item Item { get; set; }
         private List<ItemAttribute> mItemAttributes = null;
         public List<ItemAttribute> ItemAttributes
         {
@@ -260,23 +261,13 @@ namespace ISLibrary
                 {
                     foreach (ItemAttribute objItemAttribute in ItemAttributes)
                     {
-                        if(objItemAttribute.IsNew)
-                        {
-                            objItemAttribute.ItemParentID = ItemParentID;
-                            objItemAttribute.CompanyID = CompanyID;
-                            objItemAttribute.CreatedBy = CreatedBy;
-                            objItemAttribute.ParentKey = ItemParentID;
-                            objItemAttribute.ParentObject = "ItemParent";
-                            objItemAttribute.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemAttribute.ItemParentID = ItemParentID;
-                            objItemAttribute.UpdatedBy = CreatedBy;
-                            objItemAttribute.ParentKey = ItemParentID;
-                            objItemAttribute.ParentObject = "ItemParent";
-                            objItemAttribute.Update(objConn, objTran);
-                        }
+                        objItemAttribute.ItemParentID = ItemParentID;
+                        objItemAttribute.CompanyID = CompanyID;
+                        objItemAttribute.CreatedBy = CreatedBy;
+                        objItemAttribute.ParentKey = ItemParentID;
+                        objItemAttribute.ParentObject = "ItemParent";
+                        objItemAttribute.Create(objConn, objTran);
+                        
                     }
                 }
                
@@ -289,6 +280,41 @@ namespace ISLibrary
 
                         
                         List<ItemMatrixValue> objItemMatrixValues = new List<ItemMatrixValue>();
+
+                        if(objItemMatrix.IsChecked && objItemMatrix.ItemID == null)
+                        {
+                            var item = Item;
+                            Item objItem = new Item();
+                            objItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
+                            objItem.FulfillByKit = item.FulfillByKit;
+                            objItem.ReceiveByKit = item.ReceiveByKit;
+                            objItem.ItemName = item.ItemName;
+                            objItem.HSCode = item.HSCode;
+                            objItem.GoodDescription = item.GoodDescription;
+                            objItem.CountryOfOrigin = item.CountryOfOrigin;
+                            objItem.PackageLength = item.PackageLength;
+                            objItem.PackageWidth = item.PackageWidth;
+                            objItem.PackageHeight = item.PackageHeight;
+                            objItem.PackageDimensionUOM = item.PackageDimensionUOM;
+                            objItem.PackageWeight = item.PackageWeight;
+                            objItem.SalesDescription = item.SalesDescription;
+                            objItem.PurchaseDescription = item.PurchaseDescription;
+                            objItem.Memo = item.Memo;
+                            objItem.ItemBarcodes = item.ItemBarcodes;
+                            objItem.ItemKits = item.ItemKits;
+                            objItem.ItemComponents = item.ItemComponents;
+                            objItem.ItemType = item.ItemType;
+
+                            objItem.ItemNumber = item.ItemNumber + "_" +objItemMatrix.AttributeValue;
+                            objItem.ItemParentID = ItemParentID;
+                            objItem.CompanyID = CompanyID;
+                            objItem.CreatedBy = CreatedBy;
+                            objItem.ParentKey = ItemParentID;
+                            objItem.ParentObject = "ItemParent";
+                            objItem.Create(objConn, objTran);
+
+                            objItemMatrix.ItemID = objItem.ItemID;
+                        }
 
                         foreach (string attributeValue in attributeValues)
                         {
@@ -318,50 +344,29 @@ namespace ISLibrary
                             objItemMatrix.ItemMatrixValues = objItemMatrixValues;
                         }
 
-                        if (objItemMatrix.IsNew)
-                        {
-                            objItemMatrix.CompanyID = CompanyID;
-                            objItemMatrix.ItemParentID = ItemParentID;
-                            objItemMatrix.CreatedBy = CreatedBy;
-                            objItemMatrix.ParentKey = ItemParentID;
-                            objItemMatrix.ParentObject = "ItemParent";
-                            objItemMatrix.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItemMatrix.UpdatedBy = CreatedBy;
-                            objItemMatrix.ParentKey = ItemParentID;
-                            objItemMatrix.ParentObject = "ItemParent";
-                            objItemMatrix.Update(objConn, objTran);
-                        }
+                      
+                        objItemMatrix.CompanyID = CompanyID;
+                        objItemMatrix.ItemParentID = ItemParentID;
+                        objItemMatrix.CreatedBy = CreatedBy;
+                        objItemMatrix.ParentKey = ItemParentID;
+                        objItemMatrix.ParentObject = "ItemParent";
+                        objItemMatrix.Create(objConn, objTran);
+                        
+                        
                     }
-                }
-
-
-
-                if (Items != null)
+                }else if (Item != null)
                 {
-                    foreach (Item objItem in Items)
+                    var objItem = Item;
+                    if(objItem.IsNew)
                     {
-                        if(objItem.IsNew)
-                        {
-                            if (!IsVariation) objItem.ItemNumber = ItemNumber;
-                            objItem.ItemParentID = ItemParentID;
-                            objItem.CompanyID = CompanyID;
-                            objItem.CreatedBy = CreatedBy;
-                            objItem.ParentKey = ItemParentID;
-                            objItem.ParentObject = "ItemParent";
-                            objItem.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItem.ItemParentID = ItemParentID;
-                            objItem.UpdatedBy = CreatedBy;
-                            objItem.ParentKey = ItemParentID;
-                            objItem.ParentObject = "ItemParent";
-                            objItem.Update(objConn, objTran);
-                        }
-                    }
+                        if (!IsVariation) objItem.ItemNumber = ItemNumber;
+                        objItem.ItemParentID = ItemParentID;
+                        objItem.CompanyID = CompanyID;
+                        objItem.CreatedBy = CreatedBy;
+                        objItem.ParentKey = ItemParentID;
+                        objItem.ParentObject = "ItemParent";
+                        objItem.Create(objConn, objTran);
+                    }                 
                 }
 
                 Load(objConn, objTran);
@@ -438,9 +443,11 @@ namespace ISLibrary
                         }
                         else
                         {
-                            objItemAttribute.CompanyID = CompanyID;
-                            objItemAttribute.UpdatedBy = UpdatedBy;
-                            objItemAttribute.Update(objConn, objTran);
+                            var exsitItemAttribute = new ItemAttribute(CompanyID,objItemAttribute.ItemAttributeID);
+                            exsitItemAttribute.CompanyID = CompanyID;
+                            exsitItemAttribute.AttributeName = objItemAttribute.AttributeName;
+                            exsitItemAttribute.UpdatedBy = UpdatedBy;
+                            exsitItemAttribute.Update(objConn, objTran);
                         }
                     }
                 }
@@ -466,6 +473,41 @@ namespace ISLibrary
                             string[] attributeValues = objItemMatrix.AttributeValue.Split('-');
 
                             List<ItemMatrixValue> objItemMatrixValues = new List<ItemMatrixValue>();
+
+                            if (objItemMatrix.IsChecked && objItemMatrix.ItemID == null)
+                            {
+                                var item = Items.First();
+                                Item objItem = new Item();
+                                objItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
+                                objItem.FulfillByKit = item.FulfillByKit;
+                                objItem.ReceiveByKit = item.ReceiveByKit;
+                                objItem.ItemName = item.ItemName;
+                                objItem.HSCode = item.HSCode;
+                                objItem.GoodDescription = item.GoodDescription;
+                                objItem.CountryOfOrigin = item.CountryOfOrigin;
+                                objItem.PackageLength = item.PackageLength;
+                                objItem.PackageWidth = item.PackageWidth;
+                                objItem.PackageHeight = item.PackageHeight;
+                                objItem.PackageDimensionUOM = item.PackageDimensionUOM;
+                                objItem.PackageWeight = item.PackageWeight;
+                                objItem.SalesDescription = item.SalesDescription;
+                                objItem.PurchaseDescription = item.PurchaseDescription;
+                                objItem.Memo = item.Memo;
+                                objItem.ItemBarcodes = item.ItemBarcodes;
+                                objItem.ItemKits = item.ItemKits;
+                                objItem.ItemComponents = item.ItemComponents;
+                                objItem.ItemType = item.ItemType;
+
+                                objItem.ItemNumber = item.ItemNumber + "_" + objItemMatrix.AttributeValue;
+                                objItem.ItemParentID = ItemParentID;
+                                objItem.CompanyID = CompanyID;
+                                objItem.CreatedBy = CreatedBy;
+                                objItem.ParentKey = ItemParentID;
+                                objItem.ParentObject = "ItemParent";
+                                objItem.Create(objConn, objTran);
+
+                                objItemMatrix.ItemID = objItem.ItemID;
+                            }
 
                             foreach (string attributeValue in attributeValues)
                             {
@@ -501,32 +543,17 @@ namespace ISLibrary
                             objItemMatrix.CreatedBy = UpdatedBy;
                             objItemMatrix.Create(objConn, objTran);
                         }
-                        else
-                        {
-                            objItemMatrix.UpdatedBy = CreatedBy;
-                            objItemMatrix.Update(objConn, objTran);
-                        }
                     }
                 }
 
-                if (Items != null)
+                if (Item != null)
                 {
-                    foreach (Item objItem in Items)
-                    {
-                        if (!IsVariation) objItem.ItemNumber = ItemNumber;
-                        if (objItem.IsNew)
-                        {
-                            objItem.ItemParentID = ItemParentID;
-                            objItem.CompanyID = CompanyID;
-                            objItem.CreatedBy = UpdatedBy;
-                            objItem.Create(objConn, objTran);
-                        }
-                        else
-                        {
-                            objItem.UpdatedBy = UpdatedBy;
-                            objItem.Update(objConn, objTran);
-                        }
-                    }
+                    var objItem = Item;
+                    if (!IsVariation) objItem.ItemNumber = ItemNumber;
+                    
+                    objItem.UpdatedBy = UpdatedBy;
+                    objItem.Update(objConn, objTran);                    
+                    
                 }
 
                 Load(objConn, objTran);
@@ -716,7 +743,7 @@ namespace ISLibrary
             itemParent.ItemNumber = item.ItemNumber;
             itemParent.CreatedBy = item.CreatedBy;
 
-            itemParent.Items = new List<Item> { item };
+            itemParent.Item = item ;
             itemParent.ItemAttributes = itemAttributes;
             itemParent.ItemMatrices = itemMatrices;
             itemParent.Create();
@@ -727,32 +754,32 @@ namespace ISLibrary
             var itemParent = new ItemParent(item.CompanyID,item.ItemParentID);
             itemParent.UpdatedBy = item.UpdatedBy;
 
-            var existingItem = itemParent.Items.FirstOrDefault(i => i.ItemID == item.ItemID);
+            itemParent.Item = itemParent.Items.FirstOrDefault(i => i.ItemID == item.ItemID);
 
-            if (existingItem != null)
-            {               
-                existingItem.ItemNumber = item.ItemNumber;
-                existingItem.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
-                existingItem.FulfillByKit = item.FulfillByKit;
-                existingItem.ReceiveByKit = item.ReceiveByKit;
-                existingItem.ItemName = item.ItemName;
-                existingItem.HSCode = item.HSCode;
-                existingItem.GoodDescription = item.GoodDescription;
-                existingItem.CountryOfOrigin = item.CountryOfOrigin;
-                existingItem.PackageLength = item.PackageLength;
-                existingItem.PackageWidth = item.PackageWidth;
-                existingItem.PackageHeight = item.PackageHeight;
-                existingItem.PackageDimensionUOM = item.PackageDimensionUOM;
-                existingItem.PackageWeight = item.PackageWeight;
-                existingItem.SalesDescription = item.SalesDescription;
-                existingItem.PurchaseDescription = item.PurchaseDescription;
-                existingItem.Memo = item.Memo;
-                existingItem.ItemBarcodes = item.ItemBarcodes;
-                existingItem.ItemKits = item.ItemKits;
-                existingItem.ItemComponents = item.ItemComponents;
+            if (itemParent.Item != null)
+            {
+                itemParent.Item.ItemNumber = item.ItemNumber;
+                itemParent.Item.IsShipReceiveIndividually = item.IsShipReceiveIndividually;
+                itemParent.Item.FulfillByKit = item.FulfillByKit;
+                itemParent.Item.ReceiveByKit = item.ReceiveByKit;
+                itemParent.Item.ItemName = item.ItemName;
+                itemParent.Item.HSCode = item.HSCode;
+                itemParent.Item.GoodDescription = item.GoodDescription;
+                itemParent.Item.CountryOfOrigin = item.CountryOfOrigin;
+                itemParent.Item.PackageLength = item.PackageLength;
+                itemParent.Item.PackageWidth = item.PackageWidth;
+                itemParent.Item.PackageHeight = item.PackageHeight;
+                itemParent.Item.PackageDimensionUOM = item.PackageDimensionUOM;
+                itemParent.Item.PackageWeight = item.PackageWeight;
+                itemParent.Item.SalesDescription = item.SalesDescription;
+                itemParent.Item.PurchaseDescription = item.PurchaseDescription;
+                itemParent.Item.Memo = item.Memo;
+                itemParent.Item.ItemBarcodes = item.ItemBarcodes;
+                itemParent.Item.ItemKits = item.ItemKits;
+                itemParent.Item.ItemComponents = item.ItemComponents;
 
 
-                existingItem.ItemType = item.ItemType;
+                itemParent.Item.ItemType = item.ItemType;
 
             }
 

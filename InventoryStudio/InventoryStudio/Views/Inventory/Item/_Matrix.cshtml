@@ -446,10 +446,24 @@ ${/for}
             combinations.forEach(function (combination, index) {
                 var combinationString = combination.join('-');
                 var matchingMatrix = itemMatrices.find(matrix => matrix.AttributeValueCombination === combinationString);
-                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationString);
+                var $newMatrixRow = $('<tr>').attr('data-combination-id', combinationString);             
                 $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemNumber : 'Matrix_' + index));
                 $newMatrixRow.append($('<td>').text(matchingMatrix ? matchingMatrix.ItemName : 'Matrix Name'));
                 $newMatrixRow.append($('<td>').text(combinationString));
+
+                /** added the value when the checkbox is checked, or don't send the value to backed  */
+                   var $checkbox =  $('<input/>', {
+                        type: 'checkbox',
+                        name: 'ItemMatrices[' + index + '].IsChecked',
+                        value: true
+                    });
+                var $hiddenTypeInput = $('<input/>', {
+                    type: 'hidden',
+                    name: 'ItemMatrices[' + index + '].AttributeValue',
+                    value: combinationString
+                }).appendTo($newMatrixRow);
+
+                $newMatrixRow.append($checkbox);
 
                 if (matchingMatrix) {
                     var $actionsTd = $('<td>');

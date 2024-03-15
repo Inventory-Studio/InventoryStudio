@@ -21,6 +21,8 @@ namespace ISLibrary
         public string ItemID { get; set; }
         public string AttributeValue { get; set; }
         public string UpdatedBy { get; set; }
+        //used for frontedPage to create child Item, if true and itemID is null, then create new item
+        public bool IsChecked { get; set; }
         public DateTime? UpdatedOn { get; private set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; private set; }
