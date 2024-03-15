@@ -315,6 +315,28 @@ namespace ISLibrary
             return Database.HasRows(strSQL);
         }
 
+        public static Bin GetBin(string CompanyID, BinFilter Filter)
+        {
+            List<Bin> objAdjustments = null;
+            Bin objReturn = null;
+
+            try
+            {
+                objAdjustments = GetBins(CompanyID, Filter);
+                if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objAdjustments = null;
+            }
+
+            return objReturn;
+        }
+
         public static List<Bin> GetBins(string CompanyID)
         {
             int intTotalCount = 0;
@@ -344,7 +366,7 @@ namespace ISLibrary
                 objReturn = new List<Bin>();
                 strSQL = "SELECT b.* " +
                                          "FROM Bin (NOLOCK) b " +
-                                         "WHERE b.CompanyID=" + Database.HandleQuote(CompanyID);
+                                         "WHERE 1=1 " ;
                 if (Filter != null)
                 {
                     if (Filter.BinID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinID, "b.BinID");

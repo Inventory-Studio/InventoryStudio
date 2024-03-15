@@ -72,7 +72,69 @@ namespace ISLibrary
             }
         }
 
-
+        private Bin mBin = null;
+        public Bin Bin
+        {
+            get
+            {
+                BinFilter objFilter = null;
+                try
+                {
+                    if (mBin == null && !string.IsNullOrEmpty(BinID) && !string.IsNullOrEmpty(CompanyID))
+                    {
+                        objFilter = new BinFilter();
+                        objFilter.BinID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.BinID.SearchString = BinID;
+                        mBin = Bin.GetBin(CompanyID,objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mBin;
+            }
+            set
+            {
+                mBin = value;
+            }
+        }
+        
+        private Location mLocation = null;
+        public Location Location
+        {
+            get
+            {
+                LocationFilter objFilter = null;
+                try
+                {
+                    if (mLocation == null && !string.IsNullOrEmpty(LocationID) && !string.IsNullOrEmpty(CompanyID))
+                    {
+                        objFilter = new LocationFilter();
+                        objFilter.LocationID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.LocationID.SearchString = LocationID;
+                        mLocation = Location.GetLocation(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mLocation;
+            }
+            set
+            {
+                mLocation = value;
+            }
+        }
         public InventoryDetail()
         {
         }
@@ -473,99 +535,101 @@ namespace ISLibrary
             return true;
         }
 
-        //public static Adjustment GetAdjustment(string CompanyID, AdjustmentFilter Filter)
-        //{
-        //    List<Adjustment> objAdjustments = null;
-        //    Adjustment objReturn = null;
+        public static InventoryDetail GetInventoryDetail(string CompanyID, InventoryDetailFilter Filter)
+        {
+            List<InventoryDetail> objAdjustments = null;
+            InventoryDetail objReturn = null;
 
-        //    try
-        //    {
-        //        objAdjustments = GetAdjustments(CompanyID, Filter);
-        //        if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objAdjustments = null;
-        //    }
+            try
+            {
+                objAdjustments = GetInventoryDetails(CompanyID, Filter);
+                if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objAdjustments = null;
+            }
 
-        //    return objReturn;
-        //}
+            return objReturn;
+        }
 
-        //public static List<Adjustment> GetAdjustments(string CompanyID)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetAdjustments(CompanyID, null, null, null, out intTotalCount);
-        //}
+        public static List<InventoryDetail> GetInventoryDetails(string CompanyID)
+        {
+            int intTotalCount = 0;
+            return GetInventoryDetails(CompanyID, null, null, null, out intTotalCount);
+        }
 
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetAdjustments(CompanyID, Filter, null, null, out intTotalCount);
-        //}
+        public static List<InventoryDetail> GetInventoryDetails(string CompanyID, InventoryDetailFilter Filter)
+        {
+            int intTotalCount = 0;
+            return GetInventoryDetails(CompanyID, Filter, null, null, out intTotalCount);
+        }
 
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter, int? PageSize,
-        //    int? PageNumber, out int TotalRecord)
-        //{
-        //    return GetAdjustments(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
-        //}
+        public static List<InventoryDetail> GetInventoryDetails(string CompanyID, InventoryDetailFilter Filter, int? PageSize,
+            int? PageNumber, out int TotalRecord)
+        {
+            return GetInventoryDetails(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+        }
 
-        //public static List<Adjustment> GetAdjustments(string CompanyID, AdjustmentFilter Filter,
-        //    string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
-        //{
-        //    List<Adjustment> objReturn = null;
-        //    Adjustment objNew = null;
-        //    DataSet objData = null;
-        //    string strSQL = string.Empty;
+        public static List<InventoryDetail> GetInventoryDetails(string CompanyID, InventoryDetailFilter Filter,
+            string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            List<InventoryDetail> objReturn = null;
+            InventoryDetail objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
 
-        //    try
-        //    {
-        //        TotalRecord = 0;
+            try
+            {
+                TotalRecord = 0;
 
-        //        objReturn = new List<Adjustment>();
+                objReturn = new List<InventoryDetail>();
 
-        //        strSQL = "SELECT * " +
-        //                 "FROM Adjustment (NOLOCK) " +
-        //                 "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
-        //        if (Filter != null)
-        //        {
-        //            if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "LocationID");
-        //        }
+                strSQL = "SELECT * " +
+                         "FROM InventoryDetail (NOLOCK) " +
+                         "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
+                if (Filter != null)
+                {
+                    if (Filter.ItemID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemID, "ItemID");
+                    if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "LocationID");
+                    if (Filter.BinID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinID, "BinID");
+                }
 
-        //        if (PageSize != null && PageNumber != null)
-        //            strSQL = Database.GetPagingSQL(strSQL,
-        //                string.IsNullOrEmpty(SortExpression)
-        //                    ? "AdjustmentID"
-        //                    : Utility.CustomSorting.GetSortExpression(typeof(Adjustment), SortExpression),
-        //                string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
-        //        objData = Database.GetDataSet(strSQL);
+                if (PageSize != null && PageNumber != null)
+                    strSQL = Database.GetPagingSQL(strSQL,
+                        string.IsNullOrEmpty(SortExpression)
+                            ? "InventoryDetailID"
+                            : Utility.CustomSorting.GetSortExpression(typeof(InventoryDetail), SortExpression),
+                        string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                objData = Database.GetDataSet(strSQL);
 
-        //        if (objData != null && objData.Tables[0].Rows.Count > 0)
-        //        {
-        //            for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
-        //            {
-        //                objNew = new Adjustment(objData.Tables[0].Rows[i]);
-        //                objNew.IsLoaded = true;
-        //                objReturn.Add(objNew);
-        //            }
-        //        }
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new InventoryDetail(objData.Tables[0].Rows[i]);
+                        objNew.IsLoaded = true;
+                        objReturn.Add(objNew);
+                    }
+                }
 
-        //        TotalRecord = objReturn.Count();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objData = null;
-        //    }
+                TotalRecord = objReturn.Count();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
 
-        //    return objReturn;
-        //}
+            return objReturn;
+        }
 
 
     }

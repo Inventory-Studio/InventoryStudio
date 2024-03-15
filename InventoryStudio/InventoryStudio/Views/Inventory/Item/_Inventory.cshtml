@@ -1,0 +1,44 @@
+﻿@model ItemViewModel
+
+<div class="tab-pane fade" id="inventory-content" role="tabpanel" aria-labelledby="inventory-tab">
+    <div class="row">
+        <div class="col-12">
+            <h2>Inventory</h2>
+            <table class="table" id="itemInventoryTable">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Bin</th>
+                        <th>On Hand</th>
+                        <th>Avaliable</th>
+                        <th>Inventory Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Item.InventoryDetails != null)
+                    {
+                        foreach (var InventoryDetail in Model.Item.InventoryDetails )
+                        {
+                            
+                                <tr>
+                                    <td>@InventoryDetail.Location.LocationName</td>
+                                <td>@InventoryDetail.Bin.BinNumber</td>
+                                <td>@InventoryDetail.OnHand</td>
+                                <td>@InventoryDetail.Available</td>
+                                <td>@InventoryDetail.InventoryNumber</td>
+                                </tr>
+                            
+                        }
+                    }
+
+                </tbody>
+            </table>
+            <button class="btn btn-secondary">Back</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+

@@ -111,6 +111,30 @@
     </div>
 </div>
 
+<div class="bg-gray-200 py-2 px-3 rounded mb-4">
+    <h6 class="mb-0">Unit of Measure</h6>
+</div>
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="hsCode" class="form-label">Item Unit Type</label>
+        <input asp-for="@Model.Item.ItemUnitTypeID" class="form-control" />
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="goodDescription" class="form-label">Primary Sales Unit</label>
+        <input asp-for="@Model.Item.PrimarySalesUnitID" class="form-control" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-md-6 mb-3">
+        <label for="hsCode" class="form-label">Primary Purchase Unit</label>
+        <input asp-for="@Model.Item.PrimaryPurchaseUnitID" class="form-control" />
+    </div>
+    <div class="form-group col-md-6 mb-3">
+        <label for="goodDescription" class="form-label">Primary Stock Unit</label>
+        <input asp-for="@Model.Item.PrimaryStockUnitID" class="form-control" />
+    </div>
+</div>
 
 <div class="bg-gray-200 py-2 px-3 rounded mb-4">
     <h6 class="mb-0">Description</h6>

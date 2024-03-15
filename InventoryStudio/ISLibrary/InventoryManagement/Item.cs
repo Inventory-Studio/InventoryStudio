@@ -89,10 +89,10 @@ namespace ISLibrary
         //view attribute
         public string ItemParentNumber { get; set; }
         public string Label { get; set; }
-        public int? ItemUnitTypeID { get; set; }
-        public int? PrimarySalesUnitID { get; set; }
-        public int? PrimaryPurchaseUnitID { get; set; }
-        public int? PrimaryStockUnitID { get; set; }
+        public string ItemUnitTypeID { get; set; }
+        public string PrimarySalesUnitID { get; set; }
+        public string PrimaryPurchaseUnitID { get; set; }
+        public string PrimaryStockUnitID { get; set; }
         public string ImageURL { get; set; }
         public decimal? UnitCost { get; set; }
         public decimal? UnitPrice { get; set; }
@@ -207,6 +207,38 @@ namespace ISLibrary
                 mItemBarcodes = value;
             }
         }
+        private List<InventoryDetail> mInventoryDetails = null;
+        public List<InventoryDetail> InventoryDetails
+        {
+            get
+            {
+                InventoryDetailFilter objFilter = null;
+
+                try
+                {
+                    if (mInventoryDetails == null  && !string.IsNullOrEmpty(ItemID) && !string.IsNullOrEmpty(CompanyID))
+                    {
+                        objFilter = new InventoryDetailFilter();
+                        objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.ItemID.SearchString = ItemID;
+                        mInventoryDetails = InventoryDetail.GetInventoryDetails(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mInventoryDetails;
+            }
+            set
+            {
+                mInventoryDetails = value;
+            }
+        }
 
         [DisplayName("Is Matrix")]
         public bool IsVariation
@@ -301,6 +333,10 @@ namespace ISLibrary
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
                 if (objColumns.Contains("CreatedOn")) CreatedOn = Convert.ToDateTime(objRow["CreatedOn"]);
 
+                if (objColumns.Contains("ItemUnitTypeID")) ItemUnitTypeID = Convert.ToString(objRow["ItemUnitTypeID"]);
+                if (objColumns.Contains("PrimarySalesUnitID")) PrimarySalesUnitID = Convert.ToString(objRow["PrimarySalesUnitID"]);
+                if (objColumns.Contains("PrimaryPurchaseUnitID")) PrimaryPurchaseUnitID = Convert.ToString(objRow["PrimaryPurchaseUnitID"]);
+                if (objColumns.Contains("PrimaryStockUnitID")) PrimaryStockUnitID = Convert.ToString(objRow["PrimaryStockUnitID"]);
                 if (objColumns.Contains("HSCode")) HSCode = Convert.ToString(objRow["HSCode"]);
                 if (objColumns.Contains("GoodDescription")) GoodDescription = Convert.ToString(objRow["GoodDescription"]);
                 if (objColumns.Contains("CountryOfOrigin")) CountryOfOrigin = Convert.ToString(objRow["CountryOfOrigin"]);
@@ -388,6 +424,10 @@ namespace ISLibrary
                 dicParam["PackageWidth"] = PackageWidth;
                 dicParam["PackageHeight"] = PackageHeight;
                 dicParam["PackageDimensionUOM"] = PackageDimensionUOM;
+                dicParam["ItemUnitTypeID"] = ItemUnitTypeID;
+                dicParam["PrimarySalesUnitID"] = PrimarySalesUnitID;
+                dicParam["PrimaryPurchaseUnitID"] = PrimaryPurchaseUnitID;
+                dicParam["PrimaryStockUnitID"] = PrimaryStockUnitID;
                 dicParam["HSCode"] = HSCode;
                 dicParam["GoodDescription"] = GoodDescription;
                 dicParam["CountryOfOrigin"] = CountryOfOrigin;
@@ -529,6 +569,10 @@ namespace ISLibrary
                 dicParam["PackageWidth"] = PackageWidth;
                 dicParam["PackageHeight"] = PackageHeight;
                 dicParam["PackageDimensionUOM"] = PackageDimensionUOM;
+                dicParam["ItemUnitTypeID"] = ItemUnitTypeID;
+                dicParam["PrimarySalesUnitID"] = PrimarySalesUnitID;
+                dicParam["PrimaryPurchaseUnitID"] = PrimaryPurchaseUnitID;
+                dicParam["PrimaryStockUnitID"] = PrimaryStockUnitID;
                 dicParam["HSCode"] = HSCode;
                 dicParam["GoodDescription"] = GoodDescription;
                 dicParam["CountryOfOrigin"] = CountryOfOrigin;
