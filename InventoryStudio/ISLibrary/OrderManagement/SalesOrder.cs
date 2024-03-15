@@ -310,7 +310,7 @@ namespace ISLibrary.OrderManagement
                             objSalesOrderLine.SalesOrderID = SalesOrderID;
                             objSalesOrderLine.CompanyID = CompanyID;
                             objSalesOrderLine.CreatedBy = CreatedBy;
-                            objSalesOrderLine.Create();
+                            objSalesOrderLine.Create(objConn, objTran);
                         }
                     }
                 }
