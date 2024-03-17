@@ -296,8 +296,8 @@
       localStorage.removeItem("bodyBgRGB");
     }
   }
-  let layoutSetting = document.querySelector(".layout-setting");
-  layoutSetting.addEventListener("click", toggleTheme);
+  // let layoutSetting = document.querySelector(".layout-setting");
+  // layoutSetting.addEventListener("click", toggleTheme);
   /* header theme toggle */
 
   /* Choices JS */
