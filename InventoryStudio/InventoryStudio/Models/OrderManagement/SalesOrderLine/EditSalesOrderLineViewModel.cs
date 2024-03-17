@@ -5,8 +5,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 {
     public class EditSalesOrderLineViewModel
     {
-        [Required]
-        public string SalesOrderLineID { get; set; } = null!;
+        public string? SalesOrderLineID { get; set; } 
 
         [Required]
         public string SalesOrderID { get; set; } = null!;

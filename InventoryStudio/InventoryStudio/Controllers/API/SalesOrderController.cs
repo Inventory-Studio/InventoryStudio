@@ -65,13 +65,14 @@ namespace InventoryStudio.Controllers.API
                             return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
                     }
                     salesOrder.BillToAddressID = input.BillToAddressID;
-                    salesOrder.ShipToAddressID = input.ShipToAddressID;
+
                     if (!string.IsNullOrEmpty(input.ShipToAddressID))
                     {
                         var address = new Address(input.ShipToAddressID);
                         if (address == null)
                             return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
                     }
+                    salesOrder.ShipToAddressID = input.ShipToAddressID;
                     salesOrder.ShippingAmount = input.ShippingAmount;
                     salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                     salesOrder.ItemTaxAmount = input.ItemTaxAmount;

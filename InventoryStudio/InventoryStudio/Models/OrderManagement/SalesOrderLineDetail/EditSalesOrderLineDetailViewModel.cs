@@ -4,8 +4,9 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLineDetail
 {
     public class EditSalesOrderLineDetailViewModel
     {
-        public string SalesOrderLineDetailID { get; set; } = null!;
+        public string? SalesOrderLineDetailID { get; set; }
 
+        [Required]
         public string SalesOrderLineID { get; set; } = null!;
 
         public string? BinID { get; set; }
@@ -16,6 +17,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLineDetail
 
         public string? SerialLotNumber { get; set; }
 
+        [Required]
         public string InventoryID { get; set; } = null!;
 
     }
