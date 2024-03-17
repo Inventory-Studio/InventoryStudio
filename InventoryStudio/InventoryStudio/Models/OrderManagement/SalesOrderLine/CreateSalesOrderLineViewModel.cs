@@ -1,4 +1,5 @@
 ﻿using InventoryStudio.Models.OrderManagement.SalesOrderLineDetail;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 {
@@ -21,6 +22,8 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 
         public string? Description { get; set; }
 
+        [Required(ErrorMessage = "Quantity is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Quantity must be a non-negative number")]
         public decimal Quantity { get; set; }
 
         public decimal? QuantityCommitted { get; set; }

@@ -1,17 +1,21 @@
 ﻿using InventoryStudio.Models.OrderManagement.SalesOrderLine;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.OrderManagement.SalesOrder
 {
     public class CreateSalesOrderViewModel
     {
 
+        [Required]
         [DisplayName("Customer ID")]
         public string? CustomerID { get; set; }
 
+        [Required(ErrorMessage = "PONumber is required")]
         [DisplayName("PO Number")]
         public string PONumber { get; set; } = null!;
 
+        [Required]
         [DisplayName("Transaction Date")]
         public DateTime TranDate { get; set; }
 
@@ -21,8 +25,9 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
         [DisplayName("Bill To Address ID")]
         public string? BillToAddressID { get; set; }
 
+        [Required]
         [DisplayName("Ship To Addresss ID")]
-        public string ShipToAddressID { get; set; }
+        public string ShipToAddressID { get; set; } = null!;
 
         [DisplayName("Shipping Amount")]
         public decimal? ShippingAmount { get; set; }

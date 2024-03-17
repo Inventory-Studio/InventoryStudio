@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using InventoryStudio.Models.OrderManagement.SalesOrderLine;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryStudio.Models.OrderManagement.SalesOrder
 {
@@ -7,15 +9,16 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
         [DisplayName("Sales Order ID")]
         public string SalesOrderID { get; set; }
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
 
+        [Required]
         [DisplayName("Customer ID")]
         public string? CustomerID { get; set; }
 
+        [Required(ErrorMessage = "PONumber is required")]
         [DisplayName("PO Number")]
         public string PONumber { get; set; } = null!;
 
+        [Required]
         [DisplayName("Transaction Date")]
         public DateTime TranDate { get; set; }
 
@@ -25,12 +28,13 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
         [DisplayName("Bill To Address ID")]
         public string? BillToAddressID { get; set; }
 
+        [Required]
         [DisplayName("Ship To Addresss ID")]
-        public string ShipToAddressID { get; set; }
+        public string ShipToAddressID { get; set; } = null!;
 
         [DisplayName("Shipping Amount")]
         public decimal? ShippingAmount { get; set; }
-        
+
         [DisplayName("Shipping Tax Amount")]
         public decimal? ShippingTaxAmount { get; set; }
 
@@ -90,5 +94,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
 
         [DisplayName("Shopify Order ID")]
         public string? ShopifyOrderID { get; set; }
+
+        public List<EditSalesOrderLineViewModel> SalesOrderLines { get; set; } = new List<EditSalesOrderLineViewModel>();
     }
 }
