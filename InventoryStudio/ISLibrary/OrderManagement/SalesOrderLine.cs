@@ -250,8 +250,6 @@ namespace ISLibrary.OrderManagement
                 dicParam["TaxRate"] = TaxRate;
                 dicParam["Status"] = Status;
                 dicParam["ExternalID"] = ExternalID;
-                dicParam["TaxRate"] = TaxRate;
-                dicParam["TaxRate"] = TaxRate;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
 
@@ -263,8 +261,8 @@ namespace ISLibrary.OrderManagement
                     {
                         objSalesOrderLineDetail.CompanyID = CompanyID;
                         objSalesOrderLineDetail.SalesOrderLineID = SalesOrderLineID;
-                        objSalesOrderLineDetail.UpdatedBy = UpdatedBy;
-                        objSalesOrderLineDetail.Create();
+                        objSalesOrderLineDetail.CreatedBy = CreatedBy;
+                        objSalesOrderLineDetail.Create(objConn, objTran);
                     }
                 }
 

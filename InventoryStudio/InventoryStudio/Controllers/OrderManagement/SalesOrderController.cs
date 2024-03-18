@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
 using Syncfusion.EJ2.Base;
+using InventoryStudio.Models.OrderManagement.SalesOrderLine;
+using InventoryStudio.Models.OrderManagement.SalesOrderLineDetail;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -153,12 +155,36 @@ namespace InventoryStudio.Controllers.OrderManagement
             {
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = CompanyID;
+
+                var customer = new Customer(CompanyID, input.CustomerID);
+                if (customer == null)
+                    return BadRequest($"Customer with ID {input.CustomerID} not found");
                 salesOrder.CustomerID = input.CustomerID;
+
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
+                if (!string.IsNullOrEmpty(input.LocationID))
+                {
+                    var location = new ISLibrary.Location(CompanyID, input.LocationID);
+                    if (location == null)
+                        return BadRequest($"Location with ID {input.LocationID} not found");
+                }
                 salesOrder.LocationID = input.LocationID;
+
+                if (!string.IsNullOrEmpty(input.BillToAddressID))
+                {
+                    var address = new Address(input.BillToAddressID);
+                    if (address == null)
+                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                }
                 salesOrder.BillToAddressID = input.BillToAddressID;
                 salesOrder.ShipToAddressID = input.ShipToAddressID;
+                if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                {
+                    var address = new Address(input.ShipToAddressID);
+                    if (address == null)
+                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                }
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -182,6 +208,85 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShopifyOrderID = input.ShopifyOrderID;
                 salesOrder.CreatedOn = DateTime.Now;
                 salesOrder.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                salesOrder.SalesOrderLines = new List<SalesOrderLine>();
+                if (input.SalesOrderLines != null)
+                {
+                    foreach (var lineViewModel in input.SalesOrderLines)
+                    {
+                        var salesOrderLine = new SalesOrderLine();
+
+                        if (!string.IsNullOrEmpty(lineViewModel.LocationID))
+                        {
+                            var location = new ISLibrary.Location(CompanyID, lineViewModel.LocationID);
+                            if (location == null)
+                                return BadRequest($"Location with ID {lineViewModel.LocationID} not found");
+                        }
+
+                        salesOrderLine.LocationID = lineViewModel.LocationID;
+
+                        if (!string.IsNullOrEmpty(lineViewModel.ItemID))
+                        {
+                            var item = new Item(CompanyID, lineViewModel.ItemID);
+                            if (item == null)
+                                return BadRequest($"Item with ID {lineViewModel.ItemID} not found");
+                        }
+                        salesOrderLine.ItemID = lineViewModel.ItemID;
+                        salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
+                        salesOrderLine.ItemSKU = lineViewModel.ItemSKU;
+                        salesOrderLine.ItemName = lineViewModel.ItemName;
+                        salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
+                        salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
+                        salesOrderLine.Description = lineViewModel.Description;
+                        salesOrderLine.Quantity = lineViewModel.Quantity;
+                        salesOrderLine.QuantityCommitted = lineViewModel.QuantityCommitted;
+                        salesOrderLine.QuantityShipped = lineViewModel.QuantityShipped;
+
+                        if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
+                        {
+                            var itemUnit = new ItemUnit(lineViewModel.ItemUnitID);
+                            if (itemUnit == null)
+                                return BadRequest($"ItemUnit with ID {lineViewModel.ItemUnitID} not found");
+                        }
+
+                        salesOrderLine.ItemUnitID = lineViewModel.ItemUnitID;
+                        salesOrderLine.UnitPrice = lineViewModel.UnitPrice;
+                        salesOrderLine.TaxRate = lineViewModel.TaxRate;
+                        salesOrderLine.Status = lineViewModel.Status;
+                        salesOrderLine.ExternalID = lineViewModel.ExternalID;
+
+                        salesOrderLine.SalesOrderLineDetails = new List<SalesOrderLineDetail>();
+                        if (lineViewModel.SalesOrderLineDetails != null)
+                        {
+                            foreach (var detailViewModel in lineViewModel.SalesOrderLineDetails)
+                            {
+                                var salesOrderLineDetail = new SalesOrderLineDetail();
+
+                                if (!string.IsNullOrEmpty(detailViewModel.BinID))
+                                {
+                                    var bin = new Bin(CompanyID, detailViewModel.BinID);
+                                    if (bin == null)
+                                        return BadRequest($"Bin with ID {detailViewModel.BinID} not found");
+                                }
+
+                                salesOrderLineDetail.BinID = detailViewModel.BinID;
+                                salesOrderLineDetail.Quantity = detailViewModel.Quantity;
+                                salesOrderLineDetail.SerialLotNumber = detailViewModel.SerialLotNumber;
+
+                                if (!string.IsNullOrEmpty(detailViewModel.InventoryID))
+                                {
+                                    var inventory = new Inventory(detailViewModel.InventoryID);
+                                    if (inventory == null)
+                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryID} not found");
+                                }
+
+                                salesOrderLineDetail.InventoryID = detailViewModel.InventoryID;
+                                salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
+                            }
+                        }
+                        salesOrder.SalesOrderLines.Add(salesOrderLine);
+                    }
+                }
+
                 salesOrder.Create();
                 return RedirectToAction(nameof(Index));
             }
@@ -212,15 +317,12 @@ namespace InventoryStudio.Controllers.OrderManagement
             var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.BillToAddressID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", salesOrder.CompanyID);
             ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", salesOrder.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", salesOrder.LocationID);
             ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.ShipToAddressID);
             var viewModel = new EditSalesOrderViewModel();
             viewModel.SalesOrderID = salesOrder.SalesOrderID;
-            viewModel.CompanyID = salesOrder.CompanyID;
             viewModel.CustomerID = salesOrder.CustomerID;
             viewModel.PONumber = salesOrder.PONumber;
             viewModel.TranDate = salesOrder.TranDate;
@@ -248,6 +350,48 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ReferenceNumber = salesOrder.ReferenceNumber;
             viewModel.SignatureRequired = salesOrder.SignatureRequired;
             viewModel.ShopifyOrderID = salesOrder.ShopifyOrderID;
+            if (salesOrder.SalesOrderLines.Count > 0)
+            {
+                viewModel.SalesOrderLines = new List<EditSalesOrderLineViewModel>();
+                foreach (var salesOrderLine in salesOrder.SalesOrderLines)
+                {
+                    var salesOrderLineViewModel = new EditSalesOrderLineViewModel();
+                    salesOrderLineViewModel.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
+                    salesOrderLineViewModel.SalesOrderID = salesOrderLine.SalesOrderID;
+                    salesOrderLineViewModel.LocationID = salesOrderLine.LocationID;
+                    salesOrderLineViewModel.ItemID = salesOrderLine.ItemID;
+                    salesOrderLineViewModel.ParentSalesOrderLineID = salesOrderLine.ParentSalesOrderLineID;
+                    salesOrderLineViewModel.ItemSKU = salesOrderLine.ItemSKU;
+                    salesOrderLineViewModel.ItemName = salesOrderLine.ItemName;
+                    salesOrderLineViewModel.ItemImageURL = salesOrderLine.ItemImageURL;
+                    salesOrderLineViewModel.ItemUPC = salesOrderLine.ItemUPC;
+                    salesOrderLineViewModel.Description = salesOrderLine.Description;
+                    salesOrderLineViewModel.Quantity = salesOrderLine.Quantity;
+                    salesOrderLineViewModel.QuantityCommitted = salesOrderLine.QuantityCommitted;
+                    salesOrderLineViewModel.QuantityShipped = salesOrderLine.QuantityShipped;
+                    salesOrderLineViewModel.ItemUnitID = salesOrderLine.ItemUnitID;
+                    salesOrderLineViewModel.UnitPrice = salesOrderLine.UnitPrice;
+                    salesOrderLineViewModel.TaxRate = salesOrderLine.TaxRate;
+                    salesOrderLineViewModel.Status = salesOrderLine.Status;
+                    salesOrderLineViewModel.ExternalID = salesOrderLine.ExternalID;
+                    if (salesOrderLine.SalesOrderLineDetails.Count > 0)
+                    {
+                        salesOrderLineViewModel.SalesOrderLineDetails = new List<EditSalesOrderLineDetailViewModel>();
+                        foreach (var salesOrderLineDetail in salesOrderLine.SalesOrderLineDetails)
+                        {
+                            var salesOrderLineDetailViewModel = new EditSalesOrderLineDetailViewModel();
+                            salesOrderLineDetailViewModel.SalesOrderLineDetailID = salesOrderLineDetail.SalesOrderLineDetailID;
+                            salesOrderLineDetailViewModel.SalesOrderLineID = salesOrderLineDetail.SalesOrderLineID;
+                            salesOrderLineDetailViewModel.BinID = salesOrderLineDetail.BinID;
+                            salesOrderLineDetailViewModel.Quantity = salesOrderLineDetail.Quantity;
+                            salesOrderLineDetailViewModel.SerialLotNumber = salesOrderLineDetail.SerialLotNumber;
+                            salesOrderLineDetailViewModel.InventoryID = salesOrderLineDetail.InventoryID;
+                            salesOrderLineViewModel.SalesOrderLineDetails.Add(salesOrderLineDetailViewModel);
+                        }
+                    }
+                    viewModel.SalesOrderLines.Add(salesOrderLineViewModel);
+                }
+            }
             return View("~/Views/OrderManagement/SalesOrder/Edit.cshtml", viewModel);
         }
 
@@ -258,15 +402,43 @@ namespace InventoryStudio.Controllers.OrderManagement
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(input.SalesOrderID))
+                    return BadRequest("SalesOrderID cannot be null or empty");
+
                 var salesOrder = new SalesOrder(CompanyID, input.SalesOrderID);
                 if (salesOrder == null)
-                    return NotFound();
-                salesOrder.CompanyID = input.CompanyID;
+                    return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
+
+                salesOrder.CompanyID = CompanyID;
+                var customer = new Customer(CompanyID, input.CustomerID);
+                if (customer == null)
+                    return BadRequest($"Customer with ID {input.CustomerID} not found");
+                salesOrder.CustomerID = input.CustomerID;
+
                 salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
+                if (!string.IsNullOrEmpty(input.LocationID))
+                {
+                    var location = new ISLibrary.Location(CompanyID, input.LocationID);
+                    if (location == null)
+                        return BadRequest($"Location with ID {input.LocationID} not found");
+                }
                 salesOrder.LocationID = input.LocationID;
+                if (!string.IsNullOrEmpty(input.BillToAddressID))
+                {
+                    var address = new Address(input.BillToAddressID);
+                    if (address == null)
+                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                }
                 salesOrder.BillToAddressID = input.BillToAddressID;
+
+                if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                {
+                    var address = new Address(input.ShipToAddressID);
+                    if (address == null)
+                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                }
                 salesOrder.ShipToAddressID = input.ShipToAddressID;
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
@@ -289,23 +461,94 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ReferenceNumber = input.ReferenceNumber;
                 salesOrder.SignatureRequired = input.SignatureRequired;
                 salesOrder.ShopifyOrderID = input.ShopifyOrderID;
-                salesOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+                if (input.SalesOrderLines != null)
+                {
+                    salesOrder.SalesOrderLines.Clear();
+                    foreach (var lineViewModel in input.SalesOrderLines)
+                    {
+                        var salesOrderLine = new SalesOrderLine();
+                        salesOrderLine.SalesOrderLineID = lineViewModel.SalesOrderLineID;
+                        salesOrderLine.SalesOrderID = salesOrder.SalesOrderID;
+                        if (!string.IsNullOrEmpty(lineViewModel.LocationID))
+                        {
+                            var location = new ISLibrary.Location(CompanyID, lineViewModel.LocationID);
+                            if (location == null)
+                                return BadRequest($"Location with ID {lineViewModel.LocationID} not found");
+                        }
+                        salesOrderLine.LocationID = lineViewModel.LocationID;
+                        if (!string.IsNullOrEmpty(lineViewModel.ItemID))
+                        {
+                            var item = new Item(CompanyID, lineViewModel.ItemID);
+                            if (item == null)
+                                return BadRequest($"Item with ID {lineViewModel.ItemID} not found");
+                        }
+                        salesOrderLine.ItemID = lineViewModel.ItemID;
+                        salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
+                        salesOrderLine.ItemSKU = lineViewModel.ItemSKU;
+                        salesOrderLine.ItemName = lineViewModel.ItemName;
+                        salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
+                        salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
+                        salesOrderLine.Description = lineViewModel.Description;
+                        salesOrderLine.Quantity = lineViewModel.Quantity;
+                        salesOrderLine.QuantityCommitted = lineViewModel.QuantityCommitted;
+                        salesOrderLine.QuantityShipped = lineViewModel.QuantityShipped;
+                        if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
+                        {
+                            var itemUnit = new ItemUnit(lineViewModel.ItemUnitID);
+                            if (itemUnit == null)
+                                return BadRequest($"ItemUnit with ID {lineViewModel.ItemUnitID} not found");
+                        }
+                        salesOrderLine.ItemUnitID = lineViewModel.ItemUnitID;
+                        salesOrderLine.UnitPrice = lineViewModel.UnitPrice;
+                        salesOrderLine.TaxRate = lineViewModel.TaxRate;
+                        salesOrderLine.Status = lineViewModel.Status;
+                        salesOrderLine.ExternalID = lineViewModel.ExternalID;
+
+                        if (lineViewModel.SalesOrderLineDetails != null)
+                        {
+                            foreach (var detailViewModel in lineViewModel.SalesOrderLineDetails)
+                            {
+                                var salesOrderLineDetail = new SalesOrderLineDetail();
+                                salesOrderLineDetail.SalesOrderLineDetailID = detailViewModel.SalesOrderLineDetailID;
+                                salesOrderLineDetail.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
+                                if (!string.IsNullOrEmpty(detailViewModel.BinID))
+                                {
+                                    var bin = new Bin(CompanyID, detailViewModel.BinID);
+                                    if (bin == null)
+                                        return BadRequest($"Bin with ID {detailViewModel.BinID} not found");
+                                }
+                                salesOrderLineDetail.BinID = detailViewModel.BinID;
+                                salesOrderLineDetail.Quantity = detailViewModel.Quantity;
+                                salesOrderLineDetail.SerialLotNumber = detailViewModel.SerialLotNumber;
+                                if (!string.IsNullOrEmpty(detailViewModel.InventoryID))
+                                {
+                                    var inventory = new Inventory(detailViewModel.InventoryID);
+                                    if (inventory == null)
+                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryID} not found");
+                                }
+                                salesOrderLineDetail.InventoryID = detailViewModel.InventoryID;
+                                salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
+                            }
+                        }
+
+                        salesOrder.SalesOrderLines.Add(salesOrderLine);
+                    }
+                }
                 salesOrder.Update();
                 return RedirectToAction(nameof(Index));
             }
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
             ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Edit.cshtml", input);
         }
+
 
         public IActionResult Delete(string id)
         {
