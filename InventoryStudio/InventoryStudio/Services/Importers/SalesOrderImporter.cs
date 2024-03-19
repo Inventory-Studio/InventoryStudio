@@ -22,9 +22,7 @@ namespace InventoryStudio.Services.Importers
 
         private List<ImportFailedRecord> failedRecords = new List<ImportFailedRecord>();
 
-        private Dictionary<string, string> salesOrderIndexToIdMapping = new Dictionary<string, string>();
 
-        private Dictionary<string, string> salesOrderLineIndexToIdMapping = new Dictionary<string, string>();
 
         public async Task ImportDatasAsync(string companyId, string importTemplateID, string userId, FileHandlers.ProgressHandler progressHandler, List<List<Dictionary<string, string>>> datas)
         {
@@ -44,178 +42,143 @@ namespace InventoryStudio.Services.Importers
                 TotalRecords = datas.Count,
             };
             importResult.Create();
-            foreach (var dataSet in datas)
+            var salesOrders = new List<(SalesOrder, int)>();
+            var salesOrderLines = new List<(SalesOrderLine, int)>();
+            var salesOrderLineDetails = new List<(SalesOrderLineDetail, int)>();
+
+            foreach (var data in datas[0]) // Importing SalesOrder
             {
-                foreach (var data in dataSet)
+                data.TryGetValue("SalesOrderIndex", out string? salesOrderIndex);
+                var salesOrder = await GetEntity<SalesOrder>(companyId, data, salesOrderFields);
+                salesOrders.Add((salesOrder, Convert.ToInt32(salesOrderIndex)));
+            }
+
+            foreach (var data in datas[1]) // Importing SalesOrderLine
+            {
+                var SalesOrderIndex = data["SalesOrderIndex"];
+                var salesOrderLine = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
+                salesOrderLines.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
+            }
+
+            foreach (var data in datas[2]) // Importing SalesOrderLineDetail
+            {
+                var SalesOrderLineIndex = data["SalesOrderLineIndex"];
+                var salesOrderLineDetail = await GetEntity<SalesOrderLineDetail>(companyId, data, salesOrderLineDetailFields);
+                salesOrderLineDetails.Add((salesOrderLineDetail, Convert.ToInt32(SalesOrderLineIndex)));
+            }
+
+            foreach (var salesOrder in salesOrders)
+            {
+                var currentSalesOrderLines = salesOrderLines.Where(t => t.Item2 == salesOrder.Item2).ToList();
+                if (currentSalesOrderLines.Any())
                 {
-                    if (dataSet.IndexOf(data) == 0) // Importing SalesOrder
+                    foreach (var salesOrderLine in currentSalesOrderLines)
                     {
-                        ImportSalesOrder(companyId, data, salesOrderFields, userId, importResult, progressHandler, importTemplateID);
+                        var currentSalesOrderLineDetails = salesOrderLineDetails.Where(t => t.Item2 == salesOrderLine.Item2).ToList();
+                        if (currentSalesOrderLineDetails.Any())
+                        {
+                            salesOrderLine.Item1.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.Item1).ToList();
+                        }
                     }
-                    else if (dataSet.IndexOf(data) == 1) // Importing SalesOrderLine
-                    {
-                        ImportSalesOrderLine(companyId, data, salesOrderLineFields, userId, importResult, progressHandler, importTemplateID);
-                    }
-                    else if (dataSet.IndexOf(data) == 2) // Importing SalesOrderLineDetail
-                    {
-                        ImportSalesOrderLineDetail(companyId, data, salesOrderLineDetailFields, userId, importResult, progressHandler, importTemplateID);
-                    }
+
+                    salesOrder.Item1.SalesOrderLines = currentSalesOrderLines.Select(t => t.Item1).ToList();
                 }
+                salesOrder.Item1.CreatedBy = userId;
+                salesOrder.Item1.CompanyID = companyId;
+                salesOrder.Item1.Create();
             }
             importResult.Update();
         }
 
-        private void ImportSalesOrderLineDetail(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
+
+        private async Task<T> GetEntity<T>(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields) where T : class, new()
         {
-            var salesOrderLineDetail = new SalesOrderLineDetail();
-            foreach (var field in data)
-            {
-                if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
-                {
-                    var property = typeof(SalesOrder).GetProperty(destinationField);
-                    if (property != null)
-                    {
-                        try
-                        {
-                            SetPropertyAsync(companyId, salesOrderLineDetail, field.Value, property);
-                        }
-                        catch (Exception ex)
-                        {
-                            var failedDataJson = JsonSerializer.Serialize(data);
-                            var failedRecord = new ImportFailedRecord
-                            {
-                                ImportResultID = importResult.ImportResultID,
-                                ErrorMessage = ex.Message,
-                                FailedData = failedDataJson
-                            };
-                            importResult.FailedRecords++;
-                            failedRecords.Add(failedRecord);
-                        }
-                    }
-                }
-            }
-
-            salesOrderLineDetail.CreatedBy = userId;
-            salesOrderLineDetail.CreatedOn = DateTime.Now;
-            data.TryGetValue("SalesOrderLineIndex", out var salesOrderLineIndexStr);
-            if (salesOrderLineIndexStr != null)
-            {
-                var salesOrderLineId = salesOrderLineIndexToIdMapping[salesOrderLineIndexStr];
-                salesOrderLineDetail.SalesOrderLineID = salesOrderLineId;
-            }
-            salesOrderLineDetail.Create();
-            importResult.SuccessfulRecords++;
-            int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
-            progressHandler?.Invoke(progress, importTemplateID);
-        }
-
-        private void ImportSalesOrderLine(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
-        {
-            var salesOrderLine = new SalesOrderLine();
-            foreach (var field in data)
-            {
-                if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
-                {
-                    var property = typeof(SalesOrderLine).GetProperty(destinationField);
-                    if (property != null)
-                    {
-                        try
-                        {
-                            SetPropertyAsync(companyId, salesOrderLine, field.Value, property);
-                        }
-                        catch (Exception ex)
-                        {
-                            var failedDataJson = JsonSerializer.Serialize(data);
-                            var failedRecord = new ImportFailedRecord
-                            {
-                                ImportResultID = importResult.ImportResultID,
-                                ErrorMessage = ex.Message,
-                                FailedData = failedDataJson
-                            };
-                            importResult.FailedRecords++;
-                            failedRecords.Add(failedRecord);
-                        }
-                    }
-                }
-            }
-            data.TryGetValue("SalesOrderIndex", out var salesOrderIndexStr);
-            if (salesOrderIndexStr != null)
-            {
-                var salesOrderId = salesOrderIndexToIdMapping[salesOrderIndexStr];
-                salesOrderLine.SalesOrderID = salesOrderId;
-            }
-            salesOrderLine.CreatedBy = userId;
-            salesOrderLine.CreatedOn = DateTime.Now;
-            salesOrderLine.Create();
-            importResult.SuccessfulRecords++;
-
-
-            int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
-            progressHandler?.Invoke(progress, importTemplateID);
-        }
-
-        private void ImportSalesOrder(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields, string userId, ImportResult importResult, FileHandlers.ProgressHandler progressHandler, string importTemplateID)
-        {
-            var salesOrder = new SalesOrder();
+            var entity = new T();
 
             foreach (var field in data)
             {
                 if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                 {
-                    var property = typeof(SalesOrder).GetProperty(destinationField);
+                    var property = typeof(T).GetProperty(destinationField);
                     if (property != null)
                     {
                         try
                         {
-                            SetPropertyAsync(companyId, salesOrder, field.Value, property);
+                            var convertedValue = await GetPropertyValueAsync(companyId, property, field.Value);
+                            property.SetValue(entity, convertedValue);
                         }
                         catch (Exception ex)
                         {
-                            var failedDataJson = JsonSerializer.Serialize(data);
-                            var failedRecord = new ImportFailedRecord
-                            {
-                                ImportResultID = importResult.ImportResultID,
-                                ErrorMessage = ex.Message,
-                                FailedData = failedDataJson
-                            };
-                            importResult.FailedRecords++;
-                            failedRecords.Add(failedRecord);
+                            throw ex;
                         }
                     }
                 }
             }
-
-            salesOrder.CreatedBy = userId;
-            salesOrder.CreatedOn = DateTime.Now;
-            salesOrder.Create();
-            importResult.SuccessfulRecords++;
-            data.TryGetValue("SalesOrderIndex", out var salesOrderIndexStr);
-            if (salesOrderIndexStr != null)
-                salesOrderIndexToIdMapping.Add(salesOrderIndexStr, salesOrder.SalesOrderID.ToString());
-
-            int progress = (int)((importResult.SuccessfulRecords / (double)importResult.TotalRecords) * 100);
-            progressHandler?.Invoke(progress, importTemplateID);
+            return entity;
         }
 
-        private void SetPropertyAsync(string companyId, SalesOrder salesOrder, string value, PropertyInfo property)
+        private async Task<object> GetPropertyValueAsync(string companyId, PropertyInfo property, string value)
         {
-            if (property.PropertyType == typeof(Company))
+            Type propertyType = property.PropertyType;
+
+            // Check if the property is nullable and get the underlying type
+            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                CompanyFilter filter = new CompanyFilter();
-                filter.CompanyName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.CompanyName.SearchString = value;
-                var companies = Company.GetCompanies(filter);
-                if (companies != null)
-                    property.SetValue(salesOrder, companies.FirstOrDefault());
+                propertyType = Nullable.GetUnderlyingType(propertyType);
             }
-            else if (property.PropertyType == typeof(Customer))
+
+            if (propertyType == typeof(decimal))
+            {
+                if (decimal.TryParse(value, out decimal decimalValue))
+                {
+                    return decimalValue;
+                }
+                else
+                {
+                    throw new Exception($"Unable to parse '{value}' to decimal.");
+                }
+            }
+            else if (propertyType == typeof(int))
+            {
+                if (int.TryParse(value, out int intValue))
+                {
+                    return intValue;
+                }
+                else
+                {
+                    throw new Exception($"Unable to parse '{value}' to int.");
+                }
+            }
+            else if (propertyType == typeof(DateTime))
+            {
+                if (DateTime.TryParse(value, out DateTime dateTimeValue))
+                {
+                    return dateTimeValue;
+                }
+                else
+                {
+                    throw new Exception($"Unable to parse '{value}' to DateTime.");
+                }
+            }
+            else if (propertyType == typeof(Customer))
             {
                 CustomerFilter filter = new CustomerFilter();
                 filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.EmailAddress.SearchString = value;
                 var customer = Customer.GetCustomer(companyId, filter);
                 if (customer != null)
-                    property.SetValue(salesOrder, customer);
+                    return customer;
+                else
+                    throw new Exception($"Unable to find the customer {value}");
+            }
+            else if (propertyType == typeof(Address) && (property.Name == "BillToAddress") || property.Name == "ShipToAddress")
+            {
+                AddressFilter filter = new AddressFilter();
+                filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Email.SearchString = value;
+                var address = Address.GetAddress(companyId, filter);
+                if (address != null)
+                    return address;
             }
             else if (property.PropertyType == typeof(Location))
             {
@@ -224,69 +187,18 @@ namespace InventoryStudio.Services.Importers
                 filter.LocationName.SearchString = value;
                 var location = Location.GetLocation(companyId, filter);
                 if (location != null)
-                    property.SetValue(salesOrder, location);
+                    return location;
             }
-            else if (property.PropertyType == typeof(Address) && (property.Name == "BillToAddress") || property.Name == "ShipToAddress")
-            {
-                AddressFilter filter = new AddressFilter();
-                filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.Email.SearchString = value;
-                var address = Address.GetAddress(companyId, filter);
-                if (address != null)
-                    property.SetValue(salesOrder, address);
-            }
-            else
-            {
-                var convertedValue = Convert.ChangeType(value, property.PropertyType);
-                property.SetValue(salesOrder, convertedValue);
-            }
-
-        }
-
-        private void SetPropertyAsync(string companyId, SalesOrderLine salesOrderLine, string value, PropertyInfo property)
-        {
-            if (property.PropertyType == typeof(Location))
-            {
-                LocationFilter filter = new LocationFilter();
-                filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.LocationName.SearchString = value;
-                var location = Location.GetLocation(companyId, filter);
-                if (location != null)
-                    property.SetValue(salesOrderLine, location);
-            }
-            else if (property.PropertyType == typeof(Item))
-            {
-                var item = new Item(companyId, value);
-                if (item != null)
-                    property.SetValue(salesOrderLine, item);
-            }
-            else if (property.PropertyType == typeof(ItemUnit))
-            {
-                var filter = new ItemUnitFilter();
-                filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.Name.SearchString = value;
-                var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
-                if (itemUnits != null)
-                    property.SetValue(salesOrderLine, itemUnits.FirstOrDefault());
-            }
-            else
-            {
-                var convertedValue = Convert.ChangeType(value, property.PropertyType);
-                property.SetValue(salesOrderLine, convertedValue);
-            }
-
-        }
-
-        private void SetPropertyAsync(string companyId, SalesOrderLineDetail salesOrderLineDetail, string value, PropertyInfo property)
-        {
-            if (property.PropertyType == typeof(Bin))
+            else if (propertyType == typeof(Bin))
             {
                 BinFilter filter = new BinFilter();
                 filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.BinNumber.SearchString = value;
                 var bins = Bin.GetBins(companyId, filter);
                 if (bins != null)
-                    property.SetValue(salesOrderLineDetail, bins.FirstOrDefault());
+                    return bins.First();
+                else
+                    throw new Exception($"Unable to find the Bin {value}");
             }
             else if (property.PropertyType == typeof(Inventory))
             {
@@ -295,15 +207,25 @@ namespace InventoryStudio.Services.Importers
                 filter.ItemID.SearchString = value;
                 var inventory = Inventory.GetInventory(filter);
                 if (inventory != null)
-                    property.SetValue(salesOrderLineDetail, inventory);
+                    return inventory;
+            }
+            else if (propertyType == typeof(ItemUnit) && (propertyType.Name == "ItemUnitType" || propertyType.Name == "PrimarySalesUnit" || propertyType.Name == "PrimaryPurchaseUnit" || propertyType.Name == "PrimaryStockUnit"))
+            {
+                var filter = new ItemUnitFilter();
+                filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.Name.SearchString = value;
+                var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
+                if (itemUnits != null)
+                    return itemUnits.First();
             }
             else
             {
-                var convertedValue = Convert.ChangeType(value, property.PropertyType);
-                property.SetValue(salesOrderLineDetail, convertedValue);
+                return Convert.ChangeType(value, propertyType);
             }
+        
+
+            return null;
         }
 
-
-    }
+}
 }
