@@ -371,7 +371,7 @@ namespace ISLibrary
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "InventoryDetail"), objConn, objTran);
 
                 if (Inventory != null)
-                {
+                {//ChangedQty used for adjustmemt and transfer
                     Inventory.QtyOnHand += ChangedQty;
                     Inventory.QtyAvailable += ChangedQty;
                     Inventory.Update();
@@ -597,6 +597,7 @@ namespace ISLibrary
                     if (Filter.ItemID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ItemID, "ItemID");
                     if (Filter.LocationID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.LocationID, "LocationID");
                     if (Filter.BinID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.BinID, "BinID");
+                    if (Filter.InventoryNumber != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.InventoryNumber, "InventoryNumber");
                 }
 
                 if (PageSize != null && PageNumber != null)

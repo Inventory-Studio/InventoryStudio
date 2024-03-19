@@ -26,9 +26,9 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
         [Range(0, double.MaxValue, ErrorMessage = "Quantity must be a non-negative number")]
         public decimal Quantity { get; set; }
 
-        public decimal? QuantityCommitted { get; set; }
+        public decimal QuantityCommitted { get; set; }
 
-        public decimal? QuantityShipped { get; set; }
+        public decimal QuantityShipped { get; set; }
 
         public string? ItemUnitID { get; set; }
 

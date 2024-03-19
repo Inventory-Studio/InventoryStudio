@@ -21,13 +21,14 @@ namespace ISLibrary.OrderManagement
 
         public string SalesOrderLineID { get; set; }
 
-        public string? BinID { get; set; }
+        public string BinID { get; set; }
+        public string ItemID { get; set; }
 
         public decimal Quantity { get; set; }
 
-        public string? SerialLotNumber { get; set; }
+        public string? InventoryNumber { get; set; }
 
-        public string InventoryID { get; set; }
+        public string InventoryDetailID { get; set; }
 
         public string? UpdatedBy { get; set; }
 
@@ -36,6 +37,45 @@ namespace ISLibrary.OrderManagement
         public string CreatedBy { get; set; }
 
         public DateTime CreatedOn { get; set; }
+
+        private InventoryDetail mInventoryDetail = null;
+        public InventoryDetail InventoryDetail
+        {
+            get
+            {
+                InventoryDetailFilter objFilter = null;
+                try
+                {
+                    if (mInventoryDetail == null && !string.IsNullOrEmpty(BinID) && !string.IsNullOrEmpty(ItemID))
+                    {
+                        objFilter = new InventoryDetailFilter();
+                        objFilter.BinID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.BinID.SearchString = BinID;
+                        objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.ItemID.SearchString = ItemID;
+                        if (!string.IsNullOrEmpty(InventoryNumber))
+                        {
+                            objFilter.InventoryNumber = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.InventoryNumber.SearchString = InventoryNumber;
+                        }                       
+                        mInventoryDetail = InventoryDetail.GetInventoryDetail(CompanyID,objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mInventoryDetail;
+            }
+            set
+            {
+                mInventoryDetail = value;
+            }
+        }
 
         public SalesOrderLineDetail()
         {
@@ -71,8 +111,8 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("SalesOrderLineID")) SalesOrderLineID = Convert.ToString(objRow["SalesOrderLineID"]);
                 if (objColumns.Contains("BinID")) BinID = Convert.ToString(objRow["BinID"]);
                 if (objColumns.Contains("Quantity")) Quantity = Convert.ToDecimal(objRow["Quantity"]);
-                if (objColumns.Contains("SerialLotNumber")) SerialLotNumber = Convert.ToString(objRow["SerialLotNumber"]);
-                if (objColumns.Contains("InventoryID")) InventoryID = Convert.ToString(objRow["InventoryID"]);
+                if (objColumns.Contains("InventoryNumber")) InventoryNumber = Convert.ToString(objRow["InventoryNumber"]);
+                if (objColumns.Contains("InventoryDetailID")) InventoryDetailID = Convert.ToString(objRow["InventoryDetailID"]);
                 if (objColumns.Contains("UpdatedBy")) UpdatedBy = Convert.ToString(objRow["UpdatedBy"]);
                 if (objColumns.Contains("UpdatedOn") && objRow["UpdatedOn"] != DBNull.Value) UpdatedOn = Convert.ToDateTime(objRow["UpdatedOn"]);
                 if (objColumns.Contains("CreatedBy")) CreatedBy = Convert.ToString(objRow["CreatedBy"]);
@@ -168,11 +208,16 @@ namespace ISLibrary.OrderManagement
                 dicParam["SalesOrderLineID"] = SalesOrderLineID;
                 dicParam["BinID"] = BinID;
                 dicParam["Quantity"] = Quantity;
-                dicParam["SerialLotNumber"] = SerialLotNumber;
-                dicParam["InventoryID"] = InventoryID;
+                dicParam["InventoryNumber"] = InventoryNumber;
+                dicParam["InventoryDetailID"] = InventoryDetailID;
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
                 SalesOrderLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrderLineDetail"), objConn, objTran).ToString();
+               
+                
+                
+                
+                
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -245,8 +290,8 @@ namespace ISLibrary.OrderManagement
                 dicParam["SalesOrderLineID"] = SalesOrderLineID;
                 dicParam["BinID"] = BinID;
                 dicParam["Quantity"] = Quantity;
-                dicParam["SerialLotNumber"] = SerialLotNumber;
-                dicParam["InventoryID"] = InventoryID;
+                dicParam["InventoryNumber"] = InventoryNumber;
+                dicParam["InventoryDetailID"] = InventoryDetailID;
                 dicParam["UpdatedBy"] = UpdatedBy;
                 dicParam["UpdatedOn"] = DateTime.Now;
                 dicWParam["SalesOrderLineDetailID"] = SalesOrderLineDetailID;

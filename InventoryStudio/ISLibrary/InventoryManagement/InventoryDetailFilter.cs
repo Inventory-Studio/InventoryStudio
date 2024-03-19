@@ -12,5 +12,6 @@ namespace ISLibrary
         public Database.Filter.StringSearch.SearchFilter ItemID { get; set; }
         public Database.Filter.StringSearch.SearchFilter LocationID { get; set; }
         public Database.Filter.StringSearch.SearchFilter BinID { get; set; }
+        public Database.Filter.StringSearch.SearchFilter InventoryNumber { get; set; }
     }
 }

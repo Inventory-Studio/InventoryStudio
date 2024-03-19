@@ -39,9 +39,13 @@ namespace ISLibrary.OrderManagement
 
         public decimal Quantity { get; set; }
 
-        public decimal? QuantityCommitted { get; set; }
+        public decimal QuantityCommitted { get; set; }
 
-        public decimal? QuantityShipped { get; set; }
+        public decimal QuantityShipped { get; set; }
+        public decimal QuantityFulfilled { get; set; }
+        public decimal QuantityOnHand { get; set; }
+        public decimal QuantityAvailable { get; set; }
+        public decimal QuantityBackOrder { get; set; }
 
         public string? ItemUnitID { get; set; }
 
@@ -91,6 +95,67 @@ namespace ISLibrary.OrderManagement
             set
             {
                 mSalesOrderLineDetail = value;
+            }
+        }
+
+        private Inventory mInventory = null;
+        public Inventory Inventory
+        {
+            get
+            {
+                InventoryFilter objFilter = null;
+                try
+                {
+                    if (mInventory == null && !string.IsNullOrEmpty(LocationID) && !string.IsNullOrEmpty(ItemID))
+                    {
+                        objFilter = new InventoryFilter();
+                        objFilter.LocationID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.LocationID.SearchString = LocationID;
+                        objFilter.ItemID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.ItemID.SearchString = ItemID;
+                        mInventory = Inventory.GetInventory(objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mInventory;
+            }
+            set
+            {
+                mInventory = value;
+            }
+        }
+
+        private ItemUnit mItemUnit = null;
+        public ItemUnit ItemUnit
+        {
+            get
+            {
+
+
+                try
+                {
+                    if (mItemUnit == null && !string.IsNullOrEmpty(ItemUnitID))
+                    {
+                        mItemUnit = new ItemUnit(ItemUnitID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                return mItemUnit;
+            }
+            set
+            {
+                mItemUnit = value;
             }
         }
 
@@ -265,7 +330,7 @@ namespace ISLibrary.OrderManagement
                         objSalesOrderLineDetail.Create(objConn, objTran);
                     }
                 }
-
+                
                 Load(objConn, objTran);
             }
             catch (Exception ex)

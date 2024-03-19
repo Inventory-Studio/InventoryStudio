@@ -4,6 +4,7 @@ using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static ISLibrary.OrderManagement.SalesOrder;
 
 namespace InventoryStudio.Controllers.API
 {
@@ -84,7 +85,14 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                     salesOrder.ShipFrom = input.ShipFrom;
                     salesOrder.ShipTo = input.ShipTo;
-                    salesOrder.Status = input.Status;
+                    try
+                    {
+                        salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), input.Status);
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest($"Invaliad Status: {input.Status}");
+                    }
                     salesOrder.IsClosed = input.IsClosed;
                     salesOrder.ExternalID = input.ExternalID;
                     salesOrder.InternalNote = input.InternalNote;
@@ -158,16 +166,16 @@ namespace InventoryStudio.Controllers.API
 
                                     salesOrderLineDetail.BinID = detailViewModel.BinID;
                                     salesOrderLineDetail.Quantity = detailViewModel.Quantity;
-                                    salesOrderLineDetail.SerialLotNumber = detailViewModel.SerialLotNumber;
+                                    salesOrderLineDetail.InventoryNumber = detailViewModel.InventoryNumber;
 
-                                    if (!string.IsNullOrEmpty(detailViewModel.InventoryID))
+                                    if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
                                     {
-                                        var inventory = new Inventory(detailViewModel.InventoryID);
+                                        var inventory = new Inventory(detailViewModel.InventoryDetailID);
                                         if (inventory == null)
-                                            return BadRequest($"Invneotry with ID {detailViewModel.InventoryID} not found");
+                                            return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
                                     }
 
-                                    salesOrderLineDetail.InventoryID = detailViewModel.InventoryID;
+                                    salesOrderLineDetail.InventoryDetailID = detailViewModel.InventoryDetailID;
                                     salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
                                 }
                             }

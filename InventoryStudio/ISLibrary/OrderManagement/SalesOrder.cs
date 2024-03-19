@@ -3,10 +3,12 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ISLibrary.Item;
 
 namespace ISLibrary.OrderManagement
 {
@@ -52,7 +54,19 @@ namespace ISLibrary.OrderManagement
 
         public DateTime? ShipTo { get; set; }
 
-        public string? Status { get; set; }
+        public enum enumOrderStatus
+        {
+            [Description("Pending Approval")]
+            Pending,
+            [Description("Pending Fulfillment")]
+            PendingFulfillment,
+            [Description("Partially Shipped")]
+            PartiallyShipped,
+            [Description("Shipped")]
+            Shipped
+        }
+
+        public enumOrderStatus Status { get; set; }
 
         public bool IsClosed { get; set; }
 
@@ -163,7 +177,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("ShippingServiceCode")) ShippingServiceCode = Convert.ToString(objRow["ShippingServiceCode"]);
                 if (objColumns.Contains("ShipFrom") && objRow["ShipFrom"] != DBNull.Value) ShipFrom = Convert.ToDateTime(objRow["ShipFrom"]);
                 if (objColumns.Contains("ShipTo") && objRow["ShipTo"] != DBNull.Value) ShipTo = Convert.ToDateTime(objRow["ShipTo"]);
-                if (objColumns.Contains("Status")) Status = Convert.ToString(objRow["Status"]);
+                if (objColumns.Contains("Status") && objRow["Status"] != DBNull.Value && Enum.TryParse(Convert.ToString(objRow["Status"]), out enumOrderStatus orderStatus)) Status = orderStatus;
                 if (objColumns.Contains("Status")) IsClosed = Convert.ToBoolean(objRow["IsClosed"]);
                 if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
                 if (objColumns.Contains("InternalNote")) InternalNote = Convert.ToString(objRow["InternalNote"]);
@@ -286,7 +300,7 @@ namespace ISLibrary.OrderManagement
                 dicParam["ShippingServiceCode"] = ShippingServiceCode;
                 dicParam["ShipFrom"] = ShipFrom;
                 dicParam["ShipTo"] = ShipTo;
-                dicParam["Status"] = Status;
+                dicParam["Status"] = enumOrderStatus.Pending;
                 dicParam["IsClosed"] = IsClosed;
                 dicParam["ExternalID"] = ExternalID;
                 dicParam["InternalNote"] = InternalNote;
@@ -417,6 +431,11 @@ namespace ISLibrary.OrderManagement
                     {
                         if (objSalesOrderLine.IsNew)
                         {
+                            if (Status == enumOrderStatus.PendingFulfillment)
+                            {
+                                UpdateInventory(objSalesOrderLine);                              
+
+                            }
                             objSalesOrderLine.SalesOrderID = SalesOrderID;
                             objSalesOrderLine.CompanyID = CompanyID;
                             objSalesOrderLine.CreatedBy = UpdatedBy;
@@ -424,6 +443,34 @@ namespace ISLibrary.OrderManagement
                         }
                         else
                         {
+                            if (Status == enumOrderStatus.PendingFulfillment)
+                            {
+                                if(objSalesOrderLine.QuantityCommitted == 0)
+                                {
+                                    UpdateInventory(objSalesOrderLine);
+                                }
+                                else
+                                {
+                                    SalesOrderLine objExistingSalesOrderLine = new SalesOrderLine (CompanyID,objSalesOrderLine.SalesOrderLineID);
+                                    if(objExistingSalesOrderLine.Quantity!= objSalesOrderLine.Quantity)
+                                    {
+                                        objSalesOrderLine.Inventory.QtyAvailable += objExistingSalesOrderLine.QuantityCommitted;
+                                        objSalesOrderLine.Inventory.QtyCommitted -= objExistingSalesOrderLine.QuantityCommitted;
+                                        objSalesOrderLine.Inventory.QtyBackOrdered -= objExistingSalesOrderLine.QuantityBackOrder;
+
+                                        UpdateInventory(objSalesOrderLine);
+                                        foreach (var objSalesOrderLineDetail in objExistingSalesOrderLine.SalesOrderLineDetails)
+                                        {
+                                            objSalesOrderLineDetail.InventoryDetail.Available += objSalesOrderLineDetail.Quantity;
+                                            objSalesOrderLineDetail.InventoryDetail.Update();
+                                        }
+                                    }
+                                }                              
+
+                            }
+
+
+
                             objSalesOrderLine.UpdatedBy = UpdatedBy;
                             objSalesOrderLine.Update(objConn, objTran);
                         }
@@ -434,10 +481,38 @@ namespace ISLibrary.OrderManagement
                     {
                         if (!SalesOrderLines.Exists(t => t.SalesOrderLineID == currentSalesOrderLine.SalesOrderLineID))
                         {
+                            if (Status == enumOrderStatus.PendingFulfillment)
+                            {
+                                currentSalesOrderLine.Inventory.QtyAvailable += currentSalesOrderLine.QuantityCommitted;
+                                currentSalesOrderLine.Inventory.QtyCommitted -= currentSalesOrderLine.QuantityCommitted;
+                                currentSalesOrderLine.Inventory.QtyBackOrdered -= currentSalesOrderLine.QuantityBackOrder;
+                                currentSalesOrderLine.Inventory.Update();
+                                foreach (var objSalesOrderLineDetail in currentSalesOrderLine.SalesOrderLineDetails)
+                                {
+                                    objSalesOrderLineDetail.InventoryDetail.Available += objSalesOrderLineDetail.Quantity;
+                                    objSalesOrderLineDetail.InventoryDetail.Update();
+
+                                    //Inventory Log
+                                    InventoryLog objInventoryLog = new InventoryLog();
+                                    objInventoryLog.ItemID = objSalesOrderLineDetail.ItemID;
+                                    objInventoryLog.CompanyID = CompanyID;
+                                    objInventoryLog.ChangeType = "SalesOrder";
+                                    objInventoryLog.ChangeQuantity = objSalesOrderLineDetail.Quantity;
+                                    objInventoryLog.ParentObjectID = SalesOrderID;
+                                    objInventoryLog.BinID = objSalesOrderLineDetail.InventoryDetail.BinID;
+                                    objInventoryLog.InventoryDetailID = objSalesOrderLineDetail.InventoryDetail.InventoryDetailID;
+                                    objInventoryLog.InventoryNumber = objSalesOrderLineDetail.InventoryDetail.InventoryNumber;
+                                    objInventoryLog.CreatedBy = CreatedBy;
+                                    objInventoryLog.Create();
+                                }
+
+                            }
                             currentSalesOrderLine.Delete(objConn, objTran);
                         }
                     }
                 }
+
+               
 
 
                 Load(objConn, objTran);
@@ -455,6 +530,48 @@ namespace ISLibrary.OrderManagement
             LogAuditData(enumActionType.Update);
             return true;
         }
+
+        public void UpdateInventory(SalesOrderLine objSalesOrderLine)
+        {
+            if (objSalesOrderLine.Quantity > objSalesOrderLine.Inventory.QtyAvailable)
+            {
+                objSalesOrderLine.QuantityBackOrder = objSalesOrderLine.Quantity - objSalesOrderLine.Inventory.QtyAvailable;
+                objSalesOrderLine.QuantityCommitted = objSalesOrderLine.Inventory.QtyAvailable;
+
+                objSalesOrderLine.Inventory.QtyBackOrdered += objSalesOrderLine.QuantityBackOrder;
+            }
+            else
+            {
+                objSalesOrderLine.QuantityCommitted = objSalesOrderLine.Quantity;
+            }
+            objSalesOrderLine.QuantityOnHand = objSalesOrderLine.Inventory.QtyOnHand;
+            objSalesOrderLine.QuantityAvailable = objSalesOrderLine.Inventory.QtyAvailable - objSalesOrderLine.QuantityCommitted;
+
+
+            objSalesOrderLine.Inventory.QtyCommitted += objSalesOrderLine.QuantityCommitted;
+            objSalesOrderLine.Inventory.QtyAvailable = objSalesOrderLine.QuantityAvailable;
+            objSalesOrderLine.Inventory.Update();
+
+            foreach (var objSalesOrderLineDetail in objSalesOrderLine.SalesOrderLineDetails)
+            {
+                objSalesOrderLineDetail.InventoryDetail.Available -= objSalesOrderLineDetail.Quantity;
+                objSalesOrderLineDetail.InventoryDetail.Update();
+
+                //Inventory Log
+                InventoryLog objInventoryLog = new InventoryLog();
+                objInventoryLog.ItemID = objSalesOrderLineDetail.ItemID;
+                objInventoryLog.CompanyID = CompanyID;
+                objInventoryLog.ChangeType = "SalesOrder";
+                objInventoryLog.ChangeQuantity = -objSalesOrderLineDetail.Quantity;
+                objInventoryLog.ParentObjectID = SalesOrderID;
+                objInventoryLog.BinID = objSalesOrderLineDetail.InventoryDetail.BinID;
+                objInventoryLog.InventoryDetailID = objSalesOrderLineDetail.InventoryDetail.InventoryDetailID;
+                objInventoryLog.InventoryNumber = objSalesOrderLineDetail.InventoryDetail.InventoryNumber;
+                objInventoryLog.CreatedBy = CreatedBy;
+                objInventoryLog.Create();
+            }
+        }
+
 
         public override bool Delete()
         {

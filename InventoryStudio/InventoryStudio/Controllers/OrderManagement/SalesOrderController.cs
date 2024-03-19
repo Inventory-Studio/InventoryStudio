@@ -11,6 +11,7 @@ using System.Text.Json;
 using Syncfusion.EJ2.Base;
 using InventoryStudio.Models.OrderManagement.SalesOrderLine;
 using InventoryStudio.Models.OrderManagement.SalesOrderLineDetail;
+using static ISLibrary.OrderManagement.SalesOrder;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -92,7 +93,14 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ShippingServiceCode = salesOrder.ShippingServiceCode;
             viewModel.ShipFrom = salesOrder.ShipFrom;
             viewModel.ShipTo = salesOrder.ShipTo;
-            viewModel.Status = salesOrder.Status;
+            try
+            {
+                salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), viewModel.Status);
+            }
+            catch (ArgumentException)
+            {
+                 BadRequest($"Invaliad Status: {viewModel.Status}");
+            }
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
             viewModel.InternalNote = salesOrder.InternalNote;
@@ -196,7 +204,14 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                 salesOrder.ShipFrom = input.ShipFrom;
                 salesOrder.ShipTo = input.ShipTo;
-                salesOrder.Status = input.Status;
+                try
+                {
+                    salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), input.Status);
+                }
+                catch (Exception)
+                {
+                    return BadRequest($"Invaliad Status: {input.Status}");
+                }
                 salesOrder.IsClosed = input.IsClosed;
                 salesOrder.ExternalID = input.ExternalID;
                 salesOrder.InternalNote = input.InternalNote;
@@ -238,8 +253,6 @@ namespace InventoryStudio.Controllers.OrderManagement
                         salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
                         salesOrderLine.Description = lineViewModel.Description;
                         salesOrderLine.Quantity = lineViewModel.Quantity;
-                        salesOrderLine.QuantityCommitted = lineViewModel.QuantityCommitted;
-                        salesOrderLine.QuantityShipped = lineViewModel.QuantityShipped;
 
                         if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
                         {
@@ -270,16 +283,16 @@ namespace InventoryStudio.Controllers.OrderManagement
 
                                 salesOrderLineDetail.BinID = detailViewModel.BinID;
                                 salesOrderLineDetail.Quantity = detailViewModel.Quantity;
-                                salesOrderLineDetail.SerialLotNumber = detailViewModel.SerialLotNumber;
+                                salesOrderLineDetail.InventoryNumber = detailViewModel.InventoryNumber;
 
-                                if (!string.IsNullOrEmpty(detailViewModel.InventoryID))
+                                if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
                                 {
-                                    var inventory = new Inventory(detailViewModel.InventoryID);
+                                    var inventory = new Inventory(detailViewModel.InventoryDetailID);
                                     if (inventory == null)
-                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryID} not found");
+                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
                                 }
 
-                                salesOrderLineDetail.InventoryID = detailViewModel.InventoryID;
+                                salesOrderLineDetail.InventoryDetailID = detailViewModel.InventoryDetailID;
                                 salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
                             }
                         }
@@ -340,7 +353,14 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ShippingServiceCode = salesOrder.ShippingServiceCode;
             viewModel.ShipFrom = salesOrder.ShipFrom;
             viewModel.ShipTo = salesOrder.ShipTo;
-            viewModel.Status = salesOrder.Status;
+            try
+            {
+                salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), viewModel.Status);
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Invaliad Status: {viewModel.Status}");
+            }
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
             viewModel.InternalNote = salesOrder.InternalNote;
@@ -384,8 +404,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                             salesOrderLineDetailViewModel.SalesOrderLineID = salesOrderLineDetail.SalesOrderLineID;
                             salesOrderLineDetailViewModel.BinID = salesOrderLineDetail.BinID;
                             salesOrderLineDetailViewModel.Quantity = salesOrderLineDetail.Quantity;
-                            salesOrderLineDetailViewModel.SerialLotNumber = salesOrderLineDetail.SerialLotNumber;
-                            salesOrderLineDetailViewModel.InventoryID = salesOrderLineDetail.InventoryID;
+                            salesOrderLineDetailViewModel.InventoryNumber = salesOrderLineDetail.InventoryNumber;
+                            salesOrderLineDetailViewModel.InventoryDetailID = salesOrderLineDetail.InventoryDetailID;
                             salesOrderLineViewModel.SalesOrderLineDetails.Add(salesOrderLineDetailViewModel);
                         }
                     }
@@ -451,7 +471,14 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                 salesOrder.ShipFrom = input.ShipFrom;
                 salesOrder.ShipTo = input.ShipTo;
-                salesOrder.Status = input.Status;
+                try
+                {
+                    salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), input.Status);
+                }
+                catch (Exception)
+                {
+                    return BadRequest($"Invaliad Status: {input.Status}");
+                }
                 salesOrder.IsClosed = input.IsClosed;
                 salesOrder.ExternalID = input.ExternalID;
                 salesOrder.InternalNote = input.InternalNote;
@@ -492,8 +519,6 @@ namespace InventoryStudio.Controllers.OrderManagement
                         salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
                         salesOrderLine.Description = lineViewModel.Description;
                         salesOrderLine.Quantity = lineViewModel.Quantity;
-                        salesOrderLine.QuantityCommitted = lineViewModel.QuantityCommitted;
-                        salesOrderLine.QuantityShipped = lineViewModel.QuantityShipped;
                         if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
                         {
                             var itemUnit = new ItemUnit(lineViewModel.ItemUnitID);
@@ -521,14 +546,14 @@ namespace InventoryStudio.Controllers.OrderManagement
                                 }
                                 salesOrderLineDetail.BinID = detailViewModel.BinID;
                                 salesOrderLineDetail.Quantity = detailViewModel.Quantity;
-                                salesOrderLineDetail.SerialLotNumber = detailViewModel.SerialLotNumber;
-                                if (!string.IsNullOrEmpty(detailViewModel.InventoryID))
+                                salesOrderLineDetail.InventoryNumber = detailViewModel.InventoryNumber;
+                                if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
                                 {
-                                    var inventory = new Inventory(detailViewModel.InventoryID);
+                                    var inventory = new Inventory(detailViewModel.InventoryDetailID);
                                     if (inventory == null)
-                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryID} not found");
+                                        return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
                                 }
-                                salesOrderLineDetail.InventoryID = detailViewModel.InventoryID;
+                                salesOrderLineDetail.InventoryDetailID = detailViewModel.InventoryDetailID;
                                 salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
                             }
                         }

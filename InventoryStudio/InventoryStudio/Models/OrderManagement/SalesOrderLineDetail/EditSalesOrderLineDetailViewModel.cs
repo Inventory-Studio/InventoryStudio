@@ -15,10 +15,10 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLineDetail
         [Range(0, double.MaxValue, ErrorMessage = "Quantity must be a non-negative number")]
         public decimal Quantity { get; set; }
 
-        public string? SerialLotNumber { get; set; }
+        public string? InventoryNumber { get; set; }
 
         [Required]
-        public string InventoryID { get; set; } = null!;
+        public string InventoryDetailID { get; set; } = null!;
 
     }
 }
