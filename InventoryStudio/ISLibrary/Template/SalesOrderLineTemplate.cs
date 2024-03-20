@@ -20,7 +20,7 @@ namespace ISLibrary.Template
 
         /// <summary>
         ///  references Item Table ItemID
-        ///  filter using ItemId
+        ///  filter using ItemNumber
         /// </summary>
         public string? Item { get; set; }
 

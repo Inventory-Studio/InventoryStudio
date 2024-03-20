@@ -10,6 +10,7 @@ using ISLibrary.Template;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using SendGrid.Helpers.Mail;
 using System.Security.Claims;
 using System.Text;
@@ -127,10 +128,6 @@ namespace InventoryStudio.Controllers
 
         public IActionResult Create()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             return View();
         }
 
@@ -141,12 +138,13 @@ namespace InventoryStudio.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,File")] CreateTemplateViewModel input)
+        public async Task<IActionResult> Create(CreateTemplateViewModel input)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && input.File != null && input.File.Length > 0)
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var template = new ImportTemplate();
-                template.CompanyID = input.CompanyID;
+                template.CompanyID = CompanyID;
                 template.TemplateName = input.TemplateName;
                 template.Type = input.Type.ToString();
                 template.ImportType = input.ImportType.ToString();
@@ -158,27 +156,95 @@ namespace InventoryStudio.Controllers
                 var headers = await _fileHandler.ImportTemplate(input.File);
                 if (headers.Count == 0)
                     throw new Exception();
-                //【Todo】
-                var mappings = MapHeadersToEntityProperties<ItemTemplate>(headers[0]);
-                foreach (var mapping in mappings)
+
+                Dictionary<string, string> mappings;
+                var type = input.Type.ToString();
+                List<ImportTemplateField> importTemplateFields = new List<ImportTemplateField>();
+                if (type == "Item")
                 {
-                    var templateField = new ImportTemplateField();
-                    templateField.ImportTemplateID = template.ImportTemplateID;
-                    templateField.CompanyID = input.CompanyID;
-                    templateField.SourceField = mapping.Key;
-                    templateField.DestinationTable = nameof(Customer);
-                    templateField.DestinationField = mapping.Value;
-                    templateField.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    templateField.CreatedOn = DateTime.Now;
-                    templateField.Create();
+                    mappings = MapHeadersToEntityProperties<ItemTemplate>(headers[0]);
+                    importTemplateFields.AddRange(GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "Item", mappings));
                 }
+                else if (type == "Vendor")
+                {
+                    mappings = mappings = MapHeadersToEntityProperties<VendorTemplate>(headers[0]);
+                    importTemplateFields.AddRange(GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "Vendor", mappings));
+                }
+                else if (type == "Customer")
+                {
+                    mappings = MapHeadersToEntityProperties<CustomerTemplate>(headers[0]);
+                    importTemplateFields.AddRange(GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "Customer", mappings));
+                }
+                else if (type == "SalesOrder")
+                {
+                    //SalesOrder
+                    mappings = MapHeadersToEntityProperties<SalesOrderTemplate>(headers[0]);
+                    if (mappings.Count != 0)
+                    {
+                        var salesOrderFields = GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "SalesOrder", mappings);
+                        importTemplateFields.AddRange(salesOrderFields);
+                    }
+
+                    //SalesOrderLine
+                    mappings = MapHeadersToEntityProperties<SalesOrderLineTemplate>(headers[1]);
+                    if (mappings.Count != 0)
+                    {
+                        //importTemplateFields.AddRange(GetTemplateFields(template.ImportTemplateID, input.CompanyID, "SalesOrderLine", mappings));
+                        var salesOrderLineFields = GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "SalesOrderLine", mappings);
+                        importTemplateFields.AddRange(salesOrderLineFields);
+                    }
+
+                    //SalesOrderLineDetail
+                    mappings = MapHeadersToEntityProperties<SalesOrderLineDetailTemplate>(headers[2]);
+                    if (mappings.Count != 0)
+                    {
+                        //importTemplateFields.AddRange(GetTemplateFields(template.ImportTemplateID, input.CompanyID, "SalesOrderLineDetail", mappings));
+                        var salesOrderLineDetailFields = GetTemplateFields(template.ImportTemplateID, CompanyID, userId, "SalesOrderLineDetail", mappings);
+                        importTemplateFields.AddRange(salesOrderLineDetailFields);
+                    }
+                }
+
+                foreach (var importTemplateField in importTemplateFields)
+                {
+                    importTemplateField.Create();
+                }
+
+                //【Todo】
+                //var mappings = MapHeadersToEntityProperties<ItemTemplate>(headers[0]);
+                //foreach (var mapping in mappings)
+                //{
+                //    var templateField = new ImportTemplateField();
+                //    templateField.ImportTemplateID = template.ImportTemplateID;
+                //    templateField.CompanyID = input.CompanyID;
+                //    templateField.SourceField = mapping.Key;
+                //    templateField.DestinationTable = nameof(Customer);
+                //    templateField.DestinationField = mapping.Value;
+                //    templateField.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                //    templateField.CreatedOn = DateTime.Now;
+                //    templateField.Create();
+                //}
                 return RedirectToAction(nameof(Index));
             }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
+
             return View(input);
+        }
+
+        private List<ImportTemplateField> GetTemplateFields(string importTemplateId, string companyId, string userId, string table, Dictionary<string, string> mappings)
+        {
+            var templateFields = new List<ImportTemplateField>();
+            foreach (var mapping in mappings)
+            {
+                var templateField = new ImportTemplateField();
+                templateField.ImportTemplateID = importTemplateId;
+                templateField.CompanyID = companyId;
+                templateField.SourceField = mapping.Key;
+                templateField.DestinationTable = table;
+                templateField.DestinationField = mapping.Value;
+                templateField.CreatedBy = userId;
+                templateField.CreatedOn = DateTime.Now;
+                templateFields.Add(templateField);
+            }
+            return templateFields;
         }
 
         private Dictionary<string, string> MapHeadersToEntityProperties<T>(string[] headerFields)
@@ -207,13 +273,8 @@ namespace InventoryStudio.Controllers
             var template = new ImportTemplate(CompanyID, id);
             if (template == null)
                 return NotFound();
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             var editTemplateViewModel = new EditTemplateViewModel();
             editTemplateViewModel.ImportTemplateID = template.ImportTemplateID;
-            editTemplateViewModel.CompanyID = template.CompanyID;
             editTemplateViewModel.TemplateName = template.TemplateName;
             editTemplateViewModel.Type = template.Type;
             editTemplateViewModel.ImportType = template.ImportType;
@@ -238,16 +299,14 @@ namespace InventoryStudio.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id, [Bind("ImportTemplateID,CompanyID,TemplateName,Type,ImportType,TemplateFields")] EditTemplateViewModel input)
+        public IActionResult Edit(EditTemplateViewModel input)
         {
-            if (id != input.ImportTemplateID)
-                return NotFound();
             if (ModelState.IsValid)
             {
-                var template = new ImportTemplate(CompanyID, id);
+                var template = new ImportTemplate(CompanyID, input.ImportTemplateID);
                 if (template == null)
                     return NotFound();
-                template.CompanyID = input.CompanyID;
+                template.CompanyID = CompanyID;
                 template.TemplateName = template.TemplateName;
                 template.Type = template.Type;
                 template.ImportType = template.ImportType;
@@ -284,10 +343,6 @@ namespace InventoryStudio.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             return View(input);
         }
 
@@ -381,7 +436,7 @@ namespace InventoryStudio.Controllers
                 {
                     var datas = await filehanlder.ImportDatas(file);
                     SalesOrderImporter salesOrderImporter = (SalesOrderImporter)importer;
-                    await salesOrderImporter.ImportDatasAsync(CompanyID,templateId,createdBy, progressHandler, datas);
+                    await salesOrderImporter.ImportDatasAsync(CompanyID, templateId, createdBy, progressHandler, datas);
                 }
                 else
                 {

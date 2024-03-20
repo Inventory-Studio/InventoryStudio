@@ -38,6 +38,40 @@ namespace ISLibrary.ImportTemplateManagement
         [DisplayName("Completion Time")]
         public DateTime? CompletionTime { get; set; }
 
+        private List<ImportFailedRecord> mImportFailedRecord = null;
+
+        public List<ImportFailedRecord> ImportFailedRecords
+        {
+            get
+            {
+                ImportFailedRecordFilter objFilter = null;
+                try
+                {
+                    if (mImportFailedRecord == null && !string.IsNullOrEmpty(ImportResultID))
+                    {
+                        objFilter = new ImportFailedRecordFilter();
+                        objFilter.ImportResultID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.ImportResultID.SearchString = ImportResultID;
+                        mImportFailedRecord = ImportFailedRecord.GetImportResults(objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mImportFailedRecord;
+            }
+            set
+            {
+                mImportFailedRecord = value;
+            }
+        }
+
         public ImportResult()
         {
 
@@ -144,7 +178,6 @@ namespace ISLibrary.ImportTemplateManagement
             Hashtable dicParam = new Hashtable();
             try
             {
-                if (string.IsNullOrEmpty(ImportResultID)) throw new Exception("ImportResultID is required");
                 if (string.IsNullOrEmpty(UploadBy)) throw new Exception("UploadBy is required");
                 if (!IsNew) throw new Exception("Create cannot be performed, ImportResult already exists");
                 dicParam["ImportTemplateID"] = ImportTemplateID;
@@ -152,8 +185,21 @@ namespace ISLibrary.ImportTemplateManagement
                 dicParam["SuccessfulRecords"] = SuccessfulRecords;
                 dicParam["FailedRecords"] = FailedRecords;
                 dicParam["UploadBy"] = UploadBy;
-                dicParam["UploadTime"] = DateTime.Now;
+                dicParam["UploadTime"] = UploadTime;
+                dicParam["CompletionTime"] = CompletionTime;
                 ImportResultID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "ImportResult"), objConn, objTran).ToString();
+
+                if (ImportFailedRecords != null)
+                {
+                    foreach (var objfailedRecord in ImportFailedRecords)
+                    {
+                        if (objfailedRecord.IsNew)
+                        {
+                            objfailedRecord.ImportResultID = ImportResultID;
+                            objfailedRecord.Create();
+                        }
+                    }
+                }
                 Load(objConn, objTran);
             }
             catch (Exception ex)

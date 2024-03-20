@@ -597,24 +597,24 @@ namespace InventoryStudio.Controllers.OrderManagement
         }
 
 
-        [HttpPost("import")]
-        public async Task<IActionResult> import(IFormFile file)
-        {
-            try
-            {
-                var fileType = Path.GetExtension(file.FileName);
-                //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
-                //var records = await _fileHandler.Import(file);
-                //【ToDo】Process import logic
-                //return Ok(records);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
+        //[HttpPost("import")]
+        //public async Task<IActionResult> import(IFormFile file)
+        //{
+        //    try
+        //    {
+        //        var fileType = Path.GetExtension(file.FileName);
+        //        //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
+        //        //var records = await _fileHandler.Import(file);
+        //        //【ToDo】Process import logic
+        //        //return Ok(records);
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(500, ex.Message);
-            }
-        }
+        //        return StatusCode(500, ex.Message);
+        //    }
+        //}
 
         [HttpGet("export")]
         public async Task<IActionResult> Export(string fileType, string id)

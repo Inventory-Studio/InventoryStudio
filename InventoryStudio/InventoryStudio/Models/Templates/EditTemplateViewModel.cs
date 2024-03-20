@@ -6,9 +6,6 @@ namespace InventoryStudio.Models.Templates
     {
         public string ImportTemplateID { get; set; }
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
-
         [DisplayName("Template Name")]
         public string TemplateName { get; set; }
 

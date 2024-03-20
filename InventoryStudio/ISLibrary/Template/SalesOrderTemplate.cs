@@ -7,11 +7,11 @@ namespace ISLibrary.Template
         [Required]
         public string SaelsOrderIndex { get; set; } = null!;
 
-        /// <summary>
-        /// references Company Table CompanyID
-        /// </summary>
-        [Required]
-        public string Company { get; set; } = null!;
+        ///// <summary>
+        ///// references Company Table CompanyID
+        ///// </summary>
+        //[Required]
+        //public string Company { get; set; } = null!;
 
         /// <summary>
         /// references Customer Table CustomerID
@@ -66,7 +66,7 @@ namespace ISLibrary.Template
 
         public DateTime? ShipTo { get; set; }
 
-        public string? Status { get; set; }
+        //public string? Status { get; set; }
 
         public bool IsClosed { get; set; }
 
