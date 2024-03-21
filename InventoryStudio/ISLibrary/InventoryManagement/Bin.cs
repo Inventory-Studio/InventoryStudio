@@ -101,10 +101,20 @@ namespace ISLibrary
             string strSQL = string.Empty;
             try
             {
-                strSQL = "SELECT b.* " +
+                if(BinID == DefalutBinID)
+                {
+                    strSQL = "SELECT b.* " +
+                         "FROM Bin b (NOLOCK) " +
+                         "WHERE  b.BinID = " + Database.HandleQuote(BinID);
+                }
+                else
+                {
+                    strSQL = "SELECT b.* " +
                          "FROM Bin b (NOLOCK) " +
                          "WHERE b.CompanyID=" + Database.HandleQuote(CompanyID) +
                          "AND b.BinID = " + Database.HandleQuote(BinID);
+                }
+                
 
                 objData = Database.GetDataSet(strSQL);
                 if (objData != null && objData.Tables[0].Rows.Count > 0)

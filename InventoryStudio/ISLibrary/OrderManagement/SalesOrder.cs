@@ -380,7 +380,6 @@ namespace ISLibrary.OrderManagement
             {
                 if (string.IsNullOrEmpty(CompanyID)) throw new Exception("CompanyID is required");
                 if (string.IsNullOrEmpty(PONumber)) throw new Exception("PONumber is required");
-                if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("UpdatedBy is required");
                 if (IsNew) throw new Exception("Update cannot be performed, SalesOrderID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 

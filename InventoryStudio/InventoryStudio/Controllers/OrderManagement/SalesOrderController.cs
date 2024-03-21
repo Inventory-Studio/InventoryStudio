@@ -12,6 +12,7 @@ using Syncfusion.EJ2.Base;
 using InventoryStudio.Models.OrderManagement.SalesOrderLine;
 using InventoryStudio.Models.OrderManagement.SalesOrderLineDetail;
 using static ISLibrary.OrderManagement.SalesOrder;
+using Microsoft.AspNetCore.Identity;
 
 namespace InventoryStudio.Controllers.OrderManagement
 {
@@ -156,7 +157,6 @@ namespace InventoryStudio.Controllers.OrderManagement
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(CreateSalesOrderViewModel input)
         {
             if (ModelState.IsValid)
@@ -204,14 +204,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                 salesOrder.ShipFrom = input.ShipFrom;
                 salesOrder.ShipTo = input.ShipTo;
-                try
-                {
-                    salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), input.Status);
-                }
-                catch (Exception)
-                {
-                    return BadRequest($"Invaliad Status: {input.Status}");
-                }
+               
                 salesOrder.IsClosed = input.IsClosed;
                 salesOrder.ExternalID = input.ExternalID;
                 salesOrder.InternalNote = input.InternalNote;
@@ -247,10 +240,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                         }
                         salesOrderLine.ItemID = lineViewModel.ItemID;
                         salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
-                        salesOrderLine.ItemSKU = lineViewModel.ItemSKU;
                         salesOrderLine.ItemName = lineViewModel.ItemName;
                         salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
-                        salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
                         salesOrderLine.Description = lineViewModel.Description;
                         salesOrderLine.Quantity = lineViewModel.Quantity;
 
@@ -287,7 +278,7 @@ namespace InventoryStudio.Controllers.OrderManagement
 
                                 if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
                                 {
-                                    var inventory = new Inventory(detailViewModel.InventoryDetailID);
+                                    var inventory = new InventoryDetail(detailViewModel.InventoryDetailID);
                                     if (inventory == null)
                                         return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
                                 }
@@ -352,15 +343,8 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ShippingPackage = salesOrder.ShippingPackage;
             viewModel.ShippingServiceCode = salesOrder.ShippingServiceCode;
             viewModel.ShipFrom = salesOrder.ShipFrom;
-            viewModel.ShipTo = salesOrder.ShipTo;
-            try
-            {
-                salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), viewModel.Status);
-            }
-            catch (Exception)
-            {
-                return BadRequest($"Invaliad Status: {viewModel.Status}");
-            }
+            viewModel.ShipTo = salesOrder.ShipTo;           
+            viewModel.Status = Convert.ToString(salesOrder.Status);            
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
             viewModel.InternalNote = salesOrder.InternalNote;
@@ -381,10 +365,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                     salesOrderLineViewModel.LocationID = salesOrderLine.LocationID;
                     salesOrderLineViewModel.ItemID = salesOrderLine.ItemID;
                     salesOrderLineViewModel.ParentSalesOrderLineID = salesOrderLine.ParentSalesOrderLineID;
-                    salesOrderLineViewModel.ItemSKU = salesOrderLine.ItemSKU;
                     salesOrderLineViewModel.ItemName = salesOrderLine.ItemName;
                     salesOrderLineViewModel.ItemImageURL = salesOrderLine.ItemImageURL;
-                    salesOrderLineViewModel.ItemUPC = salesOrderLine.ItemUPC;
                     salesOrderLineViewModel.Description = salesOrderLine.Description;
                     salesOrderLineViewModel.Quantity = salesOrderLine.Quantity;
                     salesOrderLineViewModel.QuantityCommitted = salesOrderLine.QuantityCommitted;
@@ -420,7 +402,7 @@ namespace InventoryStudio.Controllers.OrderManagement
         [ValidateAntiForgeryToken]
         public IActionResult Edit([FromForm] EditSalesOrderViewModel input)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || true)
             {
                 if (string.IsNullOrEmpty(input.SalesOrderID))
                     return BadRequest("SalesOrderID cannot be null or empty");
@@ -513,10 +495,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                         }
                         salesOrderLine.ItemID = lineViewModel.ItemID;
                         salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
-                        salesOrderLine.ItemSKU = lineViewModel.ItemSKU;
                         salesOrderLine.ItemName = lineViewModel.ItemName;
                         salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
-                        salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
                         salesOrderLine.Description = lineViewModel.Description;
                         salesOrderLine.Quantity = lineViewModel.Quantity;
                         if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
@@ -545,15 +525,21 @@ namespace InventoryStudio.Controllers.OrderManagement
                                         return BadRequest($"Bin with ID {detailViewModel.BinID} not found");
                                 }
                                 salesOrderLineDetail.BinID = detailViewModel.BinID;
+                                salesOrderLineDetail.ItemID = lineViewModel.ItemID;
+                                salesOrderLineDetail.CompanyID = CompanyID;
                                 salesOrderLineDetail.Quantity = detailViewModel.Quantity;
                                 salesOrderLineDetail.InventoryNumber = detailViewModel.InventoryNumber;
                                 if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
                                 {
-                                    var inventory = new Inventory(detailViewModel.InventoryDetailID);
+                                    var inventory = new InventoryDetail(detailViewModel.InventoryDetailID);
                                     if (inventory == null)
                                         return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
                                 }
                                 salesOrderLineDetail.InventoryDetailID = detailViewModel.InventoryDetailID;
+                                if (salesOrderLine.SalesOrderLineDetails == null)
+                                {
+                                    salesOrderLine.SalesOrderLineDetails = new List<SalesOrderLineDetail>();
+                                }
                                 salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
                             }
                         }
@@ -561,6 +547,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                         salesOrder.SalesOrderLines.Add(salesOrderLine);
                     }
                 }
+
                 salesOrder.Update();
                 return RedirectToAction(nameof(Index));
             }

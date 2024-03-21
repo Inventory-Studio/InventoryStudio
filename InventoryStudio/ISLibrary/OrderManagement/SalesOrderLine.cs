@@ -27,13 +27,13 @@ namespace ISLibrary.OrderManagement
 
         public string? ParentSalesOrderLineID { get; set; }
 
-        public string? ItemSKU { get; set; }
+        //public string? ItemSKU { get; set; }
 
         public string? ItemName { get; set; }
 
         public string? ItemImageURL { get; set; }
 
-        public string? ItemUPC { get; set; }
+        //public string? ItemUPC { get; set; }
 
         public string? Description { get; set; }
 
@@ -194,10 +194,8 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("LocationID")) LocationID = Convert.ToString(objRow["LocationID"]);
                 if (objColumns.Contains("ItemID")) ItemID = Convert.ToString(objRow["ItemID"]);
                 if (objColumns.Contains("ParentSalesOrderLineID")) ParentSalesOrderLineID = Convert.ToString(objRow["ParentSalesOrderLineID"]);
-                if (objColumns.Contains("ItemSKU")) ItemSKU = Convert.ToString(objRow["ItemSKU"]);
                 if (objColumns.Contains("ItemName")) ItemName = Convert.ToString(objRow["ItemName"]);
                 if (objColumns.Contains("ItemImageURL")) ItemImageURL = Convert.ToString(objRow["ItemImageURL"]);
-                if (objColumns.Contains("ItemUPC")) ItemUPC = Convert.ToString(objRow["ItemUPC"]);
                 if (objColumns.Contains("Description")) Description = Convert.ToString(objRow["Description"]);
                 if (objColumns.Contains("Quantity") && objRow["Quantity"] != DBNull.Value) Quantity = Convert.ToDecimal(objRow["Quantity"]);
                 if (objColumns.Contains("Quantity") && objRow["QuantityCommitted"] != DBNull.Value) QuantityCommitted = Convert.ToDecimal(objRow["QuantityCommitted"]);
@@ -302,10 +300,8 @@ namespace ISLibrary.OrderManagement
                 dicParam["LocationID"] = LocationID;
                 dicParam["ItemID"] = ItemID;
                 dicParam["ParentSalesOrderLineID"] = ParentSalesOrderLineID;
-                dicParam["ItemSKU"] = ItemSKU;
                 dicParam["ItemName"] = ItemName;
                 dicParam["ItemImageURL"] = ItemImageURL;
-                dicParam["ItemUPC"] = ItemUPC;
                 dicParam["Description"] = Description;
                 dicParam["Quantity"] = Quantity;
                 dicParam["QuantityCommitted"] = QuantityCommitted;
@@ -403,10 +399,8 @@ namespace ISLibrary.OrderManagement
                 dicParam["LocationID"] = LocationID;
                 dicParam["ItemID"] = ItemID;
                 dicParam["ParentSalesOrderLineID"] = ParentSalesOrderLineID;
-                dicParam["ItemSKU"] = ItemSKU;
                 dicParam["ItemName"] = ItemName;
                 dicParam["ItemImageURL"] = ItemImageURL;
-                dicParam["ItemUPC"] = ItemUPC;
                 dicParam["Description"] = Description;
                 dicParam["Quantity"] = Quantity;
                 dicParam["QuantityCommitted"] = QuantityCommitted;

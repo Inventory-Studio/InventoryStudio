@@ -128,10 +128,8 @@ namespace InventoryStudio.Controllers.API
                             }
                             salesOrderLine.ItemID = lineViewModel.ItemID;
                             salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
-                            salesOrderLine.ItemSKU = lineViewModel.ItemSKU;
                             salesOrderLine.ItemName = lineViewModel.ItemName;
                             salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
-                            salesOrderLine.ItemUPC = lineViewModel.ItemUPC;
                             salesOrderLine.Description = lineViewModel.Description;
                             salesOrderLine.Quantity = lineViewModel.Quantity;
                             salesOrderLine.QuantityCommitted = lineViewModel.QuantityCommitted;

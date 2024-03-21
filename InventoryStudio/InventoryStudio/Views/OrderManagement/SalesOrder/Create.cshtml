@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="card-body">
-            <form class="row" asp-controller="SalesOrder" asp-action="Create">
+            <form class="row" action="/SalesOrder/Create" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group col-md-6 mb-3">
                     <label asp-for="CustomerID" class="form-label"></label>
@@ -141,6 +141,55 @@
                     <label asp-for="ShopifyOrderID" class="form-label"></label>
                     <input asp-for="ShopifyOrderID" class="form-control"/>
                     <span asp-validation-for="ShopifyOrderID" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>Item</label>
+                        <input name="SalesOrderLines[0].ItemID" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Quantity</label>
+                        <input name="SalesOrderLines[0].Quantity" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>ItemName</label>
+                        <input name="SalesOrderLines[0].ItemName" type="text">
+                    </div> 
+                    <div class="form-group col-md-3">
+                        <label>Location</label>
+                        <input name="SalesOrderLines[0].LocationID" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>ItemUnitID</label>
+                        <input name="SalesOrderLines[0].ItemUnitID" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>UnitPrice</label>
+                        <input name="SalesOrderLines[0].UnitPrice" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>TaxRate</label>
+                        <input name="SalesOrderLines[0].TaxRate" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>InventoryDetailID</label>
+                        <input name="SalesOrderLines[0].SalesOrderLineDetails[0].InventoryDetailID" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Bin</label>
+                        <input name="SalesOrderLines[0].SalesOrderLineDetails[0].BinID" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Quantity</label>
+                        <input name="SalesOrderLines[0].SalesOrderLineDetails[0].Quantity" type="text">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>InventoryNumber</label>
+                        <input name="SalesOrderLines[0].SalesOrderLineDetails[0].InventoryNumber" type="text">
+                    </div>
                 </div>
                 <div class="form-group col-12">
                     <input type="submit" value="Create" class="btn btn-primary"/>
