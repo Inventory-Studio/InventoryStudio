@@ -104,10 +104,6 @@ namespace InventoryStudio.Services.Importers
 
             foreach (var field in data)
             {
-                if (field.Key.Contains("InventoryDetail"))
-                {
-                    await Console.Out.WriteLineAsync();
-                }
                 if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                 {
                     var property = typeof(T).GetProperty(destinationField);
@@ -253,6 +249,15 @@ namespace InventoryStudio.Services.Importers
                 var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
                 if (itemUnits != null)
                     return itemUnits.First().ItemUnitID;
+            }
+            else if (property.Name == "InventoryDetailID")
+            {
+                InventoryDetailFilter filter = new InventoryDetailFilter();
+                filter.InventoryNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.InventoryNumber.SearchString = value;
+                var inventoryDetail = InventoryDetail.GetInventoryDetail(companyId, filter);
+                if (inventoryDetail != null)
+                    return inventoryDetail.InventoryDetailID;
             }
             else
             {
