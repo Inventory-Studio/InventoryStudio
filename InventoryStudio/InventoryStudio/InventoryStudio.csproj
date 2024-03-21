@@ -8,6 +8,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controllers\API\**" />
+	  <Content Remove="Controllers\API\**" />
+	  <EmbeddedResource Remove="Controllers\API\**" />
+	  <None Remove="Controllers\API\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Include="wwwroot\assets\icon-fonts\bootstrap-icons\icons\.github\preview.png" />
 	</ItemGroup>
 

@@ -178,7 +178,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("ShipFrom") && objRow["ShipFrom"] != DBNull.Value) ShipFrom = Convert.ToDateTime(objRow["ShipFrom"]);
                 if (objColumns.Contains("ShipTo") && objRow["ShipTo"] != DBNull.Value) ShipTo = Convert.ToDateTime(objRow["ShipTo"]);
                 if (objColumns.Contains("Status") && objRow["Status"] != DBNull.Value && Enum.TryParse(Convert.ToString(objRow["Status"]), out enumOrderStatus orderStatus)) Status = orderStatus;
-                if (objColumns.Contains("Status")) IsClosed = Convert.ToBoolean(objRow["IsClosed"]);
+                if (objColumns.Contains("IsClosed")) IsClosed = Convert.ToBoolean(objRow["IsClosed"]);
                 if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
                 if (objColumns.Contains("InternalNote")) InternalNote = Convert.ToString(objRow["InternalNote"]);
                 if (objColumns.Contains("CustomerNote")) CustomerNote = Convert.ToString(objRow["CustomerNote"]);

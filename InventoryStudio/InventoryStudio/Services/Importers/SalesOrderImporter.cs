@@ -104,6 +104,10 @@ namespace InventoryStudio.Services.Importers
 
             foreach (var field in data)
             {
+                if (field.Key.Contains("InventoryDetail"))
+                {
+                    await Console.Out.WriteLineAsync();
+                }
                 if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                 {
                     var property = typeof(T).GetProperty(destinationField);
@@ -112,7 +116,23 @@ namespace InventoryStudio.Services.Importers
                         try
                         {
                             var convertedValue = await GetPropertyValueAsync(companyId, property, field.Value);
-                            property.SetValue(entity, convertedValue);
+
+                            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+                            {
+                                var idProperty = typeof(T).GetProperty(property.Name + "ID");
+                                if (idProperty != null)
+                                {
+                                    idProperty.SetValue(entity, convertedValue);
+                                }
+                                else
+                                {
+                                    throw new Exception($"ID property for {property.Name} not found.");
+                                }
+                            }
+                            else
+                            {
+                                property.SetValue(entity, convertedValue);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -167,72 +187,72 @@ namespace InventoryStudio.Services.Importers
                     throw new Exception($"Unable to parse '{value}' to DateTime.");
                 }
             }
-            else if (propertyType == typeof(Customer))
+            else if (property.Name == "CustomerID")
             {
                 CustomerFilter filter = new CustomerFilter();
                 filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.EmailAddress.SearchString = value;
                 var customer = Customer.GetCustomer(companyId, filter);
                 if (customer != null)
-                    return customer;
+                    return customer.CustomerID;
                 else
                     throw new Exception($"Unable to find the customer {value}");
             }
-            else if (propertyType == typeof(Address) && (property.Name == "BillToAddress") || property.Name == "ShipToAddress")
+            else if (property.Name == "BillToAddressID" || property.Name == "ShipToAddressID")
             {
                 AddressFilter filter = new AddressFilter();
                 filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.Email.SearchString = value;
                 var address = Address.GetAddress(companyId, filter);
                 if (address != null)
-                    return address;
+                    return address.AddressID;
             }
-            else if (property.PropertyType == typeof(Location))
+            else if (property.Name == "LocationID")
             {
                 LocationFilter filter = new LocationFilter();
                 filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.LocationName.SearchString = value;
                 var location = Location.GetLocation(companyId, filter);
                 if (location != null)
-                    return location;
+                    return location.LocationID;
             }
-            else if (propertyType == typeof(Bin))
+            else if (property.Name == "BinID")
             {
                 BinFilter filter = new BinFilter();
                 filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.BinNumber.SearchString = value;
                 var bins = Bin.GetBins(companyId, filter);
                 if (bins != null)
-                    return bins.First();
+                    return bins.First()?.BinID;
                 else
                     throw new Exception($"Unable to find the Bin {value}");
             }
-            else if (property.PropertyType == typeof(Inventory))
+            else if (property.Name == "InventoryID")
             {
                 InventoryFilter filter = new InventoryFilter();
                 filter.ItemID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.ItemID.SearchString = value;
                 var inventory = Inventory.GetInventory(filter);
                 if (inventory != null)
-                    return inventory;
+                    return inventory.InventoryID;
             }
-            else if (property.PropertyType == typeof(Item))
+            else if (property.Name == "ItemID")
             {
                 ItemFilter filter = new ItemFilter();
                 filter.ItemNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.ItemNumber.SearchString = value;
                 var item = Item.GetItem(companyId, filter);
                 if (item != null)
-                    return item;
+                    return item.ItemID;
             }
-            else if (propertyType == typeof(ItemUnit))
+            else if (property.Name == "ItemUnitID")
             {
                 var filter = new ItemUnitFilter();
                 filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.Name.SearchString = value;
                 var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
                 if (itemUnits != null)
-                    return itemUnits.First();
+                    return itemUnits.First().ItemUnitID;
             }
             else
             {
