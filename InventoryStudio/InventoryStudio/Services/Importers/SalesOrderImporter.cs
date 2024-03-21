@@ -20,9 +20,9 @@ namespace InventoryStudio.Services.Importers
         }
 
 
-        private List<ImportFailedRecord> failedRecords = new List<ImportFailedRecord>();
+        private ImportResult importResult;
 
-
+        public SalesOrderImporter() => importResult = new ImportResult();
 
         public async Task ImportDatasAsync(string companyId, string importTemplateID, string userId, FileHandlers.ProgressHandler progressHandler, List<List<Dictionary<string, string>>> datas)
         {
@@ -34,83 +34,92 @@ namespace InventoryStudio.Services.Importers
             var salesOrderFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrder").ToList();
             var salesOrderLineFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrderLine").ToList();
             var salesOrderLineDetailFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrderLineDetail").ToList();
-            var importResult = new ImportResult
-            {
-                ImportTemplateID = importTemplateID,
-                UploadBy = userId,
-                UploadTime = DateTime.Now,
-                TotalRecords = datas[0].Count,
-            };
+
+
+            importResult.ImportTemplateID = importTemplateID;
+            importResult.UpdatedBy = userId;
+            importResult.UploadTime = DateTime.Now;
+            importResult.TotalRecords = datas[0].Count;
+
             importResult.Create();
-            var salesOrders = new List<(SalesOrder, int)>();
-            var salesOrderLines = new List<(SalesOrderLine, int)>();
-            var salesOrderLineDetails = new List<(SalesOrderLineDetail, int)>();
+            var salesOrderAndIndexs = new List<(SalesOrder salesOrder, int index)>();
+            var salesOrderLineAndIndexs = new List<(SalesOrderLine salesOrderLine, int index)>();
+            var salesOrderLineDetailAndIndexs = new List<(SalesOrderLineDetail salesOrderLineDetail, int index)>();
 
-            try
+
+            foreach (var data in datas[0])
             {
-                foreach (var data in datas[0]) // Importing SalesOrder
-                {
-                    data.TryGetValue("SalesOrderIndex", out string? salesOrderIndex);
-                    var salesOrder = await GetEntity<SalesOrder>(companyId, data, salesOrderFields);
-                    salesOrders.Add((salesOrder, Convert.ToInt32(salesOrderIndex)));
-                }
+                data.TryGetValue("SalesOrderIndex", out string? salesOrderIndex);
+                var (salesOrder, error) = await GetEntity<SalesOrder>(companyId, data, salesOrderFields);
+                if (!error && salesOrder != null)
+                    salesOrderAndIndexs.Add((salesOrder, Convert.ToInt32(salesOrderIndex)));
+            }
 
-                foreach (var data in datas[1]) // Importing SalesOrderLine
-                {
-                    var SalesOrderIndex = data["SalesOrderIndex"];
-                    var salesOrderLine = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
-                    salesOrderLines.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
-                }
+            foreach (var data in datas[1])
+            {
+                data.TryGetValue("SalesOrderIndex", out string? SalesOrderIndex);
+                var (salesOrderLine, error) = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
+                if (!error && salesOrderLine != null)
+                    salesOrderLineAndIndexs.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
+            }
 
-                foreach (var data in datas[2]) // Importing SalesOrderLineDetail
-                {
-                    var SalesOrderLineIndex = data["SalesOrderLineIndex"];
-                    var salesOrderLineDetail = await GetEntity<SalesOrderLineDetail>(companyId, data, salesOrderLineDetailFields);
-                    salesOrderLineDetails.Add((salesOrderLineDetail, Convert.ToInt32(SalesOrderLineIndex)));
-                }
+            foreach (var data in datas[2])
+            {
+                data.TryGetValue("SalesOrderLineIndex", out string? SalesOrderLineIndex);
+                var (salesOrderLineDetail, error) = await GetEntity<SalesOrderLineDetail>(companyId, data, salesOrderLineDetailFields);
+                if (!error && salesOrderLineDetail != null)
+                    salesOrderLineDetailAndIndexs.Add((salesOrderLineDetail, Convert.ToInt32(SalesOrderLineIndex)));
+            }
 
-                foreach (var salesOrder in salesOrders)
+            foreach (var salesOrder in salesOrderAndIndexs)
+            {
+                var currentSalesOrderLines = salesOrderLineAndIndexs.Where(t => t.index == salesOrder.index).ToList();
+                if (currentSalesOrderLines.Any())
                 {
-                    var currentSalesOrderLines = salesOrderLines.Where(t => t.Item2 == salesOrder.Item2).ToList();
-                    if (currentSalesOrderLines.Any())
+                    foreach (var salesOrderLine in currentSalesOrderLines)
                     {
-                        foreach (var salesOrderLine in currentSalesOrderLines)
+                        var currentSalesOrderLineDetails = salesOrderLineDetailAndIndexs.Where(t => t.index == salesOrderLine.index).ToList();
+                        if (currentSalesOrderLineDetails.Any())
                         {
-                            var currentSalesOrderLineDetails = salesOrderLineDetails.Where(t => t.Item2 == salesOrderLine.Item2).ToList();
-                            if (currentSalesOrderLineDetails.Any())
-                            {
-                                salesOrderLine.Item1.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.Item1).ToList();
-                            }
+                            salesOrderLine.salesOrderLine.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.salesOrderLineDetail).ToList();
                         }
-
-                        salesOrder.Item1.SalesOrderLines = currentSalesOrderLines.Select(t => t.Item1).ToList();
                     }
-                    salesOrder.Item1.CreatedBy = userId;
-                    salesOrder.Item1.CompanyID = companyId;
-                    salesOrder.Item1.Status = SalesOrder.enumOrderStatus.Pending;
-                    salesOrder.Item1.Create();
+                    salesOrder.salesOrder.SalesOrderLines = currentSalesOrderLines.Select(t => t.salesOrderLine).ToList();
                 }
+                salesOrder.salesOrder.CreatedBy = userId;
+                salesOrder.salesOrder.CompanyID = companyId;
+                salesOrder.salesOrder.Status = SalesOrder.enumOrderStatus.Pending;
+                try
+                {
+                    salesOrder.salesOrder.Create();
+                    importResult.SuccessfulRecords++;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                processedCount++;
+                int progress = (int)(processedCount / (double)importResult.TotalRecords * 100);
+                progressHandler?.Invoke(progress, importTemplateID);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            importResult.Update();
         }
 
 
-        private async Task<T> GetEntity<T>(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields) where T : class, new()
+        private async Task<(T, bool)> GetEntity<T>(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields) where T : class, new()
         {
             var entity = new T();
-
-            foreach (var field in data)
+            var error = false;
+            try
             {
-                if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
+                foreach (var field in data)
                 {
-                    var property = typeof(T).GetProperty(destinationField);
-                    if (property != null)
+                    if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
-                        try
+                        var property = typeof(T).GetProperty(destinationField);
+                        if (property != null)
                         {
+
                             var convertedValue = await GetPropertyValueAsync(companyId, property, field.Value);
 
                             if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
@@ -129,15 +138,25 @@ namespace InventoryStudio.Services.Importers
                             {
                                 property.SetValue(entity, convertedValue);
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
+
                         }
                     }
                 }
             }
-            return entity;
+            catch (Exception ex)
+            {
+                var failedDataJson = JsonSerializer.Serialize(data);
+                var failedRecord = new ImportFailedRecord
+                {
+                    ImportResultID = importResult.ImportResultID,
+                    ErrorMessage = ex.Message,
+                    FailedData = failedDataJson
+                };
+                failedRecord.Create();
+                importResult.FailedRecords++;
+                error = true;
+            }
+            return (error ? default(T) : entity, error);
         }
 
         private async Task<object> GetPropertyValueAsync(string companyId, PropertyInfo property, string value)
