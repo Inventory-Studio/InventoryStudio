@@ -45,10 +45,10 @@ namespace InventoryStudio.Controllers.API
                     var salesOrder = new SalesOrder();
                     salesOrder.CompanyID = CompanyID;
 
-                    var customer = new Customer(CompanyID, input.CustomerID);
-                    if (customer == null)
-                        return BadRequest($"Customer with ID {input.CustomerID} not found");
-                    salesOrder.CustomerID = input.CustomerID;
+                    //var customer = new Customer(CompanyID, input.CustomerID);
+                    //if (customer == null)
+                    //    return BadRequest($"Customer with ID {input.CustomerID} not found");
+                    //salesOrder.CustomerID = input.CustomerID;
 
                     salesOrder.PONumber = input.PONumber;
                     salesOrder.TranDate = input.TranDate;
@@ -60,21 +60,21 @@ namespace InventoryStudio.Controllers.API
                     }
                     salesOrder.LocationID = input.LocationID;
 
-                    if (!string.IsNullOrEmpty(input.BillToAddressID))
-                    {
-                        var address = new Address(input.BillToAddressID);
-                        if (address == null)
-                            return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                    }
-                    salesOrder.BillToAddressID = input.BillToAddressID;
+                    //if (!string.IsNullOrEmpty(input.BillToAddressID))
+                    //{
+                    //    var address = new Address(input.BillToAddressID);
+                    //    if (address == null)
+                    //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                    //}
+                    //salesOrder.BillToAddressID = input.BillToAddressID;
 
-                    if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                    {
-                        var address = new Address(input.ShipToAddressID);
-                        if (address == null)
-                            return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                    }
-                    salesOrder.ShipToAddressID = input.ShipToAddressID;
+                    //if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                    //{
+                    //    var address = new Address(input.ShipToAddressID);
+                    //    if (address == null)
+                    //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                    //}
+                    //salesOrder.ShipToAddressID = input.ShipToAddressID;
                     salesOrder.ShippingAmount = input.ShippingAmount;
                     salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                     salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -205,13 +205,12 @@ namespace InventoryStudio.Controllers.API
                 if (salesOrder == null)
                     return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
 
-                salesOrder.CompanyID = CompanyID;
-                var customer = new Customer(CompanyID, input.CustomerID);
-                if (customer == null)
-                    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                salesOrder.CustomerID = input.CustomerID;
+                //salesOrder.CompanyID = CompanyID;
+                //var customer = new Customer(CompanyID, input.CustomerID);
+                //if (customer == null)
+                //    return BadRequest($"Customer with ID {input.CustomerID} not found");
+                //salesOrder.CustomerID = input.CustomerID;
 
-                salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 if (!string.IsNullOrEmpty(input.LocationID))
@@ -221,21 +220,21 @@ namespace InventoryStudio.Controllers.API
                         return BadRequest($"Location with ID {input.LocationID} not found");
                 }
                 salesOrder.LocationID = input.LocationID;
-                if (!string.IsNullOrEmpty(input.BillToAddressID))
-                {
-                    var address = new Address(input.BillToAddressID);
-                    if (address == null)
-                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.BillToAddressID = input.BillToAddressID;
+                //if (!string.IsNullOrEmpty(input.BillToAddressID))
+                //{
+                //    var address = new Address(input.BillToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.BillToAddressID = input.BillToAddressID;
 
-                if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                {
-                    var address = new Address(input.ShipToAddressID);
-                    if (address == null)
-                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.ShipToAddressID = input.ShipToAddressID;
+                //if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                //{
+                //    var address = new Address(input.ShipToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.ShipToAddressID = input.ShipToAddressID;
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;

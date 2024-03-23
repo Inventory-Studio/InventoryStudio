@@ -5,9 +5,6 @@ namespace InventoryStudio.Models.OrderManagement.Customer
     public class CreateCustomerViewModel
     {
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
-
         [DisplayName("Client ID")]
         public string? ClientID { get; set; }
 

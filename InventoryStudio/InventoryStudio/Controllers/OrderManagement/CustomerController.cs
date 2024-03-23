@@ -99,25 +99,20 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         public IActionResult Create()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var clients = Client.GetClients(CompanyID);
             ViewData["ClientID"] = new SelectList(clients, "ClientID", "EmailAddress");
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             return View("~/Views/OrderManagement/Customer/Create.cshtml");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(
-            [Bind("CompanyID,ClientID,CompanyName,FirstName,LastName,EmailAddress,ExternalID")]
             CreateCustomerViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var customer = new Customer();
-                customer.CompanyID = input.CompanyID;
+                customer.CompanyID = CompanyID;
                 customer.ClientID = input.ClientID;
                 customer.CompanyName = input.CompanyName;
                 customer.FirstName = input.FirstName;
@@ -134,7 +129,6 @@ namespace InventoryStudio.Controllers.OrderManagement
             var companies = user.Companies;
             var clients = Client.GetClients(CompanyID);
             ViewData["ClientID"] = new SelectList(clients, "ClientID", "EmailAddress", input.ClientID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             return View("~/Views/OrderManagement/Customer/Create.cshtml", input);
         }
 
@@ -145,15 +139,10 @@ namespace InventoryStudio.Controllers.OrderManagement
             var customer = new Customer(CompanyID, id);
             if (customer == null)
                 return NotFound();
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var clients = Client.GetClients(CompanyID);
             ViewData["ClientID"] = new SelectList(clients, "ClientID", "EmailAddress", customer.ClientID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", customer.CompanyID);
             var viewModel = new EditCustomerViewModel();
             viewModel.CustomerID = customer.CustomerID;
-            viewModel.CompanyID = customer.CompanyID;
             viewModel.ClientID = customer.ClientID;
             viewModel.CompanyName = customer.CompanyName;
             viewModel.FirstName = customer.FirstName;
@@ -165,9 +154,7 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id,
-            [Bind("CustomerID,CompanyID,ClientID,CompanyName,FirstName,LastName,EmailAddress,ExternalID")]
-            EditCustomerViewModel input)
+        public IActionResult Edit(string id, EditCustomerViewModel input)
         {
             if (id != input.CustomerID)
                 return NotFound();
@@ -176,7 +163,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 var customer = new Customer(CompanyID, input.CustomerID);
                 if (customer == null)
                     return NotFound();
-                customer.CompanyID = input.CompanyID;
+                customer.CompanyID = CompanyID;
                 customer.ClientID = input.ClientID;
                 customer.CompanyName = input.CompanyName;
                 customer.FirstName = input.FirstName;
@@ -187,13 +174,8 @@ namespace InventoryStudio.Controllers.OrderManagement
                 customer.Update();
                 return RedirectToAction(nameof(Index));
             }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var clients = Client.GetClients(CompanyID);
             ViewData["ClientID"] = new SelectList(clients, "ClientID", "EmailAddress", input.ClientID);
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             return View("~/Views/OrderManagement/Customer/Edit.cshtml", input);
         }
 

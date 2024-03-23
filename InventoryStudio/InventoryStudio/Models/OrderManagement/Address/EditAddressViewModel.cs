@@ -7,9 +7,6 @@ namespace InventoryStudio.Models.OrderManagement.Address
         [DisplayName("Address ID")]
         public string AddressID { get; set; }
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
-
         [DisplayName("Full Name")]
         public string? FullName { get; set; }
 

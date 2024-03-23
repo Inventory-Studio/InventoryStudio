@@ -5,9 +5,6 @@ namespace InventoryStudio.Models.OrderManagement.Address
     public class CreateAddressViewModel
     {
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
-
         [DisplayName("Full Name")]
         public string? FullName { get; set; }
 

@@ -164,10 +164,10 @@ namespace InventoryStudio.Controllers.OrderManagement
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = CompanyID;
 
-                var customer = new Customer(CompanyID, input.CustomerID);
-                if (customer == null)
-                    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                salesOrder.CustomerID = input.CustomerID;
+                //var customer = new Customer(CompanyID, input.CustomerID);
+                //if (customer == null)
+                //    return BadRequest($"Customer with ID {input.CustomerID} not found");
+                //salesOrder.CustomerID = input.CustomerID;
 
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
@@ -179,20 +179,21 @@ namespace InventoryStudio.Controllers.OrderManagement
                 }
                 salesOrder.LocationID = input.LocationID;
 
-                if (!string.IsNullOrEmpty(input.BillToAddressID))
-                {
-                    var address = new Address(input.BillToAddressID);
-                    if (address == null)
-                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.BillToAddressID = input.BillToAddressID;
-                salesOrder.ShipToAddressID = input.ShipToAddressID;
-                if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                {
-                    var address = new Address(input.ShipToAddressID);
-                    if (address == null)
-                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                }
+                //if (!string.IsNullOrEmpty(input.BillToAddressID))
+                //{
+                //    var address = new Address(input.BillToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.BillToAddressID = input.BillToAddressID;
+
+                //if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                //{
+                //    var address = new Address(input.ShipToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.ShipToAddressID = input.ShipToAddressID;
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -297,13 +298,10 @@ namespace InventoryStudio.Controllers.OrderManagement
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
+            //ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
+            //ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
+            //ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Create.cshtml", input);
         }
 
@@ -327,12 +325,13 @@ namespace InventoryStudio.Controllers.OrderManagement
             ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.ShipToAddressID);
             var viewModel = new EditSalesOrderViewModel();
             viewModel.SalesOrderID = salesOrder.SalesOrderID;
-            viewModel.CustomerID = salesOrder.CustomerID;
+            //【Todo】
+            //viewModel.CustomerID = salesOrder.CustomerID;
             viewModel.PONumber = salesOrder.PONumber;
             viewModel.TranDate = salesOrder.TranDate;
             viewModel.LocationID = salesOrder.LocationID;
-            viewModel.BillToAddressID = salesOrder.BillToAddressID;
-            viewModel.ShipToAddressID = salesOrder.ShipToAddressID;
+            //viewModel.BillToAddressID = salesOrder.BillToAddressID;
+            //viewModel.ShipToAddressID = salesOrder.ShipToAddressID;
             viewModel.ShippingAmount = salesOrder.ShippingAmount;
             viewModel.ShippingTaxAmount = salesOrder.ShippingTaxAmount;
             viewModel.ItemTaxAmount = salesOrder.ItemTaxAmount;
@@ -412,12 +411,11 @@ namespace InventoryStudio.Controllers.OrderManagement
                     return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
 
                 salesOrder.CompanyID = CompanyID;
-                var customer = new Customer(CompanyID, input.CustomerID);
-                if (customer == null)
-                    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                salesOrder.CustomerID = input.CustomerID;
+                //var customer = new Customer(CompanyID, input.CustomerID);
+                //if (customer == null)
+                //    return BadRequest($"Customer with ID {input.CustomerID} not found");
+                //salesOrder.CustomerID = input.CustomerID;
 
-                salesOrder.CustomerID = input.CustomerID;
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 if (!string.IsNullOrEmpty(input.LocationID))
@@ -427,21 +425,21 @@ namespace InventoryStudio.Controllers.OrderManagement
                         return BadRequest($"Location with ID {input.LocationID} not found");
                 }
                 salesOrder.LocationID = input.LocationID;
-                if (!string.IsNullOrEmpty(input.BillToAddressID))
-                {
-                    var address = new Address(input.BillToAddressID);
-                    if (address == null)
-                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.BillToAddressID = input.BillToAddressID;
+                //if (!string.IsNullOrEmpty(input.BillToAddressID))
+                //{
+                //    var address = new Address(input.BillToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.BillToAddressID = input.BillToAddressID;
 
-                if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                {
-                    var address = new Address(input.ShipToAddressID);
-                    if (address == null)
-                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.ShipToAddressID = input.ShipToAddressID;
+                //if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                //{
+                //    var address = new Address(input.ShipToAddressID);
+                //    if (address == null)
+                //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                //}
+                //salesOrder.ShipToAddressID = input.ShipToAddressID;
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -554,10 +552,10 @@ namespace InventoryStudio.Controllers.OrderManagement
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
-            ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
+            //ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
+            //ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
+            //ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
+            //ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Edit.cshtml", input);
         }
 

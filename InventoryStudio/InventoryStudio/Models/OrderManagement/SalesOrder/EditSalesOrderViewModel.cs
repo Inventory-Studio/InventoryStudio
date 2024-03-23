@@ -1,4 +1,6 @@
-﻿using InventoryStudio.Models.OrderManagement.SalesOrderLine;
+﻿using InventoryStudio.Models.OrderManagement.Address;
+using InventoryStudio.Models.OrderManagement.Customer;
+using InventoryStudio.Models.OrderManagement.SalesOrderLine;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,12 +9,17 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
     public class EditSalesOrderViewModel
     {
         [DisplayName("Sales Order ID")]
-        public string SalesOrderID { get; set; }
+        [Required]
+        public string SalesOrderID { get; set; } = null!;
 
+
+        //[Required]
+        //[DisplayName("Customer ID")]
+        //public string? CustomerID { get; set; }
 
         [Required]
-        [DisplayName("Customer ID")]
-        public string? CustomerID { get; set; }
+        [DisplayName("Customer")]
+        public EditCustomerViewModel Customer { get; set; } = null!;
 
         [Required(ErrorMessage = "PONumber is required")]
         [DisplayName("PO Number")]
@@ -25,12 +32,20 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
         [DisplayName("Location ID")]
         public string? LocationID { get; set; }
 
-        [DisplayName("Bill To Address ID")]
-        public string? BillToAddressID { get; set; }
+        //[DisplayName("Bill To Address ID")]
+        //public string? BillToAddressID { get; set; }
+
+        [DisplayName("Bill To Address")]
+        public EditAddressViewModel? BillToAddress { get; set; }
+
+        //[Required]
+        //[DisplayName("Ship To Addresss ID")]
+        //public string ShipToAddressID { get; set; } = null!;
 
         [Required]
-        [DisplayName("Ship To Addresss ID")]
-        public string ShipToAddressID { get; set; } = null!;
+        [DisplayName("Ship To Address")]
+        public EditAddressViewModel ShipToAddress { get; set; } = null!;
+
 
         [DisplayName("Shipping Amount")]
         public decimal? ShippingAmount { get; set; }
