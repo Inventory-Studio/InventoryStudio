@@ -96,7 +96,15 @@ namespace InventoryStudio.Services.Importers
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    var failedDataJson = JsonSerializer.Serialize(salesOrder.salesOrder);
+                    var failedRecord = new ImportFailedRecord
+                    {
+                        ImportResultID = importResult.ImportResultID,
+                        ErrorMessage = ex.Message,
+                        FailedData = failedDataJson
+                    };
+                    failedRecord.Create();
+                    importResult.FailedRecords++;
                 }
                 processedCount++;
                 int progress = (int)(processedCount / (double)importResult.TotalRecords * 100);

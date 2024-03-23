@@ -100,7 +100,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
             catch (ArgumentException)
             {
-                 BadRequest($"Invaliad Status: {viewModel.Status}");
+                BadRequest($"Invaliad Status: {viewModel.Status}");
             }
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
@@ -204,7 +204,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                 salesOrder.ShipFrom = input.ShipFrom;
                 salesOrder.ShipTo = input.ShipTo;
-               
+
                 salesOrder.IsClosed = input.IsClosed;
                 salesOrder.ExternalID = input.ExternalID;
                 salesOrder.InternalNote = input.InternalNote;
@@ -343,8 +343,8 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ShippingPackage = salesOrder.ShippingPackage;
             viewModel.ShippingServiceCode = salesOrder.ShippingServiceCode;
             viewModel.ShipFrom = salesOrder.ShipFrom;
-            viewModel.ShipTo = salesOrder.ShipTo;           
-            viewModel.Status = Convert.ToString(salesOrder.Status);            
+            viewModel.ShipTo = salesOrder.ShipTo;
+            viewModel.Status = Convert.ToString(salesOrder.Status);
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
             viewModel.InternalNote = salesOrder.InternalNote;
