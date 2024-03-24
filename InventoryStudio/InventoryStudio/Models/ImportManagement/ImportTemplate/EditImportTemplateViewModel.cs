@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace InventoryStudio.Models.Templates
+namespace InventoryStudio.Models.ImportManagement.ImportTemplate
 {
-    public class EditTemplateViewModel
+    public class EditImportTemplateViewModel
     {
         public string ImportTemplateID { get; set; }
 
@@ -13,6 +13,6 @@ namespace InventoryStudio.Models.Templates
 
         [DisplayName("Import Type")]
         public string ImportType { get; set; }
-        public List<EditTemplateFieldViewModel> TemplateFields { get; set; }
+        public List<EditImportTemplateFieldViewModel> TemplateFields { get; set; }
     }
 }

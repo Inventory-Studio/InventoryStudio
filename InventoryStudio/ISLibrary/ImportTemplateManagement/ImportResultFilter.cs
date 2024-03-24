@@ -10,5 +10,7 @@ namespace ISLibrary.ImportTemplateManagement
     public class ImportResultFilter
     {
         public Database.Filter.StringSearch.SearchFilter ImportTemplateID { get; set; }
+
+        public Database.Filter.StringSearch.SearchFilter CompanyID { get; set; }
     }
 }

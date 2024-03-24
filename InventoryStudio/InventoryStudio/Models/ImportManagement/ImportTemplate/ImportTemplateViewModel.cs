@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace InventoryStudio.Models.Templates
+namespace InventoryStudio.Models.ImportManagement.ImportTemplate
 {
-    public class TemplateViewModel
+    public class ImportTemplateViewModel
     {
         public string ImportTemplateID { get; set; }
 
@@ -29,6 +29,6 @@ namespace InventoryStudio.Models.Templates
         [DisplayName("Created On")]
         public DateTime? CreatedOn { get; set; }
 
-        public List<TemplateFieldViewModel> TemplateFields { get; set; }
+        public List<ImportTemplateFieldViewModel> TemplateFields { get; set; }
     }
 }

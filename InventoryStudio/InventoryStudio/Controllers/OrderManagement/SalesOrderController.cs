@@ -318,10 +318,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            //ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            //ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            //ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Create.cshtml", input);
         }
 

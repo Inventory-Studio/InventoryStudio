@@ -277,6 +277,7 @@ namespace ISLibrary.ImportTemplateManagement
             return true;
         }
 
+
         public static List<ImportResult> GetImportResults(ImportResultFilter Filter)
         {
             int intTotalCount = 0;
@@ -302,13 +303,14 @@ namespace ISLibrary.ImportTemplateManagement
             {
                 TotalRecord = 0;
                 objReturn = new List<ImportResult>();
-                strSQL = "SELECT i.* " +
-                         "FROM ImportResult (NOLOCK) i ";
-                strSQL += "WHERE 1=1 ";
+                strSQL = "SELECT ir.* FROM ImportResult (NOLOCK) AS ir LEFT JOIN ImportTemplate (NOLOCK) AS it " +
+                    "ON ir.ImportTemplateID=it.ImportTemplateID WHERE 1=1 ";
                 if (Filter != null)
                 {
+                    if (Filter.CompanyID != null)
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.CompanyID, "it.CompanyID");
                     if (Filter.ImportTemplateID != null)
-                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ImportTemplateID, "ImportTemplateID");
+                        strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.ImportTemplateID, "ir.ImportTemplateID");
                 }
 
                 if (PageSize != null && PageNumber != null)

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace InventoryStudio.Models.ImportResults
+namespace InventoryStudio.Models.ImportManagement.ImportResult
 {
     public class ImportResultViewModel
     {
