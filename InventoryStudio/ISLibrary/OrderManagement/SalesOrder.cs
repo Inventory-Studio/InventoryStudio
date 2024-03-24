@@ -143,20 +143,19 @@ namespace ISLibrary.OrderManagement
                         {
                             objFilter = new AddressFilter();
                             objFilter.AddressID = new Database.Filter.StringSearch.SearchFilter();
-                            objFilter.AddressID.SearchString = ShipToAddressID;
+                            objFilter.AddressID.SearchString = BillToAddressID;
                             mBillShippToAddress = Address.GetAddress(CompanyID, objFilter);
                         }
                     }
                     catch (Exception ex)
                     {
-
                         throw ex;
                     }
                     finally
                     {
                         objFilter = null;
                     }
-                    return mShipToAddress;
+                    return mBillShippToAddress;
                 }
             }
             set { mBillShippToAddress = value; }
@@ -182,7 +181,6 @@ namespace ISLibrary.OrderManagement
                     }
                     catch (Exception ex)
                     {
-
                         throw ex;
                     }
                     finally
@@ -209,7 +207,7 @@ namespace ISLibrary.OrderManagement
                         {
                             objFilter = new CustomerFilter();
                             objFilter.CustomerID = new Database.Filter.StringSearch.SearchFilter();
-                            objFilter.CustomerID.SearchString = ShipToAddressID;
+                            objFilter.CustomerID.SearchString = CustomerID;
                             mCustomer = Customer.GetCustomer(CompanyID, objFilter);
                         }
                     }

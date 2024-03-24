@@ -185,6 +185,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.BillToAddress = new Address();
                 salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
                 salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
                 salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
                 salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
                 salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
@@ -201,6 +202,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShipToAddress = new Address();
                 salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
                 salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
                 salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
                 salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
                 salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
@@ -503,6 +505,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 {
                     salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
                     salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                    salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
                     salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
                     salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
                     salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
@@ -522,6 +525,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 {
                     salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
                     salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                    salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
                     salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
                     salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
                     salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;

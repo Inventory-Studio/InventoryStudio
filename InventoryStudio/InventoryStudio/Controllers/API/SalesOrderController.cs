@@ -44,8 +44,6 @@ namespace InventoryStudio.Controllers.API
                 {
                     var salesOrder = new SalesOrder();
                     salesOrder.CompanyID = CompanyID;
-
-
                     salesOrder.Customer = new Customer();
                     salesOrder.Customer.ClientID = input.Customer.ClientID;
                     salesOrder.Customer.CompanyName = input.Customer.CompanyName;
@@ -53,8 +51,6 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.Customer.LastName = input.Customer.LastName;
                     salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
                     salesOrder.Customer.ExternalID = input.Customer.ExternalID;
-
-
                     salesOrder.PONumber = input.PONumber;
                     salesOrder.TranDate = input.TranDate;
                     if (!string.IsNullOrEmpty(input.LocationID))
@@ -64,10 +60,10 @@ namespace InventoryStudio.Controllers.API
                             return BadRequest($"Location with ID {input.LocationID} not found");
                     }
                     salesOrder.LocationID = input.LocationID;
-
                     salesOrder.BillToAddress = new Address();
                     salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
                     salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                    salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
                     salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
                     salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
                     salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
@@ -84,6 +80,7 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.ShipToAddress = new Address();
                     salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
                     salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                    salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
                     salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
                     salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
                     salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
@@ -254,6 +251,7 @@ namespace InventoryStudio.Controllers.API
                     {
                         salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
                         salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                        salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
                         salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
                         salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
                         salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
@@ -272,6 +270,7 @@ namespace InventoryStudio.Controllers.API
                     {
                         salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
                         salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                        salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
                         salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
                         salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
                         salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
