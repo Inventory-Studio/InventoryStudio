@@ -41,7 +41,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrder
 
         [Required]
         [DisplayName("Ship To Address ")]
-        public CreateAddressViewModel BillToShipAddress { get; set; } = null!;
+        public CreateAddressViewModel ShipToAddress { get; set; } = null!;
 
         [DisplayName("Shipping Amount")]
         public decimal? ShippingAmount { get; set; }

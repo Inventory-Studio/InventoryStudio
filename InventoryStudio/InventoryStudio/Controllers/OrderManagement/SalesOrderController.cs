@@ -164,10 +164,13 @@ namespace InventoryStudio.Controllers.OrderManagement
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = CompanyID;
 
-                //var customer = new Customer(CompanyID, input.CustomerID);
-                //if (customer == null)
-                //    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                //salesOrder.CustomerID = input.CustomerID;
+                salesOrder.Customer = new Customer();
+                salesOrder.Customer.ClientID = input.Customer.ClientID;
+                salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                salesOrder.Customer.FirstName = input.Customer.FirstName;
+                salesOrder.Customer.LastName = input.Customer.LastName;
+                salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                salesOrder.Customer.ExternalID = input.Customer.ExternalID;
 
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
@@ -179,21 +182,38 @@ namespace InventoryStudio.Controllers.OrderManagement
                 }
                 salesOrder.LocationID = input.LocationID;
 
-                //if (!string.IsNullOrEmpty(input.BillToAddressID))
-                //{
-                //    var address = new Address(input.BillToAddressID);
-                //    if (address == null)
-                //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                //}
-                //salesOrder.BillToAddressID = input.BillToAddressID;
+                salesOrder.BillToAddress = new Address();
+                salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                salesOrder.BillToAddress.City = input.BillToAddress.City;
+                salesOrder.BillToAddress.State = input.BillToAddress.State;
+                salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
 
-                //if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                //{
-                //    var address = new Address(input.ShipToAddressID);
-                //    if (address == null)
-                //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                //}
-                //salesOrder.ShipToAddressID = input.ShipToAddressID;
+                salesOrder.ShipToAddress = new Address();
+                salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
+
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -411,11 +431,15 @@ namespace InventoryStudio.Controllers.OrderManagement
                     return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
 
                 salesOrder.CompanyID = CompanyID;
-                //var customer = new Customer(CompanyID, input.CustomerID);
-                //if (customer == null)
-                //    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                //salesOrder.CustomerID = input.CustomerID;
-
+                if (salesOrder.Customer != null && !string.IsNullOrEmpty(input.Customer.CustomerID))
+                {
+                    salesOrder.Customer.ClientID = input.Customer.ClientID;
+                    salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                    salesOrder.Customer.FirstName = input.Customer.FirstName;
+                    salesOrder.Customer.LastName = input.Customer.LastName;
+                    salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                    salesOrder.Customer.ExternalID = input.Customer.ExternalID;
+                }
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 if (!string.IsNullOrEmpty(input.LocationID))
@@ -425,21 +449,45 @@ namespace InventoryStudio.Controllers.OrderManagement
                         return BadRequest($"Location with ID {input.LocationID} not found");
                 }
                 salesOrder.LocationID = input.LocationID;
-                //if (!string.IsNullOrEmpty(input.BillToAddressID))
-                //{
-                //    var address = new Address(input.BillToAddressID);
-                //    if (address == null)
-                //        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                //}
-                //salesOrder.BillToAddressID = input.BillToAddressID;
 
-                //if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                //{
-                //    var address = new Address(input.ShipToAddressID);
-                //    if (address == null)
-                //        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                //}
-                //salesOrder.ShipToAddressID = input.ShipToAddressID;
+                if (salesOrder.BillToAddress != null && !string.IsNullOrEmpty(input.BillToAddress.AddressID))
+                {
+                    salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                    salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                    salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                    salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                    salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                    salesOrder.BillToAddress.City = input.BillToAddress.City;
+                    salesOrder.BillToAddress.State = input.BillToAddress.State;
+                    salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                    salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                    salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                    salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                    salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                    salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                    salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
+                }
+
+
+                if (salesOrder.ShipToAddress != null && !string.IsNullOrEmpty(input.ShipToAddress.AddressID))
+                {
+                    salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                    salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                    salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                    salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                    salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                    salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                    salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                    salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                    salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                    salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                    salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                    salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                    salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                    salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
+                }
+
+
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -549,13 +597,9 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.Update();
                 return RedirectToAction(nameof(Index));
             }
-            var addresses = Address.GetAddresses(CompanyID);
-            var customers = Customer.GetCustomers(CompanyID);
+
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            //ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            //ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
-            //ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            //ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
+            ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
             return View("~/Views/OrderManagement/SalesOrder/Edit.cshtml", input);
         }
 
@@ -582,24 +626,6 @@ namespace InventoryStudio.Controllers.OrderManagement
         }
 
 
-        //[HttpPost("import")]
-        //public async Task<IActionResult> import(IFormFile file)
-        //{
-        //    try
-        //    {
-        //        var fileType = Path.GetExtension(file.FileName);
-        //        //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
-        //        //var records = await _fileHandler.Import(file);
-        //        //【ToDo】Process import logic
-        //        //return Ok(records);
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return StatusCode(500, ex.Message);
-        //    }
-        //}
 
         [HttpGet("export")]
         public async Task<IActionResult> Export(string fileType, string id)

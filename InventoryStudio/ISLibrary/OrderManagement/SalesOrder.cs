@@ -197,7 +197,7 @@ namespace ISLibrary.OrderManagement
 
         private Customer mCustomer = null;
 
-        private Customer Customer
+        public Customer Customer
         {
             get
             {
@@ -544,6 +544,23 @@ namespace ISLibrary.OrderManagement
                 dicParam["UpdatedOn"] = DateTime.Now;
                 dicWParam["SalesOrderID"] = SalesOrderID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrder"), objConn, objTran);
+
+
+                if (Customer != null)
+                {
+                    Customer.UpdatedBy = UpdatedBy;
+                    Customer.Update(objConn, objTran);
+                }
+                if (ShipToAddress != null)
+                {
+                    ShipToAddress.UpdatedBy = UpdatedBy;
+                    ShipToAddress.Update(objConn, objTran);
+                }
+                if (BillToAddress != null)
+                {
+                    BillToAddress.UpdatedBy = UpdatedBy;
+                    BillToAddress.Update(objConn, objTran);
+                }
 
                 if (SalesOrderLines != null)
                 {
