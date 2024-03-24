@@ -331,24 +331,76 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (salesOrder == null)
                 return NotFound();
 
-            var addresses = Address.GetAddresses(CompanyID);
-            var customers = Customer.GetCustomers(CompanyID);
+
             var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", salesOrder.CustomerID);
+
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", salesOrder.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.ShipToAddressID);
+
             var viewModel = new EditSalesOrderViewModel();
             viewModel.SalesOrderID = salesOrder.SalesOrderID;
-            //【Todo】
-            //viewModel.CustomerID = salesOrder.CustomerID;
+
+            if (salesOrder.Customer != null)
+            {
+                viewModel.Customer = new Models.OrderManagement.Customer.EditCustomerViewModel();
+                viewModel.Customer.CustomerID = salesOrder.Customer.CustomerID;
+                viewModel.Customer.ClientID = salesOrder.Customer.ClientID;
+                viewModel.Customer.CompanyName = salesOrder.Customer.CompanyName;
+                viewModel.Customer.FirstName = salesOrder.Customer.FirstName;
+                viewModel.Customer.LastName = salesOrder.Customer.LastName;
+                viewModel.Customer.EmailAddress = salesOrder.Customer.EmailAddress;
+                viewModel.Customer.ExternalID = salesOrder.Customer.ExternalID;
+            }
+
             viewModel.PONumber = salesOrder.PONumber;
             viewModel.TranDate = salesOrder.TranDate;
             viewModel.LocationID = salesOrder.LocationID;
-            //viewModel.BillToAddressID = salesOrder.BillToAddressID;
-            //viewModel.ShipToAddressID = salesOrder.ShipToAddressID;
+
+
+            if (salesOrder.ShipToAddress != null)
+            {
+                viewModel.ShipToAddress = new Models.OrderManagement.Address.EditAddressViewModel();
+                viewModel.ShipToAddress.AddressID = salesOrder.ShipToAddress.AddressID;
+                viewModel.ShipToAddress.FullName = salesOrder.ShipToAddress.FullName;
+                viewModel.ShipToAddress.Attention = salesOrder.ShipToAddress.Attention;
+                viewModel.ShipToAddress.CompanyName = salesOrder.ShipToAddress.CompanyName;
+                viewModel.ShipToAddress.Address1 = salesOrder.ShipToAddress.Address1;
+                viewModel.ShipToAddress.Address2 = salesOrder.ShipToAddress.Address2;
+                viewModel.ShipToAddress.Address3 = salesOrder.ShipToAddress.Address3;
+                viewModel.ShipToAddress.City = salesOrder.ShipToAddress.City;
+                viewModel.ShipToAddress.State = salesOrder.ShipToAddress.State;
+                viewModel.ShipToAddress.PostalCode = salesOrder.ShipToAddress.PostalCode;
+                viewModel.ShipToAddress.CountryID = salesOrder.ShipToAddress.CountryID;
+                viewModel.ShipToAddress.Email = salesOrder.ShipToAddress.Email;
+                viewModel.ShipToAddress.Phone = salesOrder.ShipToAddress.Phone;
+                viewModel.ShipToAddress.Zone = salesOrder.ShipToAddress.Zone;
+                viewModel.ShipToAddress.IsInvalidAddress = salesOrder.ShipToAddress.IsInvalidAddress;
+                viewModel.ShipToAddress.IsAddressUpdated = salesOrder.ShipToAddress.IsAddressUpdated;
+            }
+
+
+            if (salesOrder.BillToAddress != null)
+            {
+                viewModel.BillToAddress = new Models.OrderManagement.Address.EditAddressViewModel();
+                viewModel.BillToAddress.AddressID = salesOrder.BillToAddress.AddressID;
+                viewModel.BillToAddress.FullName = salesOrder.BillToAddress.FullName;
+                viewModel.BillToAddress.Attention = salesOrder.BillToAddress.Attention;
+                viewModel.BillToAddress.CompanyName = salesOrder.BillToAddress.CompanyName;
+                viewModel.BillToAddress.Address1 = salesOrder.BillToAddress.Address1;
+                viewModel.BillToAddress.Address2 = salesOrder.BillToAddress.Address2;
+                viewModel.BillToAddress.Address3 = salesOrder.BillToAddress.Address3;
+                viewModel.BillToAddress.City = salesOrder.BillToAddress.City;
+                viewModel.BillToAddress.State = salesOrder.BillToAddress.State;
+                viewModel.BillToAddress.PostalCode = salesOrder.BillToAddress.PostalCode;
+                viewModel.BillToAddress.CountryID = salesOrder.BillToAddress.CountryID;
+                viewModel.BillToAddress.Email = salesOrder.BillToAddress.Email;
+                viewModel.BillToAddress.Phone = salesOrder.BillToAddress.Phone;
+                viewModel.BillToAddress.Zone = salesOrder.BillToAddress.Zone;
+                viewModel.BillToAddress.IsInvalidAddress = salesOrder.BillToAddress.IsInvalidAddress;
+                viewModel.BillToAddress.IsAddressUpdated = salesOrder.BillToAddress.IsAddressUpdated;
+            }
+
             viewModel.ShippingAmount = salesOrder.ShippingAmount;
             viewModel.ShippingTaxAmount = salesOrder.ShippingTaxAmount;
             viewModel.ItemTaxAmount = salesOrder.ItemTaxAmount;
