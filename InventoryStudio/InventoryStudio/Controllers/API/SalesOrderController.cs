@@ -122,7 +122,6 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.ReferenceNumber = input.ReferenceNumber;
                     salesOrder.SignatureRequired = input.SignatureRequired;
                     salesOrder.ShopifyOrderID = input.ShopifyOrderID;
-                    salesOrder.CreatedOn = DateTime.Now;
                     salesOrder.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     salesOrder.SalesOrderLines = new List<SalesOrderLine>();
                     if (input.SalesOrderLines != null)
@@ -316,81 +315,95 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.ShopifyOrderID = input.ShopifyOrderID;
 
 
-                    if (input.SalesOrderLines != null)
+                    if (salesOrder.SalesOrderLines != null && input.SalesOrderLines != null)
                     {
-                        salesOrder.SalesOrderLines.Clear();
-                        foreach (var lineViewModel in input.SalesOrderLines)
+                        foreach (var salesOrderLine in salesOrder.SalesOrderLines)
                         {
-                            var salesOrderLine = new SalesOrderLine();
-                            salesOrderLine.SalesOrderLineID = lineViewModel.SalesOrderLineID;
-                            salesOrderLine.SalesOrderID = salesOrder.SalesOrderID;
-                            if (!string.IsNullOrEmpty(lineViewModel.LocationID))
+                            var currentInputSalesOrderLine = input.SalesOrderLines.Where(t => t.SalesOrderLineID == salesOrderLine.SalesOrderLineID).FirstOrDefault();
+                            if (currentInputSalesOrderLine != null)
                             {
-                                var location = new ISLibrary.Location(CompanyID, lineViewModel.LocationID);
-                                if (location == null)
-                                    return BadRequest($"Location with ID {lineViewModel.LocationID} not found");
+                                salesOrderLine.LocationID = currentInputSalesOrderLine.LocationID;
+                                salesOrderLine.ItemID = currentInputSalesOrderLine.ItemID;
+                                salesOrderLine.ParentSalesOrderLineID = currentInputSalesOrderLine.ParentSalesOrderLineID;
+                                salesOrderLine.ItemName = currentInputSalesOrderLine.ItemName;
+                                salesOrderLine.ItemImageURL = currentInputSalesOrderLine.ItemImageURL;
+                                salesOrderLine.Description = currentInputSalesOrderLine.Description;
+                                salesOrderLine.Quantity = currentInputSalesOrderLine.Quantity;
+                                salesOrderLine.QuantityCommitted = currentInputSalesOrderLine.QuantityCommitted;
+                                salesOrderLine.QuantityShipped = currentInputSalesOrderLine.QuantityShipped;
+                                salesOrderLine.ItemUnitID = currentInputSalesOrderLine.ItemUnitID;
+                                salesOrderLine.UnitPrice = currentInputSalesOrderLine.UnitPrice;
+                                salesOrderLine.TaxRate = currentInputSalesOrderLine.TaxRate;
+                                salesOrderLine.Status = currentInputSalesOrderLine.Status;
+                                salesOrderLine.ExternalID = currentInputSalesOrderLine.ExternalID;
                             }
-                            salesOrderLine.LocationID = lineViewModel.LocationID;
-                            if (!string.IsNullOrEmpty(lineViewModel.ItemID))
-                            {
-                                var item = new Item(CompanyID, lineViewModel.ItemID);
-                                if (item == null)
-                                    return BadRequest($"Item with ID {lineViewModel.ItemID} not found");
-                            }
-                            salesOrderLine.ItemID = lineViewModel.ItemID;
-                            salesOrderLine.ParentSalesOrderLineID = lineViewModel.ParentSalesOrderLineID;
-                            salesOrderLine.ItemName = lineViewModel.ItemName;
-                            salesOrderLine.ItemImageURL = lineViewModel.ItemImageURL;
-                            salesOrderLine.Description = lineViewModel.Description;
-                            salesOrderLine.Quantity = lineViewModel.Quantity;
-                            if (!string.IsNullOrEmpty(lineViewModel.ItemUnitID))
-                            {
-                                var itemUnit = new ItemUnit(lineViewModel.ItemUnitID);
-                                if (itemUnit == null)
-                                    return BadRequest($"ItemUnit with ID {lineViewModel.ItemUnitID} not found");
-                            }
-                            salesOrderLine.ItemUnitID = lineViewModel.ItemUnitID;
-                            salesOrderLine.UnitPrice = lineViewModel.UnitPrice;
-                            salesOrderLine.TaxRate = lineViewModel.TaxRate;
-                            salesOrderLine.Status = lineViewModel.Status;
-                            salesOrderLine.ExternalID = lineViewModel.ExternalID;
 
-                            if (lineViewModel.SalesOrderLineDetails != null)
+                            if (salesOrderLine.SalesOrderLineDetails != null && currentInputSalesOrderLine.SalesOrderLineDetails != null)
                             {
-                                foreach (var detailViewModel in lineViewModel.SalesOrderLineDetails)
+                                foreach (var salesOrderLineDetail in salesOrderLine.SalesOrderLineDetails)
+                                {
+                                    var currentInputSalesOrderLineDetail = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => t.SalesOrderLineDetailID == salesOrderLineDetail.SalesOrderLineDetailID).FirstOrDefault();
+                                    if (currentInputSalesOrderLineDetail != null)
+                                    {
+                                        salesOrderLineDetail.BinID = currentInputSalesOrderLineDetail.BinID;
+                                        salesOrderLineDetail.Quantity = currentInputSalesOrderLineDetail.Quantity;
+                                        salesOrderLineDetail.InventoryNumber = currentInputSalesOrderLineDetail.InventoryNumber;
+                                        salesOrderLineDetail.InventoryDetailID = currentInputSalesOrderLineDetail.InventoryDetailID;
+                                    }
+                                }
+                                var addSalesOrderLineDetails = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => t.SalesOrderLineDetailID == string.Empty).ToList();
+                                foreach (var currentInputSalesOrderLineDetail in addSalesOrderLineDetails)
                                 {
                                     var salesOrderLineDetail = new SalesOrderLineDetail();
-                                    salesOrderLineDetail.SalesOrderLineDetailID = detailViewModel.SalesOrderLineDetailID;
                                     salesOrderLineDetail.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
-                                    if (!string.IsNullOrEmpty(detailViewModel.BinID))
-                                    {
-                                        var bin = new Bin(CompanyID, detailViewModel.BinID);
-                                        if (bin == null)
-                                            return BadRequest($"Bin with ID {detailViewModel.BinID} not found");
-                                    }
-                                    salesOrderLineDetail.BinID = detailViewModel.BinID;
-                                    salesOrderLineDetail.ItemID = lineViewModel.ItemID;
-                                    salesOrderLineDetail.CompanyID = CompanyID;
-                                    salesOrderLineDetail.Quantity = detailViewModel.Quantity;
-                                    salesOrderLineDetail.InventoryNumber = detailViewModel.InventoryNumber;
-                                    if (!string.IsNullOrEmpty(detailViewModel.InventoryDetailID))
-                                    {
-                                        var inventory = new InventoryDetail(detailViewModel.InventoryDetailID);
-                                        if (inventory == null)
-                                            return BadRequest($"Invneotry with ID {detailViewModel.InventoryDetailID} not found");
-                                    }
-                                    salesOrderLineDetail.InventoryDetailID = detailViewModel.InventoryDetailID;
-                                    if (salesOrderLine.SalesOrderLineDetails == null)
-                                    {
-                                        salesOrderLine.SalesOrderLineDetails = new List<SalesOrderLineDetail>();
-                                    }
+                                    salesOrderLineDetail.BinID = currentInputSalesOrderLineDetail.BinID;
+                                    salesOrderLineDetail.Quantity = currentInputSalesOrderLineDetail.Quantity;
+                                    salesOrderLineDetail.InventoryNumber = currentInputSalesOrderLineDetail.InventoryNumber;
+                                    salesOrderLineDetail.InventoryDetailID = currentInputSalesOrderLineDetail.InventoryDetailID;
                                     salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
                                 }
-                            }
 
-                            salesOrder.SalesOrderLines.Add(salesOrderLine);
+                                var deleteSalesOrderLineDetails = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => currentInputSalesOrderLine.SalesOrderLineDetails.Any(t => t.SalesOrderLineDetailID == t.SalesOrderLineDetailID)).ToList();
+                                foreach (var salesOrderLineDetail in deleteSalesOrderLineDetails)
+                                {
+                                    currentInputSalesOrderLine.SalesOrderLineDetails.Remove(salesOrderLineDetail);
+                                }
+                            }
+                        }
+
+                        var addSalesOrderLines = input.SalesOrderLines.Where(t => t.SalesOrderLineID == string.Empty).ToList();
+                        if (addSalesOrderLines.Count > 0)
+                        {
+                            foreach (var currentInputSalesOrderLine in addSalesOrderLines)
+                            {
+                                var salesOrderLine = new SalesOrderLine();
+                                salesOrderLine.SalesOrderID = salesOrder.SalesOrderID;
+                                salesOrderLine.LocationID = currentInputSalesOrderLine.LocationID;
+                                salesOrderLine.ItemID = currentInputSalesOrderLine.ItemID;
+                                salesOrderLine.ParentSalesOrderLineID = currentInputSalesOrderLine.ParentSalesOrderLineID;
+                                salesOrderLine.ItemName = currentInputSalesOrderLine.ItemName;
+                                salesOrderLine.ItemImageURL = currentInputSalesOrderLine.ItemImageURL;
+                                salesOrderLine.Description = currentInputSalesOrderLine.Description;
+                                salesOrderLine.Quantity = currentInputSalesOrderLine.Quantity;
+                                salesOrderLine.QuantityCommitted = currentInputSalesOrderLine.QuantityCommitted;
+                                salesOrderLine.QuantityShipped = currentInputSalesOrderLine.QuantityShipped;
+                                salesOrderLine.ItemUnitID = currentInputSalesOrderLine.ItemUnitID;
+                                salesOrderLine.UnitPrice = currentInputSalesOrderLine.UnitPrice;
+                                salesOrderLine.TaxRate = currentInputSalesOrderLine.TaxRate;
+                                salesOrderLine.Status = currentInputSalesOrderLine.Status;
+                                salesOrderLine.ExternalID = currentInputSalesOrderLine.ExternalID;
+                                salesOrder.SalesOrderLines.Add(salesOrderLine);
+                            }
+                        }
+
+                        var deleteSalesOrderLines = salesOrder.SalesOrderLines.Where(s => !input.SalesOrderLines.Any(i => i.SalesOrderLineID == s.SalesOrderLineID)).ToList();
+
+                        foreach (var salesOrderLine in deleteSalesOrderLines)
+                        {
+                            salesOrder.SalesOrderLines.Remove(salesOrderLine);
                         }
                     }
+                    salesOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     salesOrder.Update();
                 }
                 return Ok();

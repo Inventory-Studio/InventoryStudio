@@ -16,13 +16,13 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
 
         public string? ParentSalesOrderLineID { get; set; }
 
-        public string? ItemSKU { get; set; }
+        //public string? ItemSKU { get; set; }
 
         public string? ItemName { get; set; }
 
         public string? ItemImageURL { get; set; }
 
-        public string? ItemUPC { get; set; }
+        //public string? ItemUPC { get; set; }
 
         public string? Description { get; set; }
 

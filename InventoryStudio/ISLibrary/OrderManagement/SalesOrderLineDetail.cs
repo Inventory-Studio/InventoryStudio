@@ -278,7 +278,7 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(SalesOrderLineID)) throw new Exception("SalesOrderLineID is required");
                 if (Quantity == 0) throw new Exception("Quantity is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, SalesOrderLineID already exists");
+                if (IsNew) throw new Exception("Update cannot be performed, SalesOrderLineDetailID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;

@@ -596,8 +596,8 @@ namespace ISLibrary.OrderManagement
                                     SalesOrderLine objExistingSalesOrderLine = new SalesOrderLine(CompanyID, objSalesOrderLine.SalesOrderLineID);
                                     if (objExistingSalesOrderLine.Quantity != objSalesOrderLine.Quantity)
                                     {
-                                        objSalesOrderLine.Inventory.QtyAvailable += objExistingSalesOrderLine.QuantityCommitted;
-                                        objSalesOrderLine.Inventory.QtyCommitted -= objExistingSalesOrderLine.QuantityCommitted;
+                                        objSalesOrderLine.Inventory.QtyAvailable += objExistingSalesOrderLine.QuantityCommitted.Value;
+                                        objSalesOrderLine.Inventory.QtyCommitted -= objExistingSalesOrderLine.QuantityCommitted.Value;
                                         objSalesOrderLine.Inventory.QtyBackOrdered -= objExistingSalesOrderLine.QuantityBackOrder;
 
                                         UpdateInventory(objSalesOrderLine);
@@ -625,8 +625,8 @@ namespace ISLibrary.OrderManagement
                         {
                             if (Status == enumOrderStatus.PendingFulfillment)
                             {
-                                currentSalesOrderLine.Inventory.QtyAvailable += currentSalesOrderLine.QuantityCommitted;
-                                currentSalesOrderLine.Inventory.QtyCommitted -= currentSalesOrderLine.QuantityCommitted;
+                                currentSalesOrderLine.Inventory.QtyAvailable += currentSalesOrderLine.QuantityCommitted.Value;
+                                currentSalesOrderLine.Inventory.QtyCommitted -= currentSalesOrderLine.QuantityCommitted.Value;
                                 currentSalesOrderLine.Inventory.QtyBackOrdered -= currentSalesOrderLine.QuantityBackOrder;
                                 currentSalesOrderLine.Inventory.Update();
                                 foreach (var objSalesOrderLineDetail in currentSalesOrderLine.SalesOrderLineDetails)
@@ -687,10 +687,8 @@ namespace ISLibrary.OrderManagement
                 objSalesOrderLine.QuantityCommitted = objSalesOrderLine.Quantity;
             }
             objSalesOrderLine.QuantityOnHand = objSalesOrderLine.Inventory.QtyOnHand;
-            objSalesOrderLine.QuantityAvailable = objSalesOrderLine.Inventory.QtyAvailable - objSalesOrderLine.QuantityCommitted;
-
-
-            objSalesOrderLine.Inventory.QtyCommitted += objSalesOrderLine.QuantityCommitted;
+            objSalesOrderLine.QuantityAvailable = objSalesOrderLine.Inventory.QtyAvailable - objSalesOrderLine.QuantityCommitted.Value;
+            objSalesOrderLine.Inventory.QtyCommitted += objSalesOrderLine.QuantityCommitted.Value;
             objSalesOrderLine.Inventory.QtyAvailable = objSalesOrderLine.QuantityAvailable;
             objSalesOrderLine.Inventory.Update();
 

@@ -39,9 +39,9 @@ namespace ISLibrary.OrderManagement
 
         public decimal Quantity { get; set; }
 
-        public decimal QuantityCommitted { get; set; }
+        public decimal? QuantityCommitted { get; set; }
 
-        public decimal QuantityShipped { get; set; }
+        public decimal? QuantityShipped { get; set; }
         public decimal QuantityFulfilled { get; set; }
         public decimal QuantityOnHand { get; set; }
         public decimal QuantityAvailable { get; set; }
@@ -326,7 +326,7 @@ namespace ISLibrary.OrderManagement
                         objSalesOrderLineDetail.Create(objConn, objTran);
                     }
                 }
-                
+
                 Load(objConn, objTran);
             }
             catch (Exception ex)
@@ -391,7 +391,7 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(SalesOrderID)) throw new Exception("SalesOrderID is required");
                 if (Quantity == 0) throw new Exception("Quantity is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, SalesOrderLineID already exists");
+                if (IsNew) throw new Exception("Update cannot be performed, SalesOrderLineID is missing");
                 if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;

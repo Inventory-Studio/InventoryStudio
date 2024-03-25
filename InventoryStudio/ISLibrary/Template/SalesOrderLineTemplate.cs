@@ -30,13 +30,13 @@ namespace ISLibrary.Template
         /// </summary>
         public string? ParentSalesOrderLine { get; set; }
 
-        public string? ItemSKU { get; set; } = null!;
+        //public string? ItemSKU { get; set; } = null!;
 
         public string? ItemName { get; set; }
 
         public string? ItemImageURL { get; set; }
 
-        public string? ItemUPC { get; set; }
+        //public string? ItemUPC { get; set; }
 
         public string? Description { get; set; }
 
