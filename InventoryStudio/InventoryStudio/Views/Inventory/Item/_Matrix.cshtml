@@ -9,9 +9,9 @@
         <h6 class="mb-0">Attributes</h6>
     </div>
     <ejs-grid id="GridAttributes" class="h-100" dataSource="@Model.ItemAttributes" toolbarClick="attributesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
-              allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
+              load="disableEnterKey" allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
 
-        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true"  mode="Dialog"></e-grid-editSettings>
+        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true"  mode="Normal"></e-grid-editSettings>
         <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
         @* <e-grid-pagesettings pageCount="5"></e-grid-pagesettings> *@
         <e-grid-columns>
@@ -149,7 +149,19 @@ ${/for}
     </div>
 </script>
 <script>
-
+    var gridObj;
+    function disableEnterKey(args) {
+        gridObj = document.getElementById("GridAttributes").ej2_instances[0];
+        console.log(gridObj);
+        gridObj.element.addEventListener("keyup", keyDownHandler);
+    console.log(gridObj)
+    }
+    function keyDownHandler(e) {
+        console.log(e)
+        if (e.keyCode === 13) {
+              return; 
+        }
+    }
     var multiSelectObj;
     var element
     function create(args) {

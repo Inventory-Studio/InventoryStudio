@@ -17,6 +17,12 @@ namespace InventoryStudio.Models
         [ValidateNever]
         public List<AuditData>? AuditDataList { get; set; }
         
+        [ValidateNever]
+        public List<ItemUnitType> ItemUnitTypes { get; set; }
+        
+        [ValidateNever]
+        public List<ItemUnit> ItemUnits { get; set; }
+        
         public bool IsDetails { get; set; }
     }
 }

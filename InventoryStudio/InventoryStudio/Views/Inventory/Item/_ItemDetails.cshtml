@@ -13,6 +13,11 @@
                 .Description ?? e.ToString()
         })
         .ToList();
+    var itemUnitTypeSelectList = new List<SelectListItem> { new("Select Item Unit Type", "", true) };
+    itemUnitTypeSelectList.AddRange(new SelectList(Model.ItemUnitTypes, "ItemUnitTypeID", "Name"));
+    
+    var itemUnitSelectList = new List<SelectListItem> { new("Select Item Unit", "", true) };
+    itemUnitSelectList.AddRange(new SelectList(Model.ItemUnits, "ItemUnitID", "Name"));
 }
 
 <div class="bg-gray-200 py-2 px-3 rounded mb-4">
@@ -116,23 +121,23 @@
 </div>
 <div class="row">
     <div class="form-group col-md-6 mb-3">
-        <label for="hsCode" class="form-label">Item Unit Type</label>
-        <input asp-for="@Model.Item.ItemUnitTypeID" class="form-control" />
+        <label class="form-label" for="itemUnitTypeID">Item Unit Type</label>
+        <select  asp-for="@Model.Item.ItemUnitTypeID" asp-items="@itemUnitTypeSelectList" class="form-select"></select>
     </div>
     <div class="form-group col-md-6 mb-3">
-        <label for="goodDescription" class="form-label">Primary Sales Unit</label>
-        <input asp-for="@Model.Item.PrimarySalesUnitID" class="form-control" />
+        <label class="form-label" for="Primary Sales Unit">Primary Sales Unit</label>
+        <select asp-for="@Model.Item.PrimarySalesUnitID" asp-items="@itemUnitSelectList" class="form-select"></select>
     </div>
 </div>
 
 <div class="row">
     <div class="form-group col-md-6 mb-3">
-        <label for="hsCode" class="form-label">Primary Purchase Unit</label>
-        <input asp-for="@Model.Item.PrimaryPurchaseUnitID" class="form-control" />
+        <label class="form-label" for="primaryPurchaseUnitID">Primary Purchase Unit</label>
+        <select asp-for="@Model.Item.PrimaryPurchaseUnitID" asp-items="@itemUnitSelectList" class="form-select"></select>
     </div>
     <div class="form-group col-md-6 mb-3">
-        <label for="goodDescription" class="form-label">Primary Stock Unit</label>
-        <input asp-for="@Model.Item.PrimaryStockUnitID" class="form-control" />
+        <label class="form-label" for="primaryStockUnitID">Primary Stock Unit</label>
+        <select asp-for="@Model.Item.PrimaryStockUnitID" asp-items="@itemUnitSelectList" class="form-select"></select>
     </div>
 </div>
 
