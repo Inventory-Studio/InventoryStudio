@@ -166,7 +166,14 @@ namespace InventoryStudio.Controllers
                 itemViewModel.ItemAttributes = itemParent.ItemAttributes;
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
                 itemViewModel.AuditDataList = auditDataList;
+                
+            if (organizationClaim != null)
+            {
+                itemViewModel.ItemUnits = ItemUnit.GetItemUnits(organizationClaim.Value);
+                itemViewModel.ItemUnitTypes = ItemUnitType.GetItemUnitTypes(organizationClaim.Value);
             }
+            }
+            
 
 
             return View("~/Views/Inventory/Item/Edit.cshtml", itemViewModel);
