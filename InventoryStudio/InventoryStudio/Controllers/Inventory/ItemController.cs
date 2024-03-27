@@ -76,6 +76,11 @@ namespace InventoryStudio.Controllers
         [HttpPost]
         public IActionResult Create([FromForm] ItemViewModel itemViewModel)
         {
+            if (!itemViewModel.Item.IsVariation)
+            {
+                itemViewModel.ItemMatrices?.Clear();
+                itemViewModel.ItemAttributes?.Clear();
+            }
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
