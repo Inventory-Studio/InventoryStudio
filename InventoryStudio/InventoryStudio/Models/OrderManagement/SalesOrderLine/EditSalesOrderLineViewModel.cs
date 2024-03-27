@@ -7,8 +7,8 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLine
     {
         public string? SalesOrderLineID { get; set; } 
 
-        [Required]
-        public string SalesOrderID { get; set; } = null!;
+        //[Required]
+        //public string SalesOrderID { get; set; } = null!;
 
         public string? LocationID { get; set; }
 

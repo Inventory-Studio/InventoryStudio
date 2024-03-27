@@ -393,11 +393,24 @@ namespace InventoryStudio.Controllers.API
                                 salesOrderLine.Status = currentInputSalesOrderLine.Status;
                                 salesOrderLine.ExternalID = currentInputSalesOrderLine.ExternalID;
                                 salesOrder.SalesOrderLines.Add(salesOrderLine);
+
+                                if (currentInputSalesOrderLine.SalesOrderLineDetails != null)
+                                {
+                                    salesOrderLine.SalesOrderLineDetails = new List<SalesOrderLineDetail>();
+                                    foreach (var currentSalesOrderLineDetail in currentInputSalesOrderLine.SalesOrderLineDetails)
+                                    {
+                                        var salesOrderLineDetail = new SalesOrderLineDetail();
+                                        salesOrderLineDetail.BinID = currentSalesOrderLineDetail.BinID;
+                                        salesOrderLineDetail.Quantity = currentSalesOrderLineDetail.Quantity;
+                                        salesOrderLineDetail.InventoryNumber = currentSalesOrderLineDetail.InventoryNumber;
+                                        salesOrderLineDetail.InventoryDetailID = currentSalesOrderLineDetail.InventoryDetailID;
+                                        salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
+                                    }
+                                }
                             }
                         }
 
-                        var deleteSalesOrderLines = salesOrder.SalesOrderLines.Where(s => !input.SalesOrderLines.Any(i => i.SalesOrderLineID == s.SalesOrderLineID)).ToList();
-
+                        var deleteSalesOrderLines = salesOrder.SalesOrderLines.Where(s => !input.SalesOrderLines.Any(i => i.SalesOrderLineID == s.SalesOrderLineID) && s.IsNew == false).ToList();
                         foreach (var salesOrderLine in deleteSalesOrderLines)
                         {
                             salesOrder.SalesOrderLines.Remove(salesOrderLine);

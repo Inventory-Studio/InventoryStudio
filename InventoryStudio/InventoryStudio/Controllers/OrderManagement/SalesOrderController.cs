@@ -431,7 +431,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 {
                     var salesOrderLineViewModel = new EditSalesOrderLineViewModel();
                     salesOrderLineViewModel.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
-                    salesOrderLineViewModel.SalesOrderID = salesOrderLine.SalesOrderID;
+                    //salesOrderLineViewModel.SalesOrderID = salesOrderLine.SalesOrderID;
                     salesOrderLineViewModel.LocationID = salesOrderLine.LocationID;
                     salesOrderLineViewModel.ItemID = salesOrderLine.ItemID;
                     salesOrderLineViewModel.ParentSalesOrderLineID = salesOrderLine.ParentSalesOrderLineID;
