@@ -271,7 +271,7 @@ namespace ISLibrary
                     }
                 }
                
-                if (ItemMatrices != null)
+                if (ItemMatrices != null && ItemMatrices.Count>0)
                 {
                     foreach (ItemMatrix objItemMatrix in ItemMatrices)
                     {
