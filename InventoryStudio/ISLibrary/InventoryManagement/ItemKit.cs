@@ -18,6 +18,7 @@ namespace ISLibrary
         public string ItemID { get; set; }
         public string ChildItemID { get; set; }
         public decimal Quantity { get; set; }
+        public string ItemUnitID { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; private set; }
         public string CreatedBy { get; set; }

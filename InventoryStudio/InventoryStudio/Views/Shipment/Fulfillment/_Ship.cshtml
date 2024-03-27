@@ -1,0 +1,109 @@
+﻿@model FulfillmentDetailViewModel
+
+
+
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="CreateFulfillmentPackage" method="post">
+        <div class="card">
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                        <input asp-for="@Model.Fulfillment.FulfillmentID" type="hidden" class="form-control" name="fulfillmentPackage.FulfillmentID">
+
+                        <div class="bg-gray-200 py-2 px-3 rounded my-4">
+                            <h6 class="mb-0">
+                                Add Items to Package
+                            </h6>
+                        </div>
+                        @for (int i = 0; i < Model.Fulfillment.FulfillmentLines.Count; i++)
+                        {
+                            var fulfillmentLine = Model.Fulfillment.FulfillmentLines[i];
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Item</label>
+                                    <input asp-for="@fulfillmentLine.ItemID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemID">
+                                    <input asp-for="@fulfillmentLine.FulfillmentLineID" type="hidden" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemID">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Quantity</label>
+                                    <input asp-for="@fulfillmentLine.Quantity" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].Quantity">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Location</label>
+                                    <input asp-for="@fulfillmentLine.LocationID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].LocationID">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>ItemUnitID</label>
+                                    <input asp-for="@fulfillmentLine.ItemUnitID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemUnitID">
+                                </div>
+                            </div>
+                        }
+
+                        <div class="bg-gray-200 py-2 px-3 rounded my-4">
+                            <h6 class="mb-0">
+                                Add Dimension Details
+                            </h6>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label>PackageDimensionID</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.PackageDimensionID">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Length</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.Length">
+                            </div> 
+                            <div class="form-group col-md-3">
+                                <label>Width</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.Width">
+                            </div> 
+                            <div class="form-group col-md-3">
+                                <label>Height</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.Height">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Weight</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.Weight">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>WeightUnit</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.WeightUnit">
+                            </div>
+                        </div>
+
+
+
+                        <div class="bg-gray-200 py-2 px-3 rounded my-4">
+                            <h6 class="mb-0">
+                                Select Shipping Carrier and Rate
+                            </h6>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label>TrackingNumber</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.TrackingNumber">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Carrier</label>
+                                <input type="text" class="form-control" name="fulfillmentPackage.Carrier">
+                            </div>
+                    
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>

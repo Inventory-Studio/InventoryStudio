@@ -159,6 +159,33 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+        private Item mItem = null;
+        public Item Item
+        {
+            get
+            {
+
+
+                try
+                {
+                    if (mItem == null && !string.IsNullOrEmpty(ItemID))
+                    {
+                        mItem = new Item(ItemID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                return mItem;
+            }
+            set
+            {
+                mItem = value;
+            }
+        }
+
         public SalesOrderLine()
         {
 
@@ -391,8 +418,6 @@ namespace ISLibrary.OrderManagement
                 if (string.IsNullOrEmpty(SalesOrderID)) throw new Exception("SalesOrderID is required");
                 if (Quantity == 0) throw new Exception("Quantity is required");
                 if (string.IsNullOrEmpty(UpdatedBy)) throw new Exception("CreatedBy is required");
-                if (!IsNew) throw new Exception("Create cannot be performed, SalesOrderLineID already exists");
-                if (!ObjectAlreadyExists()) throw new Exception("This record already exists");
 
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["SalesOrderID"] = SalesOrderID;
@@ -404,6 +429,10 @@ namespace ISLibrary.OrderManagement
                 dicParam["Description"] = Description;
                 dicParam["Quantity"] = Quantity;
                 dicParam["QuantityCommitted"] = QuantityCommitted;
+                dicParam["QuantityFulfilled"] = QuantityFulfilled;
+                dicParam["QuantityOnHand"] = QuantityOnHand;
+                dicParam["QuantityAvailable"] = QuantityAvailable;
+                dicParam["QuantityBackOrder"] = QuantityBackOrder;
                 dicParam["QuantityShipped"] = QuantityShipped;
                 dicParam["ItemUnitID"] = ItemUnitID;
                 dicParam["UnitPrice"] = UnitPrice;

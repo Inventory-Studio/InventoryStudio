@@ -1,0 +1,91 @@
+﻿@model FulfillmentViewModel
+
+@{
+    ViewData["Title"] = "Create Fulfillment";
+
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Create" method="post" id="createItemForm">
+        <div class="card">       
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Step 1 -->
+                    <div class="tab-pane fade show active" id="step1" role="tabpanel" aria-labelledby="item-details-tab">
+                                             
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <input asp-for="SalesOrderID" class="form-control" type="hidden" />
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label asp-for="LocationID">Location</label>
+                                <input asp-for="LocationID" class="form-control" />
+                            </div>
+                        </div>
+
+                        @for (int i = 0; i < Model.SalesOrderLines.Count; i++)
+                        {
+                            var salesOrderLine = Model.SalesOrderLines[i];
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Item</label>
+                                    <input asp-for="@salesOrderLine.ItemID" type="text" class="form-control" name="SalesOrderLines[@i].ItemID">
+                                    <input asp-for="@salesOrderLine.SalesOrderLineID" type="hidden" class="form-control" name="SalesOrderLines[@i].SalesOrderLineID">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Quantity</label>
+                                    <input asp-for="@salesOrderLine.Quantity" type="text" class="form-control" name="SalesOrderLines[@i].Quantity">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Location</label>
+                                    <input asp-for="@salesOrderLine.LocationID" type="text" class="form-control" name="SalesOrderLines[@i].LocationID">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>ItemUnitID</label>
+                                    <input asp-for="@salesOrderLine.ItemUnitID" type="text" class="form-control" name="SalesOrderLines[@i].ItemUnitID">
+                                </div>
+                            </div>
+                            @for (int j = 0; j < salesOrderLine.SalesOrderLineDetails.Count; j++)
+                            {
+                                var salesOrderLineDetail = salesOrderLine.SalesOrderLineDetails[j];
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label>Bin</label>
+                                        <input asp-for="@salesOrderLineDetail.BinID" type="text" class="form-control" name="SalesOrderLines[@i].SalesOrderLineDetails[@j].BinID">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Quantity</label>
+                                        <input asp-for="@salesOrderLineDetail.Quantity" type="text" class="form-control" name="SalesOrderLines[@i].SalesOrderLineDetails[@j].Quantity">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>InventoryNumber</label>
+                                        <input asp-for="@salesOrderLineDetail.InventoryNumber" type="text" class="form-control" name="SalesOrderLines[@i].SalesOrderLineDetails[@j].InventoryNumber">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <input asp-for="@salesOrderLineDetail.InventoryDetailID" type="hidden" class="form-control" name="SalesOrderLines[@i].SalesOrderLineDetails[@j].InventoryDetailID">
+                                    </div>
+                                </div>
+                            }
+                        }
+
+
+                      
+                    </div>
+                  
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </form>
+</div>
+
+
+
+
