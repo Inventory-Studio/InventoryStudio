@@ -60,8 +60,15 @@ namespace InventoryStudio.Controllers
                 Item = new Item
                 {
                     ItemBarcodes = new List<ItemBarcode>()
-                }
+                },
             };
+            var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
+            if (organizationClaim != null)
+            {
+                itemViewModel.ItemUnits = ItemUnit.GetItemUnits(organizationClaim.Value);
+                itemViewModel.ItemUnitTypes = ItemUnitType.GetItemUnitTypes(organizationClaim.Value);
+            }
+
             return View("~/Views/Inventory/Item/Create.cshtml", itemViewModel);
         }
 
@@ -69,6 +76,11 @@ namespace InventoryStudio.Controllers
         [HttpPost]
         public IActionResult Create([FromForm] ItemViewModel itemViewModel)
         {
+            if (!itemViewModel.Item.IsVariation)
+            {
+                itemViewModel.ItemMatrices?.Clear();
+                itemViewModel.ItemAttributes?.Clear();
+            }
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
@@ -92,10 +104,10 @@ namespace InventoryStudio.Controllers
             {
                 if (itemViewModel != null && itemViewModel.Item != null)
                 {
-                        itemViewModel.Item.ItemBarcodes = new List<ItemBarcode>
-                        {
-                            new() { Barcode = itemViewModel.Item.ItemNumber, Type = "Item Number" }
-                        };
+                    itemViewModel.Item.ItemBarcodes = new List<ItemBarcode>
+                    {
+                        new() { Barcode = itemViewModel.Item.ItemNumber, Type = "Item Number" }
+                    };
                 }
             }
 
@@ -159,7 +171,14 @@ namespace InventoryStudio.Controllers
                 itemViewModel.ItemAttributes = itemParent.ItemAttributes;
                 itemViewModel.ItemMatrices = itemParent.ItemMatrices;
                 itemViewModel.AuditDataList = auditDataList;
+                
+            if (organizationClaim != null)
+            {
+                itemViewModel.ItemUnits = ItemUnit.GetItemUnits(organizationClaim.Value);
+                itemViewModel.ItemUnitTypes = ItemUnitType.GetItemUnitTypes(organizationClaim.Value);
             }
+            }
+            
 
 
             return View("~/Views/Inventory/Item/Edit.cshtml", itemViewModel);

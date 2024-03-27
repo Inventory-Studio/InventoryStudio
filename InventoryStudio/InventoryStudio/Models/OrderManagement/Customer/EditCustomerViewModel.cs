@@ -7,9 +7,6 @@ namespace InventoryStudio.Models.OrderManagement.Customer
         [DisplayName("Customer ID")]
         public string CustomerID { get; set; }
 
-        [DisplayName("Company ID")]
-        public string CompanyID { get; set; }
-
         [DisplayName("Client ID")]
         public string? ClientID { get; set; }
 

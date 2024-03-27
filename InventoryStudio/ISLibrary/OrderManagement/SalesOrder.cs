@@ -129,6 +129,105 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+        private Address mBillShippToAddress = null;
+
+        public Address BillToAddress
+        {
+            get
+            {
+                AddressFilter objFilter = null;
+                {
+                    try
+                    {
+                        if (mBillShippToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(BillToAddressID))
+                        {
+                            objFilter = new AddressFilter();
+                            objFilter.AddressID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.AddressID.SearchString = BillToAddressID;
+                            mBillShippToAddress = Address.GetAddress(CompanyID, objFilter);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        objFilter = null;
+                    }
+                    return mBillShippToAddress;
+                }
+            }
+            set { mBillShippToAddress = value; }
+        }
+
+        private Address mShipToAddress = null;
+
+        public Address ShipToAddress
+        {
+            get
+            {
+                AddressFilter objFilter = null;
+                {
+                    try
+                    {
+                        if (mShipToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ShipToAddressID))
+                        {
+                            objFilter = new AddressFilter();
+                            objFilter.AddressID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.AddressID.SearchString = ShipToAddressID;
+                            mShipToAddress = Address.GetAddress(CompanyID, objFilter);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        objFilter = null;
+                    }
+                    return mShipToAddress;
+                }
+            }
+            set { mShipToAddress = value; }
+        }
+
+        private Customer mCustomer = null;
+
+        public Customer Customer
+        {
+            get
+            {
+                CustomerFilter objFilter = null;
+                {
+                    try
+                    {
+                        if (mCustomer == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(CustomerID))
+                        {
+                            objFilter = new CustomerFilter();
+                            objFilter.CustomerID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.CustomerID.SearchString = CustomerID;
+                            mCustomer = Customer.GetCustomer(CompanyID, objFilter);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
+                    }
+                    finally
+                    {
+                        objFilter = null;
+                    }
+                    return mCustomer;
+                }
+            }
+            set { mCustomer = value; }
+        }
+
+
+
         public SalesOrder()
         {
 
@@ -178,7 +277,7 @@ namespace ISLibrary.OrderManagement
                 if (objColumns.Contains("ShipFrom") && objRow["ShipFrom"] != DBNull.Value) ShipFrom = Convert.ToDateTime(objRow["ShipFrom"]);
                 if (objColumns.Contains("ShipTo") && objRow["ShipTo"] != DBNull.Value) ShipTo = Convert.ToDateTime(objRow["ShipTo"]);
                 if (objColumns.Contains("Status") && objRow["Status"] != DBNull.Value && Enum.TryParse(Convert.ToString(objRow["Status"]), out enumOrderStatus orderStatus)) Status = orderStatus;
-                if (objColumns.Contains("Status")) IsClosed = Convert.ToBoolean(objRow["IsClosed"]);
+                if (objColumns.Contains("IsClosed")) IsClosed = Convert.ToBoolean(objRow["IsClosed"]);
                 if (objColumns.Contains("ExternalID")) ExternalID = Convert.ToString(objRow["ExternalID"]);
                 if (objColumns.Contains("InternalNote")) InternalNote = Convert.ToString(objRow["InternalNote"]);
                 if (objColumns.Contains("CustomerNote")) CustomerNote = Convert.ToString(objRow["CustomerNote"]);
@@ -282,6 +381,32 @@ namespace ISLibrary.OrderManagement
                 if (!IsNew) throw new Exception("Create cannot be performed, SalesOrder already exists");
                 if (ObjectAlreadyExists()) throw new Exception("This record already exists");
 
+
+
+                if (Customer != null)
+                {
+                    Customer.CompanyID = CompanyID;
+                    Customer.CreatedBy = CreatedBy;
+                    Customer.Create(objConn, objTran);
+                    CustomerID = Customer.CustomerID;
+                }
+
+                if (ShipToAddress != null)
+                {
+                    ShipToAddress.CompanyID = CompanyID;
+                    ShipToAddress.CreatedBy = CreatedBy;
+                    ShipToAddress.Create(objConn, objTran);
+                    ShipToAddressID = ShipToAddress.AddressID;
+                }
+
+                if (BillToAddress != null)
+                {
+                    BillToAddress.CompanyID = CompanyID;
+                    BillToAddress.CreatedBy = CreatedBy;
+                    BillToAddress.Create(objConn, objTran);
+                    BillToAddressID = BillToAddress.AddressID;
+                }
+
                 dicParam["CompanyID"] = CompanyID;
                 dicParam["CustomerID"] = CustomerID;
                 dicParam["PONumber"] = PONumber;
@@ -313,6 +438,7 @@ namespace ISLibrary.OrderManagement
                 dicParam["CreatedOn"] = DateTime.Now;
                 dicParam["CreatedBy"] = CreatedBy;
                 SalesOrderID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrder"), objConn, objTran).ToString();
+
 
 
                 if (SalesOrderLines != null)
@@ -417,6 +543,23 @@ namespace ISLibrary.OrderManagement
                 dicWParam["SalesOrderID"] = SalesOrderID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "SalesOrder"), objConn, objTran);
 
+
+                if (Customer != null)
+                {
+                    Customer.UpdatedBy = UpdatedBy;
+                    Customer.Update(objConn, objTran);
+                }
+                if (ShipToAddress != null)
+                {
+                    ShipToAddress.UpdatedBy = UpdatedBy;
+                    ShipToAddress.Update(objConn, objTran);
+                }
+                if (BillToAddress != null)
+                {
+                    BillToAddress.UpdatedBy = UpdatedBy;
+                    BillToAddress.Update(objConn, objTran);
+                }
+
                 if (SalesOrderLines != null)
                 {
                     // Get the current SalesOrderLines from the database
@@ -432,7 +575,7 @@ namespace ISLibrary.OrderManagement
                         {
                             if (Status == enumOrderStatus.PendingFulfillment)
                             {
-                                UpdateInventory(objSalesOrderLine);                              
+                                UpdateInventory(objSalesOrderLine);
 
                             }
                             objSalesOrderLine.SalesOrderID = SalesOrderID;
@@ -444,17 +587,17 @@ namespace ISLibrary.OrderManagement
                         {
                             if (Status == enumOrderStatus.PendingFulfillment)
                             {
-                                if(objSalesOrderLine.QuantityCommitted == 0)
+                                if (objSalesOrderLine.QuantityCommitted == 0)
                                 {
                                     UpdateInventory(objSalesOrderLine);
                                 }
                                 else
                                 {
-                                    SalesOrderLine objExistingSalesOrderLine = new SalesOrderLine (CompanyID,objSalesOrderLine.SalesOrderLineID);
-                                    if(objExistingSalesOrderLine.Quantity!= objSalesOrderLine.Quantity)
+                                    SalesOrderLine objExistingSalesOrderLine = new SalesOrderLine(CompanyID, objSalesOrderLine.SalesOrderLineID);
+                                    if (objExistingSalesOrderLine.Quantity != objSalesOrderLine.Quantity)
                                     {
-                                        objSalesOrderLine.Inventory.QtyAvailable += objExistingSalesOrderLine.QuantityCommitted;
-                                        objSalesOrderLine.Inventory.QtyCommitted -= objExistingSalesOrderLine.QuantityCommitted;
+                                        objSalesOrderLine.Inventory.QtyAvailable += objExistingSalesOrderLine.QuantityCommitted.Value;
+                                        objSalesOrderLine.Inventory.QtyCommitted -= objExistingSalesOrderLine.QuantityCommitted.Value;
                                         objSalesOrderLine.Inventory.QtyBackOrdered -= objExistingSalesOrderLine.QuantityBackOrder;
 
                                         UpdateInventory(objSalesOrderLine);
@@ -464,7 +607,7 @@ namespace ISLibrary.OrderManagement
                                             objSalesOrderLineDetail.InventoryDetail.Update();
                                         }
                                     }
-                                }                              
+                                }
 
                             }
 
@@ -482,8 +625,8 @@ namespace ISLibrary.OrderManagement
                         {
                             if (Status == enumOrderStatus.PendingFulfillment)
                             {
-                                currentSalesOrderLine.Inventory.QtyAvailable += currentSalesOrderLine.QuantityCommitted;
-                                currentSalesOrderLine.Inventory.QtyCommitted -= currentSalesOrderLine.QuantityCommitted;
+                                currentSalesOrderLine.Inventory.QtyAvailable += currentSalesOrderLine.QuantityCommitted.Value;
+                                currentSalesOrderLine.Inventory.QtyCommitted -= currentSalesOrderLine.QuantityCommitted.Value;
                                 currentSalesOrderLine.Inventory.QtyBackOrdered -= currentSalesOrderLine.QuantityBackOrder;
                                 currentSalesOrderLine.Inventory.Update();
                                 foreach (var objSalesOrderLineDetail in currentSalesOrderLine.SalesOrderLineDetails)
@@ -511,7 +654,7 @@ namespace ISLibrary.OrderManagement
                     }
                 }
 
-               
+
 
 
                 Load(objConn, objTran);
@@ -544,10 +687,8 @@ namespace ISLibrary.OrderManagement
                 objSalesOrderLine.QuantityCommitted = objSalesOrderLine.Quantity;
             }
             objSalesOrderLine.QuantityOnHand = objSalesOrderLine.Inventory.QtyOnHand;
-            objSalesOrderLine.QuantityAvailable = objSalesOrderLine.Inventory.QtyAvailable - objSalesOrderLine.QuantityCommitted;
-
-
-            objSalesOrderLine.Inventory.QtyCommitted += objSalesOrderLine.QuantityCommitted;
+            objSalesOrderLine.QuantityAvailable = objSalesOrderLine.Inventory.QtyAvailable - objSalesOrderLine.QuantityCommitted.Value;
+            objSalesOrderLine.Inventory.QtyCommitted += objSalesOrderLine.QuantityCommitted.Value;
             objSalesOrderLine.Inventory.QtyAvailable = objSalesOrderLine.QuantityAvailable;
             objSalesOrderLine.Inventory.Update();
 

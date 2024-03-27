@@ -146,16 +146,34 @@
                             </li>
                             <li class="slide">
                                 <a asp-controller="Customer" asp-action="Index" class="side-menu__item">Customer</a>
-                            </li>                            
+                            </li>
                             <li class="slide">
                                 <a asp-controller="PackageDimension" asp-action="Index" class="side-menu__item">Package Dimension</a>
                             </li>
                             <li class="slide">
                                 <a asp-controller="SalesOrder" asp-action="Index" class="side-menu__item">Sales Order</a>
                             </li>
-                            <li class="slide">
-                                <a asp-controller="SalesOrderLine" asp-action="Index" class="side-menu__item">Sales Order Line</a>
+                        </ul>
+                    </li>
+
+
+                    <li class="slide has-sub">
+                        <a href="javascript:void(0);" class="side-menu__item">
+                            <i class="bx bx-user-check side-menu__icon"></i>
+                            <span class="side-menu__label">Import Management</span>
+                            <i class="fe fe-chevron-right side-menu__angle"></i>
+                        </a>
+                        <ul class="slide-menu child1">
+                            <li class="slide side-menu__label1">
+                                <a href="javascript:void(0);">Import Management</a>
                             </li>
+                            <li class="slide">
+                                <a asp-controller="ImportTemplate" asp-action="Index" class="side-menu__item">Template</a>
+                            </li>
+                            <li class="slide">
+                                <a asp-controller="ImportResult" asp-action="Index" class="side-menu__item">Result</a>
+                            </li>
+                            <li class="slide">
                         </ul>
                     </li>
 

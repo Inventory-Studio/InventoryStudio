@@ -14,16 +14,31 @@ namespace InventoryStudio.Controllers.OrderManagement
 {
     public class AddressController : BaseController
     {
+        private readonly string CompanyID = string.Empty;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AddressController(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
+        }
+
         public IActionResult Index()
         {
-            Claim? company = User.Claims.FirstOrDefault(t => t.Type == "CompanyId");
-            var addresses = Address.GetAddresses(company.Value);
+            var addresses = Address.GetAddresses(CompanyID);
             var list = new List<AddressViewModel>();
             foreach (var address in addresses)
             {
                 list.Add(EntitieConvertViewModel(address));
             }
-
             return View("~/Views/OrderManagement/Address/Index.cshtml", list);
         }
 
@@ -94,10 +109,6 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         public IActionResult Create()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName");
             var addressCountries = AddressCountry.GetAddressCountries();
             ViewData["CountryID"] = new SelectList(addressCountries, "CountryID", "CountryName");
             return View("~/Views/OrderManagement/Address/Create.cshtml");
@@ -105,15 +116,12 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(
-            [Bind(
-                "CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")]
-            CreateAddressViewModel input)
+        public IActionResult Create(CreateAddressViewModel input)
         {
             if (ModelState.IsValid)
             {
                 var address = new Address();
-                address.CompanyID = input.CompanyID;
+                address.CompanyID = CompanyID;
                 address.CountryID = input.CountryID;
                 address.FullName = input.FullName;
                 address.Attention = input.Attention;
@@ -133,12 +141,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.CreatedOn = DateTime.Now;
                 address.Create();
             }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var addressCountries = AddressCountry.GetAddressCountries();
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             ViewData["CountryID"] = new SelectList(addressCountries, "CountryID", "CountryName", input.CountryID);
             return View("~/Views/OrderManagement/Address/Create.cshtml", input);
         }
@@ -150,15 +153,10 @@ namespace InventoryStudio.Controllers.OrderManagement
             var address = new Address(id);
             if (address == null)
                 return NotFound();
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var addressCountries = AddressCountry.GetAddressCountries();
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", address.CompanyID);
             ViewData["CountryID"] = new SelectList(addressCountries, "CountryID", "CountryName", address.CountryID);
             var viewModel = new EditAddressViewModel();
             viewModel.AddressID = address.AddressID;
-            viewModel.CompanyID = address.CompanyID;
             viewModel.CountryID = address.CountryID;
             viewModel.FullName = address.FullName;
             viewModel.Attention = address.Attention;
@@ -180,17 +178,14 @@ namespace InventoryStudio.Controllers.OrderManagement
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(string id,
-            [Bind(
-                "AddressID,CompanyID,FullName,Attention,CompanyName,Address1,Address2,Address3,City,State,PostalCode,CountryID,Email,Phone,Zone,IsInvalidAddress,IsAddressUpdated")]
-            EditAddressViewModel input)
+        public IActionResult Edit(string id, EditAddressViewModel input)
         {
             if (id != input.AddressID)
                 return NotFound();
             if (ModelState.IsValid)
             {
                 var address = new Address(input.AddressID);
-                address.CompanyID = input.CompanyID;
+                address.CompanyID = CompanyID;
                 address.CountryID = input.CountryID;
                 address.FullName = input.FullName;
                 address.Attention = input.Attention;
@@ -211,12 +206,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 address.Update();
                 return RedirectToAction(nameof(Index));
             }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
             var addressCountries = AddressCountry.GetAddressCountries();
-            ViewData["CompanyID"] = new SelectList(companies, "CompanyID", "CompanyName", input.CompanyID);
             ViewData["CountryID"] = new SelectList(addressCountries, "CountryID", "CountryName", input.CountryID);
             return View("~/Views/OrderManagement/Address/Edit.cshtml", input);
         }

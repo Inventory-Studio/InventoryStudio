@@ -17,10 +17,10 @@
             <form class="row" asp-controller="SalesOrder" asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="SalesOrderID" />
-                <div class="form-group col-md-6 mb-3">
+                @* <div class="form-group col-md-6 mb-3">
                     <label asp-for="CustomerID" class="form-label"></label>
                     <select asp-for="CustomerID" class="form-control" asp-items="ViewBag.CustomerID"></select>
-                </div>
+                </div> *@
                 <div class="form-group col-md-6 mb-3">
                     <label asp-for="PONumber" class="form-label"></label>
                     <input asp-for="PONumber" class="form-control" />
@@ -40,14 +40,14 @@
                     <label asp-for="LocationID" class="form-label"></label>
                     <select asp-for="LocationID" class="form-control" asp-items="ViewBag.LocationID"></select>
                 </div>
-                <div class="form-group col-md-6 mb-3">
+                @* <div class="form-group col-md-6 mb-3">
                     <label asp-for="BillToAddressID" class="form-label"></label>
                     <select asp-for="BillToAddressID" class="form-control" asp-items="ViewBag.BillToAddressID"></select>
                 </div>
                 <div class="form-group col-md-6 mb-3">
                     <label asp-for="ShipToAddressID" class="form-label"></label>
                     <select asp-for="ShipToAddressID" class="form-control" asp-items="ViewBag.ShipToAddressID"></select>
-                </div>
+                </div> *@
                 <div class="form-group col-md-6 mb-3">
                     <label asp-for="ShippingAmount" class="form-label"></label>
                     <input asp-for="ShippingAmount" class="form-control" />

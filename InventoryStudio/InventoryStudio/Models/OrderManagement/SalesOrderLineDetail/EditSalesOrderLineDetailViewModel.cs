@@ -6,7 +6,7 @@ namespace InventoryStudio.Models.OrderManagement.SalesOrderLineDetail
     {
         public string? SalesOrderLineDetailID { get; set; }
 
-        [Required]
+        //[Required]
         public string SalesOrderLineID { get; set; } = null!;
 
         public string? BinID { get; set; }

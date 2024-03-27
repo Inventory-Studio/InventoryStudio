@@ -39,9 +39,9 @@ namespace ISLibrary.OrderManagement
 
         public decimal Quantity { get; set; }
 
-        public decimal QuantityCommitted { get; set; }
+        public decimal? QuantityCommitted { get; set; }
 
-        public decimal QuantityShipped { get; set; }
+        public decimal? QuantityShipped { get; set; }
         public decimal QuantityFulfilled { get; set; }
         public decimal QuantityOnHand { get; set; }
         public decimal QuantityAvailable { get; set; }
@@ -353,7 +353,7 @@ namespace ISLibrary.OrderManagement
                         objSalesOrderLineDetail.Create(objConn, objTran);
                     }
                 }
-                
+
                 Load(objConn, objTran);
             }
             catch (Exception ex)

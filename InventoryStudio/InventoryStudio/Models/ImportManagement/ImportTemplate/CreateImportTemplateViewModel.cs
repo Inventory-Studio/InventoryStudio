@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace InventoryStudio.Models.Templates
+namespace InventoryStudio.Models.ImportManagement.ImportTemplate
 {
-    public class CreateTemplateViewModel
+    public class CreateImportTemplateViewModel
     {
 
         [DisplayName("Template Name")]

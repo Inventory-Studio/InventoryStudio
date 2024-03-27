@@ -17,19 +17,19 @@ namespace ISLibrary.Template
         [Required]
         public decimal Quantity { get; set; }
 
-        public string? SerialLotNumber { get; set; }
-
         /// <summary>
         ///  references Bin Table BinID
         ///  filter using BinNumber
         /// </summary>
         public string? Bin { get; set; }
 
+        public string? InventoryNumber { get; set; }
+
         /// <summary>
-        /// references Inventory Table InventoryID
-        /// filter using ItemId
+        /// references InventoryDetail Table InventoryID
+        /// filter using InventoryNumber
         /// </summary>
         [Required]
-        public string Inventory { get; set; } = null!;
+        public string InventoryDetail { get; set; } = null!;
     }
 }

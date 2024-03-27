@@ -3,6 +3,7 @@ using ISLibrary;
 using ISLibrary.OrderManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using static ISLibrary.OrderManagement.SalesOrder;
 
@@ -30,7 +31,7 @@ namespace InventoryStudio.Controllers.API
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateSalesOrderViewModel input)
+        public IActionResult PostSalesOrder([FromBody] CreateSalesOrderViewModel input)
         {
             try
             {
@@ -43,12 +44,13 @@ namespace InventoryStudio.Controllers.API
                 {
                     var salesOrder = new SalesOrder();
                     salesOrder.CompanyID = CompanyID;
-
-                    var customer = new Customer(CompanyID, input.CustomerID);
-                    if (customer == null)
-                        return BadRequest($"Customer with ID {input.CustomerID} not found");
-                    salesOrder.CustomerID = input.CustomerID;
-
+                    salesOrder.Customer = new Customer();
+                    salesOrder.Customer.ClientID = input.Customer.ClientID;
+                    salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                    salesOrder.Customer.FirstName = input.Customer.FirstName;
+                    salesOrder.Customer.LastName = input.Customer.LastName;
+                    salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                    salesOrder.Customer.ExternalID = input.Customer.ExternalID;
                     salesOrder.PONumber = input.PONumber;
                     salesOrder.TranDate = input.TranDate;
                     if (!string.IsNullOrEmpty(input.LocationID))
@@ -58,22 +60,40 @@ namespace InventoryStudio.Controllers.API
                             return BadRequest($"Location with ID {input.LocationID} not found");
                     }
                     salesOrder.LocationID = input.LocationID;
+                    salesOrder.BillToAddress = new Address();
+                    salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                    salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                    salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
+                    salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                    salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                    salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                    salesOrder.BillToAddress.City = input.BillToAddress.City;
+                    salesOrder.BillToAddress.State = input.BillToAddress.State;
+                    salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                    salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                    salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                    salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                    salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                    salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                    salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
 
-                    if (!string.IsNullOrEmpty(input.BillToAddressID))
-                    {
-                        var address = new Address(input.BillToAddressID);
-                        if (address == null)
-                            return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                    }
-                    salesOrder.BillToAddressID = input.BillToAddressID;
+                    salesOrder.ShipToAddress = new Address();
+                    salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                    salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                    salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
+                    salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                    salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                    salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                    salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                    salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                    salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                    salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                    salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                    salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                    salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                    salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                    salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
 
-                    if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                    {
-                        var address = new Address(input.ShipToAddressID);
-                        if (address == null)
-                            return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                    }
-                    salesOrder.ShipToAddressID = input.ShipToAddressID;
                     salesOrder.ShippingAmount = input.ShippingAmount;
                     salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                     salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -102,7 +122,6 @@ namespace InventoryStudio.Controllers.API
                     salesOrder.ReferenceNumber = input.ReferenceNumber;
                     salesOrder.SignatureRequired = input.SignatureRequired;
                     salesOrder.ShopifyOrderID = input.ShopifyOrderID;
-                    salesOrder.CreatedOn = DateTime.Now;
                     salesOrder.CreatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     salesOrder.SalesOrderLines = new List<SalesOrderLine>();
                     if (input.SalesOrderLines != null)
@@ -190,6 +209,222 @@ namespace InventoryStudio.Controllers.API
             }
 
 
+        }
+
+        [HttpPut]
+        public IActionResult PutSalesOrder([FromBody] EditSalesOrderViewModel input)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (string.IsNullOrEmpty(input.SalesOrderID))
+                        return BadRequest("SalesOrderID cannot be null or empty");
+
+                    var salesOrder = new SalesOrder(CompanyID, input.SalesOrderID);
+                    if (salesOrder == null)
+                        return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
+
+                    if (salesOrder.Customer != null && !string.IsNullOrEmpty(input.Customer.CustomerID))
+                    {
+                        salesOrder.Customer.ClientID = input.Customer.ClientID;
+                        salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                        salesOrder.Customer.FirstName = input.Customer.FirstName;
+                        salesOrder.Customer.LastName = input.Customer.LastName;
+                        salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                        salesOrder.Customer.ExternalID = input.Customer.ExternalID;
+                    }
+
+
+                    salesOrder.PONumber = input.PONumber;
+                    salesOrder.TranDate = input.TranDate;
+                    if (!string.IsNullOrEmpty(input.LocationID))
+                    {
+                        var location = new ISLibrary.Location(CompanyID, input.LocationID);
+                        if (location == null)
+                            return BadRequest($"Location with ID {input.LocationID} not found");
+                    }
+                    salesOrder.LocationID = input.LocationID;
+
+                    if (salesOrder.BillToAddress != null && !string.IsNullOrEmpty(input.BillToAddress.AddressID))
+                    {
+                        salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                        salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                        salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
+                        salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                        salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                        salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                        salesOrder.BillToAddress.City = input.BillToAddress.City;
+                        salesOrder.BillToAddress.State = input.BillToAddress.State;
+                        salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                        salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                        salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                        salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                        salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                        salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                        salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
+                    }
+
+                    if (salesOrder.ShipToAddress != null && !string.IsNullOrEmpty(input.ShipToAddress.AddressID))
+                    {
+                        salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                        salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                        salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
+                        salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                        salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                        salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                        salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                        salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                        salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                        salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                        salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                        salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                        salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                        salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                        salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
+                    }
+
+
+                    salesOrder.ShippingAmount = input.ShippingAmount;
+                    salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
+                    salesOrder.ItemTaxAmount = input.ItemTaxAmount;
+                    salesOrder.DiscountAmount = input.DiscountAmount;
+                    salesOrder.SalesSource = input.SalesSource;
+                    salesOrder.ShippingMethod = input.ShippingMethod;
+                    salesOrder.ShippingCarrier = input.ShippingCarrier;
+                    salesOrder.ShippingPackage = input.ShippingPackage;
+                    salesOrder.ShippingServiceCode = input.ShippingServiceCode;
+                    salesOrder.ShipFrom = input.ShipFrom;
+                    salesOrder.ShipTo = input.ShipTo;
+                    try
+                    {
+                        salesOrder.Status = (enumOrderStatus)Enum.Parse(typeof(enumOrderStatus), input.Status);
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest($"Invaliad Status: {input.Status}");
+                    }
+                    salesOrder.IsClosed = input.IsClosed;
+                    salesOrder.ExternalID = input.ExternalID;
+                    salesOrder.InternalNote = input.InternalNote;
+                    salesOrder.CustomerNote = input.CustomerNote;
+                    salesOrder.GiftMessage = input.GiftMessage;
+                    salesOrder.LabelMessage = input.LabelMessage;
+                    salesOrder.ReferenceNumber = input.ReferenceNumber;
+                    salesOrder.SignatureRequired = input.SignatureRequired;
+                    salesOrder.ShopifyOrderID = input.ShopifyOrderID;
+
+
+                    if (salesOrder.SalesOrderLines != null && input.SalesOrderLines != null)
+                    {
+                        foreach (var salesOrderLine in salesOrder.SalesOrderLines)
+                        {
+                            var currentInputSalesOrderLine = input.SalesOrderLines.Where(t => t.SalesOrderLineID == salesOrderLine.SalesOrderLineID).FirstOrDefault();
+                            if (currentInputSalesOrderLine != null)
+                            {
+                                salesOrderLine.LocationID = currentInputSalesOrderLine.LocationID;
+                                salesOrderLine.ItemID = currentInputSalesOrderLine.ItemID;
+                                salesOrderLine.ParentSalesOrderLineID = currentInputSalesOrderLine.ParentSalesOrderLineID;
+                                salesOrderLine.ItemName = currentInputSalesOrderLine.ItemName;
+                                salesOrderLine.ItemImageURL = currentInputSalesOrderLine.ItemImageURL;
+                                salesOrderLine.Description = currentInputSalesOrderLine.Description;
+                                salesOrderLine.Quantity = currentInputSalesOrderLine.Quantity;
+                                salesOrderLine.QuantityCommitted = currentInputSalesOrderLine.QuantityCommitted;
+                                salesOrderLine.QuantityShipped = currentInputSalesOrderLine.QuantityShipped;
+                                salesOrderLine.ItemUnitID = currentInputSalesOrderLine.ItemUnitID;
+                                salesOrderLine.UnitPrice = currentInputSalesOrderLine.UnitPrice;
+                                salesOrderLine.TaxRate = currentInputSalesOrderLine.TaxRate;
+                                salesOrderLine.Status = currentInputSalesOrderLine.Status;
+                                salesOrderLine.ExternalID = currentInputSalesOrderLine.ExternalID;
+                            }
+
+                            if (salesOrderLine.SalesOrderLineDetails != null && currentInputSalesOrderLine.SalesOrderLineDetails != null)
+                            {
+                                foreach (var salesOrderLineDetail in salesOrderLine.SalesOrderLineDetails)
+                                {
+                                    var currentInputSalesOrderLineDetail = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => t.SalesOrderLineDetailID == salesOrderLineDetail.SalesOrderLineDetailID).FirstOrDefault();
+                                    if (currentInputSalesOrderLineDetail != null)
+                                    {
+                                        salesOrderLineDetail.BinID = currentInputSalesOrderLineDetail.BinID;
+                                        salesOrderLineDetail.Quantity = currentInputSalesOrderLineDetail.Quantity;
+                                        salesOrderLineDetail.InventoryNumber = currentInputSalesOrderLineDetail.InventoryNumber;
+                                        salesOrderLineDetail.InventoryDetailID = currentInputSalesOrderLineDetail.InventoryDetailID;
+                                    }
+                                }
+                                var addSalesOrderLineDetails = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => t.SalesOrderLineDetailID == string.Empty).ToList();
+                                foreach (var currentInputSalesOrderLineDetail in addSalesOrderLineDetails)
+                                {
+                                    var salesOrderLineDetail = new SalesOrderLineDetail();
+                                    salesOrderLineDetail.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
+                                    salesOrderLineDetail.BinID = currentInputSalesOrderLineDetail.BinID;
+                                    salesOrderLineDetail.Quantity = currentInputSalesOrderLineDetail.Quantity;
+                                    salesOrderLineDetail.InventoryNumber = currentInputSalesOrderLineDetail.InventoryNumber;
+                                    salesOrderLineDetail.InventoryDetailID = currentInputSalesOrderLineDetail.InventoryDetailID;
+                                    salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
+                                }
+
+                                var deleteSalesOrderLineDetails = currentInputSalesOrderLine.SalesOrderLineDetails.Where(t => currentInputSalesOrderLine.SalesOrderLineDetails.Any(t => t.SalesOrderLineDetailID == t.SalesOrderLineDetailID)).ToList();
+                                foreach (var salesOrderLineDetail in deleteSalesOrderLineDetails)
+                                {
+                                    currentInputSalesOrderLine.SalesOrderLineDetails.Remove(salesOrderLineDetail);
+                                }
+                            }
+                        }
+
+                        var addSalesOrderLines = input.SalesOrderLines.Where(t => t.SalesOrderLineID == string.Empty).ToList();
+                        if (addSalesOrderLines.Count > 0)
+                        {
+                            foreach (var currentInputSalesOrderLine in addSalesOrderLines)
+                            {
+                                var salesOrderLine = new SalesOrderLine();
+                                salesOrderLine.SalesOrderID = salesOrder.SalesOrderID;
+                                salesOrderLine.LocationID = currentInputSalesOrderLine.LocationID;
+                                salesOrderLine.ItemID = currentInputSalesOrderLine.ItemID;
+                                salesOrderLine.ParentSalesOrderLineID = currentInputSalesOrderLine.ParentSalesOrderLineID;
+                                salesOrderLine.ItemName = currentInputSalesOrderLine.ItemName;
+                                salesOrderLine.ItemImageURL = currentInputSalesOrderLine.ItemImageURL;
+                                salesOrderLine.Description = currentInputSalesOrderLine.Description;
+                                salesOrderLine.Quantity = currentInputSalesOrderLine.Quantity;
+                                salesOrderLine.QuantityCommitted = currentInputSalesOrderLine.QuantityCommitted;
+                                salesOrderLine.QuantityShipped = currentInputSalesOrderLine.QuantityShipped;
+                                salesOrderLine.ItemUnitID = currentInputSalesOrderLine.ItemUnitID;
+                                salesOrderLine.UnitPrice = currentInputSalesOrderLine.UnitPrice;
+                                salesOrderLine.TaxRate = currentInputSalesOrderLine.TaxRate;
+                                salesOrderLine.Status = currentInputSalesOrderLine.Status;
+                                salesOrderLine.ExternalID = currentInputSalesOrderLine.ExternalID;
+                                salesOrder.SalesOrderLines.Add(salesOrderLine);
+
+                                if (currentInputSalesOrderLine.SalesOrderLineDetails != null)
+                                {
+                                    salesOrderLine.SalesOrderLineDetails = new List<SalesOrderLineDetail>();
+                                    foreach (var currentSalesOrderLineDetail in currentInputSalesOrderLine.SalesOrderLineDetails)
+                                    {
+                                        var salesOrderLineDetail = new SalesOrderLineDetail();
+                                        salesOrderLineDetail.BinID = currentSalesOrderLineDetail.BinID;
+                                        salesOrderLineDetail.Quantity = currentSalesOrderLineDetail.Quantity;
+                                        salesOrderLineDetail.InventoryNumber = currentSalesOrderLineDetail.InventoryNumber;
+                                        salesOrderLineDetail.InventoryDetailID = currentSalesOrderLineDetail.InventoryDetailID;
+                                        salesOrderLine.SalesOrderLineDetails.Add(salesOrderLineDetail);
+                                    }
+                                }
+                            }
+                        }
+
+                        var deleteSalesOrderLines = salesOrder.SalesOrderLines.Where(s => !input.SalesOrderLines.Any(i => i.SalesOrderLineID == s.SalesOrderLineID) && s.IsNew == false).ToList();
+                        foreach (var salesOrderLine in deleteSalesOrderLines)
+                        {
+                            salesOrder.SalesOrderLines.Remove(salesOrderLine);
+                        }
+                    }
+                    salesOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    salesOrder.Update();
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

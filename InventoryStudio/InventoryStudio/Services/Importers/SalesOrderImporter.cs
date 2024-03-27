@@ -20,9 +20,9 @@ namespace InventoryStudio.Services.Importers
         }
 
 
-        private List<ImportFailedRecord> failedRecords = new List<ImportFailedRecord>();
+        private ImportResult importResult;
 
-
+        public SalesOrderImporter() => importResult = new ImportResult();
 
         public async Task ImportDatasAsync(string companyId, string importTemplateID, string userId, FileHandlers.ProgressHandler progressHandler, List<List<Dictionary<string, string>>> datas)
         {
@@ -34,94 +34,137 @@ namespace InventoryStudio.Services.Importers
             var salesOrderFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrder").ToList();
             var salesOrderLineFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrderLine").ToList();
             var salesOrderLineDetailFields = importTemplateFields.Where(t => t.DestinationTable == "SalesOrderLineDetail").ToList();
-            var importResult = new ImportResult
-            {
-                ImportTemplateID = importTemplateID,
-                UploadBy = userId,
-                UploadTime = DateTime.Now,
-                TotalRecords = datas[0].Count,
-            };
-            importResult.Create();
-            var salesOrders = new List<(SalesOrder, int)>();
-            var salesOrderLines = new List<(SalesOrderLine, int)>();
-            var salesOrderLineDetails = new List<(SalesOrderLineDetail, int)>();
 
+
+            importResult.ImportTemplateID = importTemplateID;
+            importResult.UpdatedBy = userId;
+            importResult.UploadTime = DateTime.Now;
+            importResult.TotalRecords = datas[0].Count;
+
+            importResult.Create();
+            var salesOrderAndIndexs = new List<(SalesOrder salesOrder, int index)>();
+            var salesOrderLineAndIndexs = new List<(SalesOrderLine salesOrderLine, int index)>();
+            var salesOrderLineDetailAndIndexs = new List<(SalesOrderLineDetail salesOrderLineDetail, int index)>();
+
+
+            foreach (var data in datas[0])
+            {
+                data.TryGetValue("SalesOrderIndex", out string? salesOrderIndex);
+                var (salesOrder, error) = await GetEntity<SalesOrder>(companyId, data, salesOrderFields);
+                if (!error && salesOrder != null)
+                    salesOrderAndIndexs.Add((salesOrder, Convert.ToInt32(salesOrderIndex)));
+            }
+
+            foreach (var data in datas[1])
+            {
+                data.TryGetValue("SalesOrderIndex", out string? SalesOrderIndex);
+                var (salesOrderLine, error) = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
+                if (!error && salesOrderLine != null)
+                    salesOrderLineAndIndexs.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
+            }
+
+            foreach (var data in datas[2])
+            {
+                data.TryGetValue("SalesOrderLineIndex", out string? SalesOrderLineIndex);
+                var (salesOrderLineDetail, error) = await GetEntity<SalesOrderLineDetail>(companyId, data, salesOrderLineDetailFields);
+                if (!error && salesOrderLineDetail != null)
+                    salesOrderLineDetailAndIndexs.Add((salesOrderLineDetail, Convert.ToInt32(SalesOrderLineIndex)));
+            }
+
+            foreach (var salesOrder in salesOrderAndIndexs)
+            {
+                var currentSalesOrderLines = salesOrderLineAndIndexs.Where(t => t.index == salesOrder.index).ToList();
+                if (currentSalesOrderLines.Any())
+                {
+                    foreach (var salesOrderLine in currentSalesOrderLines)
+                    {
+                        var currentSalesOrderLineDetails = salesOrderLineDetailAndIndexs.Where(t => t.index == salesOrderLine.index).ToList();
+                        if (currentSalesOrderLineDetails.Any())
+                        {
+                            salesOrderLine.salesOrderLine.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.salesOrderLineDetail).ToList();
+                        }
+                    }
+                    salesOrder.salesOrder.SalesOrderLines = currentSalesOrderLines.Select(t => t.salesOrderLine).ToList();
+                }
+                salesOrder.salesOrder.CreatedBy = userId;
+                salesOrder.salesOrder.CompanyID = companyId;
+                salesOrder.salesOrder.Status = SalesOrder.enumOrderStatus.Pending;
+                try
+                {
+                    salesOrder.salesOrder.Create();
+                    importResult.SuccessfulRecords++;
+                }
+                catch (Exception ex)
+                {
+                    var failedDataJson = JsonSerializer.Serialize(salesOrder.salesOrder);
+                    var failedRecord = new ImportFailedRecord
+                    {
+                        ImportResultID = importResult.ImportResultID,
+                        ErrorMessage = ex.Message,
+                        FailedData = failedDataJson
+                    };
+                    failedRecord.Create();
+                    importResult.FailedRecords++;
+                }
+                processedCount++;
+                int progress = (int)(processedCount / (double)importResult.TotalRecords * 100);
+                progressHandler?.Invoke(progress, importTemplateID);
+            }
+            importResult.Update();
+        }
+
+
+        private async Task<(T, bool)> GetEntity<T>(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields) where T : class, new()
+        {
+            var entity = new T();
+            var error = false;
             try
             {
-                foreach (var data in datas[0]) // Importing SalesOrder
+                foreach (var field in data)
                 {
-                    data.TryGetValue("SalesOrderIndex", out string? salesOrderIndex);
-                    var salesOrder = await GetEntity<SalesOrder>(companyId, data, salesOrderFields);
-                    salesOrders.Add((salesOrder, Convert.ToInt32(salesOrderIndex)));
-                }
-
-                foreach (var data in datas[1]) // Importing SalesOrderLine
-                {
-                    var SalesOrderIndex = data["SalesOrderIndex"];
-                    var salesOrderLine = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
-                    salesOrderLines.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
-                }
-
-                foreach (var data in datas[2]) // Importing SalesOrderLineDetail
-                {
-                    var SalesOrderLineIndex = data["SalesOrderLineIndex"];
-                    var salesOrderLineDetail = await GetEntity<SalesOrderLineDetail>(companyId, data, salesOrderLineDetailFields);
-                    salesOrderLineDetails.Add((salesOrderLineDetail, Convert.ToInt32(SalesOrderLineIndex)));
-                }
-
-                foreach (var salesOrder in salesOrders)
-                {
-                    var currentSalesOrderLines = salesOrderLines.Where(t => t.Item2 == salesOrder.Item2).ToList();
-                    if (currentSalesOrderLines.Any())
+                    if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
-                        foreach (var salesOrderLine in currentSalesOrderLines)
+                        var property = typeof(T).GetProperty(destinationField);
+                        if (property != null)
                         {
-                            var currentSalesOrderLineDetails = salesOrderLineDetails.Where(t => t.Item2 == salesOrderLine.Item2).ToList();
-                            if (currentSalesOrderLineDetails.Any())
-                            {
-                                salesOrderLine.Item1.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.Item1).ToList();
-                            }
-                        }
 
-                        salesOrder.Item1.SalesOrderLines = currentSalesOrderLines.Select(t => t.Item1).ToList();
+                            var convertedValue = await GetPropertyValueAsync(companyId, property, field.Value);
+
+                            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+                            {
+                                var idProperty = typeof(T).GetProperty(property.Name + "ID");
+                                if (idProperty != null)
+                                {
+                                    idProperty.SetValue(entity, convertedValue);
+                                }
+                                else
+                                {
+                                    throw new Exception($"ID property for {property.Name} not found.");
+                                }
+                            }
+                            else
+                            {
+                                property.SetValue(entity, convertedValue);
+                            }
+
+                        }
                     }
-                    salesOrder.Item1.CreatedBy = userId;
-                    salesOrder.Item1.CompanyID = companyId;
-                    salesOrder.Item1.Status = SalesOrder.enumOrderStatus.Pending;
-                    salesOrder.Item1.Create();
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
-            }
-        }
-
-
-        private async Task<T> GetEntity<T>(string companyId, Dictionary<string, string> data, List<ImportTemplateField> importTemplateFields) where T : class, new()
-        {
-            var entity = new T();
-
-            foreach (var field in data)
-            {
-                if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
+                var failedDataJson = JsonSerializer.Serialize(data);
+                var failedRecord = new ImportFailedRecord
                 {
-                    var property = typeof(T).GetProperty(destinationField);
-                    if (property != null)
-                    {
-                        try
-                        {
-                            var convertedValue = await GetPropertyValueAsync(companyId, property, field.Value);
-                            property.SetValue(entity, convertedValue);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
-                    }
-                }
+                    ImportResultID = importResult.ImportResultID,
+                    ErrorMessage = ex.Message,
+                    FailedData = failedDataJson
+                };
+                failedRecord.Create();
+                importResult.FailedRecords++;
+                error = true;
             }
-            return entity;
+            return (error ? default(T) : entity, error);
         }
 
         private async Task<object> GetPropertyValueAsync(string companyId, PropertyInfo property, string value)
@@ -167,72 +210,81 @@ namespace InventoryStudio.Services.Importers
                     throw new Exception($"Unable to parse '{value}' to DateTime.");
                 }
             }
-            else if (propertyType == typeof(Customer))
+            else if (property.Name == "CustomerID")
             {
                 CustomerFilter filter = new CustomerFilter();
                 filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.EmailAddress.SearchString = value;
                 var customer = Customer.GetCustomer(companyId, filter);
                 if (customer != null)
-                    return customer;
+                    return customer.CustomerID;
                 else
                     throw new Exception($"Unable to find the customer {value}");
             }
-            else if (propertyType == typeof(Address) && (property.Name == "BillToAddress") || property.Name == "ShipToAddress")
+            else if (property.Name == "BillToAddressID" || property.Name == "ShipToAddressID")
             {
                 AddressFilter filter = new AddressFilter();
                 filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.Email.SearchString = value;
                 var address = Address.GetAddress(companyId, filter);
                 if (address != null)
-                    return address;
+                    return address.AddressID;
             }
-            else if (property.PropertyType == typeof(Location))
+            else if (property.Name == "LocationID")
             {
                 LocationFilter filter = new LocationFilter();
                 filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.LocationName.SearchString = value;
                 var location = Location.GetLocation(companyId, filter);
                 if (location != null)
-                    return location;
+                    return location.LocationID;
             }
-            else if (propertyType == typeof(Bin))
+            else if (property.Name == "BinID")
             {
                 BinFilter filter = new BinFilter();
                 filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.BinNumber.SearchString = value;
                 var bins = Bin.GetBins(companyId, filter);
                 if (bins != null)
-                    return bins.First();
+                    return bins.First()?.BinID;
                 else
                     throw new Exception($"Unable to find the Bin {value}");
             }
-            else if (property.PropertyType == typeof(Inventory))
+            else if (property.Name == "InventoryID")
             {
                 InventoryFilter filter = new InventoryFilter();
                 filter.ItemID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.ItemID.SearchString = value;
                 var inventory = Inventory.GetInventory(filter);
                 if (inventory != null)
-                    return inventory;
+                    return inventory.InventoryID;
             }
-            else if (property.PropertyType == typeof(Item))
+            else if (property.Name == "ItemID")
             {
                 ItemFilter filter = new ItemFilter();
                 filter.ItemNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.ItemNumber.SearchString = value;
                 var item = Item.GetItem(companyId, filter);
                 if (item != null)
-                    return item;
+                    return item.ItemID;
             }
-            else if (propertyType == typeof(ItemUnit))
+            else if (property.Name == "ItemUnitID")
             {
                 var filter = new ItemUnitFilter();
                 filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
                 filter.Name.SearchString = value;
                 var itemUnits = ItemUnit.GetItemUnits(companyId, filter);
                 if (itemUnits != null)
-                    return itemUnits.First();
+                    return itemUnits.First().ItemUnitID;
+            }
+            else if (property.Name == "InventoryDetailID")
+            {
+                InventoryDetailFilter filter = new InventoryDetailFilter();
+                filter.InventoryNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.InventoryNumber.SearchString = value;
+                var inventoryDetail = InventoryDetail.GetInventoryDetail(companyId, filter);
+                if (inventoryDetail != null)
+                    return inventoryDetail.InventoryDetailID;
             }
             else
             {

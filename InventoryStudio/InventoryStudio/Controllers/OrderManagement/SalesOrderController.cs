@@ -100,7 +100,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             }
             catch (ArgumentException)
             {
-                 BadRequest($"Invaliad Status: {viewModel.Status}");
+                BadRequest($"Invaliad Status: {viewModel.Status}");
             }
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
@@ -164,10 +164,13 @@ namespace InventoryStudio.Controllers.OrderManagement
                 var salesOrder = new SalesOrder();
                 salesOrder.CompanyID = CompanyID;
 
-                var customer = new Customer(CompanyID, input.CustomerID);
-                if (customer == null)
-                    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                salesOrder.CustomerID = input.CustomerID;
+                salesOrder.Customer = new Customer();
+                salesOrder.Customer.ClientID = input.Customer.ClientID;
+                salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                salesOrder.Customer.FirstName = input.Customer.FirstName;
+                salesOrder.Customer.LastName = input.Customer.LastName;
+                salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                salesOrder.Customer.ExternalID = input.Customer.ExternalID;
 
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
@@ -179,20 +182,40 @@ namespace InventoryStudio.Controllers.OrderManagement
                 }
                 salesOrder.LocationID = input.LocationID;
 
-                if (!string.IsNullOrEmpty(input.BillToAddressID))
-                {
-                    var address = new Address(input.BillToAddressID);
-                    if (address == null)
-                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.BillToAddressID = input.BillToAddressID;
-                salesOrder.ShipToAddressID = input.ShipToAddressID;
-                if (!string.IsNullOrEmpty(input.ShipToAddressID))
-                {
-                    var address = new Address(input.ShipToAddressID);
-                    if (address == null)
-                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
-                }
+                salesOrder.BillToAddress = new Address();
+                salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
+                salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                salesOrder.BillToAddress.City = input.BillToAddress.City;
+                salesOrder.BillToAddress.State = input.BillToAddress.State;
+                salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
+
+                salesOrder.ShipToAddress = new Address();
+                salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
+                salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
+
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -204,7 +227,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.ShippingServiceCode = input.ShippingServiceCode;
                 salesOrder.ShipFrom = input.ShipFrom;
                 salesOrder.ShipTo = input.ShipTo;
-               
+
                 salesOrder.IsClosed = input.IsClosed;
                 salesOrder.ExternalID = input.ExternalID;
                 salesOrder.InternalNote = input.InternalNote;
@@ -297,13 +320,7 @@ namespace InventoryStudio.Controllers.OrderManagement
             var addresses = Address.GetAddresses(CompanyID);
             var customers = Customer.GetCustomers(CompanyID);
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = new AspNetUsers(userId);
-            var companies = user.Companies;
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Create.cshtml", input);
         }
 
@@ -316,23 +333,76 @@ namespace InventoryStudio.Controllers.OrderManagement
             if (salesOrder == null)
                 return NotFound();
 
-            var addresses = Address.GetAddresses(CompanyID);
-            var customers = Customer.GetCustomers(CompanyID);
+
             var locations = ISLibrary.Location.GetLocations(CompanyID);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = new AspNetUsers(userId);
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", salesOrder.CustomerID);
+
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", salesOrder.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", salesOrder.ShipToAddressID);
+
             var viewModel = new EditSalesOrderViewModel();
             viewModel.SalesOrderID = salesOrder.SalesOrderID;
-            viewModel.CustomerID = salesOrder.CustomerID;
+
+            if (salesOrder.Customer != null)
+            {
+                viewModel.Customer = new Models.OrderManagement.Customer.EditCustomerViewModel();
+                viewModel.Customer.CustomerID = salesOrder.Customer.CustomerID;
+                viewModel.Customer.ClientID = salesOrder.Customer.ClientID;
+                viewModel.Customer.CompanyName = salesOrder.Customer.CompanyName;
+                viewModel.Customer.FirstName = salesOrder.Customer.FirstName;
+                viewModel.Customer.LastName = salesOrder.Customer.LastName;
+                viewModel.Customer.EmailAddress = salesOrder.Customer.EmailAddress;
+                viewModel.Customer.ExternalID = salesOrder.Customer.ExternalID;
+            }
+
             viewModel.PONumber = salesOrder.PONumber;
             viewModel.TranDate = salesOrder.TranDate;
             viewModel.LocationID = salesOrder.LocationID;
-            viewModel.BillToAddressID = salesOrder.BillToAddressID;
-            viewModel.ShipToAddressID = salesOrder.ShipToAddressID;
+
+
+            if (salesOrder.ShipToAddress != null)
+            {
+                viewModel.ShipToAddress = new Models.OrderManagement.Address.EditAddressViewModel();
+                viewModel.ShipToAddress.AddressID = salesOrder.ShipToAddress.AddressID;
+                viewModel.ShipToAddress.FullName = salesOrder.ShipToAddress.FullName;
+                viewModel.ShipToAddress.Attention = salesOrder.ShipToAddress.Attention;
+                viewModel.ShipToAddress.CompanyName = salesOrder.ShipToAddress.CompanyName;
+                viewModel.ShipToAddress.Address1 = salesOrder.ShipToAddress.Address1;
+                viewModel.ShipToAddress.Address2 = salesOrder.ShipToAddress.Address2;
+                viewModel.ShipToAddress.Address3 = salesOrder.ShipToAddress.Address3;
+                viewModel.ShipToAddress.City = salesOrder.ShipToAddress.City;
+                viewModel.ShipToAddress.State = salesOrder.ShipToAddress.State;
+                viewModel.ShipToAddress.PostalCode = salesOrder.ShipToAddress.PostalCode;
+                viewModel.ShipToAddress.CountryID = salesOrder.ShipToAddress.CountryID;
+                viewModel.ShipToAddress.Email = salesOrder.ShipToAddress.Email;
+                viewModel.ShipToAddress.Phone = salesOrder.ShipToAddress.Phone;
+                viewModel.ShipToAddress.Zone = salesOrder.ShipToAddress.Zone;
+                viewModel.ShipToAddress.IsInvalidAddress = salesOrder.ShipToAddress.IsInvalidAddress;
+                viewModel.ShipToAddress.IsAddressUpdated = salesOrder.ShipToAddress.IsAddressUpdated;
+            }
+
+
+            if (salesOrder.BillToAddress != null)
+            {
+                viewModel.BillToAddress = new Models.OrderManagement.Address.EditAddressViewModel();
+                viewModel.BillToAddress.AddressID = salesOrder.BillToAddress.AddressID;
+                viewModel.BillToAddress.FullName = salesOrder.BillToAddress.FullName;
+                viewModel.BillToAddress.Attention = salesOrder.BillToAddress.Attention;
+                viewModel.BillToAddress.CompanyName = salesOrder.BillToAddress.CompanyName;
+                viewModel.BillToAddress.Address1 = salesOrder.BillToAddress.Address1;
+                viewModel.BillToAddress.Address2 = salesOrder.BillToAddress.Address2;
+                viewModel.BillToAddress.Address3 = salesOrder.BillToAddress.Address3;
+                viewModel.BillToAddress.City = salesOrder.BillToAddress.City;
+                viewModel.BillToAddress.State = salesOrder.BillToAddress.State;
+                viewModel.BillToAddress.PostalCode = salesOrder.BillToAddress.PostalCode;
+                viewModel.BillToAddress.CountryID = salesOrder.BillToAddress.CountryID;
+                viewModel.BillToAddress.Email = salesOrder.BillToAddress.Email;
+                viewModel.BillToAddress.Phone = salesOrder.BillToAddress.Phone;
+                viewModel.BillToAddress.Zone = salesOrder.BillToAddress.Zone;
+                viewModel.BillToAddress.IsInvalidAddress = salesOrder.BillToAddress.IsInvalidAddress;
+                viewModel.BillToAddress.IsAddressUpdated = salesOrder.BillToAddress.IsAddressUpdated;
+            }
+
             viewModel.ShippingAmount = salesOrder.ShippingAmount;
             viewModel.ShippingTaxAmount = salesOrder.ShippingTaxAmount;
             viewModel.ItemTaxAmount = salesOrder.ItemTaxAmount;
@@ -343,8 +413,8 @@ namespace InventoryStudio.Controllers.OrderManagement
             viewModel.ShippingPackage = salesOrder.ShippingPackage;
             viewModel.ShippingServiceCode = salesOrder.ShippingServiceCode;
             viewModel.ShipFrom = salesOrder.ShipFrom;
-            viewModel.ShipTo = salesOrder.ShipTo;           
-            viewModel.Status = Convert.ToString(salesOrder.Status);            
+            viewModel.ShipTo = salesOrder.ShipTo;
+            viewModel.Status = Convert.ToString(salesOrder.Status);
             viewModel.IsClosed = salesOrder.IsClosed;
             viewModel.ExternalID = salesOrder.ExternalID;
             viewModel.InternalNote = salesOrder.InternalNote;
@@ -361,7 +431,7 @@ namespace InventoryStudio.Controllers.OrderManagement
                 {
                     var salesOrderLineViewModel = new EditSalesOrderLineViewModel();
                     salesOrderLineViewModel.SalesOrderLineID = salesOrderLine.SalesOrderLineID;
-                    salesOrderLineViewModel.SalesOrderID = salesOrderLine.SalesOrderID;
+                    //salesOrderLineViewModel.SalesOrderID = salesOrderLine.SalesOrderID;
                     salesOrderLineViewModel.LocationID = salesOrderLine.LocationID;
                     salesOrderLineViewModel.ItemID = salesOrderLine.ItemID;
                     salesOrderLineViewModel.ParentSalesOrderLineID = salesOrderLine.ParentSalesOrderLineID;
@@ -412,12 +482,15 @@ namespace InventoryStudio.Controllers.OrderManagement
                     return NotFound($"SalesOrder with ID {input.SalesOrderID} not found");
 
                 salesOrder.CompanyID = CompanyID;
-                var customer = new Customer(CompanyID, input.CustomerID);
-                if (customer == null)
-                    return BadRequest($"Customer with ID {input.CustomerID} not found");
-                salesOrder.CustomerID = input.CustomerID;
-
-                salesOrder.CustomerID = input.CustomerID;
+                if (salesOrder.Customer != null && !string.IsNullOrEmpty(input.Customer.CustomerID))
+                {
+                    salesOrder.Customer.ClientID = input.Customer.ClientID;
+                    salesOrder.Customer.CompanyName = input.Customer.CompanyName;
+                    salesOrder.Customer.FirstName = input.Customer.FirstName;
+                    salesOrder.Customer.LastName = input.Customer.LastName;
+                    salesOrder.Customer.EmailAddress = input.Customer.EmailAddress;
+                    salesOrder.Customer.ExternalID = input.Customer.ExternalID;
+                }
                 salesOrder.PONumber = input.PONumber;
                 salesOrder.TranDate = input.TranDate;
                 if (!string.IsNullOrEmpty(input.LocationID))
@@ -427,21 +500,47 @@ namespace InventoryStudio.Controllers.OrderManagement
                         return BadRequest($"Location with ID {input.LocationID} not found");
                 }
                 salesOrder.LocationID = input.LocationID;
-                if (!string.IsNullOrEmpty(input.BillToAddressID))
-                {
-                    var address = new Address(input.BillToAddressID);
-                    if (address == null)
-                        return BadRequest($"BillToAddress with ID {input.BillToAddressID} not found");
-                }
-                salesOrder.BillToAddressID = input.BillToAddressID;
 
-                if (!string.IsNullOrEmpty(input.ShipToAddressID))
+                if (salesOrder.BillToAddress != null && !string.IsNullOrEmpty(input.BillToAddress.AddressID))
                 {
-                    var address = new Address(input.ShipToAddressID);
-                    if (address == null)
-                        return BadRequest($"ShipToAddress with ID {input.BillToAddressID} not found");
+                    salesOrder.BillToAddress.FullName = input.BillToAddress.FullName;
+                    salesOrder.BillToAddress.Attention = input.BillToAddress.Attention;
+                    salesOrder.BillToAddress.CompanyName = input.BillToAddress.CompanyName;
+                    salesOrder.BillToAddress.Address1 = input.BillToAddress.Address1;
+                    salesOrder.BillToAddress.Address2 = input.BillToAddress.Address2;
+                    salesOrder.BillToAddress.Address3 = input.BillToAddress.Address3;
+                    salesOrder.BillToAddress.City = input.BillToAddress.City;
+                    salesOrder.BillToAddress.State = input.BillToAddress.State;
+                    salesOrder.BillToAddress.PostalCode = input.BillToAddress.PostalCode;
+                    salesOrder.BillToAddress.CountryID = input.BillToAddress.CountryID;
+                    salesOrder.BillToAddress.Email = input.BillToAddress.Email;
+                    salesOrder.BillToAddress.Phone = input.BillToAddress.Phone;
+                    salesOrder.BillToAddress.Zone = input.BillToAddress.Zone;
+                    salesOrder.BillToAddress.IsInvalidAddress = input.BillToAddress.IsInvalidAddress;
+                    salesOrder.BillToAddress.IsAddressUpdated = input.BillToAddress.IsAddressUpdated;
                 }
-                salesOrder.ShipToAddressID = input.ShipToAddressID;
+
+
+                if (salesOrder.ShipToAddress != null && !string.IsNullOrEmpty(input.ShipToAddress.AddressID))
+                {
+                    salesOrder.ShipToAddress.FullName = input.ShipToAddress.FullName;
+                    salesOrder.ShipToAddress.Attention = input.ShipToAddress.Attention;
+                    salesOrder.ShipToAddress.CompanyName = input.ShipToAddress.CompanyName;
+                    salesOrder.ShipToAddress.Address1 = input.ShipToAddress.Address1;
+                    salesOrder.ShipToAddress.Address2 = input.ShipToAddress.Address2;
+                    salesOrder.ShipToAddress.Address3 = input.ShipToAddress.Address3;
+                    salesOrder.ShipToAddress.City = input.ShipToAddress.City;
+                    salesOrder.ShipToAddress.State = input.ShipToAddress.State;
+                    salesOrder.ShipToAddress.PostalCode = input.ShipToAddress.PostalCode;
+                    salesOrder.ShipToAddress.CountryID = input.ShipToAddress.CountryID;
+                    salesOrder.ShipToAddress.Email = input.ShipToAddress.Email;
+                    salesOrder.ShipToAddress.Phone = input.ShipToAddress.Phone;
+                    salesOrder.ShipToAddress.Zone = input.ShipToAddress.Zone;
+                    salesOrder.ShipToAddress.IsInvalidAddress = input.ShipToAddress.IsInvalidAddress;
+                    salesOrder.ShipToAddress.IsAddressUpdated = input.ShipToAddress.IsAddressUpdated;
+                }
+
+
                 salesOrder.ShippingAmount = input.ShippingAmount;
                 salesOrder.ShippingTaxAmount = input.ShippingTaxAmount;
                 salesOrder.ItemTaxAmount = input.ItemTaxAmount;
@@ -551,13 +650,9 @@ namespace InventoryStudio.Controllers.OrderManagement
                 salesOrder.Update();
                 return RedirectToAction(nameof(Index));
             }
-            var addresses = Address.GetAddresses(CompanyID);
-            var customers = Customer.GetCustomers(CompanyID);
+
             var locations = ISLibrary.Location.GetLocations(CompanyID);
-            ViewData["BillToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.BillToAddressID);
-            ViewData["CustomerID"] = new SelectList(customers, "CustomerID", "EmailAddress", input.CustomerID);
             ViewData["LocationID"] = new SelectList(locations, "LocationID", "LocationName", input.LocationID);
-            ViewData["ShipToAddressID"] = new SelectList(addresses, "AddressID", "FullName", input.ShipToAddressID);
             return View("~/Views/OrderManagement/SalesOrder/Edit.cshtml", input);
         }
 
@@ -584,24 +679,6 @@ namespace InventoryStudio.Controllers.OrderManagement
         }
 
 
-        //[HttpPost("import")]
-        //public async Task<IActionResult> import(IFormFile file)
-        //{
-        //    try
-        //    {
-        //        var fileType = Path.GetExtension(file.FileName);
-        //        //var _fileHandler = FileHandlerFactory.CreateFileHandler<SalesOrder>(fileType);
-        //        //var records = await _fileHandler.Import(file);
-        //        //【ToDo】Process import logic
-        //        //return Ok(records);
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return StatusCode(500, ex.Message);
-        //    }
-        //}
 
         [HttpGet("export")]
         public async Task<IActionResult> Export(string fileType, string id)

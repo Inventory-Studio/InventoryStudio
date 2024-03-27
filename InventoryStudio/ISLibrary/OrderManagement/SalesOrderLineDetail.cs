@@ -57,8 +57,8 @@ namespace ISLibrary.OrderManagement
                         {
                             objFilter.InventoryNumber = new Database.Filter.StringSearch.SearchFilter();
                             objFilter.InventoryNumber.SearchString = InventoryNumber;
-                        }                       
-                        mInventoryDetail = InventoryDetail.GetInventoryDetail(CompanyID,objFilter);
+                        }
+                        mInventoryDetail = InventoryDetail.GetInventoryDetail(CompanyID, objFilter);
                     }
                 }
                 catch (Exception ex)
@@ -213,11 +213,6 @@ namespace ISLibrary.OrderManagement
                 dicParam["CreatedBy"] = CreatedBy;
                 dicParam["CreatedOn"] = DateTime.Now;
                 SalesOrderLineDetailID = Database.ExecuteSQLWithIdentity(Database.GetInsertSQL(dicParam, "SalesOrderLineDetail"), objConn, objTran).ToString();
-               
-                
-                
-                
-                
                 Load(objConn, objTran);
             }
             catch (Exception ex)

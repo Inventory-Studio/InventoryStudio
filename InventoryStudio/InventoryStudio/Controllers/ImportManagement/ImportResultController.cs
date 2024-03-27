@@ -1,37 +1,47 @@
-﻿using InventoryStudio.Models.ImportResults;
-using ISLibrary;
+﻿using ISLibrary;
 using ISLibrary.ImportTemplateManagement;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using System.Dynamic;
 using InventoryStudio.FileHandlers;
+using InventoryStudio.Models.ImportManagement.ImportResult;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 
-namespace InventoryStudio.Controllers
+namespace InventoryStudio.Controllers.ImportManagement
 {
     public class ImportResultController : Controller
     {
         private readonly string CompanyID = string.Empty;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
         private readonly FileHandlerFactory _fileHandlerFactory;
         public ImportResultController(IHttpContextAccessor httpContextAccessor, FileHandlerFactory fileHandlerFactory)
         {
             _httpContextAccessor = httpContextAccessor;
             _fileHandlerFactory = fileHandlerFactory;
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                Claim? company = user.Claims.FirstOrDefault(t => t.Type == "CompanyId");
+                if (company != null)
+                    CompanyID = company.Value;
+            }
         }
 
         public IActionResult Index()
         {
-            //【Todo】 Need to add filtering conditions
-            var importResults = ImportResult.GetImportResults(new ImportResultFilter());
+            var filter = new ImportResultFilter();
+            filter.CompanyID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+            filter.CompanyID.SearchString = CompanyID;
+            var importResults = ImportResult.GetImportResults(filter);
             var list = new List<ImportResultViewModel>();
             foreach (var importResult in importResults)
             {
                 list.Add(EntityConvertViewModel(importResult));
             }
-            return View(list);
+            return View("~/Views/ImportManagement/ImportResult/Index.cshtml", list);
         }
 
         private ImportResultViewModel EntityConvertViewModel(ImportResult importResult)
@@ -84,13 +94,13 @@ namespace InventoryStudio.Controllers
                 importFailedRecordViewModels.Add(EntityConvertViewModel(importFailedRecord));
             }
             viewModel.ImportFailedRecords = importFailedRecordViewModels;
-            return View(viewModel);
+            return View("~/Views/ImportManagement/ImportResult/Details.cshtml", viewModel);
         }
 
         private string InsertErrorMessage(string jsonString, string errorMessage)
         {
             dynamic jsonData = JsonConvert.DeserializeObject<ExpandoObject>(jsonString, new ExpandoObjectConverter());
-            var newJsonData = new ExpandoObject() as IDictionary<string, Object>;
+            var newJsonData = new ExpandoObject() as IDictionary<string, object>;
             newJsonData["ErrorMessage"] = errorMessage;
             foreach (var property in jsonData)
             {
