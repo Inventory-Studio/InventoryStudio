@@ -9,7 +9,7 @@
         <h6 class="mb-0">Attributes</h6>
     </div>
     <ejs-grid id="GridAttributes" class="h-100" dataSource="@Model.ItemAttributes" toolbarClick="attributesToolbarClick" allowPaging="true" allowReordering="true" allowSorting="true" allowSelection="true" allowFiltering="true" enableStickyHeader="true" width="100%" height="100%"
-              dataSourceChanged="onGridAttributeDataChange" load="disableEnterKey" allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
+              load="disableEnterKey" allowExcelExport="true" allowPdfExport="true" toolbar="@toolbarItems">
 
         <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true"  mode="Normal"></e-grid-editSettings>
         <e-grid-filterSettings type="Excel" mode="OnEnter"></e-grid-filterSettings>
@@ -107,8 +107,8 @@
 
                 </e-grid-column>
             }
-            <e-grid-column field="Name" headerText="Attribute" validationRules="@(new { required = true })" width="120"></e-grid-column>
-            <e-grid-column field="AttributeValue" headerText="Values" template="#matrixAttributes" edit="@(new { create = "create", read = "read", destroy = "destroy", write = "write" })" width="120"></e-grid-column>
+            <e-grid-column field="Name" headerText="Item Name" validationRules="@(new { required = true })" width="120"></e-grid-column>
+            <e-grid-column field="AttributeValue" headerText="Values" template="#matrixAttributes" allowEditing="false" edit="@(new { create = "create", read = "readMatrix", destroy = "destroyMatrix", write = "writeMatrix" })" width="120"></e-grid-column>
             @if (Model.Item != null && Model.Item.ItemID != null)
             {
                 <e-grid-column field="UpdatedOn" headerText="Updated On" type="datetime" format="M/d/yyyy h:mm a" allowEditing="false" width="120"></e-grid-column>
@@ -191,24 +191,19 @@ ${/for}
     var element;
     var matrixArray = [];
     let matrixDataSource; 
-    let matrixColumns = [{field: "Name", headerText: "Item Name", width: 200}, 
-    {field: "AttributeValue", headerText: "Values",  template: "#matrixAttributes", width: 120, allowEditing: false}];
+    // let matrixColumns = [{field: "Name", headerText: "Item Name", width: 200}, 
+    // {field: "AttributeValue", headerText: "Values",  template: "#matrixAttributes", width: 120, allowEditing: false}];
     function handleMatrixTabClick(e) {
-        console.log(matrixDataSource)
-        console.log(matrixGrid);
-        matrixGrid.changeDataSource(matrixDataSource, matrixColumns);
+        matrixGrid.dataSource = matrixDataSource;
+        matrixGrid.refresh();
+        // matrixGrid.changeDataSource(matrixDataSource, matrixColumns);
     }
     function disableEnterKey(args) {
         gridObj = document.getElementById("GridAttributes").ej2_instances[0];
-        console.log(gridObj);
         // gridObj.element.addEventListener("keyup", keyDownHandler);
-    console.log(gridObj)
     }
-    function onGridAttributeDataChange(args) {
-        console.log(args);
-    }
+  
     function keyDownHandler(e) {
-        console.log(e)
         if (e.keyCode === 13) {
               return; 
         }
@@ -222,14 +217,35 @@ ${/for}
         return element;
     }
     function read(e) {
-        console.log(multiSelectObj.value)
         return multiSelectObj.value?.filter(x => x && x != "")?.map(x => { return { AttributeValueName: x }});
     }
+     function readMatrix(e) {
+            return multiSelectObj.value?.filter(x => x && x != "");
+        }
     function destroy() {
         matrixDataSource = calculateMatrix()
         multiSelectObj.destroy();
     }
-    
+    function destroyMatrix() {
+        multiSelectObj.destroy();    
+    }
+     function writeMatrix(args) {
+            let multiSelectVal = args.rowData[args.column.field]
+                        ? args.rowData[args.column.field]?.map(x => x) 
+                        : [];
+            
+            multiSelectObj = new ej.dropdowns.MultiSelect({
+                dataSource: multiSelectVal,
+                value: multiSelectVal,
+                floatLabelType: 'Always',
+                placeholder:"Value",
+                mode: "Box",
+                readOnly: true,
+                enabled: false,
+                allowCustomValue: true
+            });
+            multiSelectObj.appendTo(element);
+        }
     function write(args) {
         let multiSelectVal = args.rowData[args.column.field]
                     ? args.rowData[args.column.field]?.map(x => x.AttributeValueName) 
@@ -247,7 +263,6 @@ ${/for}
         multiSelectObj.appendTo(element);
     }
     function calculateMatrix() {
-        console.log(gridObj.dataSource);
         matrixArray = [];
         for(let i in gridObj.dataSource) {
             let matrix = gridObj.dataSource[i];
@@ -256,7 +271,6 @@ ${/for}
         }
         
         const comboData = Array.from(createCartesianProductRecursive(matrixArray));
-       console.log(comboData); 
         let formData = $("#itemForm");
         const data = getFormData(formData)
         const itemNumber = data["Item.ItemNumber"];
