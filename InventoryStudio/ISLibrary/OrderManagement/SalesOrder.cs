@@ -713,6 +713,87 @@ namespace ISLibrary.OrderManagement
         }
 
 
+        public bool Check(out string errorMessage)
+        {
+            var salesOrder = this;
+            errorMessage = string.Empty;
+            var isError = false;
+            var loctionIds = salesOrder.SalesOrderLines.Select(t => t.LocationID).ToList();
+            if (loctionIds.Any())
+            {
+                foreach (var locationId in loctionIds)
+                {
+                    var location = new ISLibrary.Location(CompanyID, locationId);
+                    if (location == null)
+                    {
+                        errorMessage += $"Location with ID {locationId} not found";
+                        isError = true;
+                    }
+                }
+            }
+            var itemIds = salesOrder.SalesOrderLines.Select(t => t.ItemID).ToList();
+            if (itemIds.Any())
+            {
+                foreach (var itemId in itemIds)
+                {
+                    var item = new Item(CompanyID, itemId);
+                    if (item == null)
+                    {
+                        errorMessage += Environment.NewLine;
+                        errorMessage += $"Item with ID {itemId} not found";
+                        isError = true;
+                    }
+                }
+            }
+
+            var itemUnitIds = salesOrder.SalesOrderLines.Select(t => t.ItemUnitID).ToList();
+            if (itemUnitIds.Any())
+            {
+                foreach (var itemUnitId in itemUnitIds)
+                {
+                    var itemUnit = new ItemUnit(itemUnitId);
+                    if (itemUnit == null)
+                    {
+                        errorMessage += Environment.NewLine;
+                        errorMessage += $"ItemUnit with ID {itemUnitId} not found";
+                        isError = true;
+                    }
+                }
+            }
+
+            var binIds = salesOrder.SalesOrderLines.SelectMany(line => line.SalesOrderLineDetails)
+            .Select(detail => detail.BinID).ToList();
+            if (binIds.Any())
+            {
+                foreach (var binId in binIds)
+                {
+                    var bin = new Bin(CompanyID, binId);
+                    if (bin == null)
+                    {
+                        errorMessage += Environment.NewLine;
+                        errorMessage += $"Bin with ID {binId} not found";
+                        isError = true;
+                    }
+                }
+            }
+
+            var inventoryDetailIds = salesOrder.SalesOrderLines.SelectMany(line => line.SalesOrderLineDetails)
+            .Select(detail => detail.InventoryDetailID).ToList();
+            if (inventoryDetailIds.Any())
+            {
+                foreach (var inventoryDetailId in inventoryDetailIds)
+                {
+                    var inventoryDetail = new InventoryDetail(inventoryDetailId);
+                    if (inventoryDetail == null)
+                    {
+                        errorMessage += Environment.NewLine;
+                        errorMessage += $"InventoryDetail with ID {inventoryDetailId} not found";
+                        isError = true;
+                    }
+                }
+            }
+            return isError;
+        }
         public override bool Delete()
         {
             SqlConnection objConn = null;

@@ -76,11 +76,7 @@ namespace InventoryStudio.Controllers
         [HttpPost]
         public IActionResult Create([FromForm] ItemViewModel itemViewModel)
         {
-            if (!itemViewModel.Item.IsVariation)
-            {
-                itemViewModel.ItemMatrices?.Clear();
-                itemViewModel.ItemAttributes?.Clear();
-            }
+           
             var organizationClaim = User.Claims.FirstOrDefault(c => c.Type == "CompanyId");
             if (organizationClaim == null)
             {
@@ -114,6 +110,7 @@ namespace InventoryStudio.Controllers
             try
 
             {
+                bool isMatrix = itemViewModel?.Item?.IsVariation ?? false;
                 ItemParent.CreateItem(itemViewModel.Item, itemViewModel.ItemAttributes, itemViewModel.ItemMatrices);
                 return Json(new
                     {

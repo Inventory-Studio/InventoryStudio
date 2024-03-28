@@ -417,7 +417,12 @@ namespace InventoryStudio.Controllers.API
                         }
                     }
                     salesOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    salesOrder.Update();
+                    var CheckResult = salesOrder.Check(out string errorMessage);
+                    if (!CheckResult)
+                        salesOrder.Update();
+                    else
+                        return BadRequest(errorMessage);
+
                 }
                 return Ok();
             }
@@ -426,5 +431,6 @@ namespace InventoryStudio.Controllers.API
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
     }
 }
