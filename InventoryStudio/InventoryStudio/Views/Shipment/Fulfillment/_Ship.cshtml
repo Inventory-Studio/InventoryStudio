@@ -1,7 +1,33 @@
 ﻿@model FulfillmentDetailViewModel
 
 
+<div class="row">
 
+    @for (int i = 0; i < Model.Fulfillment.FulfillmentPackages.Count; i++)
+    {
+        var FulfillmentPackage = Model.Fulfillment.FulfillmentPackages[i];
+        <div class="row">
+            
+            <div class="form-group col-md-3">
+                <label>Length</label>
+                @FulfillmentPackage.Length
+            </div>
+            <div class="form-group col-md-3">
+                <label>Width</label>
+                @FulfillmentPackage.Width
+            </div>
+            <div class="form-group col-md-3">
+                <label>Height</label>
+                @FulfillmentPackage.Height
+            </div>
+            <div class="form-group col-md-3">
+                <label>Weight</label>
+                @FulfillmentPackage.Weight
+            </div>
+        </div>
+    }
+
+</div>
 
 <div class="container mt-5">
     <h2>@ViewData["Title"]</h2>
@@ -24,20 +50,20 @@
                             <div class="row">
                                 <div class="form-group col-md-3">
                                     <label>Item</label>
-                                    <input asp-for="@fulfillmentLine.ItemID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemID">
-                                    <input asp-for="@fulfillmentLine.FulfillmentLineID" type="hidden" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemID">
+                                    <input asp-for="@fulfillmentLine.ItemID" type="text" class="form-control" name="fulfillmentPackage.FulfillmentPackageLines[@i].ItemID">
+                                    <input asp-for="@fulfillmentLine.FulfillmentLineID" type="hidden" class="form-control" name="fulfillmentPackage.FulfillmentPackageLines[@i].FulfillmentLineID">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Quantity</label>
-                                    <input asp-for="@fulfillmentLine.Quantity" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].Quantity">
+                                    <input asp-for="@fulfillmentLine.Quantity" type="text" class="form-control" name="fulfillmentPackage.FulfillmentPackageLines[@i].Quantity">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Location</label>
-                                    <input asp-for="@fulfillmentLine.LocationID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].LocationID">
+                                    <input asp-for="@fulfillmentLine.LocationID" type="text" class="form-control" name="fulfillmentPackage.FulfillmentPackageLines[@i].LocationID">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>ItemUnitID</label>
-                                    <input asp-for="@fulfillmentLine.ItemUnitID" type="text" class="form-control" name="fulfillmentPackage.fulfillmentPackageLine[@i].ItemUnitID">
+                                    <input asp-for="@fulfillmentLine.ItemUnitID" type="text" class="form-control" name="fulfillmentPackage.FulfillmentPackageLines[@i].ItemUnitID">
                                 </div>
                             </div>
                         }

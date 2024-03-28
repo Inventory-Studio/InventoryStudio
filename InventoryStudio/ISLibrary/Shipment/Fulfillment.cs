@@ -129,6 +129,41 @@ namespace ISLibrary
             }
         }
 
+        public List<FulfillmentPackage> mFulfillmentPackage = null;
+
+        public List<FulfillmentPackage> FulfillmentPackages
+        {
+            get
+            {
+                FulfillmentPackageFilter objFilter = null;
+
+                try
+                {
+                    if (mFulfillmentLine == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(FulfillmentID))
+                    {
+                        objFilter = new FulfillmentPackageFilter();
+                        objFilter.FulfillmentID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.FulfillmentID.SearchString = FulfillmentID;
+                        mFulfillmentPackage = FulfillmentPackage.GetFulfillmentPackages(CompanyID, objFilter);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mFulfillmentPackage;
+            }
+            set
+            {
+                mFulfillmentPackage = value;
+            }
+        }
+
+
         public List<SalesOrderLine> SalesOrderLines { get; set; }
         public Fulfillment()
         {
@@ -489,7 +524,66 @@ namespace ISLibrary
                 dicWParam["FulfillmentID"] = FulfillmentID;
                 Database.ExecuteSQL(Database.GetUpdateSQL(dicParam, dicWParam, "Fulfillment"), objConn, objTran);
 
-              
+              if(Status == Convert.ToString(enumFulfillmentStatus.Shipped))
+                {
+                    foreach(FulfillmentLine objFulfillmentLine in FulfillmentLines)
+                    {
+                        objFulfillmentLine.SalesOrderLine.QuantityShipped += objFulfillmentLine.Quantity;
+                        objFulfillmentLine.SalesOrderLine.UpdatedBy = UpdatedBy;
+                        objFulfillmentLine.SalesOrderLine.ParentKey = FulfillmentID;
+                        objFulfillmentLine.SalesOrderLine.ParentObject = "Fulfillment";
+                        objFulfillmentLine.SalesOrderLine.Update(objConn, objTran);
+
+                        foreach(FulfillmentLineDetail objFulfillmentLineDetail in objFulfillmentLine.FulfillmentLineDetails)
+                        {
+                            InventoryDetail objInventoryDetail = new InventoryDetail(objFulfillmentLineDetail.InventoryDetailID);
+                            if(objInventoryDetail==null)
+                            {
+                                throw new Exception("can't find inventory detail data");
+                            }
+                            objInventoryDetail.OnHand -= objFulfillmentLineDetail.Quantity;
+                            objInventoryDetail.ChangeOnHandQty = -objFulfillmentLineDetail.Quantity;
+                            objInventoryDetail.ChangeCommittedQty = -objFulfillmentLineDetail.Quantity;
+                            objInventoryDetail.UpdatedBy = UpdatedBy;
+                            objInventoryDetail.ParentKey = FulfillmentID;
+                            objInventoryDetail.ParentObject = "Fulfillment";
+                            objInventoryDetail.Update(objConn, objTran);
+
+
+                            InventoryLog objInventoryLog = new InventoryLog();
+                            objInventoryLog.ItemID = objFulfillmentLine.ItemID;
+                            objInventoryLog.CompanyID = CompanyID;
+                            objInventoryLog.ChangeType = "Fulfillment";
+                            objInventoryLog.ChangeQuantity = objFulfillmentLineDetail.Quantity;
+                            objInventoryLog.ParentObjectID = FulfillmentID;
+                            objInventoryLog.BinID = objInventoryDetail.BinID;
+                            objInventoryLog.InventoryDetailID = objInventoryDetail.InventoryDetailID;
+                            objInventoryLog.InventoryNumber = objInventoryDetail.InventoryNumber;
+                            objInventoryLog.CreatedBy = CreatedBy;
+                            objInventoryLog.Create();
+                        }
+                    }
+
+                    bool allLinesShipped = true;
+                    foreach (SalesOrderLine objSalesOrderline in SalesOrder.SalesOrderLines)
+                    {
+                        if (objSalesOrderline.QuantityShipped != objSalesOrderline.Quantity)
+                        {
+                            allLinesShipped = false;
+                            break;
+                        }
+                    }
+
+                    if (allLinesShipped)
+                    {
+                        SalesOrder.Status = SalesOrder.enumOrderStatus.Shipped;
+                        SalesOrder.UpdatedBy = UpdatedBy;
+                        SalesOrder.ParentKey = FulfillmentID;
+                        SalesOrder.ParentObject = "Fulfillment";
+                        SalesOrder.Update(objConn, objTran);
+                    }
+
+                }
 
                 Load(objConn, objTran);
             }

@@ -386,99 +386,99 @@ namespace ISLibrary
             return true;
         }
 
-        //public static Fulfillment GetFulfillment(string CompanyID, FulfillmentFilter Filter)
-        //{
-        //    List<Fulfillment> objAdjustments = null;
-        //    Fulfillment objReturn = null;
+        public static FulfillmentPackage GetFulfillmentPackage(string CompanyID, FulfillmentPackageFilter Filter)
+        {
+            List<FulfillmentPackage> objAdjustments = null;
+            FulfillmentPackage objReturn = null;
 
-        //    try
-        //    {
-        //        objAdjustments = GetFulfillments(CompanyID, Filter);
-        //        if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objAdjustments = null;
-        //    }
+            try
+            {
+                objAdjustments = GetFulfillmentPackages(CompanyID, Filter);
+                if (objAdjustments != null && objAdjustments.Count >= 1) objReturn = objAdjustments[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objAdjustments = null;
+            }
 
-        //    return objReturn;
-        //}
+            return objReturn;
+        }
 
-        //public static List<Fulfillment> GetFulfillments(string CompanyID)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetFulfillments(CompanyID, null, null, null, out intTotalCount);
-        //}
+        public static List<FulfillmentPackage> GetFulfillmentPackages(string CompanyID)
+        {
+            int intTotalCount = 0;
+            return GetFulfillmentPackages(CompanyID, null, null, null, out intTotalCount);
+        }
 
-        //public static List<Fulfillment> GetFulfillments(string CompanyID, FulfillmentFilter Filter)
-        //{
-        //    int intTotalCount = 0;
-        //    return GetFulfillments(CompanyID, Filter, null, null, out intTotalCount);
-        //}
+        public static List<FulfillmentPackage> GetFulfillmentPackages(string CompanyID, FulfillmentPackageFilter Filter)
+        {
+            int intTotalCount = 0;
+            return GetFulfillmentPackages(CompanyID, Filter, null, null, out intTotalCount);
+        }
 
-        //public static List<Fulfillment> GetFulfillments(string CompanyID, FulfillmentFilter Filter, int? PageSize,
-        //    int? PageNumber, out int TotalRecord)
-        //{
-        //    return GetFulfillments(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
-        //}
+        public static List<FulfillmentPackage> GetFulfillmentPackages(string CompanyID, FulfillmentPackageFilter Filter, int? PageSize,
+            int? PageNumber, out int TotalRecord)
+        {
+            return GetFulfillmentPackages(CompanyID, Filter, string.Empty, true, PageSize, PageNumber, out TotalRecord);
+        }
 
-        //public static List<Fulfillment> GetFulfillments(string CompanyID, FulfillmentFilter Filter,
-        //    string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
-        //{
-        //    List<Fulfillment> objReturn = null;
-        //    Fulfillment objNew = null;
-        //    DataSet objData = null;
-        //    string strSQL = string.Empty;
+        public static List<FulfillmentPackage> GetFulfillmentPackages(string CompanyID, FulfillmentPackageFilter Filter,
+            string SortExpression, bool SortAscending, int? PageSize, int? PageNumber, out int TotalRecord)
+        {
+            List<FulfillmentPackage> objReturn = null;
+            FulfillmentPackage objNew = null;
+            DataSet objData = null;
+            string strSQL = string.Empty;
 
-        //    try
-        //    {
-        //        TotalRecord = 0;
+            try
+            {
+                TotalRecord = 0;
 
-        //        objReturn = new List<Fulfillment>();
+                objReturn = new List<FulfillmentPackage>();
 
-        //        strSQL = "SELECT * " +
-        //                 "FROM Fulfillment (NOLOCK) " +
-        //                 "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
-        //        if (Filter != null)
-        //        {
-        //            if (Filter.Status != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.Status, "Status");
-        //        }
+                strSQL = "SELECT * " +
+                         "FROM FulfillmentPackage (NOLOCK) " +
+                         "WHERE CompanyID=" + Database.HandleQuote(CompanyID);
+                if (Filter != null)
+                {
+                    if (Filter.FulfillmentID != null) strSQL += Database.Filter.StringSearch.GetSQLQuery(Filter.FulfillmentID, "FulfillmentID");
+                }
 
-        //        if (PageSize != null && PageNumber != null)
-        //            strSQL = Database.GetPagingSQL(strSQL,
-        //                string.IsNullOrEmpty(SortExpression)
-        //                    ? "FulfillmentID"
-        //                    : Utility.CustomSorting.GetSortExpression(typeof(Fulfillment), SortExpression),
-        //                string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
-        //        objData = Database.GetDataSet(strSQL);
+                if (PageSize != null && PageNumber != null)
+                    strSQL = Database.GetPagingSQL(strSQL,
+                        string.IsNullOrEmpty(SortExpression)
+                            ? "FulfillmentPackageID"
+                            : Utility.CustomSorting.GetSortExpression(typeof(FulfillmentPackage), SortExpression),
+                        string.IsNullOrEmpty(SortExpression) ? false : SortAscending, PageSize.Value, PageNumber.Value);
+                objData = Database.GetDataSet(strSQL);
 
-        //        if (objData != null && objData.Tables[0].Rows.Count > 0)
-        //        {
-        //            for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
-        //            {
-        //                objNew = new Fulfillment(objData.Tables[0].Rows[i]);
-        //                objNew.IsLoaded = true;
-        //                objReturn.Add(objNew);
-        //            }
-        //        }
+                if (objData != null && objData.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < objData.Tables[0].Rows.Count; i++)
+                    {
+                        objNew = new FulfillmentPackage(objData.Tables[0].Rows[i]);
+                        objNew.IsLoaded = true;
+                        objReturn.Add(objNew);
+                    }
+                }
 
-        //        TotalRecord = objReturn.Count();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        objData = null;
-        //    }
+                TotalRecord = objReturn.Count();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objData = null;
+            }
 
-        //    return objReturn;
-        //}
+            return objReturn;
+        }
 
 
     }

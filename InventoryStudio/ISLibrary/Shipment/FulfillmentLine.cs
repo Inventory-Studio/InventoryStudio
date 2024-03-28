@@ -9,6 +9,7 @@ using System.Collections;
 using CLRFramework;
 using System.Security;
 using System.ComponentModel.Design;
+using ISLibrary.OrderManagement;
 
 namespace ISLibrary
 {
@@ -63,7 +64,36 @@ namespace ISLibrary
             }
         }
 
+        private SalesOrderLine mSalesOrderLine = null;
+        public SalesOrderLine SalesOrderLine
+        {
+            get
+            {
+                SalesOrderLineFilter objFilter = null;
 
+                try
+                {
+                    if (mSalesOrderLine == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(SalesOrderLineID))
+                    {
+
+                        mSalesOrderLine = new SalesOrderLine(CompanyID, SalesOrderLineID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mSalesOrderLine;
+            }
+            set
+            {
+                mSalesOrderLine = value;
+            }
+        }
 
         public FulfillmentLine()
         {

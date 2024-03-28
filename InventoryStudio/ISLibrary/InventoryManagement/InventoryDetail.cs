@@ -26,7 +26,9 @@ namespace ISLibrary
         public string ItemInventoryStatusID { get; set; }
         public decimal OnHand { get; set; }
         public decimal Available { get; set; }
-        public decimal ChangedQty { get; set; }
+        public decimal ChangeOnHandQty { get; set; }
+        public decimal ChangeAvaliableQty { get; set; }
+        public decimal ChangeCommittedQty { get; set; }
         //public decimal Committed { get; set; }
         public string CartonNumber { get; set; }
         public string VendorCartonNumber { get; set; }
@@ -372,8 +374,9 @@ namespace ISLibrary
 
                 if (Inventory != null)
                 {//ChangedQty used for adjustmemt and transfer
-                    Inventory.QtyOnHand += ChangedQty;
-                    Inventory.QtyAvailable += ChangedQty;
+                    Inventory.QtyOnHand += ChangeOnHandQty;
+                    Inventory.QtyAvailable += ChangeAvaliableQty;
+                    Inventory.QtyCommitted += ChangeCommittedQty;
                     Inventory.Update();
                 }
                 else
@@ -381,8 +384,8 @@ namespace ISLibrary
                     Inventory objInventory = new Inventory();
                     objInventory.ItemID = ItemID;
                     objInventory.LocationID = LocationID;
-                    objInventory.QtyOnHand = ChangedQty;
-                    objInventory.QtyAvailable = ChangedQty;
+                    objInventory.QtyOnHand = ChangeOnHandQty;
+                    objInventory.QtyAvailable = ChangeAvaliableQty;
                     objInventory.Create();
                 }
 

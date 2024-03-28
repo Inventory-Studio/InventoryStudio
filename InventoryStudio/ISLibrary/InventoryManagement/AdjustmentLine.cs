@@ -264,7 +264,8 @@ namespace ISLibrary
                     {
                         DefaultInventory.OnHand += decBaseQuantity;
                         DefaultInventory.Available += decBaseQuantity;
-                        DefaultInventory.ChangedQty = decBaseQuantity;
+                        DefaultInventory.ChangeOnHandQty = decBaseQuantity;
+                        DefaultInventory.ChangeAvaliableQty = decBaseQuantity;
                         if (DefaultInventory.OnHand < 0 || DefaultInventory.Available < 0)
                         {
                             throw new Exception("The Quantity of the Item " + ItemID + " < 0 ");
@@ -308,7 +309,8 @@ namespace ISLibrary
                         {
                             objInventory.OnHand += decBaseQuantity;
                             objInventory.Available += decBaseQuantity;
-                            objInventory.ChangedQty = decBaseQuantity;
+                            objInventory.ChangeOnHandQty = decBaseQuantity;
+                            objInventory.ChangeAvaliableQty = decBaseQuantity;
                             objInventory.UpdatedBy = CreatedBy;
                             objInventory.ParentKey = AdjustmentLineID;
                             objInventory.ParentObject = "AdjustmentLine";
