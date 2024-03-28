@@ -129,6 +129,38 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+        private Location mLocation = null;
+
+        public Location Location
+        {
+            get
+            {
+                LocationFilter objFilter = null;
+                {
+                    try
+                    {
+                        if (mBillShippToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(LocationID) && !string.IsNullOrEmpty(SalesOrderID))
+                        {
+                            objFilter = new LocationFilter();
+                            objFilter.LocationID = new Database.Filter.StringSearch.SearchFilter();
+                            objFilter.LocationID.SearchString = LocationID;
+                            mLocation = Location.GetLocation(CompanyID, objFilter);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        objFilter = null;
+                    }
+                    return mLocation;
+                }
+            }
+            set { mLocation = value; }
+        }
+
         private Address mBillShippToAddress = null;
 
         public Address BillToAddress

@@ -125,10 +125,7 @@ namespace InventoryStudio.Services.Importers
                 {
                     if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
-                        if (destinationField == "InventoryDetail")
-                        {
-                            await Console.Out.WriteLineAsync();
-                        }
+
                         var property = typeof(T).GetProperty(destinationField);
                         if (property != null)
                         {
