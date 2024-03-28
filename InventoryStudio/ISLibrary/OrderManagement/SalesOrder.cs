@@ -139,7 +139,7 @@ namespace ISLibrary.OrderManagement
                 {
                     try
                     {
-                        if (mBillShippToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(BillToAddressID))
+                        if (mBillShippToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(BillToAddressID) && !string.IsNullOrEmpty(SalesOrderID))
                         {
                             objFilter = new AddressFilter();
                             objFilter.AddressID = new Database.Filter.StringSearch.SearchFilter();
@@ -171,7 +171,7 @@ namespace ISLibrary.OrderManagement
                 {
                     try
                     {
-                        if (mShipToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ShipToAddressID))
+                        if (mShipToAddress == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(ShipToAddressID) && !string.IsNullOrEmpty(SalesOrderID))
                         {
                             objFilter = new AddressFilter();
                             objFilter.AddressID = new Database.Filter.StringSearch.SearchFilter();
@@ -203,7 +203,7 @@ namespace ISLibrary.OrderManagement
                 {
                     try
                     {
-                        if (mCustomer == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(CustomerID))
+                        if (mCustomer == null && !string.IsNullOrEmpty(CompanyID) && !string.IsNullOrEmpty(CustomerID) && !string.IsNullOrEmpty(SalesOrderID))
                         {
                             objFilter = new CustomerFilter();
                             objFilter.CustomerID = new Database.Filter.StringSearch.SearchFilter();

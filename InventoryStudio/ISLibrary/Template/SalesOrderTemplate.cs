@@ -5,7 +5,7 @@ namespace ISLibrary.Template
     public class SalesOrderTemplate
     {
         [Required]
-        public string SaelsOrderIndex { get; set; } = null!;
+        public string SalesOrderIndex { get; set; } = null!;
 
         ///// <summary>
         ///// references Company Table CompanyID

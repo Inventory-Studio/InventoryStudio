@@ -37,13 +37,13 @@ namespace InventoryStudio.Services.Importers
 
 
             importResult.ImportTemplateID = importTemplateID;
-            importResult.UpdatedBy = userId;
+            importResult.UploadBy = userId;
             importResult.UploadTime = DateTime.Now;
             importResult.TotalRecords = datas[0].Count;
 
             importResult.Create();
             var salesOrderAndIndexs = new List<(SalesOrder salesOrder, int index)>();
-            var salesOrderLineAndIndexs = new List<(SalesOrderLine salesOrderLine, int index)>();
+            var salesOrderLineAndIndexs = new List<(SalesOrderLine salesOrderLine, int salesOrderIndex, int salesOrderLineIndex)>();
             var salesOrderLineDetailAndIndexs = new List<(SalesOrderLineDetail salesOrderLineDetail, int index)>();
 
 
@@ -58,9 +58,10 @@ namespace InventoryStudio.Services.Importers
             foreach (var data in datas[1])
             {
                 data.TryGetValue("SalesOrderIndex", out string? SalesOrderIndex);
+                data.TryGetValue("SalesOrderLineIndex", out string? SalesOrderLineIndex);
                 var (salesOrderLine, error) = await GetEntity<SalesOrderLine>(companyId, data, salesOrderLineFields);
                 if (!error && salesOrderLine != null)
-                    salesOrderLineAndIndexs.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex)));
+                    salesOrderLineAndIndexs.Add((salesOrderLine, Convert.ToInt32(SalesOrderIndex), Convert.ToInt32(SalesOrderLineIndex)));
             }
 
             foreach (var data in datas[2])
@@ -73,12 +74,12 @@ namespace InventoryStudio.Services.Importers
 
             foreach (var salesOrder in salesOrderAndIndexs)
             {
-                var currentSalesOrderLines = salesOrderLineAndIndexs.Where(t => t.index == salesOrder.index).ToList();
+                var currentSalesOrderLines = salesOrderLineAndIndexs.Where(t => t.salesOrderIndex == salesOrder.index).ToList();
                 if (currentSalesOrderLines.Any())
                 {
                     foreach (var salesOrderLine in currentSalesOrderLines)
                     {
-                        var currentSalesOrderLineDetails = salesOrderLineDetailAndIndexs.Where(t => t.index == salesOrderLine.index).ToList();
+                        var currentSalesOrderLineDetails = salesOrderLineDetailAndIndexs.Where(t => t.index == salesOrderLine.salesOrderLineIndex).ToList();
                         if (currentSalesOrderLineDetails.Any())
                         {
                             salesOrderLine.salesOrderLine.SalesOrderLineDetails = currentSalesOrderLineDetails.Select(t => t.salesOrderLineDetail).ToList();
@@ -124,6 +125,10 @@ namespace InventoryStudio.Services.Importers
                 {
                     if (TryGetDestinationField(field.Key, importTemplateFields, out var destinationField))
                     {
+                        if (destinationField == "InventoryDetail")
+                        {
+                            await Console.Out.WriteLineAsync();
+                        }
                         var property = typeof(T).GetProperty(destinationField);
                         if (property != null)
                         {
@@ -210,7 +215,7 @@ namespace InventoryStudio.Services.Importers
                     throw new Exception($"Unable to parse '{value}' to DateTime.");
                 }
             }
-            else if (property.Name == "CustomerID")
+            else if (property.Name == "Customer")
             {
                 CustomerFilter filter = new CustomerFilter();
                 filter.EmailAddress = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -221,7 +226,7 @@ namespace InventoryStudio.Services.Importers
                 else
                     throw new Exception($"Unable to find the customer {value}");
             }
-            else if (property.Name == "BillToAddressID" || property.Name == "ShipToAddressID")
+            else if (property.Name == "BillToAddress" || property.Name == "ShipToAddress")
             {
                 AddressFilter filter = new AddressFilter();
                 filter.Email = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -230,7 +235,7 @@ namespace InventoryStudio.Services.Importers
                 if (address != null)
                     return address.AddressID;
             }
-            else if (property.Name == "LocationID")
+            else if (property.Name == "Location")
             {
                 LocationFilter filter = new LocationFilter();
                 filter.LocationName = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -239,7 +244,7 @@ namespace InventoryStudio.Services.Importers
                 if (location != null)
                     return location.LocationID;
             }
-            else if (property.Name == "BinID")
+            else if (property.Name == "Bin")
             {
                 BinFilter filter = new BinFilter();
                 filter.BinNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -250,16 +255,16 @@ namespace InventoryStudio.Services.Importers
                 else
                     throw new Exception($"Unable to find the Bin {value}");
             }
-            else if (property.Name == "InventoryID")
+            else if (property.Name == "InventoryDetail")
             {
-                InventoryFilter filter = new InventoryFilter();
-                filter.ItemID = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
-                filter.ItemID.SearchString = value;
-                var inventory = Inventory.GetInventory(filter);
-                if (inventory != null)
-                    return inventory.InventoryID;
+                InventoryDetailFilter filter = new InventoryDetailFilter();
+                filter.InventoryNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
+                filter.InventoryNumber.SearchString = value;
+                var inventoryDetail = InventoryDetail.GetInventoryDetail(companyId, filter);
+                if (inventoryDetail != null)
+                    return inventoryDetail.InventoryDetailID;
             }
-            else if (property.Name == "ItemID")
+            else if (property.Name == "Item")
             {
                 ItemFilter filter = new ItemFilter();
                 filter.ItemNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -268,7 +273,7 @@ namespace InventoryStudio.Services.Importers
                 if (item != null)
                     return item.ItemID;
             }
-            else if (property.Name == "ItemUnitID")
+            else if (property.Name == "ItemUnit")
             {
                 var filter = new ItemUnitFilter();
                 filter.Name = new CLRFramework.Database.Filter.StringSearch.SearchFilter();
@@ -277,7 +282,7 @@ namespace InventoryStudio.Services.Importers
                 if (itemUnits != null)
                     return itemUnits.First().ItemUnitID;
             }
-            else if (property.Name == "InventoryDetailID")
+            else if (property.Name == "InventoryDetail")
             {
                 InventoryDetailFilter filter = new InventoryDetailFilter();
                 filter.InventoryNumber = new CLRFramework.Database.Filter.StringSearch.SearchFilter();

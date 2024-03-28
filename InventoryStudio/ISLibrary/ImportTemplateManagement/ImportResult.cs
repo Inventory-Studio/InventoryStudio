@@ -196,7 +196,7 @@ namespace ISLibrary.ImportTemplateManagement
                         if (objfailedRecord.IsNew)
                         {
                             objfailedRecord.ImportResultID = ImportResultID;
-                            objfailedRecord.Create();
+                            objfailedRecord.Create(objConn, objTran);
                         }
                     }
                 }

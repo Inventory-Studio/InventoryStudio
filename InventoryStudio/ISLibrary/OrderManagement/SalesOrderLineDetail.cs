@@ -77,6 +77,39 @@ namespace ISLibrary.OrderManagement
             }
         }
 
+        private Bin mBin = null;
+
+        public Bin Bin
+        {
+            get
+            {
+                BinFilter objFilter = null;
+                try
+                {
+                    if (mBin == null && !string.IsNullOrEmpty(BinID))
+                    {
+                        objFilter = new BinFilter();
+                        objFilter.BinID = new Database.Filter.StringSearch.SearchFilter();
+                        objFilter.BinID.SearchString = BinID;
+                        mBin = Bin.GetBins(CompanyID, objFilter).FirstOrDefault();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    objFilter = null;
+                }
+                return mBin;
+            }
+            set
+            {
+                mBin = value;
+            }
+        }
+
         public SalesOrderLineDetail()
         {
 
