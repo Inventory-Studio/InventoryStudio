@@ -5,7 +5,7 @@
 }
 
 <div class="container-fluid py-4">
-    <form id="createItemForm">
+    <form id="itemForm">
         <div class="card custom-card ">
             <div class="card-header hstack justify-content-between align-items-center">
                 <div class="card-title">
@@ -76,7 +76,7 @@
    function onSubmit() {
         event.preventDefault();
         $(":submit").attr("disabled", true);
-        let formData = $("#createItemForm");
+        let formData = $("#itemForm");
         const data = getFormData(formData)
         const barcodeGrid = $("#GridBarcodes");
         const attributesGrid = $("#GridAttributes");
